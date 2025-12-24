@@ -11,9 +11,17 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
 import sqlite3
+import os
 
+
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "").strip()
+WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "").strip()
+CRAWL_MODE = os.getenv("CRAWL_MODE", "continuous").lower()
 # Thiết lập logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.info(f"OPENWEATHER_API_KEY length = {len(OPENWEATHER_API_KEY)}")
+logging.info(f"WEATHERAPI_KEY length = {len(WEATHERAPI_KEY)}")
+logging.info(f"CRAWL_MODE = {CRAWL_MODE}")
 
 
 class SQLiteManager:
@@ -402,8 +410,16 @@ class VietnamWeatherDataCrawler:
     def try_weatherapi_com(self, lat, lon, province):
         """Thử WeatherAPI với key thật"""
         try:
-            # Sử dụng WeatherAPI với key thật
-            api_key = "142f4fa048f24efdad1113219251510"
+            # Sử dụng WeatherAPI với key thật ----------------------------------- SỬ DỤNG CHO CHẠY LOCAL
+            # api_key = "142f4fa048f24efdad1113219251510"
+            # url = f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={lat},{lon}"
+            
+
+            # SỬ DỤNG CHO CHAỴ NGẦM BẰNG DOCKER --------------------------------------------------------
+            api_key = WEATHERAPI_KEY
+            if not api_key:
+                logging.debug("WEATHERAPI_KEY chưa được set, bỏ qua WeatherAPI")
+                return None, None
             url = f"https://api.weatherapi.com/v1/current.json?key={api_key}&q={lat},{lon}"
             response = self.session.get(url, timeout=8)
 
@@ -413,7 +429,8 @@ class VietnamWeatherDataCrawler:
                 converted = self.convert_weatherapi_format(data, lat, lon)
                 if converted:
                     logging.info(f"✓ WeatherAPI data for {province}")
-                    return converted, 'openweather'
+                    return converted, 'weatherapi'
+
         except Exception as e:
             logging.debug(f"WeatherAPI failed: {e}")
 
@@ -422,9 +439,20 @@ class VietnamWeatherDataCrawler:
     def try_openweathermap(self, lat, lon, province):
         """Thử OpenWeatherMap API với key thật"""
         try:
-            # Sử dụng OpenWeatherMap API với key thật
-            api_key = "b79b0a6a70b8d6ce0fd907a1d893156d"
-            url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+            # Sử dụng OpenWeatherMap API với key thật ---------------------------- SỬ DỤNG CHO CHẠY LOCAL
+            # api_key = "b79b0a6a70b8d6ce0fd907a1d893156d"
+            # url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+            
+            # SỬ DỤNG CHO CHẠY NGẦM TRÊN MÁY ------------------------------------------------------------
+            api_key = OPENWEATHER_API_KEY
+            if not api_key:
+                logging.debug("OPENWEATHER_API_KEY chưa được set, bỏ qua OpenWeatherMap")
+                return None, None
+            url = (
+                f"https://api.openweathermap.org/data/2.5/weather?"
+                f"lat={lat}&lon={lon}&appid={api_key}&units=metric"
+            )
+            
             response = self.session.get(url, timeout=8)
 
             if response.status_code == 200:
@@ -584,9 +612,6 @@ class VietnamWeatherDataCrawler:
         }
 
     def parse_weather_data(self, station_info):
-        """
-        Phân tích dữ liệu thời tiết với đánh giá chất lượng
-        """
         try:
             weather_data, source, quality = self.get_vietnam_weather_data(
                 station_info['latitude'],
@@ -594,16 +619,20 @@ class VietnamWeatherDataCrawler:
                 station_info['province']
             )
 
+            if not weather_data or not isinstance(weather_data, dict):
+                logging.error(f"Lỗi: weather_data rỗng hoặc không phải dict cho trạm {station_info['station_id']}")
+                return self.create_fallback_weather_record(station_info, 'no_data')
+
             current = weather_data.get('current', {})
             hourly = weather_data.get('hourly', {})
 
-            # Tính toán các chỉ số
             record = self.calculate_weather_metrics(station_info, current, hourly, source, quality)
             return record
 
         except Exception as e:
             logging.error(f"Lỗi phân tích thời tiết {station_info['station_name']}: {e}")
             return self.create_fallback_weather_record(station_info, 'error')
+
 
     def calculate_weather_metrics(self, station_info, current, hourly, source, quality):
         """Tính toán các chỉ số thời tiết với max, min, avg cho từng chỉ số"""
@@ -1575,5 +1604,17 @@ def run_continuously():
             time.sleep(600)
 
 
+
+# SỬ  DỤNG CHO CHẠY LOCAL Ở TRÊN MÁY -------------------------------------------------------------------------
+# if __name__ == "__main__":
+#     run_continuously()
+
+
+# SỬ DỤNG CHO CHẬY NGẦM ---------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    run_continuously()
+    if CRAWL_MODE == "once":
+        logging.info("🚀 Chạy chế độ 1 lần (once)")
+        main()
+    else:
+        logging.info("🔁 Chạy chế độ thường trú (continuous)")
+        run_continuously()

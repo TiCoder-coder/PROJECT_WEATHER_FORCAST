@@ -1,0 +1,8 @@
+docker run -d \
+  --name weather_crawler \
+  --restart=always \
+  -e CRAWL_MODE=continuous \
+  -e OPENWEATHER_API_KEY="142f4fa048f24efdad1113219251510" \
+  -v $(pwd)/output:/app/output \
+  -v $(pwd)/vietnam_weather.db:/app/vietnam_weather.db \
+  vietnam-weather-crawler
