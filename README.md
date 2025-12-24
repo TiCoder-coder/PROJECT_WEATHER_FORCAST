@@ -161,3 +161,16 @@ Trong file có ít nhất 2 sheet:
       -v "$(pwd)/output:/app/output" \
       -v "$(pwd)/vietnam_weather.db:/app/vietnam_weather.db" \
       vietnam-weather-crawler
+
+  ---
+  👤 Maintainer / Profile Info
+  
+    - 🧑‍💻 Maintainer: Võ Anh Nhật, Dư Quốc Việt, Trương Hoài Tú, Võ Huỳnh Anh Tuần
+  
+    - 🎓 University: UTH
+  
+    - 📧 Email: voanhnhat1612@gmmail.com, vohuynhanhtuan0512@gmail.com, hoaitu163@gmail.com, duviet720@gmail.com
+  
+    - 📞 Phone: 0335052899
+  
+    -  Last updated: 24/12/2006
