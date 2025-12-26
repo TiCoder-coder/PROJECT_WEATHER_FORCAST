@@ -1,0 +1,515 @@
+:root {
+    --bg-dark: #050816;
+    --bg-card: #111827;
+    --accent: #38bdf8;
+    --accent-soft: rgba(56, 189, 248, 0.16);
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --border-soft: rgba(148, 163, 184, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #020617 100%);
+    color: var(--text-main);
+}
+
+.home-page {
+    min-height: 100vh;
+}
+
+/* HEADER */
+
+.home-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    backdrop-filter: blur(16px);
+    background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), transparent);
+    z-index: 40;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.logo-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: radial-gradient(circle, #22c55e, #16a34a);
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+}
+
+.home-nav a {
+    margin-left: 20px;
+    color: rgba(229,231,235,0.75);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.home-nav a:hover {
+    color: #7dd3fc;
+    transform: translateY(-1px);
+}
+
+/* HERO */
+
+/* HERO - FIX READABILITY */
+.hero {
+  position: relative;
+  min-height: 80vh;
+  padding: 120px 8vw 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-image: url("/static/weather/img/ui/Home.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  isolation: isolate; /* để overlay không ảnh hưởng phần khác */
+}
+
+/* Overlay thật sự (tối nhẹ + blur + vignette) */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  /* tối hơn + có vignette */
+  background:
+    radial-gradient(circle at 18% 25%, rgba(2,6,23,0.20), transparent 55%),
+    radial-gradient(circle at 78% 35%, rgba(2,6,23,0.35), transparent 60%),
+    linear-gradient(90deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.65) 48%, rgba(2,6,23,0.28) 100%),
+    linear-gradient(180deg, rgba(2,6,23,0.35) 0%, rgba(2,6,23,0.75) 88%),
+    rgba(2,6,23,0.08); /* lớp base để chắc chắn tối */
+
+  /* blur mạnh hơn cho chắc ăn */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+
+/* Khung nội dung dạng glass để đọc rõ */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 980px;
+
+  padding: 22px 22px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(2, 6, 23, 0.45);
+  box-shadow: 0 22px 55px rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+}
+
+/* Tiêu đề nổi hơn + có shadow nhẹ */
+.hero h1 {
+  font-size: 3.1rem;
+  line-height: 1.05;
+  margin: 0 0 14px;
+  text-shadow: 0 14px 40px rgba(0,0,0,0.55);
+}
+
+/* Mô tả sáng hơn một chút */
+.hero p {
+  color: rgba(229, 231, 235, 0.86);
+  max-width: 600px;
+  margin: 0 0 18px;
+}
+
+/* Meta chip sáng hơn, “nổi” */
+.meta-item {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.30);
+}
+
+/* Responsive: trên mobile đỡ che ảnh */
+@media (max-width: 768px) {
+  .hero {
+    padding: 96px 16px 40px;
+    background-position: center;
+  }
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+  .hero h1 {
+    font-size: 2.1rem;
+  }
+}
+
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn.primary {
+    background: linear-gradient(135deg, #0ea5e9, #22c55e);
+    color: white;
+    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
+}
+
+.btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(56, 189, 248, 0.45);
+}
+
+.btn.secondary {
+    background: rgba(15, 23, 42, 0.7);
+    color: var(--text-main);
+    border-color: var(--border-soft);
+}
+
+.btn.secondary:hover {
+    background: rgba(15, 23, 42, 0.95);
+}
+
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.meta-item {
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid var(--border-soft);
+}
+
+.meta-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.meta-value {
+    display: block;
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+/* SECTIONS */
+
+.section {
+    padding: 40px 8vw 48px;
+}
+
+.section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
+
+.section-desc {
+    color: var(--text-muted);
+    max-width: 520px;
+    margin-bottom: 24px;
+}
+
+/* CARDS */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 18px 18px 16px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.8);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, var(--accent-soft), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+}
+
+.card.hover-active,
+.card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(56, 189, 248, 0.6);
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.95);
+}
+
+.card.hover-active::before,
+.card:hover::before {
+    opacity: 1;
+}
+
+.card-icon img {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.card p {
+    margin: 0 0 12px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.card-link {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+/* DATASETS */
+
+.dataset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.dataset-card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dataset-card h3 {
+    margin: 0 0 4px;
+}
+
+.dataset-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-api { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+.badge-vrain { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+.badge-image { background: rgba(244, 114, 182, 0.15); color: #f9a8d4; }
+
+/* FOOTER */
+
+.home-footer {
+    padding: 18px 8vw 26px;
+    border-top: 1px solid rgba(31, 41, 55, 0.9);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+    .home-header {
+    background: linear-gradient(to bottom, rgba(2,6,23,0.92), rgba(2,6,23,0.35));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .hero {
+        padding: 96px 16px 40px;
+        background-position: left;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+/* ========== MODAL CHỌN CRAWL VRAIN ========== */
+
+.crawl-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 999;
+}
+
+.crawl-modal.is-open {
+    display: block;
+}
+
+.crawl-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.crawl-modal__content {
+    position: absolute;
+    inset: 7% 10%;
+    background: #050816;
+    border-radius: 18px;
+    padding: 24px 28px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.crawl-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.crawl-modal__header h2 {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.crawl-modal__close {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+.crawl-modal__subtitle {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin: 0 0 4px;
+}
+
+.crawl-modal__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.crawl-card {
+    background: radial-gradient(circle at top left, #111827, #020617);
+    border-radius: 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.crawl-card h3 {
+    font-size: 1rem;
+    margin: 0 0 4px;
+}
+
+.crawl-card__script {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.crawl-card__list {
+    padding-left: 16px;
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: #d1d5db;
+}
+
+.crawl-card__btn {
+    margin-top: auto;
+    align-self: flex-start;
+    border-radius: 999px;
+    border: none;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    background: linear-gradient(to right, #22c55e, #0ea5e9);
+    color: white;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.crawl-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.crawl-modal__hint {
+    font-style: italic;
+}
+
+body.no-scroll {
+    overflow: hidden;
+}
+
+/* Responsive cho modal */
+@media (max-width: 768px) {
+    .crawl-modal__content {
+        inset: 8% 4%;
+        padding: 18px 16px;
+    }
+
+    .crawl-modal__grid {
+        grid-template-columns: 1fr;
+    }
+}

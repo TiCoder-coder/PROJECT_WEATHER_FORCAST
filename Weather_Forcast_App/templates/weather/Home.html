@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Forecast Dashboard</title>
+    <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=1060">
+
+</head>
+<body class="home-page">
+
+
+    <!-- TOP NAV -->
+    <header class="home-header">
+        <div class="logo">
+            <span class="logo-dot"></span>
+            <span class="logo-text">VN Weather Hub</span>
+        </div>
+        <nav class="home-nav">
+            <a href="#overview">Tổng quan pipeline</a>
+            <a href="#datasets">Datasets</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Realtime Vietnam Weather Data</h1>
+            <p>
+                Thu thập – hợp nhất – trực quan hóa dữ liệu thời tiết
+                từ API, Vrain và OpenWeather trong một Dashboard duy nhất.
+            </p>
+            <div class="hero-actions">
+                <button type="button" class="btn primary" id="btnOpenCrawlModal">
+                    Bắt đầu crawl Vrain
+                </button>
+                <a class="btn secondary" href="{% url 'weather:datasets' %}">
+                    Xem dataset mới nhất
+                </a>
+
+            </div>
+
+            <div class="hero-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Thời gian cập nhật</span>
+                    <span class="meta-value">
+                        {{ latest_dataset_time|default:"—" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OVERVIEW SECTION -->
+    <section id="overview" class="section overview">
+        <h2>Tổng quan pipelines</h2>
+        <p class="section-desc">
+            Mỗi pipeline tương ứng với một nguồn dữ liệu: API quốc tế, Vrain, OpenWeather crawler HTML/Selenium.
+        </p>
+
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">
+                    <img src="{% static 'weather/img/icons/api.svg' %}"
+                         alt="API icon"
+                         onerror="this.style.display='none'">
+                </div>
+                <h3>API Weather</h3>
+                <p>
+                    Gọi API để lấy dữ liệu nhiệt độ, độ ẩm, gió, mây…
+                    cho toàn bộ Việt Nam theo thời gian thực.
+                </p>
+                <a class="card-link" href="#">Xem chi tiết</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">
+                    <img src="{% static 'weather/img/icons/vrain.svg' %}"
+                         alt="Vrain icon"
+                         onerror="this.style.display='none'">
+                </div>
+                <h3>Vrain – HTML/Selenium</h3>
+                <p>
+                    Crawl lượng mưa tại từng trạm/Vin từ website Vrain bằng Selenium,
+                    lưu thành file CSV/Excel để phân tích.
+                </p>
+                <a class="card-link"
+                   href="{% url 'weather:crawl_vrain_html' %}">
+                    Mở giao diện crawl
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">
+                    <img src="{% static 'weather/img/icons/report.svg' %}"
+                         alt="Report icon"
+                         onerror="this.style.display='none'">
+                </div>
+                <h3>Merge & Dashboard</h3>
+                <p>
+                    Hợp nhất dữ liệu từ nhiều nguồn, xuất Excel, và chuẩn bị
+                    cho bước visualize bằng Power BI / Grafana / Web chart.
+                </p>
+                <a class="card-link" href="#">Xem hướng dẫn</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DATASETS SECTION -->
+    <section id="datasets" class="section datasets">
+        <h2>Datasets gần đây</h2>
+        <p class="section-desc">
+            Thông tin dataset mới nhất từ thư mục <code>output/</code> sẽ được show ở đây.
+        </p>
+
+        <div class="dataset-grid">
+            <div class="dataset-card">
+                <h3>API OpenWeather</h3>
+                <p>Lượt chạy: {{ total_api_runs|default:0 }}</p>
+                <span class="badge badge-api">API</span>
+            </div>
+
+            <div class="dataset-card">
+                <h3>Vrain Crawl</h3>
+                <p>Lượt chạy: {{ total_vrain_runs|default:0 }}</p>
+                <span class="badge badge-vrain">VRAIN</span>
+            </div>
+
+        </div>
+    </section>
+
+        <!-- ========== MODAL CHỌN CÁCH CRAWL VRAIN ========== -->
+    <div id="crawlMethodModal" class="crawl-modal">
+        <div class="crawl-modal__overlay" data-close-crawl-modal></div>
+
+        <div class="crawl-modal__content">
+            <header class="crawl-modal__header">
+                <h2>Chọn cách crawl dữ liệu Vrain</h2>
+                <button type="button"
+                        class="crawl-modal__close"
+                        data-close-crawl-modal>&times;</button>
+            </header>
+
+
+            <div class="crawl-modal__grid">
+                <!-- 1. Crawl_data_by_API.py -->
+                <div class="crawl-card">
+                    <h3>1. Crawl qua API của OpenWeather</h3>
+                    <ul class="crawl-card__list">
+                        <li>Lấy dữ liệu thời tiết từ API quốc tế (nhiệt độ, độ ẩm, gió, mưa…).</li>
+                        <li>Phù hợp để có cái nhìn tổng quan toàn quốc.</li>
+                    </ul>
+                    <button type="button"
+                            class="crawl-card__btn"
+                            data-crawl-method="api_weather"
+                            data-crawl-label="Crawl_data_by_API.py">
+                        Chọn cách này
+                    </button>
+                </div>
+
+                <!-- 2. Crawl_data_from_Vrain_by_API.py -->
+                <div class="crawl-card">
+                    <h3>2. Crawl Vrain bằng API</h3>
+                    <ul class="crawl-card__list">
+                        <li>Lấy dữ liệu lượng mưa trực tiếp từ API (nếu Vrain có cung cấp).</li>
+                        <li>Ổn định, ít phụ thuộc HTML giao diện.</li>
+                    </ul>
+                    <button type="button"
+                            class="crawl-card__btn"
+                            data-crawl-method="vrain_api"
+                            data-crawl-label="Crawl_data_from_Vrain_by_API.py">
+                        Chọn cách này
+                    </button>
+                </div>
+
+                <!-- 3. Crawl_data_from_Vrain_by_Selenium.py -->
+                <div class="crawl-card">
+                    <h3>3. Crawl Vrain bằng Selenium (multi-ID)</h3>
+                    <ul class="crawl-card__list">
+                        <li>Dùng Selenium điều khiển trình duyệt, đọc UI Vrain.</li>
+                        <li>Phù hợp khi cần crawl nhiều tỉnh/trạm cùng lúc.</li>
+                    </ul>
+                    <button type="button"
+                            class="crawl-card__btn"
+                            data-crawl-method="vrain_selenium"
+                            data-crawl-label="Crawl_data_from_Vrain_by_Selenium.py">
+                        Chọn cách này
+                    </button>
+                </div>
+
+                <!-- 4. Crawl_data_from_html_of_Vrain.py -->
+                <div class="crawl-card">
+                    <h3>4. Crawl HTML Vrain (phân tích source)</h3>
+                    <ul class="crawl-card__list">
+                        <li>Đọc HTML, dùng regex để trích xuất lượng mưa từng trạm.</li>
+                        <li>Phù hợp khi cần fine-tune logic parse HTML.</li>
+                    </ul>
+                    <button type="button"
+                            class="crawl-card__btn"
+                            data-crawl-method="vrain_html"
+                            data-crawl-label="Crawl_data_from_html_of_Vrain.py">
+                        Chọn cách này
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="home-footer">
+        <span>© {{ now|default:"2025" }} Weather Forecast Project — Built with Django</span>
+    </footer>
+
+<script src="{% static 'weather/js/Home.js' %}"></script>
+</body>
+</html>

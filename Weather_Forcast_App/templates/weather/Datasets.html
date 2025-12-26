@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Datasets</title>
+  <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
+  <style>
+    .datasets-wrap{ max-width:1100px; margin:90px auto 60px; padding:0 18px; color:#e5e7eb;}
+    .datasets-card{
+      background: rgba(15,23,42,.78);
+      border:1px solid rgba(56,189,248,.18);
+      border-radius:16px;
+      padding:16px 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    .datasets-title{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin:0 0 10px;
+    }
+    .datasets-title h1{ margin:0; font-size:22px; letter-spacing:.2px;}
+    .datasets-title a{ text-decoration:none; opacity:.9;}
+    table{ width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td{ padding:10px 8px; border-bottom:1px solid rgba(148,163,184,.16); font-size:14px; }
+    th{ text-align:left; color:#cbd5f5; font-weight:600; }
+    .muted{ color:#94a3b8; font-size:13px; }
+    .actions{ display:flex; gap:10px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 12px; border-radius:999px;
+      border:1px solid rgba(148,163,184,.35);
+      background: rgba(2,6,23,.55);
+      color:#e5e7eb;
+      text-decoration:none;
+    }
+    .pill.primary{
+      border-color: rgba(34,197,94,.45);
+      box-shadow: 0 12px 30px rgba(34,197,94,.18);
+    }
+  </style>
+</head>
+<body class="home-page" style="min-height:100vh;">
+  <div class="datasets-wrap">
+    <div class="datasets-card">
+      <div class="datasets-title">
+        <h1>Bộ datasets gần đây</h1>
+        <a class="pill" href="{% url 'weather:home' %}">← Về Home</a>
+
+      </div>
+
+      {% if latest %}
+        <div class="muted">Mới nhất: <b>{{ latest.name }}</b> • {{ latest.size_mb }} MB • {{ latest.mtime }}</div>
+      {% else %}
+        <div class="muted">Chưa có file nào trong output/</div>
+      {% endif %}
+
+      <table>
+        <thead>
+          <tr>
+            <th>Tên file</th>
+            <th>Cập nhật</th>
+            <th>Dung lượng</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for f in items %}
+          <tr>
+            <td><code>{{ f.name }}</code></td>
+            <td>{{ f.mtime }}</td>
+            <td>{{ f.size_mb }} MB</td>
+            <td>
+              <div class="actions">
+                <a class="pill" href="{% url 'weather:dataset_view' f.name %}">👀 Xem</a>
+                <a class="pill primary" href="{% url 'weather:dataset_download' f.name %}">⬇️ Tải</a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="muted">Không có dataset nào.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

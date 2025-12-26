@@ -29,14 +29,16 @@ class VrainCrawlerFinal:
     def create_driver(self):
         chrome_options = Options()
         if self.headless:
-            chrome_options.add_argument('--headless=new')
+            chrome_options.add_argument("--headless=new")
 
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
-        chrome_options.page_load_strategy = 'eager'
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_experimental_option(
+            "prefs", {"profile.default_content_setting_values": {"images": 2}}
+        )
+        chrome_options.page_load_strategy = "eager"
 
         driver = webdriver.Chrome(options=chrome_options)
         driver.set_page_load_timeout(30)
@@ -44,14 +46,15 @@ class VrainCrawlerFinal:
 
     def normalize_string(self, text):
         """Chuẩn hóa tiếng Việt và loại bỏ khoảng trắng thừa"""
-        if not text: return ""
-        text = unicodedata.normalize('NFC', text)
-        return ' '.join(text.strip().split())
+        if not text:
+            return ""
+        text = unicodedata.normalize("NFC", text)
+        return " ".join(text.strip().split())
 
     def extract_rainfall(self, text):
         """Trích xuất số từ chuỗi '12.5 mm'"""
-        match = re.search(r'(\d+[\.,]?\d*)', text)
-        return match.group(1).replace(',', '.') if match else "0"
+        match = re.search(r"(\d+[\.,]?\d*)", text)
+        return match.group(1).replace(",", ".") if match else "0"
 
     def get_province_name(self, driver):
         """Lấy tên tỉnh từ các selector khác nhau"""
@@ -63,7 +66,7 @@ class VrainCrawlerFinal:
             "h1 span",
             ".province-name",
             "h1",
-            "title"
+            "title",
         ]
 
         for selector in selectors:
@@ -72,8 +75,10 @@ class VrainCrawlerFinal:
                 text = element.text.strip()
                 if text and len(text) > 1:
                     # Loại bỏ "VRAIN", "Lượng mưa", ký tự thừa
-                    text = re.sub(r'(VRAIN|Lượng mưa.*|[-|])', '', text).strip()
-                    if text and not any(x in text.lower() for x in ['tại các trạm', 'ngày']):
+                    text = re.sub(r"(VRAIN|Lượng mưa.*|[-|])", "", text).strip()
+                    if text and not any(
+                        x in text.lower() for x in ["tại các trạm", "ngày"]
+                    ):
                         return self.normalize_string(text)
             except:
                 continue
@@ -81,8 +86,8 @@ class VrainCrawlerFinal:
         # Thử lấy từ title trang
         try:
             title = driver.title
-            if title and 'VRAIN' in title:
-                text = title.replace('VRAIN', '').replace('-', '').strip()
+            if title and "VRAIN" in title:
+                text = title.replace("VRAIN", "").replace("-", "").strip()
                 if text:
                     return self.normalize_string(text)
         except:
@@ -109,7 +114,7 @@ class VrainCrawlerFinal:
                 province_name = f"ID_{province_id}"
 
             found_count = 0
-            crawl_time = datetime.now().strftime('%d/%m/%Y %H:%M')
+            crawl_time = datetime.now().strftime("%d/%m/%Y %H:%M")
 
             # Tìm trạm - thêm nhiều selector hơn
             selectors = [
@@ -119,7 +124,7 @@ class VrainCrawlerFinal:
                 ".station-list-item",
                 "table tbody tr",
                 "table tr",
-                ".data-row"
+                ".data-row",
             ]
 
             elements = []
@@ -131,9 +136,14 @@ class VrainCrawlerFinal:
             for el in elements:
                 try:
                     text_content = el.text.strip()
-                    if not text_content or "Lượng mưa" in text_content: continue
+                    if not text_content or "Lượng mưa" in text_content:
+                        continue
 
-                    lines = [line.strip() for line in text_content.split('\n') if line.strip()]
+                    lines = [
+                        line.strip()
+                        for line in text_content.split("\n")
+                        if line.strip()
+                    ]
 
                     if len(lines) >= 2:
                         station_name = self.normalize_string(lines[0])
@@ -144,11 +154,11 @@ class VrainCrawlerFinal:
                         with self.data_lock:
                             if unique_key not in self.unique_stations:
                                 record = {
-                                    'province_id': province_id,
-                                    'tinh': province_name,
-                                    'tram': station_name,
-                                    'luong_mua': float(rainfall_val),
-                                    'thoi_gian': crawl_time
+                                    "province_id": province_id,
+                                    "tinh": province_name,
+                                    "tram": station_name,
+                                    "luong_mua": float(rainfall_val),
+                                    "thoi_gian": crawl_time,
                                 }
                                 self.unique_stations[unique_key] = record
                                 found_count += 1
@@ -158,13 +168,17 @@ class VrainCrawlerFinal:
             # Kiểm tra nếu không lấy được dữ liệu
             if found_count == 0 or province_name.startswith("ID_"):
                 if retry_count < self.max_retries:
-                    print(f"⚠️  ID {province_id}: {province_name} - Không có dữ liệu, thử lại lần {retry_count + 1}...")
+                    print(
+                        f"⚠️  ID {province_id}: {province_name} - Không có dữ liệu, thử lại lần {retry_count + 1}..."
+                    )
                     if driver:
                         driver.quit()
                     time.sleep(2)  # Đợi trước khi thử lại
                     return self.crawl_province(province_id, retry_count + 1)
                 else:
-                    print(f"❌ ID {province_id}: Thất bại sau {self.max_retries} lần thử")
+                    print(
+                        f"❌ ID {province_id}: Thất bại sau {self.max_retries} lần thử"
+                    )
                     with self.data_lock:
                         self.failed_provinces.append(province_id)
                     return 0
@@ -174,13 +188,17 @@ class VrainCrawlerFinal:
 
         except Exception as e:
             if retry_count < self.max_retries:
-                print(f"⚠️  ID {province_id} lỗi: {str(e)[:30]} - Thử lại lần {retry_count + 1}...")
+                print(
+                    f"⚠️  ID {province_id} lỗi: {str(e)[:30]} - Thử lại lần {retry_count + 1}..."
+                )
                 if driver:
                     driver.quit()
                 time.sleep(2)
                 return self.crawl_province(province_id, retry_count + 1)
             else:
-                print(f"❌ Lỗi ID {province_id} sau {self.max_retries} lần thử: {str(e)[:50]}")
+                print(
+                    f"❌ Lỗi ID {province_id} sau {self.max_retries} lần thử: {str(e)[:50]}"
+                )
                 with self.data_lock:
                     self.failed_provinces.append(province_id)
                 return 0
@@ -209,7 +227,7 @@ class VrainCrawlerFinal:
 
         # Chuyển dict thành list và SẮP XẾP THEO ID
         self.all_rainfall_data = list(self.unique_stations.values())
-        self.all_rainfall_data.sort(key=lambda x: (x['province_id'], x['tram']))
+        self.all_rainfall_data.sort(key=lambda x: (x["province_id"], x["tram"]))
 
     def export(self):
         if not self.all_rainfall_data:
@@ -219,15 +237,22 @@ class VrainCrawlerFinal:
         df = pd.DataFrame(self.all_rainfall_data)
 
         # Đánh số thứ tự sau khi đã sắp xếp
-        df.insert(0, 'STT', range(1, len(df) + 1))
+        df.insert(0, "STT", range(1, len(df) + 1))
 
         # Đổi tên cột cho đẹp
-        df.columns = ['STT', 'ID Tỉnh', 'Tỉnh/Thành phố', 'Tên Trạm', 'Lượng mưa (mm)', 'Thời gian cập nhật']
+        df.columns = [
+            "STT",
+            "ID Tỉnh",
+            "Tỉnh/Thành phố",
+            "Tên Trạm",
+            "Lượng mưa (mm)",
+            "Thời gian cập nhật",
+        ]
 
-        output_dir = "output_vrain"
-        os.makedirs(output_dir, exist_ok=True)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
+        os.makedirs(output_dir, exist_ok=True)  # tạo thư mục nếu chưa có
 
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         excel_path = os.path.join(output_dir, f"Bao_cao_mua_{timestamp}.xlsx")
         df.to_excel(excel_path, index=False)
 
@@ -237,7 +262,9 @@ class VrainCrawlerFinal:
         print(f"🗂️  Số tỉnh/thành: {df['ID Tỉnh'].nunique()}")
 
         if self.failed_provinces:
-            print(f"❌ Các ID vẫn thất bại: {', '.join(map(str, self.failed_provinces))}")
+            print(
+                f"❌ Các ID vẫn thất bại: {', '.join(map(str, self.failed_provinces))}"
+            )
         else:
             print(f"✅ Tất cả tỉnh đều lấy dữ liệu thành công!")
 
