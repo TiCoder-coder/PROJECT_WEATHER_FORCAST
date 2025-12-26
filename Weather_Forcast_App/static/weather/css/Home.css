@@ -71,7 +71,6 @@ body {
 
 /* HERO */
 
-/* HERO - FIX READABILITY */
 .hero {
   position: relative;
   min-height: 80vh;
@@ -83,31 +82,27 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  isolation: isolate; /* để overlay không ảnh hưởng phần khác */
+  isolation: isolate;
 }
 
-/* Overlay thật sự (tối nhẹ + blur + vignette) */
 .hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
 
-  /* tối hơn + có vignette */
   background:
     radial-gradient(circle at 18% 25%, rgba(2,6,23,0.20), transparent 55%),
     radial-gradient(circle at 78% 35%, rgba(2,6,23,0.35), transparent 60%),
     linear-gradient(90deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.65) 48%, rgba(2,6,23,0.28) 100%),
     linear-gradient(180deg, rgba(2,6,23,0.35) 0%, rgba(2,6,23,0.75) 88%),
-    rgba(2,6,23,0.08); /* lớp base để chắc chắn tối */
+    rgba(2,6,23,0.08);
 
-  /* blur mạnh hơn cho chắc ăn */
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 
 
-/* Khung nội dung dạng glass để đọc rõ */
 .hero-content {
   position: relative;
   z-index: 2;
@@ -121,7 +116,6 @@ body {
   backdrop-filter: blur(10px);
 }
 
-/* Tiêu đề nổi hơn + có shadow nhẹ */
 .hero h1 {
   font-size: 3.1rem;
   line-height: 1.05;
@@ -129,21 +123,18 @@ body {
   text-shadow: 0 14px 40px rgba(0,0,0,0.55);
 }
 
-/* Mô tả sáng hơn một chút */
 .hero p {
   color: rgba(229, 231, 235, 0.86);
   max-width: 600px;
   margin: 0 0 18px;
 }
 
-/* Meta chip sáng hơn, “nổi” */
 .meta-item {
   background: rgba(15, 23, 42, 0.78);
   border: 1px solid rgba(56, 189, 248, 0.25);
   box-shadow: 0 10px 30px rgba(0,0,0,0.30);
 }
 
-/* Responsive: trên mobile đỡ che ảnh */
 @media (max-width: 768px) {
   .hero {
     padding: 96px 16px 40px;
@@ -502,7 +493,6 @@ body.no-scroll {
     overflow: hidden;
 }
 
-/* Responsive cho modal */
 @media (max-width: 768px) {
     .crawl-modal__content {
         inset: 8% 4%;

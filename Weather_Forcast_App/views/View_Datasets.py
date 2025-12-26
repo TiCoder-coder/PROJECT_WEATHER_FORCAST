@@ -1,4 +1,3 @@
-# Weather_Forcast_App/views/View_Datasets.py
 import mimetypes
 from pathlib import Path
 from datetime import datetime
@@ -13,7 +12,6 @@ def _output_dir() -> Path:
 
 
 def _safe_join_output(filename: str) -> Path:
-    # chặn ../ path traversal
     base = _output_dir().resolve()
     p = (base / filename).resolve()
     if base not in p.parents and p != base:
@@ -60,7 +58,6 @@ def dataset_download_view(request, filename: str):
 
 
 def dataset_view_view(request, filename: str):
-    # “Xem” (inline). CSV/JSON/TXT sẽ mở trên browser; XLSX thường vẫn tải về (ok).
     p = _safe_join_output(filename)
     content_type, _ = mimetypes.guess_type(str(p))
     resp = FileResponse(open(p, "rb"), content_type=content_type or "application/octet-stream")

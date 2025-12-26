@@ -127,7 +127,6 @@ def crawl_api_weather_view(request):
         except Exception:
             return None, None, None
 
-    # --- common context (GET/POST render) ---
     last_file_name, last_file_size_mb, last_run_time = compute_last_output_info()
 
     with _STATE_LOCK:
@@ -137,13 +136,12 @@ def crawl_api_weather_view(request):
     context = {
         "is_running": is_running,
         "logs": logs_snapshot,
-        "last_csv_name": last_file_name,          # template đang dùng key này
-        "last_csv_size_mb": last_file_size_mb,    # template đang dùng key này
+        "last_csv_name": last_file_name,
+        "last_csv_size_mb": last_file_size_mb,
         "csv_size_mb": last_file_size_mb,
-        "last_crawl_time": last_run_time,         # template đang dùng key này
+        "last_crawl_time": last_run_time,
     }
 
-    # Helper nhận biết request AJAX (JS fetch)
     is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
 
     # ---------------- GET ----------------
@@ -156,24 +154,20 @@ def crawl_api_weather_view(request):
     verbose = request.POST.get("verbose") in ("on", "1", "true", "True")
 
     if action != "start":
-        # POST nhưng không đúng action
         if is_ajax:
             return JsonResponse({"ok": False, "error": "Invalid action"}, status=400)
         _append_log(f"[WARN] Invalid action: {action}")
         return render(request, "weather/HTML_Crawl_data_by_API.html", context)
 
-    # Không cho start nếu job đang chạy
     with _STATE_LOCK:
         if _STATE["is_running"]:
             _append_log("[WARN] Job is already running. Ignored.")
             if is_ajax:
                 return JsonResponse({"ok": False, "error": "Job is already running"}, status=409)
-            # render lại trang
             context["is_running"] = True
             context["logs"] = list(_STATE["logs"])[-300:]
             return render(request, "weather/HTML_Crawl_data_by_API.html", context)
 
-    # Check script tồn tại
     if not os.path.exists(script_path):
         msg = f"[ERROR] Không tìm thấy script: {script_path}"
         _append_log(msg)
@@ -182,13 +176,8 @@ def crawl_api_weather_view(request):
         context["logs"] = list(_STATE["logs"])[-300:]
         return render(request, "weather/HTML_Crawl_data_by_API.html", context)
 
-    # Chuẩn bị args (nếu script chưa hỗ trợ tham số thì để trống)
     extra_args = []
-    # Nếu sau này script của bạn có parse args thì bật lại:
-    # extra_args += ["--mode", mode]
-    # if verbose: extra_args += ["--verbose"]
 
-    # start thread chạy subprocess
     try:
         t = threading.Thread(
             target=_run_script_background,
@@ -208,7 +197,6 @@ def crawl_api_weather_view(request):
         context["logs"] = list(_STATE["logs"])[-300:]
         return render(request, "weather/HTML_Crawl_data_by_API.html", context)
 
-    # Trả JSON cho JS (để JS poll /crawl-api-weather/logs/)
     if is_ajax:
         with _STATE_LOCK:
             return JsonResponse(
@@ -219,71 +207,13 @@ def crawl_api_weather_view(request):
                 }
             )
 
-    # Nếu người dùng submit form truyền thống (không JS), render lại trang
     with _STATE_LOCK:
         context["is_running"] = _STATE["is_running"]
         context["logs"] = list(_STATE["logs"])[-300:]
     return render(request, "weather/HTML_Crawl_data_by_API.html", context)
 
-# def crawl_api_weather_view(request):
-#     script_path = os.path.join(settings.BASE_DIR, "Weather_Forcast_App", "scripts", "Crawl_data_by_API.py")
-#     output_dir = os.path.join(settings.BASE_DIR, "Weather_Forcast_App", "output")
-
-#     latest_file = _get_latest_file(output_dir, ["*.xlsx", "*.csv"])
-
-#     context = {
-#         "is_running": False,
-#         "last_crawl_time": None,
-#         "last_csv_name": None,
-#         "csv_size_mb": None,
-#         "logs": [],
-#     }
-
-#     with _STATE_LOCK:
-#         context["is_running"] = _STATE["is_running"]
-#         context["logs"] = list(_STATE["logs"])[-200:]
-
-#     if latest_file and os.path.exists(latest_file):
-#         context["last_crawl_time"] = datetime.fromtimestamp(os.path.getmtime(latest_file)).strftime("%Y-%m-%d %H:%M:%S")
-#         context["last_csv_name"] = os.path.basename(latest_file)
-#         context["csv_size_mb"] = f"{os.path.getsize(latest_file) / (1024 * 1024):.2f}"
-
-#     if request.method == "POST":
-#         action = request.POST.get("action")
-#         mode = request.POST.get("mode", "full")
-#         verbose = request.POST.get("verbose") == "on"
-#         is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
-
-#         if action == "start":
-#             with _STATE_LOCK:
-#                 if _STATE["is_running"]:
-#                     _append_log("[WARN] Job is already running. Ignored.")
-#                     return render(request, "weather/HTML_Crawl_data_by_API.html", context)
-
-#             if not os.path.exists(script_path):
-#                 _append_log(f"[ERROR] Không tìm thấy script: {script_path}")
-#                 return render(request, "weather/HTML_Crawl_data_by_API.html", context)
-
-#             extra_args = []
-
-#             t = threading.Thread(
-#                 target=_run_script_background,
-#                 args=(script_path, output_dir, extra_args),
-#                 daemon=True,
-#             )
-#             t.start()
-#             _append_log(f"[INFO] Started background job (mode={mode}, verbose={verbose})")
-
-#             with _STATE_LOCK:
-#                 context["is_running"] = _STATE["is_running"]
-#                 context["logs"] = list(_STATE["logs"])[-200:]
-
-#     return render(request, "weather/HTML_Crawl_data_by_API.html", context)
-
-
 @require_http_methods(["GET"])
 def api_weather_logs_view(request):
-    # lấy file mới nhất
     output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "output"))
 
     last_file_name = last_size_mb = last_run_time = None

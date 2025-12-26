@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
       credentials: "same-origin",
     });
 
-    // Nếu server trả HTML/500 thì đừng json() luôn
     const ct = res.headers.get("content-type") || "";
     if (!ct.includes("application/json")) {
       const text = await res.text();
@@ -74,10 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pollTimer) clearInterval(pollTimer);
 
     try {
-      // start background
       await startJob(formData);
 
-      // poll logs mỗi 1s
       const first = await fetchLogs();
       const sizeEl = document.getElementById("lastFileSize");
       if (sizeEl && d.csv_size_mb != null) sizeEl.textContent = `${d.csv_size_mb} MB`;
@@ -89,7 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
           const d = await fetchLogs();
           setLog(d.logs);
 
-          // job xong thì mở nút lại
           if (!d.is_running) {
             clearInterval(pollTimer);
             pollTimer = null;
