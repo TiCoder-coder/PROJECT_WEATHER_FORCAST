@@ -1,0 +1,25 @@
+<nav class="sidebar__nav">
+  <a href="{% url 'weather:home' %}" class="sidebar__nav-item">
+    🏠 Trang chủ
+  </a>
+
+  <a href="{% url 'weather:crawl_by_api' %}" class="sidebar__nav-item">
+    🌐 Crawl OpenWeather bằng API
+  </a>
+
+  <a href="{% url 'weather:crawl_vrain_api' %}" class="sidebar__nav-item">
+    🌧️ Crawl Vrain bằng API
+  </a>
+
+  <a href="{% url 'weather:crawl_vrain_selenium' %}" class="sidebar__nav-item">
+    🧪 Crawl Vrain bằng Selenium
+  </a>
+
+  <a href="{% url 'weather:crawl_vrain_html' %}" class="sidebar__nav-item">
+    🧩 Crawl Vrain từ HTML (Parse source)
+  </a>
+
+  <a href="{% url 'weather:datasets' %}" class="sidebar__nav-item">
+    📦 Datasets
+  </a>
+</nav>

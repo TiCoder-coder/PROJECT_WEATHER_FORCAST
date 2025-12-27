@@ -7,12 +7,6 @@ def _fmt_dt(ts: float) -> str:
     return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
 
 def home_view(request):
-    """
-    Trang Home chính của hệ thống Weather Forecast.
-    Chỉ lo phần giao diện, các số liệu dùng giá trị mặc định.
-    Sau này bạn muốn thì bổ sung logic đọc file output.
-    """
-
     output_dir = Path(settings.BASE_DIR) / "Weather_Forcast_App" / "output"
     if not output_dir.exists():
         output_dir = Path(settings.BASE_DIR) / "output"

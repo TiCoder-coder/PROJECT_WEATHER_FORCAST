@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crawl Vrain bằng API</title>
+  <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_Vrain_by_API.css' %}?v=1999">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body class="page">
+  <div class="layout">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-circle">WF</div>
+        <div class="sidebar__logo-text">
+          <span class="sidebar__logo-title">Weather Forecast</span>
+          <span class="sidebar__logo-sub">Vrain API Crawler</span>
+        </div>
+      </div>
+
+      {% include 'weather/_sidebar_nav.html' %}
+
+
+    </aside>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main">
+
+      <header class="main__header">
+        <div>
+          <h1 class="main__title">CRAWL VRAIN DATA BY API</h1>
+        </div>
+
+
+      </header>
+
+      <section class="card">
+        <h2 class="card__title">Cấu hình & điều khiển crawl</h2>
+
+        <div class="form__actions">
+          <button id="btnStartCrawl" class="btn btn--primary">
+            🚀 Bắt đầu crawl ngay
+          </button>
+
+          <span class="run-pill">
+            <span class="run-pill__spinner" style="display:none" id="spinner"></span>
+            <span>Log realtime</span>
+          </span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">Kết quả lần crawl gần nhất</h2>
+
+        <div class="summary">
+          <div class="summary__item">
+            <span class="summary__label">File output</span>
+            <span class="summary__value">
+              {% if last_file %}
+                {{ last_file }}
+              {% else %}
+                Chưa có file
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="summary__item">
+            <span class="summary__label">Dung lượng</span>
+            <span class="summary__value" id="lastFileSize">
+              {% if last_size_mb %}
+                {{ last_size_mb }} MB
+              {% else %}
+                –
+              {% endif %}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card--log">
+        <div class="card__header">
+          <h2 class="card__title">Log</h2>
+          <button type="button" class="btn btn--ghost" onclick="clearLog()">
+            🧹 Clear log
+          </button>
+        </div>
+
+        <div id="log-container" class="log log--top">
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    window.__VRAIN_API__ = {
+      startUrl: "{% url 'weather:crawl_vrain_api_start' %}",
+      tailUrl: "{% url 'weather:crawl_vrain_api_tail' %}",
+      csrfToken: "{{ csrf_token }}",
+    };
+  </script>
+  <script src="{% static 'weather/js/JS_Crawl_data_from_Vrain_by_API.js' %}?v=53"></script>
+</body>
+</html>

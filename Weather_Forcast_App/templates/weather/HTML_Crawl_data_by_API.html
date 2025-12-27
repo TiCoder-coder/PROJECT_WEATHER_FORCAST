@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Crawl thời tiết bằng API</title>
-    <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_by_API.css' %}?v=1050">
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_by_API.css' %}?v=4055">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -20,14 +20,8 @@
                 </div>
             </div>
 
-            <nav class="sidebar__nav">
-                <a href="{% url 'weather:home' %}" class="sidebar__nav-item">
-                    🏠 Trang chủ
-                </a>
-                <a href="{% url 'weather:crawl_by_api' %}" class="sidebar__nav-item sidebar__nav-item--active">
-                    🌐 Crawl thời tiết từ OpenWeather bằng API
-                </a>
-            </nav>
+            {% include 'weather/_sidebar_nav.html' %}
+
 
         </aside>
 
@@ -126,15 +120,13 @@
                     </button>
                 </div>
 
-                <div id="log-container" class="log">
+                <div id="log-container" class="log log--top">
+
                     {% if logs %}
                         {% for line in logs %}
                             <div class="log__line">{{ line }}</div>
                         {% endfor %}
                     {% else %}
-                        <div class="log__line log__line--muted">
-                            Chưa có log. Nhấn “Bắt đầu crawl” để xem log ở đây.
-                        </div>
                     {% endif %}
                 </div>
             </section>
@@ -149,7 +141,7 @@
             }
         }
     </script>
-    <script src="{% static 'weather/js/JS_Crawl_data_by_API.js' %}?v=202513370"></script>
+    <script src="{% static 'weather/js/JS_Crawl_data_by_API.js' %}?v=936513379"></script>
 
 </body>
 </html>

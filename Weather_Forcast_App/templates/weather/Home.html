@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Weather Forecast Dashboard</title>
-    <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=1060">
+    <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=3110000">
 
 </head>
 <body class="home-page">
@@ -17,46 +17,168 @@
             <span class="logo-text">VN Weather Hub</span>
         </div>
         <nav class="home-nav">
-            <a href="#overview">Tổng quan pipeline</a>
-            <a href="#datasets">Datasets</a>
+            <button type="button" class="nav-pill" id="btnIntro">Introduce</button>
         </nav>
     </header>
 
     <!-- HERO -->
+     
     <section class="hero">
         <div class="hero-overlay"></div>
+        <div class="wind-layer" aria-hidden="true">
+            <span class="wind w1"></span>
+            <span class="wind w2"></span>
+            <span class="wind w3"></span>
+            <span class="wind w4"></span>
+            <span class="wind w5"></span>
+        </div>
+        <div class="hero-anim" aria-hidden="true">
+            <!-- SUN -->
+            <div class="wx wx-sun">
+                <svg class="wx-svg" viewBox="0 0 120 120">
+                <g class="sun-rays">
+                    <line x1="60" y1="8"  x2="60" y2="22"></line>
+                    <line x1="60" y1="98" x2="60" y2="112"></line>
+                    <line x1="8"  y1="60" x2="22" y2="60"></line>
+                    <line x1="98" y1="60" x2="112" y2="60"></line>
+                    <line x1="18" y1="18" x2="28" y2="28"></line>
+                    <line x1="92" y1="92" x2="102" y2="102"></line>
+                    <line x1="18" y1="102" x2="28" y2="92"></line>
+                    <line x1="92" y1="28" x2="102" y2="18"></line>
+                </g>
+                <circle class="sun-core" cx="60" cy="60" r="22"></circle>
+                </svg>
+            </div>
+
+            <!-- CLOUD -->
+            <div class="wx wx-cloud">
+                <svg class="wx-svg" viewBox="0 0 220 140">
+                <path class="cloud-fill"
+                    d="M78 106h92c18 0 32-12 32-28s-14-28-32-28c-2 0-4 0-6 .3C156 30 139 16 118 16
+                    92 16 71 35 71 60c0 1.3.1 2.6.2 3.8C52 66 38 80 38 97c0 16 13 29 40 29z"/>
+                <path class="cloud-stroke"
+                    d="M78 106h92c18 0 32-12 32-28s-14-28-32-28c-2 0-4 0-6 .3C156 30 139 16 118 16
+                    92 16 71 35 71 60c0 1.3.1 2.6.2 3.8C52 66 38 80 38 97c0 16 13 29 40 29z"/>
+                </svg>
+            </div>
+
+            <!-- RAIN -->
+            <div class="wx wx-rain">
+                <svg class="wx-svg" viewBox="0 0 240 170">
+                <path class="cloud-fill"
+                    d="M86 112h102c20 0 36-13 36-31s-16-31-36-31c-2 0-4 0-7 .4C175 27 156 12 132 12
+                    102 12 78 34 78 61c0 1.5.1 3 .3 4.4C56 68 40 84 40 103c0 18 15 33 46 33z"/>
+                <path class="cloud-stroke"
+                    d="M86 112h102c20 0 36-13 36-31s-16-31-36-31c-2 0-4 0-7 .4C175 27 156 12 132 12
+                    102 12 78 34 78 61c0 1.5.1 3 .3 4.4C56 68 40 84 40 103c0 18 15 33 46 33z"/>
+
+                <g class="rain-lines">
+                    <line x1="88"  y1="124" x2="78"  y2="156"></line>
+                    <line x1="120" y1="124" x2="110" y2="162"></line>
+                    <line x1="152" y1="124" x2="142" y2="156"></line>
+                    <line x1="184" y1="124" x2="174" y2="162"></line>
+                </g>
+                </svg>
+            </div>
+
+            <!-- EARTH (rotating) -->
+            <div class="earth-wrap">
+                <div class="earth"></div>
+                <div class="earth-orbit"></div>
+            </div>
+
+            </div>
+
+        <!-- WEATHER ICONS (animated) -->
+        <div class="hero-weather" aria-hidden="true">
+            <!-- SUN -->
+            <div class="wx wx-sun">
+            <svg class="wx-svg" viewBox="0 0 120 120">
+                <g class="sun-rays">
+                <line x1="60" y1="6"  x2="60" y2="20"></line>
+                <line x1="60" y1="100" x2="60" y2="114"></line>
+                <line x1="6"  y1="60" x2="20" y2="60"></line>
+                <line x1="100" y1="60" x2="114" y2="60"></line>
+
+                <line x1="18" y1="18" x2="28" y2="28"></line>
+                <line x1="92" y1="92" x2="102" y2="102"></line>
+                <line x1="18" y1="102" x2="28" y2="92"></line>
+                <line x1="92" y1="28" x2="102" y2="18"></line>
+
+                <line x1="34" y1="10" x2="40" y2="24"></line>
+                <line x1="86" y1="96" x2="80" y2="110"></line>
+                <line x1="10" y1="86" x2="24" y2="80"></line>
+                <line x1="96" y1="34" x2="110" y2="40"></line>
+                </g>
+                <circle class="sun-core" cx="60" cy="60" r="18"></circle>
+            </svg>
+            </div>
+
+            <!-- CLOUD -->
+            <div class="wx wx-cloud">
+            <svg class="wx-svg" viewBox="0 0 220 140">
+                <path class="cloud-shape"
+                    d="M78 104h92c18 0 32-12 32-28 0-15-12-27-28-28
+                        -4-20-22-35-44-35-18 0-33 9-40 22
+                        -3-1-7-2-11-2-18 0-33 14-33 31
+                        0 3 0 6 1 9C32 78 20 89 20 104c0 16 14 28 31 28h27z"/>
+            </svg>
+            </div>
+
+            <!-- RAIN -->
+            <div class="wx wx-rain">
+            <svg class="wx-svg" viewBox="0 0 220 180">
+                <path class="cloud-shape"
+                    d="M78 86h92c18 0 32-12 32-28 0-15-12-27-28-28
+                        -4-20-22-35-44-35-18 0-33 9-40 22
+                        -3-1-7-2-11-2-18 0-33 14-33 31
+                        0 3 0 6 1 9C32 60 20 71 20 86c0 16 14 28 31 28h27z"/>
+                <g class="rain-drops">
+                <line x1="70"  y1="120" x2="60"  y2="150"></line>
+                <line x1="105" y1="120" x2="95"  y2="155"></line>
+                <line x1="140" y1="120" x2="130" y2="150"></line>
+                <line x1="175" y1="120" x2="165" y2="155"></line>
+                </g>
+            </svg>
+            </div>
+        </div>
+
         <div class="hero-content">
             <h1>Realtime Vietnam Weather Data</h1>
             <p>
-                Thu thập – hợp nhất – trực quan hóa dữ liệu thời tiết
-                từ API, Vrain và OpenWeather trong một Dashboard duy nhất.
+                Thu thập – hợp nhất – trực quan hóa dữ liệu thời tiết từ API-HTML của Vrain và 
+                OpenWeather trong một Dashboard duy nhất.
             </p>
             <div class="hero-actions">
                 <button type="button" class="btn primary" id="btnOpenCrawlModal">
                     Bắt đầu crawl Vrain
                 </button>
                 <a class="btn secondary" href="{% url 'weather:datasets' %}">
-                    Xem dataset mới nhất
+                    Bộ dataset gần đây
                 </a>
+                <button type="button" class="btn secondary btn-help" id="btnOpenHelpModal">
+                    Hướng dẫn sử dụng
+                </button>
 
             </div>
 
             <div class="hero-meta">
                 <div class="meta-item">
-                    <span class="meta-label">Thời gian cập nhật</span>
+                    <span class="meta-label">Thời gian cập nhật gần nhất</span>
                     <span class="meta-value">
                         {{ latest_dataset_time|default:"—" }}
                     </span>
                 </div>
             </div>
         </div>
+
     </section>
 
     <!-- OVERVIEW SECTION -->
     <section id="overview" class="section overview">
         <h2>Tổng quan pipelines</h2>
         <p class="section-desc">
-            Mỗi pipeline tương ứng với một nguồn dữ liệu: API quốc tế, Vrain, OpenWeather crawler HTML/Selenium.
+            Mỗi pipeline tương ứng với một nguồn dữ liệu: API quốc tế, HTML của Vrain, OpenWeather.
         </p>
 
         <div class="cards">
@@ -66,12 +188,11 @@
                          alt="API icon"
                          onerror="this.style.display='none'">
                 </div>
-                <h3>API Weather</h3>
+                <h3>API OpenWeather</h3>
                 <p>
                     Gọi API để lấy dữ liệu nhiệt độ, độ ẩm, gió, mây…
                     cho toàn bộ Việt Nam theo thời gian thực.
                 </p>
-                <a class="card-link" href="#">Xem chi tiết</a>
             </div>
 
             <div class="card">
@@ -85,10 +206,6 @@
                     Crawl lượng mưa tại từng trạm/Vin từ website Vrain bằng Selenium,
                     lưu thành file CSV/Excel để phân tích.
                 </p>
-                <a class="card-link"
-                   href="{% url 'weather:crawl_vrain_html' %}">
-                    Mở giao diện crawl
-                </a>
             </div>
 
             <div class="card">
@@ -102,17 +219,13 @@
                     Hợp nhất dữ liệu từ nhiều nguồn, xuất Excel, và chuẩn bị
                     cho bước visualize bằng Power BI / Grafana / Web chart.
                 </p>
-                <a class="card-link" href="#">Xem hướng dẫn</a>
             </div>
         </div>
     </section>
 
     <!-- DATASETS SECTION -->
     <section id="datasets" class="section datasets">
-        <h2>Datasets gần đây</h2>
-        <p class="section-desc">
-            Thông tin dataset mới nhất từ thư mục <code>output/</code> sẽ được show ở đây.
-        </p>
+        <h2>Các lần crawl data gần đây</h2>
 
         <div class="dataset-grid">
             <div class="dataset-card">
@@ -161,7 +274,7 @@
 
                 <!-- 2. Crawl_data_from_Vrain_by_API.py -->
                 <div class="crawl-card">
-                    <h3>2. Crawl Vrain bằng API</h3>
+                    <h3>2. Crawl qua API của Vrain</h3>
                     <ul class="crawl-card__list">
                         <li>Lấy dữ liệu lượng mưa trực tiếp từ API (nếu Vrain có cung cấp).</li>
                         <li>Ổn định, ít phụ thuộc HTML giao diện.</li>
@@ -206,11 +319,135 @@
             </div>
         </div>
     </div>
+    <!-- ========== MODAL HƯỚNG DẪN SỬ DỤNG ========== -->
+    <div id="helpModal" class="crawl-modal">
+        <div class="crawl-modal__overlay" data-close-help-modal></div>
+
+        <div class="crawl-modal__content">
+            <header class="crawl-modal__header">
+                <h2>📘 Hướng dẫn sử dụng VN Weather Hub</h2>
+                <button type="button"
+                        class="crawl-modal__close"
+                        data-close-help-modal>&times;</button>
+            </header>
+
+            <div class="help-grid">
+                <div class="help-card">
+                    <h3>1) Trang Home (Dashboard)</h3>
+                    <ul>
+                        <li>Bấm <b>Bắt đầu crawl Vrain</b> để chọn pipeline crawl.</li>
+                        <li>Kéo xuống <b>Tổng quan pipelines</b> để xem mô tả từng pipeline.</li>
+                        <li>Kéo xuống <b>Datasets gần đây</b> để xem lượt chạy từng pipeline.</li>
+                    </ul>
+                </div>
+
+                <div class="help-card">
+                    <h3>2) Crawl OpenWeather bằng API</h3>
+                    <ul>
+                        <li>Vào trang <b>Crawl OpenWeather bằng API</b>.</li>
+                        <li>Bấm <b>Bắt đầu crawl</b> để chạy script.</li>
+                        <li>Log sẽ hiển thị realtime (nếu backend đang bật log).</li>
+                        <li>Sau khi xong, file sẽ xuất vào <code>output/</code>.</li>
+                    </ul>
+                </div>
+
+                <div class="help-card">
+                    <h3>3) Crawl Vrain bằng API</h3>
+                    <ul>
+                        <li>Vào trang <b>Crawl Vrain bằng API</b>.</li>
+                        <li>Bấm <b>Bắt đầu crawl</b> để chạy và theo dõi log.</li>
+                        <li>Sau khi xong, file xuất trong <code>output/</code>.</li>
+                    </ul>
+                </div>
+
+                <div class="help-card">
+                    <h3>4) Crawl Vrain bằng Selenium / HTML Parse</h3>
+                    <ul>
+                        <li><b>Selenium</b>: phù hợp khi cần crawl theo UI / multi-ID.</li>
+                        <li><b>HTML Parse</b>: phù hợp khi muốn fine-tune logic parse source HTML.</li>
+                        <li>Bấm <b>Bắt đầu crawl</b> và xem log realtime.</li>
+                    </ul>
+                </div>
+
+                <div class="help-card help-card--wide">
+                    <h3>5) Datasets</h3>
+                    <ul>
+                        <li>Vào trang <b>Datasets</b> để xem các file trong <code>output/</code>.</li>
+                        <li>Có thể <b>View</b> hoặc <b>Download</b> tùy file.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="help-actions">
+                <button type="button" class="btn primary" data-close-help-modal>
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <footer class="home-footer">
         <span>© {{ now|default:"2025" }} Weather Forecast Project — Built with Django</span>
     </footer>
 
-<script src="{% static 'weather/js/Home.js' %}"></script>
+<script src="{% static 'weather/js/Home.js' %}?v=65549"></script>
+
+<div id="introModal" class="crawl-modal" aria-hidden="true">
+  <div class="crawl-modal__overlay" data-close-intro-modal></div>
+
+  <div class="crawl-modal__content intro-modal__content" role="dialog" aria-modal="true">
+    <header class="crawl-modal__header">
+      <h2>Giới thiệu VN Weather Hub</h2>
+      <button type="button" class="crawl-modal__close" data-close-intro-modal>&times;</button>
+    </header>
+
+    <p class="crawl-modal__subtitle">
+      Dashboard thu thập & quản lý dữ liệu thời tiết từ nhiều nguồn (API + Vrain) trong một nơi.
+    </p>
+
+    <div class="intro-body">
+      <div class="intro-block">
+        <h3>🎯 Dự án này làm gì?</h3>
+        <ul>
+          <li>Crawl dữ liệu thời tiết theo pipeline bạn chọn.</li>
+          <li>Lưu file kết quả vào thư mục <code>output/</code>.</li>
+          <li>Xem & tải dataset ngay trong mục <b>Datasets</b>.</li>
+        </ul>
+      </div>
+
+      <div class="intro-block">
+        <h3>🧩 Các pipeline hiện có</h3>
+        <ul>
+          <li><b>OpenWeather API</b>: lấy nhiệt độ/độ ẩm/gió…</li>
+          <li><b>Vrain HTML/Selenium</b>: crawl lượng mưa từ Vrain.</li>
+          <li><b>Vrain API</b>: lấy lượng mưa qua API (nếu có).</li>
+        </ul>
+      </div>
+
+      <div class="intro-block">
+        <h3>📌 Cách dùng nhanh</h3>
+        <ol>
+          <li>Chọn pipeline cần chạy.</li>
+          <li>Bấm <b>Bắt đầu crawl</b> và xem log realtime.</li>
+          <li>Qua <b>Datasets</b> để xem/tải file mới nhất.</li>
+        </ol>
+      </div>
+
+      <div class="intro-block">
+        <h3>💡 Gợi ý</h3>
+        <ul>
+          <li>Nếu log không ra ngay: kiểm tra script có in log/flush.</li>
+          <li>Chạy xong nhưng không thấy file: kiểm tra đường dẫn <code>output/</code>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="intro-actions">
+      <button type="button" class="btn secondary" data-close-intro-modal>Đóng</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

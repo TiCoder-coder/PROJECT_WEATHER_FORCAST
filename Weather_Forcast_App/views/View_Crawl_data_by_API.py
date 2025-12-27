@@ -237,8 +237,6 @@ def api_weather_logs_view(request):
             "last_returncode": _STATE["last_returncode"],
             "last_started_at": _STATE["last_started_at"],
             "last_finished_at": _STATE["last_finished_at"],
-
-            # thêm để UI update
             "last_csv_name": last_file_name,
             "csv_size_mb": last_size_mb,
             "last_crawl_time": last_run_time,
