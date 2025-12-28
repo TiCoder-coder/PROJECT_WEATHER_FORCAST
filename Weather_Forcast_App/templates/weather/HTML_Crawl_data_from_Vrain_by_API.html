@@ -3,8 +3,8 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Crawl Vrain bằng API</title>
-  <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_Vrain_by_API.css' %}?v=2999">
+  <title>Crawl Vrain using API</title>
+  <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_Vrain_by_API.css' %}?v=4999">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
@@ -39,11 +39,11 @@
       </header>
 
       <section class="card">
-        <h2 class="card__title">Cấu hình & điều khiển crawl</h2>
+        <h2 class="card__title">Configure and control the crawl</h2>
 
         <div class="form__actions">
           <button id="btnStartCrawl" class="btn btn--primary">
-            🚀 Bắt đầu crawl ngay
+            🚀 Start crawling now
           </button>
 
           <span class="run-pill">
@@ -54,7 +54,7 @@
       </section>
 
       <section class="card">
-        <h2 class="card__title">Kết quả lần crawl gần nhất</h2>
+        <h2 class="card__title">Results of the most recent crawl</h2>
 
         <div class="summary">
           <div class="summary__item">
@@ -63,13 +63,13 @@
               {% if last_file %}
                 {{ last_file }}
               {% else %}
-                Chưa có file
+                No files yet
               {% endif %}
             </span>
           </div>
 
           <div class="summary__item">
-            <span class="summary__label">Dung lượng</span>
+            <span class="summary__label">Capacity</span>
             <span class="summary__value" id="lastFileSize">
               {% if last_size_mb %}
                 {{ last_size_mb }} MB
@@ -104,6 +104,6 @@
       csrfToken: "{{ csrf_token }}",
     };
   </script>
-  <script src="{% static 'weather/js/JS_Crawl_data_from_Vrain_by_API.js' %}?v=63"></script>
+  <script src="{% static 'weather/js/JS_Crawl_data_from_Vrain_by_API.js' %}?v=74"></script>
 </body>
 </html>

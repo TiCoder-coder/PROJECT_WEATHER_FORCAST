@@ -3,7 +3,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Crawl Vrain bằng Selenium</title>
+  <title>Crawl Vrain is made of Selenium</title>
   <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_Vrain_by_Selenium.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
@@ -34,10 +34,10 @@
       </header>
 
       <section class="card">
-        <h2 class="card__title">Điều khiển crawl</h2>
+        <h2 class="card__title">Crawl control</h2>
 
         <div class="form__actions">
-          <button id="btnStartCrawl" class="btn btn--primary">🚀 Bắt đầu crawl ngay</button>
+          <button id="btnStartCrawl" class="btn btn--primary">🚀 Start crawling now</button>
           <span class="run-pill">
             <span class="run-pill__spinner" style="display:none" id="spinner"></span>
             <span>Log realtime</span>
@@ -46,7 +46,7 @@
       </section>
 
       <section class="card">
-        <h2 class="card__title">Kết quả lần crawl gần nhất</h2>
+        <h2 class="card__title">Results of the most recent crawl</h2>
 
         <div class="summary">
           <div class="summary__item">
@@ -57,7 +57,7 @@
           </div>
 
           <div class="summary__item">
-            <span class="summary__label">Dung lượng</span>
+            <span class="summary__label">Capacity</span>
             <span class="summary__value" id="lastFileSize">
               {% if last_size_mb %}{{ last_size_mb }} MB{% else %}–{% endif %}
             </span>
@@ -84,6 +84,6 @@
       logsUrl: "{% url 'weather:crawl_vrain_selenium_tail' %}"
     };
   </script>
-  <script src="{% static 'weather/js/JS_Crawl_data_from_Vrain_by_Selenium.js' %}?v=9"></script>
+  <script src="{% static 'weather/js/JS_Crawl_data_from_Vrain_by_Selenium.js' %}?v=92s"></script>
 </body>
 </html>

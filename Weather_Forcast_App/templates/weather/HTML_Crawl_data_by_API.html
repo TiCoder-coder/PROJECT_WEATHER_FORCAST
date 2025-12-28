@@ -3,8 +3,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Crawl thời tiết bằng API</title>
-    <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_by_API.css' %}?v=4055">
+    <title>Crawl OpenWeather using the API</title>
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_by_API.css' %}?v=5255">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -38,8 +38,8 @@
                     <div class="run-panel__row">
                         <span class="run-panel__spinner"></span>
                         <div>
-                        <div class="run-panel__title">Đang crawl dữ liệu…</div>
-                        <div class="run-panel__desc">Log đang cập nhật realtime ở bên dưới.</div>
+                        <div class="run-panel__title">In progress... crawling data...</div>
+                        <div class="run-panel__desc">The log is updating in real-time below</div>
                         </div>
                     </div>
                 </div>
@@ -50,39 +50,39 @@
             </header>
 
             <section class="card">
-                <h2 class="card__title">Cấu hình & điều khiển crawl</h2>
+                <h2 class="card__title">Configure and control the crawl</h2>
 
                 <form method="post" class="form">
                     {% csrf_token %}
 
                     <div class="form__grid">
                         <div class="form__group">
-                            <label class="form__label">Chế độ chạy</label>
+                            <label class="form__label">Running mode</label>
                             <select name="mode" class="form__select">
-                                <option value="full" selected>Full – Crawl tất cả</option>
-                                <option value="sample">Sample – Test nhanh</option>
+                                <option value="full" selected>Full – Crawl all</option>
+                                <option value="sample">Sample – Quick test</option>
                             </select>
                         </div>
 
                         <div class="form__group">
-                            <label class="form__label">Ghi log chi tiết</label>
+                            <label class="form__label">Record detailed logs</label>
                             <div class="form__toggle">
                                 <input type="checkbox" id="verbose" name="verbose" checked>
-                                <label for="verbose">Bật verbose</label>
+                                <label for="verbose">Turn on verbose</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="form__actions">
                         <button type="submit" name="action" value="start" class="btn btn--primary">
-                            🚀 Bắt đầu crawl ngay
+                            🚀 Start crawling now
                         </button>
                     </div>
                 </form>
             </section>
 
             <section class="card">
-                <h2 class="card__title">Kết quả lần crawl gần nhất</h2>
+                <h2 class="card__title">Results of the most recent crawl</h2>
 
                 <div class="summary">
                     <div class="summary__item">
@@ -93,14 +93,14 @@
                                 {{ last_csv_name }}
                                 </a>
                             {% else %}
-                                Chưa có file
+                                No files yet
                             {% endif %}
                         </span>
 
                     </div>
 
                     <div class="summary__item">
-                        <span class="summary__label">Dung lượng</span>
+                        <span class="summary__label">Capacity</span>
                         <span class="summary__value">
                             {% if csv_size_mb %}
                                 {{ csv_size_mb }} MB
@@ -141,7 +141,7 @@
             }
         }
     </script>
-    <script src="{% static 'weather/js/JS_Crawl_data_by_API.js' %}?v=1036513379"></script>
+    <script src="{% static 'weather/js/JS_Crawl_data_by_API.js' %}?v=1738513379"></script>
 
 </body>
 </html>

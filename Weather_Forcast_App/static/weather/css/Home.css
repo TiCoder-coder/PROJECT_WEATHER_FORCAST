@@ -1144,3 +1144,330 @@ body.no-scroll {
 .wind-layer   { z-index: 2 !important; }
 .hero-anim    { z-index: 3 !important; }
 .hero-content { z-index: 4 !important; }
+
+.home-nav .nav-pill.nav-pill--intro{
+  border: 1px solid rgba(56,189,248,0.45);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(56,189,248,0.16), rgba(2,6,23,0.35));
+  box-shadow:
+    0 10px 26px rgba(0,0,0,0.25),
+    0 0 0 1px rgba(56,189,248,0.12) inset;
+}
+.home-nav .nav-pill.nav-pill--intro:hover{
+  transform: translateY(-1px);
+  border-color: rgba(34,197,94,0.45);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.28),
+    0 0 22px rgba(56,189,248,0.14);
+}
+
+/* Modal animation (mở ra mượt + sang) */
+.crawl-modal.is-open .crawl-modal__overlay{
+  animation: modalOverlayIn .16s ease both;
+}
+.crawl-modal.is-open .crawl-modal__content{
+  animation: modalPopIn .22s cubic-bezier(.2,.9,.2,1) both;
+}
+
+@keyframes modalOverlayIn{
+  from{ opacity: 0; }
+  to{ opacity: 1; }
+}
+@keyframes modalPopIn{
+  from{ opacity: 0; transform: translateY(10px) scale(.985); }
+  to{ opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Khung modal: viền gradient + glass */
+#introModal .crawl-modal__content,
+#helpModal .crawl-modal__content{
+  position: absolute;
+  inset: 6% 10%;
+  max-width: 1180px;
+  margin: 0 auto;
+
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(2,6,23,0.92), rgba(2,6,23,0.82)) padding-box,
+    linear-gradient(90deg,
+      rgba(56,189,248,0.65),
+      rgba(34,197,94,0.55),
+      rgba(167,139,250,0.45)
+    ) border-box;
+
+  box-shadow: 0 30px 90px rgba(0,0,0,0.75);
+  overflow: hidden;
+}
+
+/* Thanh glow phía trên modal */
+#introModal .crawl-modal__content::before,
+#helpModal .crawl-modal__content::before{
+  content:"";
+  position:absolute;
+  left: 18px; right: 18px; top: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(56,189,248,0),
+    rgba(56,189,248,0.85),
+    rgba(34,197,94,0.75),
+    rgba(56,189,248,0)
+  );
+  opacity: .85;
+}
+
+/* Title: chữ gradient nổi bật */
+#introModal .crawl-modal__header h2,
+#helpModal .crawl-modal__header h2{
+  font-size: 1.55rem;
+  letter-spacing: .2px;
+  margin: 0;
+
+  background: linear-gradient(90deg, #e5e7eb, #7dd3fc, #34d399);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Nút close: tròn đẹp */
+#introModal .crawl-modal__close,
+#helpModal .crawl-modal__close{
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  border: 1px solid rgba(148,163,184,0.24);
+  background: rgba(2,6,23,0.35);
+  color: rgba(229,231,235,0.78);
+  transition: transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+}
+
+#introModal .crawl-modal__close:hover,
+#helpModal .crawl-modal__close:hover{
+  transform: translateY(-1px);
+  border-color: rgba(56,189,248,0.45);
+  background: rgba(56,189,248,0.10);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
+
+/* Subtitle: rõ + cân bằng hơn */
+#introModal .crawl-modal__subtitle{
+  margin-top: -6px;
+  font-size: .95rem;
+  line-height: 1.5;
+  color: rgba(229,231,235,0.72);
+}
+
+/* Intro cards: nâng cấp nhìn “premium” */
+.intro-body{
+  margin-top: 10px;
+  gap: 14px;
+}
+
+.intro-block{
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,0.22);
+
+  background:
+    radial-gradient(circle at 18% 20%, rgba(56,189,248,0.10), transparent 55%),
+    linear-gradient(180deg, rgba(15,23,42,0.62), rgba(2,6,23,0.55));
+
+  box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.intro-block::after{
+  content:"";
+  position:absolute;
+  left: 12px;
+  top: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #22c55e, #0ea5e9);
+  box-shadow: 0 0 18px rgba(56,189,248,0.35);
+  opacity: .9;
+}
+
+.intro-block:hover{
+  transform: translateY(-2px);
+  border-color: rgba(56,189,248,0.45);
+  box-shadow: 0 24px 55px rgba(0,0,0,0.42);
+}
+
+.intro-block h3{
+  padding-left: 18px;
+  margin-top: 2px;
+  color: #fde68a;
+}
+
+/* List spacing đẹp hơn */
+.intro-block ul,
+.intro-block ol{
+  padding-left: 22px;
+  line-height: 1.55;
+}
+
+/* Help cards: hover + accent */
+.help-card{
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,0.22);
+  background:
+    radial-gradient(circle at 20% 15%, rgba(34,197,94,0.10), transparent 55%),
+    linear-gradient(180deg, rgba(15,23,42,0.62), rgba(2,6,23,0.55));
+  box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.help-card:hover{
+  transform: translateY(-2px);
+  border-color: rgba(34,197,94,0.38);
+  box-shadow: 0 24px 55px rgba(0,0,0,0.42);
+}
+
+/* Button trong modal: nhìn “xịn” hơn */
+#introModal .btn.secondary,
+#helpModal .btn.primary{
+  box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+}
+#introModal .btn.secondary:hover,
+#helpModal .btn.primary:hover{
+  transform: translateY(-1px);
+}
+
+/* Responsive: modal không bị quá chật */
+@media (max-width: 900px){
+  #introModal .crawl-modal__content,
+  #helpModal .crawl-modal__content{
+    inset: 7% 4%;
+    padding: 18px 16px;
+  }
+}
+#overview::before, #overview::after,
+#datasets::before, #datasets::after{
+  content: none !important;
+  display: none !important;
+}
+
+/* Turn both sections into consistent “glass cards” */
+#overview, #datasets{
+  max-width: 1180px;
+  margin: 26px auto;
+  padding: 26px 26px;
+  border-radius: 20px;
+
+  background: rgba(15, 23, 42, .76);
+  border: 1px solid rgba(56,189,248,.22);
+  box-shadow:
+    0 0 0 1px rgba(148,163,184,.10) inset,
+    0 26px 80px rgba(0,0,0,.35);
+  backdrop-filter: blur(12px);
+}
+
+/* Headings brighter + more readable */
+#overview h2, #datasets h2{
+  margin: 0 0 10px;
+  font-size: 30px;
+  font-weight: 900;
+  color: #eef6ff;
+  text-shadow: 0 10px 28px rgba(2,6,23,.65);
+}
+
+/* Descriptions clearer */
+#overview p, #datasets p{
+  color: rgba(226,232,240,.92);
+  max-width: 78ch;
+  line-height: 1.55;
+}
+
+/* Pipeline cards: brighter + hover glow */
+.cards{
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px;
+}
+
+.card{
+  background: rgba(2,6,23,.52);
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 16px;
+  padding: 16px 16px;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.card:hover{
+  transform: translateY(-2px);
+  border-color: rgba(56,189,248,.38);
+  box-shadow: 0 22px 70px rgba(2,6,23,.65), 0 0 0 1px rgba(56,189,248,.10) inset;
+}
+
+.card h3{ margin: 0; font-size: 18px; color: #ffffff; }
+.card p{ margin: 8px 0 0; color: rgba(203,213,225,.90); }
+
+/* Recent data crawls: make it “pop” & remove dull look */
+#datasets .dataset-grid{
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.dataset-card{
+  background: rgba(2,6,23,.55);
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 16px;
+  padding: 16px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.dataset-card:hover{
+  transform: translateY(-2px);
+  border-color: rgba(34,197,94,.35);
+  box-shadow: 0 22px 70px rgba(2,6,23,.65), 0 0 0 1px rgba(34,197,94,.10) inset;
+}
+
+/* Runs number bigger (easier to see) */
+.dataset-card .runs{
+  color: rgba(226,232,240,.92);
+  font-size: 13px;
+}
+.dataset-card .runs b{
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+}
+
+/* Badges nicer */
+.badge{
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  font-size: 12px;
+  border: 1px solid rgba(148,163,184,.25);
+  background: rgba(2,6,23,.45);
+}
+.badge-api{
+  border-color: rgba(56,189,248,.35);
+  box-shadow: 0 10px 25px rgba(56,189,248,.12);
+}
+.badge-vrain{
+  border-color: rgba(34,197,94,.35);
+  box-shadow: 0 10px 25px rgba(34,197,94,.12);
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .cards{ grid-template-columns: 1fr; }
+  #datasets .dataset-grid{ grid-template-columns: 1fr; }
+}

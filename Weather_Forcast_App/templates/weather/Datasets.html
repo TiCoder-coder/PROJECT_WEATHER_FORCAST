@@ -5,67 +5,216 @@
   <meta charset="UTF-8" />
   <title>Datasets</title>
   <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    .datasets-wrap{ max-width:1100px; margin:90px auto 60px; padding:0 18px; color:#e5e7eb;}
+    :root{
+      --bg-card: rgba(15,23,42,.78);
+      --bd: rgba(56,189,248,.18);
+      --muted: rgba(148,163,184,.92);
+      --text: #e5e7eb;
+      --title: #f8fafc;
+      --glow: rgba(56,189,248,.22);
+    }
+
+    .datasets-wrap{ max-width:1100px; margin:90px auto 60px; padding:0 18px; color:var(--text);}
+
     .datasets-card{
-      background: rgba(15,23,42,.78);
-      border:1px solid rgba(56,189,248,.18);
-      border-radius:16px;
-      padding:16px 18px;
+      background: var(--bg-card);
+      border:1px solid var(--bd);
+      border-radius:18px;
+      padding:18px 18px 16px;
       backdrop-filter: blur(12px);
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      box-shadow: 0 24px 70px rgba(0,0,0,.38);
+      position: relative;
+      overflow: hidden;
     }
+
+    .datasets-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(56,189,248,.16), transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(34,197,94,.12), transparent 40%),
+        radial-gradient(circle at 40% 120%, rgba(99,102,241,.12), transparent 42%);
+      pointer-events:none;
+    }
+
     .datasets-title{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      margin:0 0 10px;
+      position: relative;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin:0 0 12px;
     }
-    .datasets-title h1{ margin:0; font-size:22px; letter-spacing:.2px;}
-    .datasets-title a{ text-decoration:none; opacity:.9;}
-    table{ width:100%; border-collapse:collapse; margin-top:10px; }
-    th,td{ padding:10px 8px; border-bottom:1px solid rgba(148,163,184,.16); font-size:14px; }
-    th{ text-align:left; color:#cbd5f5; font-weight:600; }
-    .muted{ color:#94a3b8; font-size:13px; }
-    .actions{ display:flex; gap:10px; }
+
+    .title-block{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .page-title{
+      margin:0;
+      font-size:24px;
+      letter-spacing:.3px;
+      color: var(--title);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-shadow: 0 0 22px var(--glow);
+    }
+
+    .page-title::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background: rgba(56,189,248,.95);
+      box-shadow: 0 0 18px rgba(56,189,248,.55);
+      display:inline-block;
+    }
+
+    .page-sub{
+      margin-top:6px;
+      font-size:12.5px;
+      color: rgba(203,213,245,.82);
+    }
+
+    .title-underline{
+      margin-top:10px;
+      height:2px;
+      width:min(280px, 80%);
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(56,189,248,.9), rgba(34,197,94,.8), rgba(99,102,241,.7));
+      box-shadow: 0 0 18px rgba(56,189,248,.18);
+    }
+
+    .muted{ color: var(--muted); font-size:13px; }
+
+    .latest-bar{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.18);
+      background: rgba(2,6,23,.46);
+      box-shadow: 0 0 0 1px rgba(56,189,248,.08) inset;
+      position: relative;
+    }
+
+    .actions{ display:flex; gap:10px; align-items:center; flex-wrap: wrap; }
+
+    /* ===== Pills / Buttons ===== */
     .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:7px 12px; border-radius:999px;
+      appearance:none;
       border:1px solid rgba(148,163,184,.35);
       background: rgba(2,6,23,.55);
       color:#e5e7eb;
       text-decoration:none;
+      cursor:pointer;
+
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      line-height:1;
+
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
     }
+
+    .pill:hover{
+      transform: translateY(-1px);
+      border-color: rgba(56,189,248,.35);
+      box-shadow: 0 14px 32px rgba(2,6,23,.55), 0 0 0 1px rgba(56,189,248,.10) inset;
+    }
+
+    .pill:active{ transform: translateY(0); box-shadow:none; }
+
     .pill.primary{
       border-color: rgba(34,197,94,.45);
-      box-shadow: 0 12px 30px rgba(34,197,94,.18);
+      background: linear-gradient(90deg, rgba(14,165,233,.92), rgba(34,197,94,.92));
+      color: #05131d;
+      font-weight: 800;
+      box-shadow: 0 14px 34px rgba(34,197,94,.18);
+    }
+
+    .pill.primary:hover{ box-shadow: 0 18px 40px rgba(34,197,94,.22); }
+
+    .pill.small{ padding:7px 11px; font-size:12.5px; }
+
+    /* ===== Table ===== */
+    table{ width:100%; border-collapse:collapse; margin-top:12px; position: relative; }
+
+    th,td{
+      padding:12px 10px;
+      border-bottom:1px solid rgba(148,163,184,.14);
+      font-size:14px;
+      vertical-align: middle;
+    }
+
+    th{ text-align:left; color:#cbd5f5; font-weight:700; letter-spacing:.2px; }
+
+    tbody tr:hover{ background: rgba(56,189,248,.06); }
+
+    td code{
+      padding:4px 8px;
+      border-radius:10px;
+      background: rgba(2,6,23,.55);
+      border:1px solid rgba(148,163,184,.18);
+      color: rgba(229,231,235,.95);
+      font-size: 13px;
+    }
+
+    td:nth-child(2), td:nth-child(3){
+      white-space: nowrap;
+      color: rgba(229,231,235,.88);
+    }
+
+    .op-actions{ display:flex; gap:10px; justify-content:flex-start; flex-wrap: wrap; }
+
+    @media (max-width: 920px){
+      .datasets-title{ flex-direction: column; align-items:flex-start; }
+      th:nth-child(2), td:nth-child(2){ display:none; } /* ẩn cột Update trên mobile */
     }
   </style>
 </head>
+
 <body class="home-page" style="min-height:100vh;">
   <div class="datasets-wrap">
     <div class="datasets-card">
+
       <div class="datasets-title">
-        <h1>Bộ datasets gần đây</h1>
+        <div class="title-block">
+          <h1 class="page-title">Recent datasets</h1>
+          <div class="page-sub">Browse, preview, and download your latest crawled files.</div>
+          <div class="title-underline"></div>
+        </div>
 
         <div class="actions">
-          <button type="button" class="pill" id="btnBack">↩ Quay lại</button>
-          <a class="pill" href="{% url 'weather:home' %}">← Home</a>
+          <button type="button" class="pill" id="btnBack">↩ Come back</button>
+          <a class="pill primary" href="{% url 'weather:home' %}">← Home</a>
         </div>
       </div>
 
-
       {% if latest %}
-        <div class="muted">Mới nhất: <b>{{ latest.name }}</b> • {{ latest.size_mb }} MB • {{ latest.mtime }}</div>
+        <div class="latest-bar muted">
+          Latest: <b>{{ latest.name }}</b> • {{ latest.size_mb }} MB • {{ latest.mtime }}
+        </div>
       {% else %}
-        <div class="muted">Chưa có file nào trong output/</div>
+        <div class="latest-bar muted">No files are in the output/</div>
       {% endif %}
 
       <table>
         <thead>
           <tr>
-            <th>Tên file</th>
-            <th>Cập nhật</th>
-            <th>Dung lượng</th>
-            <th>Thao tác</th>
+            <th>File name</th>
+            <th>Update</th>
+            <th>Capacity</th>
+            <th>Operation</th>
           </tr>
         </thead>
         <tbody>
@@ -75,19 +224,21 @@
             <td>{{ f.mtime }}</td>
             <td>{{ f.size_mb }} MB</td>
             <td>
-              <div class="actions">
-                <a class="pill" href="{% url 'weather:dataset_view' f.name %}">👀 Xem</a>
-                <a class="pill primary" href="{% url 'weather:dataset_download' f.name %}">⬇️ Tải</a>
+              <div class="op-actions">
+                <a class="pill small" href="{% url 'weather:dataset_view' f.name %}">👀 Xem</a>
+                <a class="pill small primary" href="{% url 'weather:dataset_download' f.name %}">⬇️ Tải</a>
               </div>
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="4" class="muted">Không có dataset nào.</td></tr>
+          <tr><td colspan="4" class="muted">No dataset available.</td></tr>
         {% endfor %}
         </tbody>
       </table>
+
     </div>
   </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const btn = document.getElementById("btnBack");
@@ -102,6 +253,5 @@
       });
     });
   </script>
-
 </body>
 </html>

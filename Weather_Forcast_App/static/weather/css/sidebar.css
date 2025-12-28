@@ -1,0 +1,119 @@
+/* ===== Sidebar polish ===== */
+
+.sidebar{
+  background: linear-gradient(180deg, rgba(2,6,23,0.96), rgba(11,17,32,0.92));
+  border-right: 1px solid rgba(148,163,184,0.22);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar__nav{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.sidebar__nav-item{
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  text-decoration: none;
+  color: rgba(229,231,235,0.92);
+  font-size: 14px;
+  font-weight: 650;
+
+  background: rgba(2,6,23,0.25);
+  border: 1px solid rgba(148,163,184,0.14);
+
+  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+
+.sidebar__nav-item:hover{
+  transform: translateY(-1px);
+  background: rgba(148,163,184,0.10);
+  border-color: rgba(56,189,248,0.32);
+  box-shadow: 0 10px 26px rgba(2,6,23,0.55);
+}
+
+.sidebar__nav-item:active{
+  transform: translateY(0);
+}
+
+.nav-ico{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(56,189,248,0.12);
+  border: 1px solid rgba(56,189,248,0.20);
+  box-shadow: 0 0 0 1px rgba(2,6,23,0.20) inset;
+
+  flex: 0 0 auto;
+  font-size: 16px;
+}
+
+.nav-content{
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nav-text{
+  font-size: 13.5px;
+  font-weight: 750;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-sub{
+  font-size: 11px;
+  font-weight: 550;
+  color: rgba(156,163,175,0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Active */
+.sidebar__nav-item--active{
+  background:
+    radial-gradient(circle at 25% 25%, rgba(56,189,248,0.22), rgba(34,197,94,0.16) 45%, rgba(2,6,23,0.55) 76%);
+  border-color: rgba(34,197,94,0.42);
+  box-shadow:
+    0 0 0 1px rgba(34,197,94,0.14) inset,
+    0 16px 40px rgba(2,6,23,0.65),
+    0 0 22px rgba(34,197,94,0.16);
+}
+
+.sidebar__nav-item--active .nav-ico{
+  background: linear-gradient(135deg, rgba(56,189,248,0.30), rgba(34,197,94,0.22));
+  border-color: rgba(34,197,94,0.45);
+}
+
+.sidebar__nav-item--active::before{
+  content:"";
+  position:absolute;
+  left:-8px;
+  top:50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8, #22c55e);
+  box-shadow: 0 0 18px rgba(34,197,94,0.35);
+}
