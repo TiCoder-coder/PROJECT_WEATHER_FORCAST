@@ -3,7 +3,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Datasets</title>
+  <title>Dữ liệu</title>
   <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -178,7 +178,7 @@
 
     @media (max-width: 920px){
       .datasets-title{ flex-direction: column; align-items:flex-start; }
-      th:nth-child(2), td:nth-child(2){ display:none; } /* ẩn cột Update trên mobile */
+      th:nth-child(2), td:nth-child(2){ display:none; }
     }
   </style>
 </head>
@@ -189,32 +189,32 @@
 
       <div class="datasets-title">
         <div class="title-block">
-          <h1 class="page-title">Recent datasets</h1>
-          <div class="page-sub">Browse, preview, and download your latest crawled files.</div>
+          <h1 class="page-title">Dữ liệu gần đây</h1>
+          <div class="page-sub">Duyệt, xem trước và tải xuống các tệp đã thu thập gần nhất.</div>
           <div class="title-underline"></div>
         </div>
 
         <div class="actions">
-          <button type="button" class="pill" id="btnBack">↩ Come back</button>
-          <a class="pill primary" href="{% url 'weather:home' %}">← Home</a>
+          <button type="button" class="pill" id="btnBack">↩ Quay lại</button>
+          <a class="pill primary" href="{% url 'weather:home' %}">← Trang chủ</a>
         </div>
       </div>
 
       {% if latest %}
         <div class="latest-bar muted">
-          Latest: <b>{{ latest.name }}</b> • {{ latest.size_mb }} MB • {{ latest.mtime }}
+          Mới nhất: <b>{{ latest.name }}</b> • {{ latest.size_mb }} MB • {{ latest.mtime }}
         </div>
       {% else %}
-        <div class="latest-bar muted">No files are in the output/</div>
+        <div class="latest-bar muted">Không có tệp nào trong thư mục output/</div>
       {% endif %}
 
       <table>
         <thead>
           <tr>
-            <th>File name</th>
-            <th>Update</th>
-            <th>Capacity</th>
-            <th>Operation</th>
+            <th>Tên tệp</th>
+            <th>Cập nhật</th>
+            <th>Dung lượng</th>
+            <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -231,7 +231,7 @@
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="4" class="muted">No dataset available.</td></tr>
+          <tr><td colspan="4" class="muted">Không có dữ liệu nào.</td></tr>
         {% endfor %}
         </tbody>
       </table>

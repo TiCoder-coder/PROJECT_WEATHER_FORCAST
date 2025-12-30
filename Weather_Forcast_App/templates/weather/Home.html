@@ -3,21 +3,21 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Weather Forecast Dashboard</title>
+    <title>Bảng điều khiển Dự báo Thời tiết</title>
     <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=5821170">
 
 </head>
 <body class="home-page">
 
 
-    <!-- TOP NAV -->
+    <!-- THANH ĐIỀU HƯỚNG TRÊN -->
     <header class="home-header">
         <div class="logo">
             <span class="logo-dot"></span>
             <span class="logo-text">VN Weather Hub</span>
         </div>
         <nav class="home-nav">
-            <button type="button" class="nav-pill" id="btnIntro">Introduce</button>
+            <button type="button" class="nav-pill" id="btnIntro">Giới thiệu</button>
         </nav>
     </header>
 
@@ -33,7 +33,7 @@
             <span class="wind w5"></span>
         </div>
         <div class="hero-anim" aria-hidden="true">
-            <!-- SUN -->
+            <!-- MẶT TRỜI -->
             <div class="wx wx-sun">
                 <svg class="wx-svg" viewBox="0 0 120 120">
                 <g class="sun-rays">
@@ -50,7 +50,7 @@
                 </svg>
             </div>
 
-            <!-- CLOUD -->
+            <!-- MÂY -->
             <div class="wx wx-cloud">
                 <svg class="wx-svg" viewBox="0 0 220 140">
                 <path class="cloud-fill"
@@ -62,7 +62,7 @@
                 </svg>
             </div>
 
-            <!-- RAIN -->
+            <!-- MƯA -->
             <div class="wx wx-rain">
                 <svg class="wx-svg" viewBox="0 0 240 170">
                 <path class="cloud-fill"
@@ -81,7 +81,7 @@
                 </svg>
             </div>
 
-            <!-- EARTH (rotating) -->
+            <!-- TRÁI ĐẤT (xoay) -->
             <div class="earth-wrap">
                 <div class="earth"></div>
                 <div class="earth-orbit"></div>
@@ -89,9 +89,9 @@
 
             </div>
 
-        <!-- WEATHER ICONS (animated) -->
+        <!-- BIỂU TƯỢNG THỜI TIẾT (động) -->
         <div class="hero-weather" aria-hidden="true">
-            <!-- SUN -->
+            <!-- MẶT TRỜI -->
             <div class="wx wx-sun">
             <svg class="wx-svg" viewBox="0 0 120 120">
                 <g class="sun-rays">
@@ -114,7 +114,7 @@
             </svg>
             </div>
 
-            <!-- CLOUD -->
+            <!-- MÂY -->
             <div class="wx wx-cloud">
             <svg class="wx-svg" viewBox="0 0 220 140">
                 <path class="cloud-shape"
@@ -125,7 +125,7 @@
             </svg>
             </div>
 
-            <!-- RAIN -->
+            <!-- MƯA -->
             <div class="wx wx-rain">
             <svg class="wx-svg" viewBox="0 0 220 180">
                 <path class="cloud-shape"
@@ -144,26 +144,26 @@
         </div>
 
         <div class="hero-content">
-            <h1>Realtime Vietnam Weather Data</h1>
+            <h1>Dữ liệu thời tiết Việt Nam thời gian thực</h1>
             <p>
-                Collect, merge, and visualize weather data from Vrain and OpenWeather's API-HTML in a single dashboard.
+                Thu thập, hợp nhất và trực quan hóa dữ liệu thời tiết từ Vrain và API/HTML của OpenWeather trong một bảng điều khiển.
             </p>
             <div class="hero-actions">
                 <button type="button" class="btn primary" id="btnOpenCrawlModal">
-                    Start crawling Vrain
+                    Bắt đầu thu thập Vrain
                 </button>
                 <a class="btn secondary" href="{% url 'weather:datasets' %}">
-                    Recent datasets
+                    Bộ dữ liệu gần đây
                 </a>
                 <button type="button" class="btn secondary btn-help" id="btnOpenHelpModal">
-                    Instructions for use
+                    Hướng dẫn sử dụng
                 </button>
 
             </div>
 
             <div class="hero-meta">
                 <div class="meta-item">
-                    <span class="meta-label">Last updated</span>
+                    <span class="meta-label">Cập nhật lần cuối</span>
                     <span class="meta-value">
                         {{ latest_dataset_time|default:"—" }}
                     </span>
@@ -173,82 +173,82 @@
 
     </section>
 
-    <!-- OVERVIEW SECTION -->
+    <!-- PHẦN TỔNG QUAN -->
     <section id="overview" class="section overview">
-        <h2>Overview of pipelines</h2>
+        <h2>Tổng quan về các pipeline</h2>
         <p class="section-desc">
-            Each pipeline corresponds to a data source: the international API, Vrain's HTML, or OpenWeather.
+            Mỗi pipeline tương ứng với một nguồn dữ liệu: API quốc tế, HTML của Vrain, hoặc OpenWeather.
         </p>
 
         <div class="cards">
             <div class="card">
                 <div class="card-icon">
                     <img src="{% static 'weather/img/icons/api.svg' %}"
-                         alt="API icon"
+                         alt="Biểu tượng API"
                          onerror="this.style.display='none'">
                 </div>
                 <h3>API OpenWeather</h3>
                 <p>
-                    Use the API to retrieve real-time temperature, humidity, wind, 
-                    cloud cover, and other data for the entire country of Vietnam.
+                    Sử dụng API để lấy dữ liệu thời tiết thời gian thực như nhiệt độ, độ ẩm, gió,
+                    độ che phủ mây và các dữ liệu khác cho toàn bộ lãnh thổ Việt Nam.
                 </p>
             </div>
 
             <div class="card">
                 <div class="card-icon">
                     <img src="{% static 'weather/img/icons/vrain.svg' %}"
-                         alt="Vrain icon"
+                         alt="Biểu tượng Vrain"
                          onerror="this.style.display='none'">
                 </div>
                 <h3>Vrain – HTML/Selenium</h3>
                 <p>
-                    Crawl rainfall data at each station/vin from the Vrain website 
-                    using Selenium, and save it as a CSV/Excel file for analysis.
+                    Crawl dữ liệu lượng mưa tại từng trạm/vin từ trang web Vrain bằng Selenium,
+                    và lưu thành file CSV/Excel để phân tích.
                 </p>
             </div>
 
             <div class="card">
                 <div class="card-icon">
                     <img src="{% static 'weather/img/icons/report.svg' %}"
-                         alt="Report icon"
+                         alt="Biểu tượng Báo cáo"
                          onerror="this.style.display='none'">
                 </div>
-                <h3>Merge & Dashboard</h3>
+                <h3>Hợp nhất & Bảng điều khiển</h3>
                 <p>
-                    Combine data from multiple sources, export to Excel, and prepare 
-                    for visualization using Power BI / Grafana / Web chart.
+                    Kết hợp dữ liệu từ nhiều nguồn, xuất ra Excel, và chuẩn bị cho việc trực quan hóa
+                    bằng Power BI / Grafana / Biểu đồ web.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- DATASETS SECTION -->
+    <!-- PHẦN BỘ DỮ LIỆU -->
     <section id="datasets" class="section datasets">
-        <h2>Recent data crawls</h2>
+        <h2>Các lần thu thập dữ liệu gần đây</h2>
 
         <div class="dataset-grid">
             <div class="dataset-card">
                 <h3>API OpenWeather</h3>
-                <p>Runs: {{ total_api_runs|default:0 }}</p>
+                <p>Số lần chạy: {{ total_api_runs|default:0 }}</p>
                 <span class="badge badge-api">API</span>
             </div>
 
             <div class="dataset-card">
-                <h3>Vrain Crawl</h3>
-                <p>Runs: {{ total_vrain_runs|default:0 }}</p>
+                <h3>Thu thập Vrain</h3>
+                <p>Số lần chạy: {{ total_vrain_runs|default:0 }}</p>
                 <span class="badge badge-vrain">VRAIN</span>
             </div>
 
         </div>
     </section>
 
-        <!-- ========== MODAL CHỌN CÁCH CRAWL VRAIN ========== -->
+        <!-- ========== MODAL CHỌN CÁCH THU THẬP VRAIN ========== -->
     <div id="crawlMethodModal" class="crawl-modal">
         <div class="crawl-modal__overlay" data-close-crawl-modal></div>
 
         <div class="crawl-modal__content">
             <header class="crawl-modal__header">
-                <h2>Choose how to crawl data using Vrain.</h2>
+                <h2>Chọn cách thu thập dữ liệu bằng Vrain.</h2>
                 <button type="button"
                         class="crawl-modal__close"
                         data-close-crawl-modal>&times;</button>
@@ -258,61 +258,61 @@
             <div class="crawl-modal__grid">
                 <!-- 1. Crawl_data_by_API.py -->
                 <div class="crawl-card">
-                    <h3>1. Crawl via OpenWeather API</h3>
+                    <h3>1. Thu thập qua API OpenWeather</h3>
                     <ul class="crawl-card__list">
-                        <li>Retrieve weather data from international APIs (temperature, humidity, wind, rain, etc.).</li>
-                        <li>Suitable for getting a nationwide overview.</li>
+                        <li>Lấy dữ liệu thời tiết từ các API quốc tế (nhiệt độ, độ ẩm, gió, mưa, v.v.).</li>
+                        <li>Phù hợp để có cái nhìn tổng quát trên toàn quốc.</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="api_weather"
                             data-crawl-label="Crawl_data_by_API.py">
-                        Choose this method
+                        Chọn phương pháp này
                     </button>
                 </div>
 
                 <!-- 2. Crawl_data_from_Vrain_by_API.py -->
                 <div class="crawl-card">
-                    <h3>2. Crawl via Vrain API</h3>
+                    <h3>2. Thu thập qua API của Vrain</h3>
                     <ul class="crawl-card__list">
-                        <li>Get rainfall data directly from the API (if Vrain provides it).</li>
-                        <li>Stable, less dependent on HTML interface.</li>
+                        <li>Lấy dữ liệu lượng mưa trực tiếp từ API (nếu Vrain cung cấp).</li>
+                        <li>Ổn định, ít phụ thuộc vào giao diện HTML.</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="vrain_api"
                             data-crawl-label="Crawl_data_from_Vrain_by_API.py">
-                        Choose this method
+                        Chọn phương pháp này
                     </button>
                 </div>
 
                 <!-- 3. Crawl_data_from_Vrain_by_Selenium.py -->
                 <div class="crawl-card">
-                    <h3>3. Crawl Vrain with Selenium (multi-ID)</h3>
+                    <h3>3. Thu thập Vrain bằng Selenium (multi-ID)</h3>
                     <ul class="crawl-card__list">
-                        <li>Using Selenium to control the browser and read the Vrain UI.</li>
-                        <li>Suitable for crawling multiple provinces/stations simultaneously.</li>
+                        <li>Sử dụng Selenium điều khiển trình duyệt và đọc giao diện Vrain.</li>
+                        <li>Phù hợp khi thu thập nhiều tỉnh/trạm cùng lúc.</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="vrain_selenium"
                             data-crawl-label="Crawl_data_from_Vrain_by_Selenium.py">
-                        Choose this method
+                        Chọn phương pháp này
                     </button>
                 </div>
 
                 <!-- 4. Crawl_data_from_html_of_Vrain.py -->
                 <div class="crawl-card">
-                    <h3>4. Crawl HTML Vrain (source analysis)</h3>
+                    <h3>4. Thu thập HTML Vrain (phân tích nguồn)</h3>
                     <ul class="crawl-card__list">
-                        <li>Read the HTML and use regex to extract rainfall data for each station.</li>
-                        <li>Suitable when fine-tuning HTML parsing logic is required.</li>
+                        <li>Đọc HTML và sử dụng regex để trích xuất dữ liệu lượng mưa cho từng trạm.</li>
+                        <li>Phù hợp khi cần tinh chỉnh logic phân tích HTML.</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="vrain_html"
                             data-crawl-label="Crawl_data_from_html_of_Vrain.py">
-                        Choose this method
+                        Chọn phương pháp này
                     </button>
                 </div>
             </div>
@@ -324,7 +324,7 @@
 
         <div class="crawl-modal__content">
             <header class="crawl-modal__header">
-                <h2>📘 Instructions for using VN Weather Hub</h2>
+                <h2>📘 Hướng dẫn sử dụng VN Weather Hub</h2>
                 <button type="button"
                         class="crawl-modal__close"
                         data-close-help-modal>&times;</button>
@@ -332,54 +332,54 @@
 
             <div class="help-grid">
                 <div class="help-card">
-                    <h3>1) Home (Dashboard)</h3>
+                    <h3>1) Trang chủ (Bảng điều khiển)</h3>
                     <ul>
-                        <li>Click <b>Start crawling Vrain</b> to select pipeline crawl..</li>
-                        <li>Scroll down <b>Overview of pipelines</b> to view the description of each pipeline.</li>
-                        <li>Scroll down <b>recent datasets</b> to see the number of times each pipeline has been run.</li>
+                        <li>Nhấn <b>Bắt đầu thu thập Vrain</b> để chọn pipeline thu thập.</li>
+                        <li>Cuộn xuống <b>Tổng quan về các pipeline</b> để xem mô tả từng pipeline.</li>
+                        <li>Cuộn xuống <b>Các lần thu thập dữ liệu gần đây</b> để xem số lần chạy của mỗi pipeline.</li>
                     </ul>
                 </div>
 
                 <div class="help-card">
-                    <h3>2) Crawl OpenWeather using the API</h3>
+                    <h3>2) Thu thập OpenWeather bằng API</h3>
                     <ul>
-                        <li>Go to the page <b>Crawl OpenWeather using the API</b>.</li>
-                        <li>Click <b>Start crawling Vrain</b> to run script.</li>
-                        <li>Logs will be displayed in real-time (if backend logging is enabled).</li>
-                        <li>Once finished, the file will be exported to <code>output/</code>.</li>
+                        <li>Vào trang <b>Thu thập OpenWeather bằng API</b>.</li>
+                        <li>Nhấn <b>Bắt đầu thu thập Vrain</b> để chạy script.</li>
+                        <li>Logs sẽ hiển thị theo thời gian thực (nếu backend bật logging).</li>
+                        <li>Khi kết thúc, file sẽ được xuất sang thư mục <code>output/</code>.</li>
                     </ul>
                 </div>
 
                 <div class="help-card">
-                    <h3>3) Crawl Vrain using API</h3>
+                    <h3>3) Thu thập Vrain bằng API</h3>
                     <ul>
-                        <li>Go to the page <b>Crawl Vrain using the API</b>.</li>
-                        <li>Click <b>Start crawling Vrain</b> to run and monitor the logs.</li>
-                        <li>Once finished, the output file will be in the <code>output/</code>.</li>
+                        <li>Vào trang <b>Thu thập Vrain bằng API</b>.</li>
+                        <li>Nhấn <b>Bắt đầu thu thập Vrain</b> để chạy và theo dõi logs.</li>
+                        <li>Khi kết thúc, file xuất ra sẽ nằm trong <code>output/</code>.</li>
                     </ul>
                 </div>
 
                 <div class="help-card">
-                    <h3>4) Crawl Vrain using Selenium / HTML Parse</h3>
+                    <h3>4) Thu thập Vrain bằng Selenium / Phân tích HTML</h3>
                     <ul>
-                        <li><b>Selenium</b>: Suitable for crawling by UI/multi-ID.</li>
-                        <li><b>HTML Parse</b>: Suitable for fine-tuning logic when parsing HTML source code.</li>
-                        <li>Click <b>Start crawling Vrain</b> and see log realtime.</li>
+                        <li><b>Selenium</b>: Phù hợp để thu thập theo giao diện / nhiều ID.</li>
+                        <li><b>Phân tích HTML</b>: Phù hợp để tinh chỉnh logic khi phân tích source HTML.</li>
+                        <li>Nhấn <b>Bắt đầu thu thập Vrain</b> và xem logs theo thời gian thực.</li>
                     </ul>
                 </div>
 
                 <div class="help-card help-card--wide">
-                    <h3>5) Datasets</h3>
+                    <h3>5) Bộ dữ liệu</h3>
                     <ul>
-                        <li>Go to the page <b>Datasets</b> to view the files in <code>output/</code>.</li>
-                        <li>Can <b>View</b> or <b>Download</b> depending on the file.</li>
+                        <li>Vào trang <b>Bộ dữ liệu</b> để xem các file trong <code>output/</code>.</li>
+                        <li>Có thể <b>Xem</b> hoặc <b>Tải xuống</b> tùy theo file.</li>
                     </ul>
                 </div>
             </div>
 
             <div class="help-actions">
                 <button type="button" class="btn primary" data-close-help-modal>
-                    Understood
+                    Hiểu rồi
                 </button>
             </div>
         </div>
@@ -387,7 +387,7 @@
 
 
     <footer class="home-footer">
-        <span>© {{ now|default:"2025" }} Weather Forecast Project — Built with Django</span>
+        <span>© {{ now|default:"2025" }} Dự án Dự báo Thời tiết — Xây dựng bằng Django</span>
     </footer>
 
 <script src="{% static 'weather/js/Home.js' %}?v=96579"></script>
@@ -397,47 +397,47 @@
 
   <div class="crawl-modal__content intro-modal__content" role="dialog" aria-modal="true">
     <header class="crawl-modal__header">
-      <h2>Introducing VN Weather Hub</h2>
+      <h2>Giới thiệu VN Weather Hub</h2>
       <button type="button" class="crawl-modal__close" data-close-intro-modal>&times;</button>
     </header>
 
     <p class="crawl-modal__subtitle">
-      The dashboard collects and manages weather data from multiple sources (API + Vrain) in one place.
+      Bảng điều khiển thu thập và quản lý dữ liệu thời tiết từ nhiều nguồn (API + Vrain) trong một nơi.
     </p>
 
     <div class="intro-body">
       <div class="intro-block">
-        <h3>🎯 What does this project do?</h3>
+        <h3>🎯 Dự án này làm gì?</h3>
         <ul>
-          <li>Crawl weather data according to your chosen pipeline.</li>
-          <li>Save the resulting file to the folder <code>output/</code>.</li>
-          <li>View and download dataset directly in the section <b>Datasets</b>.</li>
+          <li>Thu thập dữ liệu thời tiết theo pipeline bạn chọn.</li>
+          <li>Lưu file kết quả vào thư mục <code>output/</code>.</li>
+          <li>Xem và tải xuống bộ dữ liệu trực tiếp ở mục <b>Bộ dữ liệu</b>.</li>
         </ul>
       </div>
 
       <div class="intro-block">
-        <h3>🧩 Existing pipelines</h3>
+        <h3>🧩 Các pipeline hiện có</h3>
         <ul>
-          <li><b>OpenWeather API</b>: get temperature/humidity/wind...</li>
-          <li><b>Vrain HTML/Selenium</b>: crawl rainfall data from Vrain.</li>
-          <li><b>Vrain API</b>: Obtain rainfall data via API (if available).</li>
+          <li><b>API OpenWeather</b>: lấy nhiệt độ/độ ẩm/gió...</li>
+          <li><b>Vrain HTML/Selenium</b>: thu thập dữ liệu lượng mưa từ Vrain.</li>
+          <li><b>API Vrain</b>: Lấy dữ liệu lượng mưa thông qua API (nếu có).</li>
         </ul>
       </div>
 
       <div class="intro-block">
-        <h3>📌 How to use quickly</h3>
+        <h3>📌 Cách dùng nhanh</h3>
         <ol>
-          <li>Select the pipeline you want to run.</li>
-          <li>Click <b>Start crawling Vrain</b> and view the logs in real-time.</li>
-          <li>Via <b>Datasets</b> to view/download the latest file.</li>
+          <li>Chọn pipeline bạn muốn chạy.</li>
+          <li>Nhấn <b>Bắt đầu thu thập Vrain</b> và xem logs theo thời gian thực.</li>
+          <li>Vào <b>Bộ dữ liệu</b> để xem/tải file mới nhất.</li>
         </ol>
       </div>
 
       <div class="intro-block">
-        <h3>💡 Suggest</h3>
+        <h3>💡 Gợi ý</h3>
         <ul>
-          <li>If the logs don't appear immediately: check if the script prints log/flush.</li>
-          <li>The process finished but the file is missing: check the file path <code>output/</code>.</li>
+          <li>Nếu logs không hiển thị ngay: kiểm tra xem script có in log/flush không.</li>
+          <li>Quá trình kết thúc nhưng file không thấy: kiểm tra đường dẫn file <code>output/</code>.</li>
         </ul>
       </div>
     </div>
