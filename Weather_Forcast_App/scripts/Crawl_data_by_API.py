@@ -958,7 +958,7 @@ class VietnamWeatherDataCrawler:
 
         return report
 
-    def save_to_excel(self, weather_data, output_dir="/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"):
+    def save_to_excel(self, weather_data, output_dir="/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"):
         """Lưu dữ liệu ra file Excel với đánh giá chất lượng"""
         if output_dir is None:
             output_dir = OUTPUT_DIR

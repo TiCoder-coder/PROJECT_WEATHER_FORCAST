@@ -89,7 +89,7 @@ province_urls = [
     "https://vrain.vn/52/overview?public_map=windy",
 ]
 
-OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output")
+OUTPUT_DIR = Path("/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

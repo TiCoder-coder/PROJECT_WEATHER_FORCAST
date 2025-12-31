@@ -2264,7 +2264,7 @@ class VietnamWeatherCrawler:
             logging.error(f"❌ Lỗi lưu dữ liệu toàn diện: {e}")
             return None
 
-    def save_comprehensive_excel(self, combined_data, output_dir="/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"):
+    def save_comprehensive_excel(self, combined_data, output_dir="/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"):
         """Lưu dữ liệu toàn diện ra file Excel"""
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

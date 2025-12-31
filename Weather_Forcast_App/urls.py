@@ -3,6 +3,7 @@ from .views.Home import home_view
 from .views.View_Crawl_data_by_API import crawl_api_weather_view, api_weather_logs_view
 from .views.View_Crawl_data_by_API import crawl_vrain_html_view
 from .views.View_Datasets import datasets_view, dataset_download_view, dataset_view_view
+from .views.View_Merge_Data import merge_data_view
 from .views.View_Crawl_data_from_html_of_Vrain import (
     crawl_vrain_html_view,
     crawl_vrain_html_start_view,
@@ -57,4 +58,7 @@ urlpatterns = [
     path("datasets/", datasets_view, name="datasets"),
     path("datasets/view/<str:filename>/", dataset_view_view, name="dataset_view"),
     path("datasets/download/<str:filename>/", dataset_download_view, name="dataset_download"),
+    
+    # Merge data endpoint
+    path("datasets/merge/", merge_data_view, name="merge_data"),
 ]

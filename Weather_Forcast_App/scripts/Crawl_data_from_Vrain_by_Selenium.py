@@ -249,7 +249,7 @@ class VrainCrawlerFinal:
             "Thời gian cập nhật",
         ]
 
-        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
+        output_dir = "/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
         os.makedirs(output_dir, exist_ok=True)  # tạo thư mục nếu chưa có
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
