@@ -29,10 +29,23 @@ def merge_data_view(request):
                 "message": f"Không tìm thấy file Merge_xlsx.py tại: {script_path}"
             }, status=404)
         
-        # Chạy script Merge_xlsx.py
-        # Working directory là thư mục chứa script
-        script_dir = script_path.parent
+        # Xác định base_dir (thư mục cha của script_path, tức là thư mục Weather_Forcast_App)
+        # Vì script_path nằm trong thư mục scripts, nên parent.parent là thư mục Weather_Forcast_App
+        base_dir = script_path.parent.parent
         
+        # Kiểm tra thư mục output có tồn tại không
+        output_dir = base_dir / "output"
+        if not output_dir.exists():
+            return JsonResponse({
+                "success": False,
+                "message": f"Không tìm thấy thư mục output tại: {output_dir}"
+            }, status=404)
+        
+        # Tạo thư mục Merge_data nếu chưa có
+        merge_dir = base_dir / "Merge_data"
+        merge_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Chạy script Merge_xlsx.py
         # Thiết lập environment variables để xử lý Unicode
         import os
         env = os.environ.copy()
@@ -43,7 +56,7 @@ def merge_data_view(request):
             capture_output=True,
             text=True,
             timeout=300,  # Timeout 5 phút
-            cwd=str(script_dir),  # Chạy từ thư mục scripts
+            cwd=str(base_dir),  # Chạy từ thư mục gốc (chứa output và Merge_data)
             env=env,  # Thêm environment để xử lý UTF-8
             encoding='utf-8',  # Đảm bảo output được decode đúng
             errors='replace'  # Thay thế ký tự lỗi thay vì crash
@@ -59,12 +72,12 @@ def merge_data_view(request):
             total_rows = 0
             
             for line in output_lines:
-                if "Số file mới chưa merge:" in line:
+                if "So file moi chua merge:" in line:
                     try:
                         new_files_count = int(line.split(":")[-1].strip())
                     except:
                         pass
-                elif "Tổng số dòng sau khi merge:" in line:
+                elif "Tong so dong sau khi merge:" in line:
                     try:
                         total_rows = int(line.split(":")[-1].strip())
                     except:
