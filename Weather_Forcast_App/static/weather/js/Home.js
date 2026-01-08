@@ -95,3 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById("introStartCrawl");
+  if (!startBtn) return;
+
+  startBtn.addEventListener("click", () => {
+    // đóng intro
+    const close = document.querySelector("#introModal [data-close-intro-modal]");
+    if (close) close.click();
+
+    // mở modal chọn cách crawl (nút sẵn có trên hero)
+    const openCrawl = document.getElementById("btnOpenCrawlModal");
+    if (openCrawl) openCrawl.click();
+  });
+});
