@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Bảng điều khiển Dự báo Thời tiết</title>
-    <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=98889986261994999987821170">
+    <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=9998999889986261994999987821170">
 
 </head>
 <body class="home-page">
@@ -150,11 +150,12 @@
             </p>
             <div class="hero-actions">
                 <button type="button" class="btn primary" id="btnOpenCrawlModal">
-                    Bắt đầu thu thập Vrain
+                    Bắt đầu thu thập data
                 </button>
-                <a class="btn secondary" href="{% url 'weather:datasets' %}">
-                    Bộ dữ liệu gần đây
+                <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">
+                    Xử lí dữ liệu
                 </a>
+
                 <button type="button" class="btn secondary btn-help" id="btnOpenHelpModal">
                     Hướng dẫn sử dụng
                 </button>
@@ -253,7 +254,6 @@
 
 
             <div class="crawl-modal__grid">
-                <!-- 1. Crawl_data_by_API.py -->
                 <div class="crawl-card">
                     <h3>1. Thu thập qua API OpenWeather</h3>
                     <ul class="crawl-card__list">
@@ -268,7 +268,6 @@
                     </button>
                 </div>
 
-                <!-- 2. Crawl_data_from_Vrain_by_API.py -->
                 <div class="crawl-card">
                     <h3>2. Thu thập qua API của Vrain</h3>
                     <ul class="crawl-card__list">
@@ -283,7 +282,6 @@
                     </button>
                 </div>
 
-                <!-- 3. Crawl_data_from_Vrain_by_Selenium.py -->
                 <div class="crawl-card">
                     <h3>3. Thu thập Vrain bằng Selenium (multi-ID)</h3>
                     <ul class="crawl-card__list">
@@ -298,7 +296,6 @@
                     </button>
                 </div>
 
-                <!-- 4. Crawl_data_from_html_of_Vrain.py -->
                 <div class="crawl-card">
                     <h3>4. Thu thập HTML Vrain (phân tích nguồn)</h3>
                     <ul class="crawl-card__list">
@@ -315,7 +312,6 @@
             </div>
         </div>
     </div>
-    <!-- ========== MODAL HƯỚNG DẪN SỬ DỤNG ========== -->
     <div id="helpModal" class="crawl-modal" aria-hidden="true">
         <div class="modal-content help">
             <button class="modal-close" type="button" data-close-help-modal>×</button>
@@ -386,7 +382,7 @@
         <span>© {{ now|default:"2025" }} Dự án Dự báo Thời tiết — Xây dựng bằng Django</span>
     </footer>
 
-<script src="{% static 'weather/js/Home.js' %}?v=19962649999796579"></script>
+<script src="{% static 'weather/js/Home.js' %}?v=991999962649999796579"></script>
 
 <div id="introModal" class="crawl-modal" aria-hidden="true">
   <div class="crawl-modal__overlay" data-close-intro-modal></div>
@@ -405,7 +401,6 @@
     </header>
 
     <div class="intro-x__grid">
-      <!-- Card: App làm gì -->
       <section class="intro-x__card">
         <h3>🎯 Bạn làm được gì trên web?</h3>
         <ul class="intro-x__list">
@@ -416,7 +411,6 @@
         </ul>
       </section>
 
-      <!-- Card: Kiến trúc / layer -->
       <section class="intro-x__card">
         <h3>🧱 Kiến trúc (3 layer)</h3>
         <ul class="intro-x__list">
@@ -427,7 +421,6 @@
         <div class="intro-x__note">✅ Dữ liệu chính lưu dạng file (<b>CSV/XLSX</b>), DB SQLite dùng cho Django/dev & lưu tổng hợp nếu cần.</div>
       </section>
 
-      <!-- Card: Luồng dữ liệu -->
       <section class="intro-x__card intro-x__card--wide">
         <h3>🧭 Luồng dữ liệu end-to-end</h3>
         <ol class="intro-x__steps">
@@ -443,7 +436,6 @@
         </ol>
       </section>
 
-      <!-- Card: Pipeline -->
       <section class="intro-x__card">
         <h3>🧩 Các pipeline hiện có</h3>
         <div class="intro-x__chips">
@@ -458,25 +450,29 @@
         </ul>
       </section>
 
-      <!-- Card: Quick start -->
       <section class="intro-x__card">
         <h3>🚀 Quick start</h3>
         <ol class="intro-x__steps">
-          <li>Nhấn <b>Bắt đầu thu thập Vrain</b> → chọn phương pháp crawl.</li>
+          <li>Nhấn <b>Bắt đầu thu thập data</b> → chọn phương pháp crawl.</li>
           <li>Chờ chạy xong → file sẽ xuất hiện trong <code>output/</code>.</li>
-          <li>Vào <b>Bộ dữ liệu gần đây</b> để <b>👀 Xem</b> hoặc <b>⬇️ Tải</b>.</li>
+          <li>Vào <b>Xử lí dữ liệu</b> để <b>👀 Xem</b> hoặc <b>⬇️ Tải</b>.</li>
           <li>Nếu muốn dữ liệu “chuẩn phân tích”: bấm <b>🔗 Gộp</b> rồi <b>🧹 Làm sạch</b>.</li>
         </ol>
       </section>
 
     <div class="intro-x__actions">
       <button type="button" class="btn primary" id="introStartCrawl">🚀 Bắt đầu thu thập</button>
-      <a class="btn secondary" href="{% url 'weather:datasets' %}">📚 Bộ dữ liệu</a>
-      <button type="button" class="btn secondary" data-close-intro-modal>✕ Đóng</button>
+      <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">📚 Bộ dữ liệu</a>
+      <but
+      ton type="button" class="btn secondary" data-close-intro-modal>✕ Đóng</button>
     </div>
   </div>
 </div>
 
 
 </body>
+<div class="wx-layer wx-clouds" aria-hidden="true"></div>
+<div class="wx-layer wind-layer" aria-hidden="true"></div>
+<div class="wx-layer wx-rain" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
 </html>

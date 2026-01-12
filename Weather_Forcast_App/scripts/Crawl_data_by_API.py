@@ -18,7 +18,6 @@ import os
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "").strip()
 WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "").strip()
 CRAWL_MODE = os.getenv("CRAWL_MODE", "continuous").lower()
-# Thiết lập logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -958,7 +957,8 @@ class VietnamWeatherDataCrawler:
 
         return report
 
-    def save_to_excel(self, weather_data, output_dir=None):        if output_dir is None:
+    def save_to_excel(self, weather_data, output_dir=None):        
+        if output_dir is None:
             output_dir = OUTPUT_DIR
 
         output_dir = Path(output_dir)
@@ -5456,19 +5456,15 @@ def main():
         end_time = time.time()
 
         if weather_data:
-            # Lưu vào Excel
             excel_file = crawler.save_to_excel(weather_data)
 
-            # Lưu vào SQLite
             sqlite_success = crawler.save_to_sqlite(weather_data, locations)
 
-            # Lấy tổng quan database
             if sqlite_success:
                 db_summary = crawler.get_database_summary()
 
             quality_report = crawler.get_data_quality_report()
 
-            # Hiển thị báo cáo
             logging.info("=" * 70)
             logging.info("📊 BÁO CÁO CHẤT LƯỢNG DỮ LIỆU")
             logging.info("=" * 70)
@@ -5525,19 +5521,14 @@ def run_continuously():
         try:
             main()
             logging.info("⏳ Đang chờ 10 phút để chạy lần tiếp theo...")
-            time.sleep(600)  # 10 phút = 600 giây
+            time.sleep(600)
         except Exception as e:
             logging.error(f"💥 Lỗi trong quá trình chạy thường trú: {e}")
             logging.info("🔄 Thử chạy lại sau 10 phút...")
             time.sleep(600)
 
 
-# SỬ  DỤNG CHO CHẠY LOCAL Ở TRÊN MÁY -------------------------------------------------------------------------
-# if __name__ == "__main__":
-#     run_continuously()
 
-
-# SỬ DỤNG CHO CHẬY NGẦM ---------------------------------------------------------------------------------------
 if __name__ == "__main__":
     if CRAWL_MODE == "once":
         logging.info("🚀 Chạy chế độ 1 lần (once)")

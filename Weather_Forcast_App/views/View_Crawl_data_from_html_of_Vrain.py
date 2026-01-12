@@ -99,8 +99,6 @@ def _run_script_worker():
         _STATE["is_running"] = False
 
 
-# ========= Views =========
-
 def crawl_vrain_html_view(request):
     last_file, last_size_mb, last_time_from_file = _scan_latest_output()
 

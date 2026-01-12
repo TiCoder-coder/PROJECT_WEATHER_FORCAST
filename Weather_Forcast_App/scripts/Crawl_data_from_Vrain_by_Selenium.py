@@ -21,10 +21,10 @@ class VrainCrawlerFinal:
         self.all_rainfall_data = []
         self.headless = headless
         self.max_workers = max_workers
-        self.max_retries = max_retries  # Số lần thử lại
+        self.max_retries = max_retries
         self.data_lock = threading.Lock()
         self.unique_stations = {}
-        self.failed_provinces = []  # Lưu các tỉnh thất bại
+        self.failed_provinces = []
 
     def create_driver(self):
         chrome_options = Options()
@@ -74,7 +74,6 @@ class VrainCrawlerFinal:
                 element = driver.find_element(By.CSS_SELECTOR, selector)
                 text = element.text.strip()
                 if text and len(text) > 1:
-                    # Loại bỏ "VRAIN", "Lượng mưa", ký tự thừa
                     text = re.sub(r"(VRAIN|Lượng mưa.*|[-|])", "", text).strip()
                     if text and not any(
                         x in text.lower() for x in ["tại các trạm", "ngày"]
@@ -83,7 +82,6 @@ class VrainCrawlerFinal:
             except:
                 continue
 
-        # Thử lấy từ title trang
         try:
             title = driver.title
             if title and "VRAIN" in title:
@@ -105,9 +103,8 @@ class VrainCrawlerFinal:
 
             wait = WebDriverWait(driver, 15)
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
-            time.sleep(4)  # Tăng thời gian chờ JS render
+            time.sleep(4)
 
-            # Lấy tên tỉnh
             province_name = self.get_province_name(driver)
 
             if not province_name:
@@ -116,7 +113,6 @@ class VrainCrawlerFinal:
             found_count = 0
             crawl_time = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-            # Tìm trạm - thêm nhiều selector hơn
             selectors = [
                 "div[class*='station-row']",
                 "div[class*='station']",
@@ -165,7 +161,6 @@ class VrainCrawlerFinal:
                 except:
                     continue
 
-            # Kiểm tra nếu không lấy được dữ liệu
             if found_count == 0 or province_name.startswith("ID_"):
                 if retry_count < self.max_retries:
                     print(
@@ -173,7 +168,7 @@ class VrainCrawlerFinal:
                     )
                     if driver:
                         driver.quit()
-                    time.sleep(2)  # Đợi trước khi thử lại
+                    time.sleep(2)
                     return self.crawl_province(province_id, retry_count + 1)
                 else:
                     print(
@@ -213,7 +208,6 @@ class VrainCrawlerFinal:
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             executor.map(self.crawl_province, range(start_id, end_id + 1))
 
-        # Retry các tỉnh thất bại một lần nữa (tuần tự)
         if self.failed_provinces:
             print(f"\n🔄 Đang retry {len(self.failed_provinces)} tỉnh thất bại...")
             retry_failed = []
@@ -225,7 +219,6 @@ class VrainCrawlerFinal:
 
             self.failed_provinces = retry_failed
 
-        # Chuyển dict thành list và SẮP XẾP THEO ID
         self.all_rainfall_data = list(self.unique_stations.values())
         self.all_rainfall_data.sort(key=lambda x: (x["province_id"], x["tram"]))
 
@@ -236,10 +229,8 @@ class VrainCrawlerFinal:
 
         df = pd.DataFrame(self.all_rainfall_data)
 
-        # Đánh số thứ tự sau khi đã sắp xếp
         df.insert(0, "STT", range(1, len(df) + 1))
 
-        # Đổi tên cột cho đẹp
         df.columns = [
             "STT",
             "ID Tỉnh",
@@ -250,7 +241,7 @@ class VrainCrawlerFinal:
         ]
 
         output_dir = "/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
-        os.makedirs(output_dir, exist_ok=True)  # tạo thư mục nếu chưa có
+        os.makedirs(output_dir, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         excel_path = os.path.join(output_dir, f"Bao_cao_mua_{timestamp}.xlsx")
@@ -273,8 +264,6 @@ class VrainCrawlerFinal:
 
 
 if __name__ == "__main__":
-    # max_retries=3: Mỗi tỉnh sẽ thử tối đa 3 lần nếu thất bại
-    # max_workers=3: Giảm xuống để tránh quá tải server
     crawler = VrainCrawlerFinal(headless=False, max_workers=63, max_retries=3)
     crawler.run(start_id=1, end_id=63)
     crawler.export()

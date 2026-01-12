@@ -151,7 +151,7 @@ with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
             print(f"  Tìm thấy {len(station_blocks)} khối trạm")
 
             for block in station_blocks:
-                # Trích xuất thông tin từng trạm
+
                 station_match = re.search(
                     r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*\bmax-w-70\b[^"]*"[^>]*>([^<]+)</span>',
                     block,
@@ -191,8 +191,8 @@ with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
                         "Xã/Phường": xa_phuong,
                         "Lượng mưa (mm)": rainfall,
                         "Tình trạng": status,
-                        "Ngày và giờ cập nhật": datetime_info,                  # Có thể có giờ
-                        "Thời gian crawl": current_crawl_datetime,              # Có giờ, phút, giây
+                        "Ngày và giờ cập nhật": datetime_info,
+                        "Thời gian crawl": current_crawl_datetime,
                     }
                 )
 
@@ -201,7 +201,6 @@ with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
         except Exception as e:
             print(f"  Lỗi khi xử lý {url}: {e}")
 
-# Đóng trình duyệt
 try:
     driver.quit()
 except Exception as e:

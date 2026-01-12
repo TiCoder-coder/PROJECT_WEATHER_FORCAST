@@ -30,7 +30,6 @@ body{
   overflow-x:hidden;
 }
 
-/* Ambient glow + subtle noise */
 body::before{
   content:"";
   position:fixed;
@@ -55,9 +54,6 @@ body::after{
   mix-blend-mode: overlay;
 }
 
-/* =========================================================
-   Weather FX layer
-   ========================================================= */
 .weather-fx{
   position:fixed;
   inset:0;
@@ -72,7 +68,6 @@ body::after{
   opacity:1;
 }
 
-/* Wind (soft diagonal streaks) */
 .weather-fx .fx-wind{
   inset:-40%;
   opacity:.22;
@@ -93,7 +88,6 @@ body::after{
   to{ transform: translate3d(6%, 4%, 0); }
 }
 
-/* Clouds (soft blobs drifting) */
 .weather-fx .fx-clouds{
   inset:-10% -20% auto -20%;
   height:55vh;
@@ -127,7 +121,6 @@ body::after{
   to{ transform: translate3d(28%, 0, 0); }
 }
 
-/* Rain (thin slanted lines) */
 .weather-fx .fx-rain{
   inset:-35%;
   opacity:.18;
@@ -156,7 +149,6 @@ body::after{
   to{ transform: translate3d(0, 18%, 0); }
 }
 
-/* Lightning (activated by JS toggling .flash) */
 .weather-fx .fx-lightning{
   inset:0;
   opacity:0;
@@ -189,9 +181,6 @@ body::after{
   }
 }
 
-/* =========================================================
-   Layout
-   ========================================================= */
 .container{
   position:relative;
   z-index:2;
@@ -316,7 +305,6 @@ body::after{
   .meta-box ul{ grid-template-columns: 1fr; }
 }
 
-/* Controls */
 .controls{
   display:flex;
   align-items:center;
@@ -356,9 +344,7 @@ body::after{
 #loadMoreBtn:hover{ transform: translateY(-1px); box-shadow: 0 14px 26px rgba(0,0,0,.28); }
 #loadMoreBtn:active{ transform: translateY(0px) scale(.99); }
 
-/* =========================================================
-   Table
-   ========================================================= */
+
 .table-container{
   margin-top: 16px;
   border-radius: var(--radius);
@@ -477,12 +463,7 @@ body::after{
   inset:0;
   z-index:1;
 }
-/* ===========================
-   FIX: Load more + Pagination bị lệch
-   (Dán CUỐI file dataset_preview.css)
-   =========================== */
 
-/* Wrapper dưới bảng: căn giữa toàn bộ cụm */
 #loadMoreContainer{
   width: 100%;
   display: flex;
@@ -494,7 +475,6 @@ body::after{
   text-align: center;
 }
 
-/* Text "Đang tải thêm dữ liệu..." */
 #loading{
   width: 100%;
   display: flex;
@@ -506,7 +486,6 @@ body::after{
   opacity: .95;
 }
 
-/* Nút tải thêm: đảm bảo đứng giữa */
 #loadMoreBtn{
   display: inline-flex;
   align-items: center;
@@ -515,7 +494,6 @@ body::after{
   margin: 0 auto;
 }
 
-/* Pagination container */
 #pagination,
 .pagination{
   width: 100%;
@@ -529,7 +507,6 @@ body::after{
   text-align: center;
 }
 
-/* Nút trang */
 #pagination .page-btn,
 .pagination .page-btn{
   appearance: none;
@@ -560,7 +537,6 @@ body::after{
   transform: translateY(0);
 }
 
-/* Trang hiện tại (JS đang add class "active") */
 #pagination .page-btn.active,
 .pagination .page-btn.active{
   border-color: rgba(34, 197, 94, 0.65);
@@ -568,7 +544,6 @@ body::after{
   color: #eafff3;
 }
 
-/* Disabled */
 #pagination .page-btn[disabled],
 .pagination .page-btn[disabled]{
   opacity: .5;
@@ -576,7 +551,6 @@ body::after{
   transform: none;
 }
 
-/* Cụm nút cuối: Quay lại + Tải toàn bộ */
 .action-buttons{
   width: 100%;
   display: flex;
@@ -587,7 +561,6 @@ body::after{
   margin-top: 12px;
 }
 
-/* 2 nút cuối: Quay lại / Tải toàn bộ */
 .action-buttons .back-btn{
   background: rgba(10, 16, 28, .55) !important;
   color: #EAF2FF !important;
@@ -605,20 +578,17 @@ body::after{
     0 0 26px rgba(56,189,248,.18) !important;
 }
 
-/* Quay lại danh sách */
 .action-buttons .back-btn:first-child{
   background: linear-gradient(135deg, rgba(15,23,42,.85), rgba(30,41,59,.65)) !important;
   color: #EAF2FF !important;
 }
 
-/* Tải toàn bộ file */
 .action-buttons .back-btn:nth-child(2){
   background: linear-gradient(135deg, #38BDF8, #A78BFA) !important;
   color: #071018 !important;
   border-color: rgba(255,255,255,.10) !important;
 }
 
-/* Nút "Tải thêm dữ liệu" */
 .load-more button{
   background: linear-gradient(135deg, #34D399, #22C55E) !important;
   color: #07130E !important;
@@ -631,7 +601,6 @@ body::after{
     0 0 26px rgba(34,197,94,.14) !important;
 }
 
-/* Pagination */
 .pagination a, .pagination span{
   background: rgba(10, 16, 28, .55) !important;
   color: #EAF2FF !important;

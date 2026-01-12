@@ -138,7 +138,12 @@ def datasets_view(request):
     latest_cleaned_merge = cleaned_merge_items[0] if cleaned_merge_items else None
     latest_cleaned_raw = cleaned_raw_items[0] if cleaned_raw_items else None
 
-    return render(request, "weather/Datasets.html", {
+    tab = (request.GET.get("tab") or "recent").lower()
+    if tab not in ("recent", "process"):
+        tab = "recent"
+
+
+    context = {
         "output_items": output_items,
         "merged_items": merged_items,
         "cleaned_items": cleaned_items,
@@ -151,7 +156,12 @@ def datasets_view(request):
         "cleaned_raw_items": cleaned_raw_items,
         "latest_cleaned_merge": latest_cleaned_merge,
         "latest_cleaned_raw": latest_cleaned_raw,
-    })
+        "active_tab": tab,
+    }
+
+    context["active_tab"] = tab
+    return render(request, "weather/Datasets.html", context)
+
 
 
 def dataset_download_view(request, folder: str, filename: str):
@@ -173,7 +183,7 @@ def _get_file_type(filename: str) -> str:
         return 'excel'
     elif ext == '.json':
         return 'json'
-    else:  # .txt và các loại khác
+    else:
         return 'txt'
 
 
@@ -187,10 +197,8 @@ def dataset_view_view(request, folder: str, filename: str):
     file_type = _get_file_type(filename)
 
     
-    # Kiểm tra nếu là request AJAX để lấy thêm dữ liệu (chỉ cho CSV/Excel)
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
-    # Xử lý CSV/Excel files
     if file_type in ['csv', 'excel']:
         try:
             page = int(request.GET.get('page', 1))
@@ -198,33 +206,27 @@ def dataset_view_view(request, folder: str, filename: str):
             start_row = (page - 1) * rows_per_page
             end_row = start_row + rows_per_page
             
-            # Đọc file với chunk để tối ưu
             if file_type == 'csv':
                 if is_ajax:
-                    # Đọc phần cần thiết cho AJAX request
                     df = pd.read_csv(p, encoding='utf-8', skiprows=range(1, start_row), nrows=rows_per_page)
                     total_rows = 0
                     with open(p, 'r', encoding='utf-8') as f:
-                        total_rows = sum(1 for line in f) - 1  # Trừ header
+                        total_rows = sum(1 for line in f) - 1
                 else:
-                    # Đọc 100 dòng đầu cho trang đầu
                     df = pd.read_csv(p, encoding='utf-8', nrows=rows_per_page)
                     total_rows = 0
                     with open(p, 'r', encoding='utf-8') as f:
                         total_rows = sum(1 for line in f) - 1
-            else:  # Excel
+            else:
                 if is_ajax:
-                    # Đọc toàn bộ để lấy tổng số dòng, nhưng chỉ lấy phần cần thiết
                     df_full = pd.read_excel(p, engine='openpyxl')
                     total_rows = len(df_full)
                     df = df_full.iloc[start_row:end_row]
                 else:
-                    # Chỉ đọc 100 dòng đầu
                     df = pd.read_excel(p, engine='openpyxl', nrows=rows_per_page)
                     df_full = pd.read_excel(p, engine='openpyxl')
                     total_rows = len(df_full)
             
-            # Nếu là AJAX request, trả về JSON
             if is_ajax:
                 data = {
                     'data': df.fillna('').to_dict('records'),
@@ -234,14 +236,12 @@ def dataset_view_view(request, folder: str, filename: str):
                 }
                 return HttpResponse(json.dumps(data, default=str), content_type='application/json')
             
-            # Chuyển DataFrame thành HTML table
             html_table = df.fillna('').to_html(
                 classes='table table-striped table-bordered',
                 index=False,
                 float_format=lambda x: '{:.2f}'.format(x) if isinstance(x, float) else str(x)
             )
             
-            # Chuẩn bị context cho template
             context = {
                 'filename': filename,
                 'folder': folder,
@@ -259,7 +259,6 @@ def dataset_view_view(request, folder: str, filename: str):
             return render(request, 'weather/dataset_preview.html', context)
             
         except Exception as e:
-            # Render template lỗi
             error_context = {
                 'error_title': 'Lỗi khi đọc file',
                 'error_message': f'Không thể đọc file {escape(filename)}',
@@ -268,14 +267,11 @@ def dataset_view_view(request, folder: str, filename: str):
             }
             return render(request, 'weather/error.html', error_context, status=500)
     
-    # Xử lý TXT/JSON files
     else:
         try:
-            # Đọc nội dung file
             with open(p, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # Chuẩn bị context cho template
             context = {
                 'filename': filename,
                 'folder': folder,
@@ -290,7 +286,6 @@ def dataset_view_view(request, folder: str, filename: str):
             return render(request, 'weather/dataset_preview.html', context)
             
         except UnicodeDecodeError:
-            # Nếu không đọc được dưới dạng UTF-8 text, thử đọc binary
             try:
                 with open(p, 'rb') as f:
                     content = f.read().decode('utf-8', errors='ignore')
@@ -309,14 +304,12 @@ def dataset_view_view(request, folder: str, filename: str):
                 return render(request, 'weather/dataset_preview.html', context)
                 
             except Exception as e:
-                # Nếu không đọc được dưới dạng text, trả về file để download
                 content_type, _ = mimetypes.guess_type(str(p))
                 resp = FileResponse(open(p, "rb"), content_type=content_type or "application/octet-stream")
                 resp["Content-Disposition"] = f'inline; filename="{p.name}"'
                 return resp
                 
         except Exception as e:
-            # Render template lỗi
             error_context = {
                 'error_title': 'Lỗi khi đọc file',
                 'error_message': f'Không thể đọc file {escape(filename)}',

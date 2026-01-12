@@ -19,7 +19,6 @@ from bs4 import BeautifulSoup
 import re
 from typing import Dict, List, Optional, Any
 
-# Thiết lập logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )

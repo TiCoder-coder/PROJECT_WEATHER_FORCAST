@@ -11,8 +11,6 @@ body.page {
   min-height: 100vh;
 }
 
-/* ====== Sidebar ====== */
-
 .sidebar {
   background: linear-gradient(180deg, #020617, #0b1120);
   border-right: 1px solid rgba(148, 163, 184, 0.3);
@@ -94,8 +92,6 @@ body.page {
   line-height: 1.4;
 }
 
-/* ====== Main ====== */
-
 .main {
   padding: 24px 32px;
   display: flex;
@@ -110,7 +106,6 @@ body.page {
   gap: 20px;
 }
 
-/* Title pill neon */
 .main__title {
   margin: 0 0 10px;
   display: inline-flex;
@@ -145,7 +140,6 @@ body.page {
   border: 1px solid rgba(148,163,184,0.22);
 }
 
-/* Status card */
 .main__status-card {
   background: radial-gradient(circle at top right, rgba(34,197,94,0.22), rgba(2,6,23,0.85));
   border-radius: 14px;
@@ -179,8 +173,6 @@ body.page {
   color: #e5e7eb;
   opacity: 0.95;
 }
-
-/* ====== Card ====== */
 
 .card {
   background: rgba(15, 23, 42, 0.88);
@@ -232,8 +224,6 @@ body.page {
   color: #9ca3af;
 }
 
-/* ====== Buttons ====== */
-
 .btn {
   border: none;
   border-radius: 999px;
@@ -263,8 +253,6 @@ body.page {
 .btn:active { transform: translateY(0); box-shadow: none; }
 .btn[disabled]{ opacity: 0.65; cursor: not-allowed; transform: none; }
 
-/* ====== Summary ====== */
-
 .summary {
   margin-top: 10px;
   display: grid;
@@ -293,7 +281,6 @@ body.page {
   color: rgba(229,231,235,0.92);
 }
 
-/* ====== Log ====== */
 
 .log {
   margin-top: 10px;
@@ -317,7 +304,6 @@ body.page {
 .log__line:last-child { border-bottom: none; }
 .log__line--muted { color: #6b7280; }
 
-/* ====== Running pill ====== */
 .run-pill{
   display: inline-flex;
   align-items: center;
@@ -340,7 +326,6 @@ body.page {
 
 @keyframes spin{ to{ transform: rotate(360deg); } }
 
-/* ====== Responsive ====== */
 
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
@@ -442,17 +427,12 @@ body.page {
   text-align: left !important;
   line-height: 1.55 !important;
 }
-/* ======================
-   WEATHER FX (Gió + Mây + Mưa + Sét)
-====================== */
 
-/* đảm bảo nội dung nằm trên hiệu ứng */
 .datasets-wrap, .datasets-card {
   position: relative;
   z-index: 2;
 }
 
-/* base layer */
 .wx-layer{
   position: fixed;
   inset: 0;
@@ -460,7 +440,6 @@ body.page {
   z-index: 1;
 }
 
-/* ===== MÂY TRÔI ===== */
 .wx-clouds{
   opacity: .14;
   filter: blur(18px) saturate(1.05);
@@ -483,7 +462,6 @@ body.page {
   100% { transform: translate3d(-10%, -6%, 0); }
 }
 
-/* ===== GIÓ (override wind-layer hiện có) ===== */
 .wind-layer{
   opacity: .26;
   mix-blend-mode: screen;
@@ -512,7 +490,6 @@ body.page {
 @keyframes wxWindA{ to { transform: translate3d(18%, 10%, 0); } }
 @keyframes wxWindB{ to { transform: translate3d(24%, 14%, 0); } }
 
-/* ===== MƯA NHẸ (drizzle) ===== */
 .wx-rain{
   opacity: .18;
   mix-blend-mode: screen;
@@ -530,7 +507,6 @@ body.page {
 }
 @keyframes wxRain{ to { transform: translate3d(10%, 26%, 0); } }
 
-/* ===== SÉT (nháy nhẹ, tần suất thấp) ===== */
 .wx-lightning{
   opacity: 0;
   animation: wxFlash 12s ease-in-out infinite;
@@ -550,7 +526,6 @@ body.page {
   92% { opacity: 0; }
 }
 
-/* ===== “gió lướt” trên nút ===== */
 .pill, .pill.small, .btn{
   position: relative;
   overflow: hidden;
@@ -572,7 +547,6 @@ body.page {
   transform: translateX(120%) rotate(10deg);
 }
 
-/* ===== tôn trọng reduce-motion ===== */
 @media (prefers-reduced-motion: reduce){
   .wx-layer::before, .wx-layer::after, .wx-layer,
   .pill::after, .btn::after{
@@ -580,7 +554,6 @@ body.page {
     transition: none !important;
   }
 }
-/* ===== SÉT VÀNG + TIA TIA (thỉnh thoảng) ===== */
 .wx-lightning{
   opacity: 0;
   mix-blend-mode: screen;
@@ -588,19 +561,16 @@ body.page {
   z-index: 1;
 }
 
-/* ánh chớp toàn màn + tia tia nhỏ */
 .wx-lightning::before{
   content:"";
   position:absolute;
   inset:0;
 
-  /* flash vàng + vài đốm tia */
   background:
     radial-gradient(circle at 70% 22%, rgba(255,220,120,.55), rgba(255,220,120,0) 55%),
     radial-gradient(circle at 62% 28%, rgba(255,240,200,.18), rgba(255,240,200,0) 35%),
     radial-gradient(circle at 76% 30%, rgba(255,240,200,.16), rgba(255,240,200,0) 38%),
 
-    /* "tia tia" nhỏ (spark dots) */
     radial-gradient(circle at 72% 34%, rgba(255,220,120,.55) 0 2px, transparent 3px),
     radial-gradient(circle at 68% 40%, rgba(255,220,120,.45) 0 1.5px, transparent 3px),
     radial-gradient(circle at 77% 42%, rgba(255,220,120,.40) 0 1.8px, transparent 3px),
@@ -610,20 +580,17 @@ body.page {
   filter: blur(6px);
   opacity: 0;
 
-  /* lâu lâu mới chớp */
   animation: wxFlashGold 22s ease-in-out infinite;
 }
 
-/* tia sét chính (zigzag) */
 .wx-lightning::after{
   content:"";
   position:absolute;
   top: -8%;
-  left: 70%;            /* đổi % để dời tia sét qua trái/phải */
+  left: 70%;
   width: 160px;
   height: 70vh;
 
-  /* màu vàng sáng */
   background: linear-gradient(
     to bottom,
     rgba(255,235,160,0) 0%,
@@ -632,7 +599,6 @@ body.page {
     rgba(255,235,160,.10) 100%
   );
 
-  /* tạo hình tia sét */
   clip-path: polygon(
     48% 0%,
     62% 10%,
@@ -657,7 +623,6 @@ body.page {
   transform-origin: top center;
   transform: translateX(0) rotate(-6deg) scaleY(1);
 
-  /* glow vàng vàng */
   filter:
     drop-shadow(0 0 10px rgba(255,220,120,.9))
     drop-shadow(0 0 22px rgba(255,200,80,.55));
@@ -665,7 +630,6 @@ body.page {
   animation: wxBoltGold 22s steps(1, end) infinite;
 }
 
-/* Flash: 80% thời gian tắt, 1 cụm nháy nhanh ở cuối chu kỳ */
 @keyframes wxFlashGold{
   0%, 84%, 100% { opacity: 0; }
   86% { opacity: .10; }
@@ -676,7 +640,6 @@ body.page {
   91% { opacity: 0; }
 }
 
-/* Bolt: xuất hiện cùng lúc flash + rung nhẹ */
 @keyframes wxBoltGold{
   0%, 85%, 100% { opacity: 0; transform: translateX(0) rotate(-6deg) scaleY(1); }
 
@@ -690,7 +653,6 @@ body.page {
   91% { opacity: 0; }
 }
 
-/* tôn trọng reduce-motion */
 @media (prefers-reduced-motion: reduce){
   .wx-lightning::before,
   .wx-lightning::after{

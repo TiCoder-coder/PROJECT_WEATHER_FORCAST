@@ -2,6 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 from datetime import datetime
+import sys
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -36,14 +37,15 @@ def merge_data_view(request):
 
     try:
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        script_path = os.path.join(BASE_DIR, "scripts", "merge_data.py")
+        script_path = os.path.join(BASE_DIR, "scripts", "Merge_xlsx.py")
+        python_exe = sys.executable
         output_dir = os.path.join(BASE_DIR, "output")
-        merge_dir = os.path.join(BASE_DIR, "Merge_data")  # <<< QUAN TRỌNG
+        merge_dir = os.path.join(BASE_DIR, "Merge_data")
 
         before_files = set(os.listdir(output_dir)) if os.path.exists(output_dir) else set()
 
         result = subprocess.run(
-            ["python", script_path],
+            [python_exe, script_path],
             capture_output=True,
             text=True,
             check=False
@@ -52,7 +54,6 @@ def merge_data_view(request):
         after_files = set(os.listdir(output_dir)) if os.path.exists(output_dir) else set()
         new_files_count = len(after_files - before_files)
 
-        # Lấy file merged mới nhất trong Merge_data
         latest_merged = _latest_file_info(merge_dir)
         if latest_merged:
             folder_key = "merged"

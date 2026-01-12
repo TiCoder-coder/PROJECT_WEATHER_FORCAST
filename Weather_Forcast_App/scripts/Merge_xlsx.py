@@ -50,7 +50,7 @@ def read_excel_file(file_path: Path) -> pd.DataFrame:
         return pd.read_excel(file_path)
     except Exception as e:
         print(f"Loi khi doc file {file_path.name}: {e}")
-        return pd.DataFrame()  # Return empty DataFrame on error
+        return pd.DataFrame()
 
 
 def get_new_excel_files(output_dir: Path, processed_files: set[str]) -> tuple[list[Path], list[Path]]:
@@ -67,7 +67,6 @@ def get_new_excel_files(output_dir: Path, processed_files: set[str]) -> tuple[li
         print(f"Khong tim thay file .xlsx nao trong thu muc: {output_dir}")
         return [], []
 
-    # Phân loại file
     vietnam_files = []
     other_files = []
     
@@ -90,13 +89,11 @@ def merge_files_concurrently(file_list: list[Path], max_workers: int = 4) -> pd.
     dfs = []
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all reading tasks
         future_to_file = {
             executor.submit(read_excel_file, file_path): file_path 
             for file_path in file_list
         }
         
-        # Process completed tasks
         for future in as_completed(future_to_file):
             file_path = future_to_file[future]
             try:
@@ -125,7 +122,6 @@ def merge_single_category(file_list: list[Path], merge_path: Path,
     print(f"\n=== MERGE FILE {category_name.upper()} ===")
     print(f"So luong file: {len(file_list)}")
     
-    # Đọc file song song để tăng tốc
     new_data = merge_files_concurrently(file_list)
     
     if new_data.empty:
@@ -134,7 +130,6 @@ def merge_single_category(file_list: list[Path], merge_path: Path,
     
     print(f"Tong so dong du lieu moi: {len(new_data)}")
     
-    # Xử lý file merge cũ (nếu có)
     if merge_path.exists():
         try:
             print(f"Dang doc file merge cu: {merge_path.name}")
@@ -152,7 +147,6 @@ def merge_single_category(file_list: list[Path], merge_path: Path,
         merged_df = new_data
         print(f"Tong so dong trong file merge moi: {len(merged_df)}")
     
-    # Lưu file merge
     try:
         merged_df.to_excel(merge_path, index=False)
         print(f"Da ghi file merge thanh cong tai: {merge_path}")
@@ -160,7 +154,6 @@ def merge_single_category(file_list: list[Path], merge_path: Path,
         print(f"Loi khi ghi file Excel merge: {e}")
         return
     
-    # Cập nhật log
     for f in file_list:
         processed_files.add(f.name)
     save_processed_files(log_path, processed_files)
@@ -180,11 +173,9 @@ def merge_excel_files_once(base_dir: Path) -> None:
     merge_dir = base_dir / MERGE_DIR_NAME
     merge_dir.mkdir(parents=True, exist_ok=True)
     
-    # Đường dẫn cho file vietnam_weather_
     merge_vietnam_path = merge_dir / MERGE_VIETNAM_FILENAME
     log_vietnam_path = merge_dir / LOG_VIETNAM_FILENAME
     
-    # Đường dẫn cho các file khác
     merge_other_path = merge_dir / MERGE_FILENAME
     log_other_path = merge_dir / LOG_FILENAME
     
@@ -193,7 +184,6 @@ def merge_excel_files_once(base_dir: Path) -> None:
     print(f"Thu muc merge (Merge_data): {merge_dir}")
     print("================================")
     
-    # Đọc log file đã xử lý
     processed_vietnam = load_processed_files(log_vietnam_path)
     processed_other = load_processed_files(log_other_path)
     
@@ -202,16 +192,13 @@ def merge_excel_files_once(base_dir: Path) -> None:
     if processed_other:
         print(f"Da tung merge {len(processed_other)} file khac truoc do.")
     
-    # Lấy danh sách file mới (đã phân loại)
     vietnam_files, other_files = get_new_excel_files(output_dir, 
                                                     processed_vietnam.union(processed_other))
     
-    # Merge file vietnam_weather_ riêng
     merge_single_category(vietnam_files, merge_vietnam_path, 
                          log_vietnam_path, processed_vietnam,
                          "vietnam_weather_")
     
-    # Merge các file khác
     merge_single_category(other_files, merge_other_path,
                          log_other_path, processed_other,
                          "khac")
@@ -220,14 +207,12 @@ def merge_excel_files_once(base_dir: Path) -> None:
 
 
 if __name__ == "__main__":
-    # Xác định BASE_DIR từ vị trí script
     SCRIPT_DIR = Path(__file__).parent
-    BASE_DIR = SCRIPT_DIR.parent  # Lên một cấp thư mục
+    BASE_DIR = SCRIPT_DIR.parent
     
     print(f"Script dir: {SCRIPT_DIR}")
     print(f"Base dir: {BASE_DIR}")
     
-    # Kiểm tra thư mục output có tồn tại không
     output_dir = BASE_DIR / OUTPUT_DIR_NAME
     if not output_dir.exists():
         print(f"ERROR: Khong tim thay thu muc output tai: {output_dir}")
