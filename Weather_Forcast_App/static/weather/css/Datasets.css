@@ -1,31 +1,31 @@
 :root{
-  --bg0: #031025; /* deep navy */
-  --bg1: #071a2e; /* darker navy gradient end */
-  --card: #07203b; /* card background (navy panel) */
-  --card2: #042033; 
-  --bd: rgba(255,255,255,.04);
-  --bd2: rgba(159,184,204,.03);
+  --bg0:#060b16;
+  --bg1:#071a2d;
+  --card: rgba(15,23,42,.78);
+  --card2: rgba(2,6,23,.35);
+  --bd: rgba(148,163,184,.18);
+  --bd2: rgba(56,189,248,.18);
 
-  --text: #e6f7ff; /* light text for navy background */
-  --muted: #9fb6d4;
+  --text:#e5e7eb;
+  --muted:#a7b0c0;
 
-  --cyan:#38bdf8;
-  --blue:#0f3b6b; /* navy-blue accent */
-  --purple:#7c3aed;
-  --green:#10b981;
-  --pink:#f472b6;
+  --cyan:#38b2ac;
+  --blue:#4299e1;
+  --purple:#9f7aea;
+  --green:#48bb78;
+  --pink:#fbb6ce;
   --orange:#fb923c;
 
-  --shadow: 0 12px 30px rgba(2,6,23,.6);
-  --shadow2: 0 10px 24px rgba(2,6,23,.6);
+  --shadow: 0 24px 70px rgba(0,0,0,.38);
+  --shadow2: 0 18px 45px rgba(2,6,23,.55);
 }
 
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
 body.home-page{
-  background: radial-gradient(600px 360px at 12% 10%, rgba(15,63,120,0.12), transparent 45%),
-              radial-gradient(500px 360px at 85% 20%, rgba(4,28,65,0.10), transparent 45%),
-              linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 100%);
+  background: radial-gradient(1000px 600px at 12% 10%, rgba(56,189,248,.12), transparent 55%),
+              radial-gradient(900px 600px at 85% 20%, rgba(168,85,247,.12), transparent 55%),
+              linear-gradient(135deg, var(--bg0) 0%, var(--bg1) 100%);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
   margin:0;
@@ -69,8 +69,8 @@ body.home-page{
   align-items:flex-start;
   flex-wrap:wrap;
   gap: 16px;
-  background: linear-gradient(90deg, rgba(2,14,35,.92), rgba(6,30,60,.75));
-  border-bottom: 1px solid rgba(255,255,255,.04);
+  background: linear-gradient(to right, rgba(26,54,93,.72), rgba(2,6,23,.25));
+  border-bottom: 1px solid rgba(56,178,172,.18);
 }
 
 .title-block{ display:flex; flex-direction:column; gap:8px; }
@@ -453,7 +453,7 @@ body.home-page{
 .merge-status.error{ background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25); color: rgba(252,165,165,.95); }
 .merge-status.processing{ background: rgba(251,146,60,.12); border-color: rgba(251,146,60,.25); color: rgba(253,186,116,.95); }
 
- /* ===== Empty state ===== */
+/* ===== Empty state ===== */
 .empty-state{
   text-align:center;
   padding: 40px 18px 46px;
@@ -1024,7 +1024,7 @@ body.home-page::after{
 }
 .pill:focus-visible{
   outline: none;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25), 0 14px 32px rgba(2,6,23,.55);
+  box-shadow: 0 0 0 3px rgba(56,189,248,.25), 0 14px 32px rgba(2,6,23,.55);
 }
 
 /* Table row hover: mượt và “sáng” hơn */
@@ -1067,4 +1067,512 @@ body.home-page::after{
     transition: none !important;
   }
   .datasets-card:hover{ transform: none; }
+}
+/* Fix lệch header do emoji/font baseline */
+.datasets-table th.th-center {
+  text-align: center;
+}
+
+.datasets-table th .th-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.datasets-table th .th-ico {
+  width: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(1px);
+}
+
+.datasets-table td.source-cell,
+.datasets-table td.time-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+/* ======================
+   WEATHER FX (Gió + Mây + Mưa + Sét)
+====================== */
+
+/* đảm bảo nội dung nằm trên hiệu ứng */
+.datasets-wrap, .datasets-card {
+  position: relative;
+  z-index: 2;
+}
+
+/* base layer */
+.wx-layer{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ===== MÂY TRÔI ===== */
+.wx-clouds{
+  opacity: .14;
+  filter: blur(18px) saturate(1.05);
+  mix-blend-mode: screen;
+}
+.wx-clouds::before{
+  content:"";
+  position:absolute;
+  inset:-35% -35%;
+  background:
+    radial-gradient(closest-side at 18% 32%, rgba(120,220,255,.22), transparent 70%),
+    radial-gradient(closest-side at 48% 18%, rgba(170,120,255,.20), transparent 68%),
+    radial-gradient(closest-side at 78% 38%, rgba(120,255,210,.16), transparent 70%),
+    radial-gradient(closest-side at 62% 70%, rgba(255,255,255,.12), transparent 72%);
+  transform: translate3d(-10%, -6%, 0);
+  animation: wxCloudDrift 46s linear infinite;
+}
+@keyframes wxCloudDrift{
+  50%  { transform: translate3d(10%, 3%, 0); }
+  100% { transform: translate3d(-10%, -6%, 0); }
+}
+
+/* ===== GIÓ (override wind-layer hiện có) ===== */
+.wind-layer{
+  opacity: .26;
+  mix-blend-mode: screen;
+  filter: blur(.35px);
+}
+.wind-layer::before,
+.wind-layer::after{
+  content:"";
+  position:absolute;
+  inset:-40% -30%;
+}
+.wind-layer::before{
+  background-image:
+    repeating-linear-gradient(115deg, rgba(160,235,255,.18) 0 2px, rgba(160,235,255,0) 2px 22px),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.10) 0 1px, rgba(255,255,255,0) 1px 26px);
+  background-size: 1100px 1100px;
+  animation: wxWindA 22s linear infinite;
+}
+.wind-layer::after{
+  background-image:
+    repeating-linear-gradient(105deg, rgba(140,255,220,.12) 0 2px, rgba(140,255,220,0) 2px 28px);
+  background-size: 1400px 1400px;
+  animation: wxWindB 16s linear infinite;
+  opacity: .8;
+}
+@keyframes wxWindA{ to { transform: translate3d(18%, 10%, 0); } }
+@keyframes wxWindB{ to { transform: translate3d(24%, 14%, 0); } }
+
+/* ===== MƯA NHẸ (drizzle) ===== */
+.wx-rain{
+  opacity: .18;
+  mix-blend-mode: screen;
+}
+.wx-rain::before{
+  content:"";
+  position:absolute;
+  inset:-40% -25%;
+  background-image:
+    repeating-linear-gradient(115deg,
+      rgba(190,230,255,.35) 0 1px,
+      rgba(190,230,255,0) 1px 10px);
+  transform: translate3d(-10%, -12%, 0);
+  animation: wxRain 1.05s linear infinite;
+}
+@keyframes wxRain{ to { transform: translate3d(10%, 26%, 0); } }
+
+/* ===== SÉT (nháy nhẹ, tần suất thấp) ===== */
+.wx-lightning{
+  opacity: 0;
+  animation: wxFlash 12s ease-in-out infinite;
+}
+.wx-lightning::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(circle at 68% 24%, rgba(255,255,255,.85), rgba(255,255,255,0) 55%);
+  filter: blur(6px);
+}
+@keyframes wxFlash{
+  0%, 86%, 100% { opacity: 0; }
+  88% { opacity: .10; }
+  89% { opacity: 0; }
+  91% { opacity: .14; }
+  92% { opacity: 0; }
+}
+
+/* ===== “gió lướt” trên nút ===== */
+.pill, .pill.small, .btn{
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.pill:hover, .pill.small:hover, .btn:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+.pill::after, .btn::after{
+  content:"";
+  position:absolute;
+  inset:-40% -70%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.28), transparent);
+  transform: translateX(-120%) rotate(10deg);
+  transition: transform .7s ease;
+}
+.pill:hover::after, .btn:hover::after{
+  transform: translateX(120%) rotate(10deg);
+}
+
+/* ===== tôn trọng reduce-motion ===== */
+@media (prefers-reduced-motion: reduce){
+  .wx-layer::before, .wx-layer::after, .wx-layer,
+  .pill::after, .btn::after{
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* ===== SÉT VÀNG + TIA TIA (thỉnh thoảng) ===== */
+.wx-lightning{
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ánh chớp toàn màn + tia tia nhỏ */
+.wx-lightning::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  /* flash vàng + vài đốm tia */
+  background:
+    radial-gradient(circle at 70% 22%, rgba(255,220,120,.55), rgba(255,220,120,0) 55%),
+    radial-gradient(circle at 62% 28%, rgba(255,240,200,.18), rgba(255,240,200,0) 35%),
+    radial-gradient(circle at 76% 30%, rgba(255,240,200,.16), rgba(255,240,200,0) 38%),
+
+    /* "tia tia" nhỏ (spark dots) */
+    radial-gradient(circle at 72% 34%, rgba(255,220,120,.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 68% 40%, rgba(255,220,120,.45) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 77% 42%, rgba(255,220,120,.40) 0 1.8px, transparent 3px),
+    radial-gradient(circle at 64% 36%, rgba(255,220,120,.35) 0 1.2px, transparent 3px),
+    radial-gradient(circle at 80% 36%, rgba(255,220,120,.35) 0 1.2px, transparent 3px);
+
+  filter: blur(6px);
+  opacity: 0;
+
+  /* lâu lâu mới chớp */
+  animation: wxFlashGold 22s ease-in-out infinite;
+}
+
+/* tia sét chính (zigzag) */
+.wx-lightning::after{
+  content:"";
+  position:absolute;
+  top: -8%;
+  left: 70%;            /* đổi % để dời tia sét qua trái/phải */
+  width: 160px;
+  height: 70vh;
+
+  /* màu vàng sáng */
+  background: linear-gradient(
+    to bottom,
+    rgba(255,235,160,0) 0%,
+    rgba(255,235,160,.95) 22%,
+    rgba(255,210,90,.95) 55%,
+    rgba(255,235,160,.10) 100%
+  );
+
+  /* tạo hình tia sét */
+  clip-path: polygon(
+    48% 0%,
+    62% 10%,
+    52% 18%,
+    66% 30%,
+    45% 38%,
+    58% 52%,
+    40% 60%,
+    52% 72%,
+    34% 82%,
+    46% 100%,
+    28% 86%,
+    40% 70%,
+    26% 58%,
+    42% 46%,
+    30% 34%,
+    46% 22%,
+    36% 12%
+  );
+
+  opacity: 0;
+  transform-origin: top center;
+  transform: translateX(0) rotate(-6deg) scaleY(1);
+
+  /* glow vàng vàng */
+  filter:
+    drop-shadow(0 0 10px rgba(255,220,120,.9))
+    drop-shadow(0 0 22px rgba(255,200,80,.55));
+
+  animation: wxBoltGold 22s steps(1, end) infinite;
+}
+
+@keyframes wxFlashGold{
+  0%, 84%, 100% { opacity: 0; }
+  86% { opacity: .10; }
+  87% { opacity: 0; }
+  88% { opacity: .18; }
+  89% { opacity: 0; }
+  90% { opacity: .14; }
+  91% { opacity: 0; }
+}
+
+@keyframes wxBoltGold{
+  0%, 85%, 100% { opacity: 0; transform: translateX(0) rotate(-6deg) scaleY(1); }
+
+  86% { opacity: .85; transform: translateX(-6px) rotate(-7deg) scaleY(1.02); }
+  87% { opacity: 0; }
+
+  88% { opacity: .95; transform: translateX(8px) rotate(-4deg) scaleY(1.03); }
+  89% { opacity: 0; }
+
+  90% { opacity: .75; transform: translateX(-3px) rotate(-6deg) scaleY(1.01); }
+  91% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .wx-lightning::before,
+  .wx-lightning::after{
+    animation: none !important;
+  }
+}
+.wf-modal{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+}
+.wf-modal.wf-modal--open{ display: block; }
+
+.wf-modal__backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+}
+
+.wf-modal__panel{
+  position: relative;
+  width: min(760px, calc(100% - 24px));
+  margin: 7vh auto;
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: rgba(10, 18, 32, .92);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 28px 90px rgba(0,0,0,.55);
+}
+
+.wf-modal__close{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: #eaf6ff;
+  cursor: pointer;
+}
+
+.wf-modal__msg{
+  margin: 8px 0 12px;
+  opacity: .9;
+}
+
+.wf-modal__file{
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  margin-bottom: 12px;
+}
+
+.wf-kv{
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 6px 0;
+}
+.wf-kv span{ opacity: .85; }
+
+.wf-modal__actions{
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Nút "🧹 LÀM SẠCH DỮ LIỆU" trên trang Datasets */
+#btnClean.pill{
+  color: #061019;
+  font-weight: 900;
+
+  border: 1px solid rgba(255, 215, 90, 0.55);
+  background: linear-gradient(135deg, rgba(255, 215, 90, 0.95), rgba(34, 197, 94, 0.92));
+
+  box-shadow:
+    0 14px 34px rgba(34, 197, 94, 0.20),
+    0 10px 28px rgba(255, 215, 90, 0.16),
+    0 0 0 1px rgba(255, 215, 90, 0.12) inset;
+}
+
+#btnClean.pill:hover{
+  border-color: rgba(125, 211, 252, 0.55);
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.92), rgba(34, 197, 94, 0.92));
+  box-shadow:
+    0 18px 44px rgba(56, 189, 248, 0.22),
+    0 14px 34px rgba(34, 197, 94, 0.18);
+  transform: translateY(-1px);
+}
+
+#btnClean.pill:active{
+  transform: translateY(0);
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.10) inset;
+}
+
+#btnClean.pill:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(56, 189, 248, 0.25),
+    0 0 0 1px rgba(34, 197, 94, 0.20) inset;
+}
+
+#btnClean.pill:disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.45), rgba(100, 116, 139, 0.40));
+  border-color: rgba(148, 163, 184, 0.25);
+  box-shadow: none;
+}
+
+/* (Tuỳ chọn) Highlight các nút trong Clean Wizard (đang có inline style nên cần !important) */
+#cwStart.pill{
+  color: #061019 !important;
+  border: 1px solid rgba(255, 215, 90, 0.55) !important;
+  background: linear-gradient(135deg, rgba(255, 215, 90, 0.95), rgba(34, 197, 94, 0.92)) !important;
+  box-shadow:
+    0 14px 34px rgba(34, 197, 94, 0.18),
+    0 10px 28px rgba(255, 215, 90, 0.14) !important;
+}
+
+#cwViewBtn.pill{
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(56, 189, 248, 0.85)) !important;
+  border-color: rgba(34, 197, 94, 0.40) !important;
+}
+
+#cwDownloadBtn.pill.primary{
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.92), rgba(167, 139, 250, 0.85)) !important;
+  border-color: rgba(56, 189, 248, 0.40) !important;
+}
+
+
+.datasets-wrap .pill{
+  background: rgba(10, 16, 28, .55) !important;
+  color: #EAF2FF !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.25) !important;
+  backdrop-filter: blur(10px);
+}
+
+.datasets-wrap .pill:hover{
+  border-color: rgba(56,189,248,.45) !important;
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.32),
+    0 0 0 2px rgba(56,189,248,.12),
+    0 0 26px rgba(56,189,248,.18) !important;
+}
+
+.datasets-wrap .pill:active{
+  box-shadow: 0 10px 18px rgba(0,0,0,.28) !important;
+}
+
+.datasets-wrap .pill:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(125,211,252,.20),
+    0 0 0 6px rgba(167,139,250,.12),
+    0 14px 30px rgba(0,0,0,.32) !important;
+}
+
+/* TRANG CHỦ / PRIMARY (tải / home) */
+.datasets-wrap .pill.primary{
+  background: linear-gradient(135deg, #38BDF8, #A78BFA) !important;
+  color: #071018 !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 14px 28px rgba(56,189,248,.20),
+    0 10px 22px rgba(167,139,250,.16) !important;
+}
+.datasets-wrap .pill.primary:hover{
+  box-shadow:
+    0 18px 36px rgba(56,189,248,.25),
+    0 14px 28px rgba(167,139,250,.22),
+    0 0 28px rgba(56,189,248,.22) !important;
+}
+
+/* NÚT GỘP DỮ LIỆU */
+.datasets-wrap .pill.merge{
+  background: linear-gradient(135deg, #A78BFA, #34D399) !important;
+  color: #06120E !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 14px 28px rgba(167,139,250,.18),
+    0 10px 22px rgba(52,211,153,.14) !important;
+}
+
+/* NÚT LÀM SẠCH DỮ LIỆU */
+.datasets-wrap #btnClean.pill{
+  background: linear-gradient(135deg, #FB7185, #FBBF24) !important;
+  color: #1a1207 !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 14px 28px rgba(251,113,133,.18),
+    0 10px 22px rgba(251,191,36,.14) !important;
+}
+.datasets-wrap #btnClean.pill:hover{
+  box-shadow:
+    0 18px 36px rgba(251,113,133,.22),
+    0 14px 28px rgba(251,191,36,.18),
+    0 0 30px rgba(251,191,36,.18) !important;
+}
+
+/* NÚT QUAY LẠI (datasets) */
+.datasets-wrap #btnBack.pill{
+  background: linear-gradient(135deg, rgba(15,23,42,.85), rgba(30,41,59,.65)) !important;
+  color: #EAF2FF !important;
+  border-color: rgba(148,163,184,.22) !important;
+}
+
+/* NÚT XEM (pill small nhưng KHÔNG primary) */
+.datasets-wrap .op-actions .pill.small:not(.primary){
+  background: linear-gradient(135deg, #34D399, #22C55E) !important;
+  color: #07130E !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 12px 24px rgba(34,197,94,.14),
+    0 10px 22px rgba(0,0,0,.20) !important;
+}
+
+/* NÚT TẢI (pill small + primary) */
+.datasets-wrap .op-actions .pill.small.primary{
+  background: linear-gradient(135deg, #60A5FA, #38BDF8) !important;
+  color: #061017 !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 14px 28px rgba(56,189,248,.16),
+    0 10px 22px rgba(0,0,0,.20) !important;
 }

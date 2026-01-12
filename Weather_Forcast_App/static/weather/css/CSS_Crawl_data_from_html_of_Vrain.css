@@ -610,94 +610,169 @@ body.page {
 }
 @keyframes wxRain{ to { transform: translate3d(10%, 26%, 0); } }
 
-/* ===== Enhanced realistic lightning ===== */
+/* ===== SÉT (nháy nhẹ, tần suất thấp) ===== */
 .wx-lightning{
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1; /* was 1400, lower so page content (z-index:2) stays on top */
-  mix-blend-mode: screen;
   opacity: 0;
+  animation: wxFlash 12s ease-in-out infinite;
 }
-
-/* distant soft flash that brightens the scene */
 .wx-lightning::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 60% 22%, rgba(255,255,255,0.95), rgba(220,240,255,0.6) 10%, rgba(200,230,255,0.08) 25%, transparent 45%);
-  filter: blur(18px) saturate(140%);
-  opacity: 0;
-  transition: opacity .08s linear;
-  animation: wx_flash_overlay 12s linear infinite;
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(circle at 68% 24%, rgba(255,255,255,.85), rgba(255,255,255,0) 55%);
+  filter: blur(6px);
+}
+@keyframes wxFlash{
+  0%, 86%, 100% { opacity: 0; }
+  88% { opacity: .10; }
+  89% { opacity: 0; }
+  91% { opacity: .14; }
+  92% { opacity: 0; }
 }
 
-/* the main bolt: narrow, jagged, with strong core + subtle colored aura */
+/* ===== “gió lướt” trên nút ===== */
+.pill, .pill.small, .btn{
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.pill:hover, .pill.small:hover, .btn:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+.pill::after, .btn::after{
+  content:"";
+  position:absolute;
+  inset:-40% -70%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.28), transparent);
+  transform: translateX(-120%) rotate(10deg);
+  transition: transform .7s ease;
+}
+.pill:hover::after, .btn:hover::after{
+  transform: translateX(120%) rotate(10deg);
+}
+
+/* ===== tôn trọng reduce-motion ===== */
+@media (prefers-reduced-motion: reduce){
+  .wx-layer::before, .wx-layer::after, .wx-layer,
+  .pill::after, .btn::after{
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* ===== SÉT VÀNG + TIA TIA (thỉnh thoảng) ===== */
+.wx-lightning{
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ánh chớp toàn màn + tia tia nhỏ */
+.wx-lightning::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  /* flash vàng + vài đốm tia */
+  background:
+    radial-gradient(circle at 70% 22%, rgba(255,220,120,.55), rgba(255,220,120,0) 55%),
+    radial-gradient(circle at 62% 28%, rgba(255,240,200,.18), rgba(255,240,200,0) 35%),
+    radial-gradient(circle at 76% 30%, rgba(255,240,200,.16), rgba(255,240,200,0) 38%),
+
+    /* "tia tia" nhỏ (spark dots) */
+    radial-gradient(circle at 72% 34%, rgba(255,220,120,.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 68% 40%, rgba(255,220,120,.45) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 77% 42%, rgba(255,220,120,.40) 0 1.8px, transparent 3px),
+    radial-gradient(circle at 64% 36%, rgba(255,220,120,.35) 0 1.2px, transparent 3px),
+    radial-gradient(circle at 80% 36%, rgba(255,220,120,.35) 0 1.2px, transparent 3px);
+
+  filter: blur(6px);
+  opacity: 0;
+
+  /* lâu lâu mới chớp */
+  animation: wxFlashGold 22s ease-in-out infinite;
+}
+
+/* tia sét chính (zigzag) */
 .wx-lightning::after{
-  content: "";
-  position: absolute;
-  top: -6%;
-  left: 68%;
-  width: 120px; /* narrower */
-  height: 90vh;
+  content:"";
+  position:absolute;
+  top: -8%;
+  left: 70%;
+  width: 160px;
+  height: 70vh;
 
-  /* bright core + bluish outer glow */
-  background: linear-gradient(to bottom,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.98) 12%,
-    rgba(210,235,255,.95) 32%,
-    rgba(255,240,200,.08) 100%);
-
-  /* more jagged silhouette using a refined polygon */
-  clip-path: polygon(
-    50% 0%, 62% 8%, 52% 16%, 66% 30%, 46% 36%, 58% 50%, 40% 58%, 52% 70%, 34% 80%, 46% 100%, 30% 86%, 42% 72%, 24% 60%, 40% 48%, 28% 36%, 44% 24%, 34% 14%
+  /* màu vàng sáng */
+  background: linear-gradient(
+    to bottom,
+    rgba(255,235,160,0) 0%,
+    rgba(255,235,160,.95) 22%,
+    rgba(255,210,90,.95) 55%,
+    rgba(255,235,160,.10) 100%
   );
 
-  transform-origin: top center;
+  /* tạo hình tia sét */
+  clip-path: polygon(
+    48% 0%,
+    62% 10%,
+    52% 18%,
+    66% 30%,
+    45% 38%,
+    58% 52%,
+    40% 60%,
+    52% 72%,
+    34% 82%,
+    46% 100%,
+    28% 86%,
+    40% 70%,
+    26% 58%,
+    42% 46%,
+    30% 34%,
+    46% 22%,
+    36% 12%
+  );
+
   opacity: 0;
-  filter: drop-shadow(0 0 22px rgba(220,245,255,.95)) drop-shadow(0 0 44px rgba(160,210,255,.6));
-  animation: wx_bolt_real 12s steps(1,end) infinite;
+  transform-origin: top center;
+  transform: translateX(0) rotate(-6deg) scaleY(1);
+
+  /* glow vàng vàng */
+  filter:
+    drop-shadow(0 0 10px rgba(255,220,120,.9))
+    drop-shadow(0 0 22px rgba(255,200,80,.55));
+
+  animation: wxBoltGold 22s steps(1, end) infinite;
 }
 
-/* tiny spark particles layered via background gradients (subtle) */
-.wx-lightning[data-sparks="1"]::before{
-  background-image: radial-gradient(circle at 72% 34%, rgba(255,245,200,.8) 0 2px, transparent 3px), radial-gradient(circle at 68% 40%, rgba(255,245,200,.6) 0 1.6px, transparent 3px), radial-gradient(circle at 77% 42%, rgba(255,245,200,.5) 0 1.8px, transparent 3px), radial-gradient(circle at 64% 36%, rgba(255,245,200,.45) 0 1.2px, transparent 3px);
-}
-
-/* Overlay flash animation: short, intense bursts */
-@keyframes wx_flash_overlay{
+/* Flash: 80% thời gian tắt, 1 cụm nháy nhanh ở cuối chu kỳ */
+@keyframes wxFlashGold{
   0%, 84%, 100% { opacity: 0; }
-  /* quick intense burst */
-  86% { opacity: .85; }
-  86.1% { opacity: 0; }
-  88% { opacity: .95; }
-  88.08% { opacity: 0; }
-  89.6% { opacity: .48; }
-  89.75% { opacity: 0; }
+  86% { opacity: .10; }
+  87% { opacity: 0; }
+  88% { opacity: .18; }
+  89% { opacity: 0; }
+  90% { opacity: .14; }
+  91% { opacity: 0; }
 }
 
-/* Bolt animation: several quick pops with small horizontal jitter to mimic real discharge */
-@keyframes wx_bolt_real{
+/* Bolt: xuất hiện cùng lúc flash + rung nhẹ */
+@keyframes wxBoltGold{
   0%, 85%, 100% { opacity: 0; transform: translateX(0) rotate(-6deg) scaleY(1); }
 
-  /* first bright strike */
-  86% { opacity: .98; transform: translateX(-10px) rotate(-8deg) scaleY(1.02); }
-  86.06% { opacity: 0; }
+  86% { opacity: .85; transform: translateX(-6px) rotate(-7deg) scaleY(1.02); }
+  87% { opacity: 0; }
 
-  /* second, slightly offset */
-  87.6% { opacity: .95; transform: translateX(8px) rotate(-3deg) scaleY(1.03); }
-  87.66% { opacity: 0; }
+  88% { opacity: .95; transform: translateX(8px) rotate(-4deg) scaleY(1.03); }
+  89% { opacity: 0; }
 
-  /* final simmer */
-  88.8% { opacity: .78; transform: translateX(-4px) rotate(-6deg) scaleY(1.01); }
-  89.0% { opacity: 0; }
+  90% { opacity: .75; transform: translateX(-3px) rotate(-6deg) scaleY(1.01); }
+  91% { opacity: 0; }
 }
 
-/* Optional faster mood variant when attribute data-fast is set on element */
-.wx-lightning[data-fast="1"]::after{ animation-duration: 6s; }
-.wx-lightning[data-fast="1"]::before{ animation-duration: 6s; }
-
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .wx-lightning::before, .wx-lightning::after{ animation: none !important; transition: none !important; opacity: 0.0 !important; }
+  .wx-lightning::before,
+  .wx-lightning::after{
+    animation: none !important;
+  }
 }

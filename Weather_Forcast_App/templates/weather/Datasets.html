@@ -3,554 +3,403 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Quản lý Dữ liệu</title>
+  <title>Dữ liệu</title>
   <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
   <link rel="stylesheet" href="{% static 'weather/css/Datasets.css' %}?v=9199999998888899988888908_01">
-  <link rel="stylesheet" href="{% static 'weather/css/Datasets_inline.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <body class="home-page">
-  <!-- Tabs Container -->
-  <div class="tabs-container">
-    <div class="tabs-header">
-      <div class="tabs-left">
-        <button class="tab-button active" data-tab="tab1">
-          <span>📁</span>
-          DỮ LIỆU ĐÃ XỬ LÝ
-        </button>
-        <button class="tab-button" data-tab="tab2">
-          <span>⚙️</span>
-          TRUNG TÂM XỬ LÝ
-        </button>
+  <div class="datasets-wrap">
+
+    <div class="datasets-card">
+      <div class="datasets-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <div class="title-block">
+          <h1 class="page-title merged">DỮ LIỆU ĐÃ GỘP (DỮ LIỆU CHUNG)</h1>
+          <div class="page-sub">Các tệp dữ liệu đã được gộp và lưu trữ tập trung. Dữ liệu đã xử lý sẵn sàng để phân tích.</div>
+          <div class="title-underline merged"></div>
+        </div>
+
+        <div class="actions" style="display: flex; gap: 15px; margin-top: 10px;">
+          <button type="button" class="pill" id="btnBack">↩ QUAY LẠI</button>
+          <a class="pill primary" href="{% url 'weather:home' %}">← TRANG CHỦ</a>
+        </div>
       </div>
 
-      <div class="tabs-right header-actions">
-        <button type="button" class="pill" id="btnBack">↩ QUAY LẠI</button>
-        <a class="pill primary" href="{% url 'weather:home' %}">← TRANG CHỦ</a>
+      {% if latest_merged %}
+        <div class="latest-bar cleaned muted latest-card" style="margin: 14px 0 0;">
+          <span class="latest-label">📅 MỚI NHẤT:</span>
+          <span class="latest-name" title="{{ latest_cleaned_merge.name }}">
+            <b>{{ latest_cleaned_merge.name }}</b>
+          </span>
+          <span class="latest-meta">
+            <span class="latest-size">📦 {{ latest_cleaned_merge.size_mb }} MB</span>
+            <span class="latest-time">🕐 {{ latest_cleaned_merge.mtime }}</span>
+          </span>
+        </div>
+
+      {% else %}
+        <div class="latest-bar merged muted" style="font-weight: 700;">📭 CHƯA CÓ TỆP ĐÃ GỘP TRONG THƯ MỤC MERGE_DATA/</div>
+      {% endif %}
+
+      <div class="section-badge merged">🗂️ THƯ MỤC MERGE_DATA</div>
+
+      {% if merged_items %}
+      <table style="margin: 0 25px 35px;">
+        <thead>
+          <tr>
+            <th style="width:170px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">📄</span>
+                <span>TÊN TỆP</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">🌐</span>
+                <span>NGUỒN DỮ LIỆU</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">🕐</span>
+                <span>CẬP NHẬT</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">📦</span>
+                <span>DUNG LƯỢNG</span>
+              </span>
+            </th>
+
+            <th style="width:170px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">⚡</span>
+                <span>THAO TÁC</span>
+              </span>
+            </th>
+
+
+          </tr>
+        </thead>
+        <tbody>
+        {% for f in merged_items %}
+          {% if f.name|slice:"-5:" == ".xlsx" or f.name|slice:"-4:" == ".csv" %}
+          <tr>
+            <td><div class="file-name">{{ f.name }}</div></td>
+            <td class="source-cell">
+              {% if "merged_vrain_" in f.name %}
+                <span class="source-badge source-vrain">VRAIN</span>
+              {% elif "merged_weather" in f.name %}
+                <span class="source-badge source-openweather">OPENWEATHER</span>
+              {% else %}
+                <span class="source-badge source-openweather">ĐÃ GỘP</span>
+              {% endif %}
+            </td>
+            <td class="time-cell">{{ f.mtime }}</td>
+            <td class="size-cell">{{ f.size_mb }} MB</td>
+            <td>
+              <div class="op-actions">
+                <a class="pill small" href="{% url 'weather:dataset_view' 'merged' f.name %}">👀 XEM</a>
+                <a class="pill small primary" href="{% url 'weather:dataset_download' 'merged' f.name %}">⬇️ TẢI</a>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <div>CHƯA CÓ DỮ LIỆU ĐÃ GỘP. HÃY NHẤN NÚT "🔗 GỘP DỮ LIỆU" Ở PHẦN DƯỚI.</div>
       </div>
+      {% endif %}
     </div>
-    
-    <!-- Tab 1: Dữ liệu đã xử lý -->
-    <div id="tab1" class="tab-content active">
-      <div class="datasets-wrap">
-        
-        <!-- CARD DỮ LIỆU ĐÃ GỘP -->
-        <div class="datasets-card">
-          <div class="datasets-title">
-            <div class="title-block">
-              <h1 class="page-title merged">DỮ LIỆU ĐÃ GỘP (DỮ LIỆU CHUNG)</h1>
-              <div class="page-sub">Các tệp dữ liệu đã được gộp và lưu trữ tập trung. Dữ liệu đã xử lý sẵn sàng để phân tích.</div>
-              <div class="title-underline merged"></div>
-            </div>
 
-            <div class="actions">
-              <!-- Back/Home moved to header to keep controls on the same row as tabs -->
-            </div>
+    <div class="datasets-card">
+      <div class="datasets-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <div class="title-block">
+          <h1 class="page-title cleaned">LÀM SẠCH DỮ LIỆU && BỘ DỮ LIỆU ĐÃ LÀM SẠCH (GẦN ĐÂY)</h1>
+          <div class="page-sub">Dữ liệu đã được xử lý, làm sạch và chuẩn hóa từ file đã gộp. Sẵn sàng cho phân tích nâng cao và machine learning.</div>
+          <div class="title-underline cleaned"></div>
+        </div>
+
+        <div class="actions" style="display: flex; gap: 15px; margin-top: 10px;">
+          <button type="button" class="pill" id="btnClean">🧹 LÀM SẠCH DỮ LIỆU</button>
+        </div>
+
+        
+      </div>
+
+      <div id="cleanStatus" class="merge-status"></div>
+
+
+      <div class="section-badge cleaned">🧼 DỮ LIỆU SAU KHI LÀM SẠCH </div>
+
+      <div class="clean-split">
+
+        <div class="clean-card">
+          <div class="clean-card__head">
+            <div class="clean-card__title">🧩DỮ LIỆU LÀM SẠCH ĐÃ GỘP</div>
+            <div class="clean-card__badge">Nguồn: Merge_data</div>
           </div>
 
-          {% if latest_merged %}
-            <div class="latest-bar cleaned muted latest-card">
+          {% if latest_cleaned_merge %}
+            <div class="latest-bar cleaned muted latest-card" style="margin: 14px 0 0;">
               <span class="latest-label">📅 MỚI NHẤT:</span>
-              <span class="latest-name" title="{{ latest_merged.name }}">
-                <b>{{ latest_merged.name }}</b>
+              <span class="latest-name" title="{{ latest_cleaned_merge.name }}">
+                <b>{{ latest_cleaned_merge.name }}</b>
               </span>
               <span class="latest-meta">
-                <span class="latest-size">📦 {{ latest_merged.size_mb }} MB</span>
-                <span class="latest-time">🕐 {{ latest_merged.mtime }}</span>
+                <span class="latest-size">📦 {{ latest_cleaned_merge.size_mb }} MB</span>
+                <span class="latest-time">🕐 {{ latest_cleaned_merge.mtime }}</span>
               </span>
             </div>
+
+
           {% else %}
-            <div class="latest-bar merged muted" style="font-weight: 700; color: #4a5568;">📭 CHƯA CÓ TỆP ĐÃ GỘP TRONG THƯ MỤC MERGE_DATA/</div>
+            <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700;">📭 Chưa có file clean cho MERGE</div>
           {% endif %}
 
-          <div class="section-badge merged">🗂️ THƯ MỤC MERGE_DATA</div>
-
-          {% if merged_items %}
-          <table>
-            <thead>
-              <tr>
-                <th style="width:25%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">📄</span>
-                    <span>TÊN TỆP</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">🌐</span>
-                    <span>NGUỒN DỮ LIỆU</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">🕐</span>
-                    <span>CẬP NHẬT</span>
-                  </span>
-                </th>
-
-                <th style="width:15%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">📦</span>
-                    <span>DUNG LƯỢNG</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">⚡</span>
-                    <span>THAO TÁC</span>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for f in merged_items %}
-              {% if f.name|slice:"-5:" == ".xlsx" or f.name|slice:"-4:" == ".csv" %}
-              <tr>
-                <td><div class="file-name">{{ f.name }}</div></td>
-                <td class="source-cell">
-                  {% if "merged_vrain_" in f.name %}
-                    <span class="source-badge source-vrain">VRAIN</span>
-                  {% elif "merged_weather" in f.name %}
-                    <span class="source-badge source-openweather">OPENWEATHER</span>
-                  {% else %}
-                    <span class="source-badge source-openweather">ĐÃ GỘP</span>
-                  {% endif %}
-                </td>
-                <td class="time-cell">{{ f.mtime }}</td>
-                <td class="size-cell">{{ f.size_mb }} MB</td>
-                <td>
-                  <div class="op-actions">
-                    <a class="pill small" href="{% url 'weather:dataset_view' 'merged' f.name %}">👀 XEM</a>
-                    <a class="pill small primary" href="{% url 'weather:dataset_download' 'merged' f.name %}">⬇️ TẢI</a>
+          {% if cleaned_merge_items %}
+            <div class="mini-list">
+              {% for f in cleaned_merge_items|slice:":6" %}
+                <div class="mini-item">
+                  <div class="mini-name">{{ f.name }}</div>
+                  <div class="mini-actions">
+                    <a class="pill small" href="{% url 'weather:dataset_view' f.folder f.name %}">👀 XEM</a>
+                    <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder f.name %}">⬇️ TẢI</a>
                   </div>
-                </td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-            </tbody>
-          </table>
+                </div>
+              {% endfor %}
+            </div>
           {% else %}
-          <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
-            <div>CHƯA CÓ DỮ LIỆU ĐÃ GỘP. HÃY NHẤN NÚT "🔗 GỘP DỮ LIỆU" Ở TAB TRUNG TÂM XỬ LÝ.</div>
-          </div>
+            <div class="empty-state" style="padding: 30px 10px;">
+              <div class="empty-state-icon" style="font-size:46px;">🧩</div>
+              <div>Chưa có file clean cho nhóm MERGE.</div>
+            </div>
           {% endif %}
         </div>
 
-        <!-- CARD LÀM SẠCH DỮ LIỆU -->
-        <div class="datasets-card">
-          <div class="datasets-title">
-            <div class="title-block">
-              <h1 class="page-title cleaned">LÀM SẠCH DỮ LIỆU & BỘ DỮ LIỆU ĐÃ LÀM SẠCH</h1>
-              <div class="page-sub">Dữ liệu đã được xử lý, làm sạch và chuẩn hóa từ file đã gộp. Sẵn sàng cho phân tích nâng cao và machine learning.</div>
-              <div class="title-underline cleaned"></div>
-            </div>
-
-            <div class="actions">
-              <button type="button" class="pill" id="btnClean">🧹 BẮT ĐẦU LÀM SẠCH</button>
-            </div>
+        <div class="clean-card">
+          <div class="clean-card__head">
+            <div class="clean-card__title">📦 DỮ LIỆU LÀM SẠCH CHƯA GỘP</div>
+            <div class="clean-card__badge">Nguồn: output</div>
           </div>
 
-          <div id="cleanStatus" class="merge-status"></div>
-
-          <div class="section-badge cleaned">🧼 DỮ LIỆU SAU KHI LÀM SẠCH</div>
-
-          <div class="clean-split">
-            <div class="clean-card">
-              <div class="clean-card__head">
-                <div class="clean-card__title">🧩 DỮ LIỆU LÀM SẠCH ĐÃ GỘP</div>
-                <div class="clean-card__badge">Nguồn: Merge_data</div>
-              </div>
-
-              {% if latest_cleaned_merge %}
-                <div class="latest-bar cleaned muted latest-card">
-                  <span class="latest-label">📅 MỚI NHẤT:</span>
-                  <span class="latest-name" title="{{ latest_cleaned_merge.name }}">
-                    <b>{{ latest_cleaned_merge.name }}</b>
-                  </span>
-                  <span class="latest-meta">
-                    <span class="latest-size">📦 {{ latest_cleaned_merge.size_mb }} MB</span>
-                    <span class="latest-time">🕐 {{ latest_cleaned_merge.mtime }}</span>
-                  </span>
-                </div>
-              {% else %}
-                <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700; color: #4a5568;">📭 Chưa có file clean cho MERGE</div>
-              {% endif %}
-
-              {% if cleaned_merge_items %}
-                <div class="mini-list">
-                  {% for f in cleaned_merge_items|slice:":6" %}
-                    <div class="mini-item">
-                      <div class="mini-name">{{ f.name }}</div>
-                      <div class="mini-actions">
-                        <a class="pill small" href="{% url 'weather:dataset_view' f.folder f.name %}">👀 XEM</a>
-                        <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder f.name %}">⬇️ TẢI</a>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% else %}
-                <div class="empty-state" style="padding: 30px 10px;">
-                  <div class="empty-state-icon" style="font-size:46px;">🧩</div>
-                  <div>Chưa có file clean cho nhóm MERGE.</div>
-                </div>
-              {% endif %}
-            </div>
-
-            <div class="clean-card">
-              <div class="clean-card__head">
-                <div class="clean-card__title">📦 DỮ LIỆU LÀM SẠCH CHƯA GỘP</div>
-                <div class="clean-card__badge">Nguồn: output</div>
-              </div>
-
-              {% if latest_cleaned_raw %}
-                <div class="latest-bar cleaned muted latest-card">
-                  <span class="latest-label">📅 MỚI NHẤT:</span>
-                  <span class="latest-name" title="{{ latest_cleaned_raw.name }}">
-                    <b>{{ latest_cleaned_raw.name }}</b>
-                  </span>
-                  <span class="latest-meta">
-                    <span class="latest-size">📦 {{ latest_cleaned_raw.size_mb }} MB</span>
-                    <span class="latest-time">🕐 {{ latest_cleaned_raw.mtime }}</span>
-                  </span>
-                </div>
-              {% else %}
-                <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700; color: #4a5568;">📭 Chưa có file clean cho OUTPUT</div>
-              {% endif %}
-
-              {% if cleaned_raw_items %}
-                <div class="mini-list">
-                  {% for f in cleaned_raw_items|slice:":6" %}
-                    <div class="mini-item">
-                      <div class="mini-name">{{ f.name }}</div>
-                      <div class="mini-actions">
-                        <a class="pill small" href="{% url 'weather:dataset_view' 'cleaned_raw' f.name %}" style="background: #48bb78; color: white;">👀 XEM</a>
-                        <a class="pill small primary" href="{% url 'weather:dataset_download' 'cleaned_raw' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% else %}
-                <div class="empty-state" style="padding: 30px 10px;">
-                  <div class="empty-state-icon" style="font-size:46px;">📦</div>
-                  <div>Chưa có file clean cho nhóm OUTPUT.</div>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-
-          <div class="section-badge cleaned">📊 TỔNG HỢP CÁC FILE LÀM SẠCH (GẦN ĐÂY)</div>
-
-          {% if cleaned_items %}
-          <table>
-            <thead>
-              <tr>
-                <th style="width:25%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">📄</span>
-                    <span>TÊN TỆP</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">🌐</span>
-                    <span>NGUỒN DỮ LIỆU</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">🕐</span>
-                    <span>CẬP NHẬT</span>
-                  </span>
-                </th>
-
-                <th style="width:15%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">📦</span>
-                    <span>DUNG LƯỢNG</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">⚡</span>
-                    <span>THAO TÁC</span>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for f in cleaned_items %}
-              {% if f.name|slice:"-4:" == ".csv" or f.name|slice:"-5:" == ".xlsx" %}
-              <tr>
-                <td><div class="file-name cleaned">{{ f.name }}</div></td>
-                <td class="source-cell">
-                  <span class="source-badge source-cleaned">ĐÃ LÀM SẠCH</span>
-                </td>
-                <td class="time-cell">{{ f.mtime }}</td>
-                <td class="size-cell">{{ f.size_mb }} MB</td>
-                <td>
-                  <div class="op-actions">
-                    <a class="pill small" href="{% url 'weather:dataset_view' f.folder|default:'cleaned' f.name %}">👀 XEM</a>
-                    <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder|default:'cleaned' f.name %}">⬇️ TẢI</a>
-                  </div>
-                </td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-            </tbody>
-          </table>
-          {% else %}
-          <div class="empty-state">
-            <div class="empty-state-icon">🧹</div>
-            <div>CHƯA CÓ DỮ LIỆU ĐÃ LÀM SẠCH. NHẤN NÚT "🧹 LÀM SẠCH DỮ LIỆU" ĐỂ BẮT ĐẦU.</div>
-          </div>
-          {% endif %}
-        </div>
-        
-        <!-- CARD DỮ LIỆU THÔ -->
-        <div class="datasets-card">
-          <div class="datasets-title">
-            <div class="title-block">
-              <h1 class="page-title">DỮ LIỆU THÔ (CHƯA QUA XỬ LÍ) GẦN ĐÂY</h1>
-              <div class="page-sub">Duyệt, xem trước và tải xuống các tệp đã thu thập gần nhất. Dữ liệu thô từ các nguồn.</div>
-              <div class="title-underline"></div>
-            </div>
-
-            <div class="actions">
-              <button type="button" class="pill merge" id="btnMerge">🔗 GỘP DỮ LIỆU</button>
-            </div>
-          </div>
-
-          {% if latest_output %}
-            <div class="latest-bar cleaned muted latest-card">
+          {% if latest_cleaned_raw %}
+            <div class="latest-bar cleaned muted latest-card" style="margin: 14px 0 0;">
               <span class="latest-label">📅 MỚI NHẤT:</span>
-              <span class="latest-name" title="{{ latest_output.name }}">
-                <b>{{ latest_output.name }}</b>
+              <span class="latest-name" title="{{ latest_cleaned_merge.name }}">
+                <b>{{ latest_cleaned_merge.name }}</b>
               </span>
               <span class="latest-meta">
-                <span class="latest-size">📦 {{ latest_output.size_mb }} MB</span>
-                <span class="latest-time">🕐 {{ latest_output.mtime }}</span>
+                <span class="latest-size">📦 {{ latest_cleaned_merge.size_mb }} MB</span>
+                <span class="latest-time">🕐 {{ latest_cleaned_merge.mtime }}</span>
               </span>
             </div>
+
           {% else %}
-            <div class="latest-bar muted" style="font-weight: 700; color: #4a5568;">📭 KHÔNG CÓ TỆP NÀO TRONG THƯ MỤC OUTPUT/</div>
+            <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700;">📭 Chưa có file clean cho OUTPUT</div>
           {% endif %}
 
-          <div id="mergeStatus" class="merge-status"></div>
-
-          <div class="section-badge output">📁 THƯ MỤC OUTPUT</div>
-
-          {% if output_items %}
-          <table>
-            <thead>
-              <tr>
-                <th style="width:35%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">📄</span>
-                    <span>TÊN TỆP</span>
-                  </span>
-                </th>
-
-                <th style="width:25%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">🕐</span>
-                    <span>CẬP NHẬT</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">📦</span>
-                    <span>DUNG LƯỢNG</span>
-                  </span>
-                </th>
-
-                <th style="width:20%;" class="th-center">
-                  <span class="th-inner">
-                    <span class="th-ico">⚡</span>
-                    <span>THAO TÁC</span>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for f in output_items %}
-              {% if f.name|slice:"-5:" == ".xlsx" or f.name|slice:"-4:" == ".csv" %}
-              <tr>
-                <td><div class="file-name">{{ f.name }}</div></td>
-                <td class="time-cell">{{ f.mtime }}</td>
-                <td class="size-cell">{{ f.size_mb }} MB</td>
-                <td>
-                  <div class="op-actions">
-                    <a class="pill small" href="{% url 'weather:dataset_view' 'output' f.name %}" style="background: #48bb78; color: white;">👀 XEM</a>
-                    <a class="pill small primary" href="{% url 'weather:dataset_download' 'output' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
+          {% if cleaned_raw_items %}
+            <div class="mini-list">
+              {% for f in cleaned_raw_items|slice:":6" %}
+                <div class="mini-item">
+                  <div class="mini-name">{{ f.name }}</div>
+                  <div class="mini-actions">
+                    <a class="pill small" href="{% url 'weather:dataset_view' 'cleaned_raw' f.name %}" style="background: #48bb78; color: white;">👀 XEM</a>
+                    <a class="pill small primary" href="{% url 'weather:dataset_download' 'cleaned_raw' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
                   </div>
-                </td>
-              </tr>
-              {% endif %}
-            {% endfor %}
-            </tbody>
-          </table>
+                </div>
+              {% endfor %}
+            </div>
           {% else %}
-          <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
-            <div>KHÔNG CÓ DỮ LIỆU NÀO TRONG THƯ MỤC OUTPUT.</div>
-          </div>
+            <div class="empty-state" style="padding: 30px 10px;">
+              <div class="empty-state-icon" style="font-size:46px;">📦</div>
+              <div>Chưa có file clean cho nhóm OUTPUT.</div>
+            </div>
           {% endif %}
         </div>
+
       </div>
+
+
+      <div class="section-badge cleaned">📊 TỔNG HỢP CÁC FILE LÀM SẠCH (GẦN ĐÂY)</div>
+
+      {% if cleaned_items %}
+      <table style="margin: 0 25px 35px;">
+        <thead>
+          <tr>
+            <th style="width:170px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">📄</span>
+                <span>TÊN TỆP</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">🌐</span>
+                <span>NGUỒN DỮ LIỆU</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">🕐</span>
+                <span>CẬP NHẬT</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">📦</span>
+                <span>DUNG LƯỢNG</span>
+              </span>
+            </th>
+
+            <th style="width:170px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">⚡</span>
+                <span>THAO TÁC</span>
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for f in cleaned_items %}
+          {% if f.name|slice:"-4:" == ".csv" or f.name|slice:"-5:" == ".xlsx" %}
+          <tr>
+            <td><div class="file-name cleaned">{{ f.name }}</div></td>
+            <td class="source-cell">
+              <span class="source-badge source-cleaned">ĐÃ LÀM SẠCH</span>
+            </td>
+            <td class="time-cell">{{ f.mtime }}</td>
+            <td class="size-cell">{{ f.size_mb }} MB</td>
+            <td>
+              <div class="op-actions">
+                <a class="pill small"
+                  href="{% url 'weather:dataset_view' f.folder|default:'cleaned' f.name %}">👀 XEM</a>
+
+                <a class="pill small primary"
+                  href="{% url 'weather:dataset_download' f.folder|default:'cleaned' f.name %}">⬇️ TẢI</a>
+
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">🧹</div>
+        <div>CHƯA CÓ DỮ LIỆU ĐÃ LÀM SẠCH. NHẤN NÚT "🧹 LÀM SẠCH DỮ LIỆU" ĐỂ BẮT ĐẦU.</div>
+      </div>
+      {% endif %}
     </div>
     
-    <!-- Tab 2: Trung tâm xử lý dữ liệu -->
-    <div id="tab2" class="tab-content">
-      <div class="processing-card">
-        <div class="processing-header">
-          <div>
-            <div class="processing-title">⚙️ TRUNG TÂM XỬ LÝ DỮ LIỆU</div>
-            <div class="processing-subtitle">Quản lý toàn bộ quy trình xử lý dữ liệu từ thu thập, gộp, làm sạch đến phân tích. Tất cả trong một giao diện duy nhất.</div>
-          </div>
-          <div class="processing-badge">ALL-IN-ONE WORKFLOW</div>
+    <div class="datasets-card">
+      <div class="datasets-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <div class="title-block">
+          <h1 class="page-title">DỮ LIỆU THÔ (CHƯA QUA XỬ LÍ) GẦN ĐÂY</h1>
+          <div class="page-sub">Duyệt, xem trước và tải xuống các tệp đã thu thập gần nhất. Dữ liệu thô từ các nguồn.</div>
+          <div class="title-underline"></div>
         </div>
-        
-        <!-- Thống kê nhanh -->
-        <div class="quick-stats">
-          <div class="stat-card">
-            <div class="stat-icon">📁</div>
-            <div class="stat-number">{{ output_items|length }}</div>
-            <div class="stat-label">FILE THÔ</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🔗</div>
-            <div class="stat-number">{{ merged_items|length }}</div>
-            <div class="stat-label">FILE ĐÃ GỘP</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🧹</div>
-            <div class="stat-number">{{ cleaned_items|length }}</div>
-            <div class="stat-label">FILE ĐÃ LÀM SẠCH</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-number">{{ cleaned_items|length|add:merged_items|length }}</div>
-            <div class="stat-label">TỔNG FILE XỬ LÝ</div>
-          </div>
-        </div>
-        
-        <div class="processing-grid">
-          <!-- Ô gộp dữ liệu -->
-          <div class="processing-box merge-box">
-            <div class="box-header">
-              <div class="box-icon">🔗</div>
-              <div class="box-title">GỘP DỮ LIỆU THÔNG MINH</div>
-            </div>
-            <div class="box-content">
-              Tự động phát hiện và gộp tất cả file dữ liệu từ nhiều nguồn. Hỗ trợ đa dạng định dạng (CSV, Excel, JSON) với khả năng tự động nhận diện cấu trúc dữ liệu.
-            </div>
-            <div class="box-steps">
-              <div class="step-item">
-                <div class="step-number">1</div>
-                <div>Quét và phân tích file trong OUTPUT</div>
-              </div>
-              <div class="step-item">
-                <div class="step-number">2</div>
-                <div>Tự động căn chỉnh cột dữ liệu</div>
-              </div>
-              <div class="step-item">
-                <div class="step-number">3</div>
-                <div>Gộp và lưu vào MERGE_DATA</div>
-              </div>
-            </div>
-            <div class="box-actions">
-              <button type="button" class="pill merge pulse" id="btnMergeMain">🔗 GỘP DỮ LIỆU</button>
-            </div>
-          </div>
-          
-          <!-- Ô làm sạch dữ liệu -->
-          <div class="processing-box clean-box">
-            <div class="box-header">
-              <div class="box-icon">🧹</div>
-              <div class="box-title">LÀM SẠCH NÂNG CAO</div>
-            </div>
-            <div class="box-content">
-              Áp dụng 7 kỹ thuật làm sạch chuyên sâu: xử lý missing values, outliers, chuẩn hóa, mã hóa, xử lý thời gian, loại bỏ trùng lặp và sửa lỗi định dạng.
-            </div>
-            <div class="box-steps">
-              <div class="step-item">
-                <div class="step-number">1</div>
-                <div>Chọn nguồn dữ liệu cần làm sạch</div>
-              </div>
-              <div class="step-item">
-                <div class="step-number">2</div>
-                <div>Tùy chọn kỹ thuật làm sạch</div>
-              </div>
-              <div class="step-item">
-                <div class="step-number">3</div>
-                <div>Xuất báo cáo chi tiết</div>
-              </div>
-            </div>
-            <div class="box-actions">
-              <button type="button" class="pill primary" id="btnCleanMain">🧹 BẮT ĐẦU LÀM SẠCH</button>
-            </div>
-          </div>
-          
-          <!-- Ô mô tả quy trình -->
-          <div class="processing-box desc-box">
-            <div class="box-header">
-              <div class="box-icon">📖</div>
-              <div class="box-title">TÀI LIỆU & HƯỚNG DẪN</div>
-            </div>
-            <div class="box-content">
-              Xem chi tiết toàn bộ quy trình xử lý, các kỹ thuật áp dụng, thông số kỹ thuật và hướng dẫn sử dụng từng tính năng của hệ thống.
-            </div>
-            <div class="box-steps">
-              <div class="step-item">
-                <div class="step-number">1</div>
-                <div>Quy trình xử lý dữ liệu</div>
-              </div>
-              <div class="step-item">
-                <div class="step-number">2</div>
-                <div>Các kỹ thuật làm sạch</div>
-              </div>
-              <div class="step-item">
-                <div class="step-number">3</div>
-                <div>Hướng dẫn sử dụng</div>
-              </div>
-            </div>
-            <div class="box-actions">
-              <button type="button" class="pill" id="btnShowDesc">📖 XEM TÀI LIỆU</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- MODAL MÔ TẢ CHI TIẾT QUY TRÌNH -->
-  <div id="descModal" class="desc-modal" style="display:none;">
-    <div class="desc-modal-content">
-      <div class="desc-modal-header">
-        <div class="desc-modal-title">📖 TÀI LIỆU HƯỚNG DẪN XỬ LÝ DỮ LIỆU</div>
-        <button class="desc-modal-close" id="descModalClose">✕</button>
-      </div>
-      <div class="desc-modal-body">
-        <div class="desc-section">
-          <div class="section-title">🎯 TỔNG QUAN HỆ THỐNG</div>
-          <div class="section-content">
-            Hệ thống xử lý dữ liệu được thiết kế để quản lý toàn bộ vòng đời dữ liệu từ thu thập đến phân tích.
-          </div>
+        <div class="actions" style="display: flex; gap: 15px; margin-top: 10px;">
+          <button type="button" class="pill merge" id="btnMerge">🔗 GỘP DỮ LIỆU</button>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- MODAL LÀM SẠCH DỮ LIỆU (WIZARD) -->
+      {% if latest_output %}
+        <div class="latest-bar cleaned muted latest-card" style="margin: 14px 0 0;">
+          <span class="latest-label">📅 MỚI NHẤT:</span>
+          <span class="latest-name" title="{{ latest_cleaned_merge.name }}">
+            <b>{{ latest_cleaned_merge.name }}</b>
+          </span>
+          <span class="latest-meta">
+            <span class="latest-size">📦 {{ latest_cleaned_merge.size_mb }} MB</span>
+            <span class="latest-time">🕐 {{ latest_cleaned_merge.mtime }}</span>
+          </span>
+        </div>
+
+      {% else %}
+        <div class="latest-bar muted" style="font-weight: 700;">📭 KHÔNG CÓ TỆP NÀO TRONG THƯ MỤC OUTPUT/</div>
+      {% endif %}
+
+      <div id="mergeStatus" class="merge-status"></div>
+
+      <div class="section-badge output">📁 THƯ MỤC OUTPUT</div>
+
+      {% if output_items %}
+      <table style="margin: 0 25px 35px;">
+        <thead>
+          <tr>
+            <th style="width:170px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">📄</span>
+                <span>TÊN TỆP</span>
+              </span>
+            </th>
+
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">🕐</span>
+                <span>CẬP NHẬT</span>
+              </span>
+            </th>
+
+            <th style="width:220px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">📦</span>
+                <span>DUNG LƯỢNG</span>
+              </span>
+            </th>
+
+            <th style="width:170px;" class="th-center">
+              <span class="th-inner">
+                <span class="th-ico">⚡</span>
+                <span>THAO TÁC</span>
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for f in output_items %}
+          {% if f.name|slice:"-5:" == ".xlsx" or f.name|slice:"-4:" == ".csv" %}
+          <tr>
+            <td><div class="file-name">{{ f.name }}</div></td>
+            <td class="time-cell">{{ f.mtime }}</td>
+            <td class="size-cell">{{ f.size_mb }} MB</td>
+            <td>
+              <div class="op-actions">
+                <a class="pill small" href="{% url 'weather:dataset_view' 'output' f.name %}" style="background: #48bb78; color: white;">👀 XEM</a>
+                <a class="pill small primary" href="{% url 'weather:dataset_download' 'output' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <div>KHÔNG CÓ DỮ LIỆU NÀO TRONG THƯ MỤC OUTPUT.</div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
   <div class="cw-overlay" id="cwOverlay" style="display:none;">
       <div class="cw-modal">
         <div class="cw-top">
@@ -561,19 +410,19 @@
           <button class="pill" id="cwClose">✕</button>
         </div>
 
-      <div class="cw-step" id="cwStep1">
-        <div class="cw-grid2">
-          <button class="cw-choice" data-source="merge">
-            <div class="cw-choice__t">🧩 FILE ĐÃ GỘP</div>
-            <div class="cw-choice__d">Đọc từ Merge_data → lưu vào Clean_Data_For_File_Merge</div>
-          </button>
+        <div class="cw-step" id="cwStep1">
+          <div class="cw-grid2">
+            <button class="cw-choice" data-source="merge">
+              <div class="cw-choice__t">🧩 FILE ĐÃ GỘP</div>
+              <div class="cw-choice__d">Đọc từ Merge_data → lưu vào Clean_Data_For_File_Merge</div>
+            </button>
 
-          <button class="cw-choice" data-source="output">
-            <div class="cw-choice__t">📦 FILE CHƯA GỘP</div>
-            <div class="cw-choice__d">Đọc từ output → lưu vào Clean_Data_For_File_Not_Merge</div>
-          </button>
+            <button class="cw-choice" data-source="output">
+              <div class="cw-choice__t">📦 FILE CHƯA GỘP</div>
+              <div class="cw-choice__d">Đọc từ output → lưu vào Clean_Data_For_File_Not_Merge</div>
+            </button>
+          </div>
         </div>
-      </div>
 
         <div class="cw-step" id="cwStep2" style="display:none;">
           <div class="cw-row">
@@ -582,57 +431,55 @@
             <button class="pill" id="cwBack">↩ QUAY LẠI</button>
           </div>
 
-        <div class="cw-filelist" id="cwFileList"></div>
+          <div class="cw-filelist" id="cwFileList"></div>
 
-        <div class="cw-actions">
-          <button class="pill" id="cwStart" disabled style="background:linear-gradient(135deg,#48bb78,#38a169);color:#fff;">🚀 BẮT ĐẦU LÀM SẠCH</button>
-        </div>
-      </div>
-
-      <div class="cw-step" id="cwStep3" style="display:none;">
-        <div class="cw-progress">
-          <div class="cw-bar"><div class="cw-bar__fill" id="cwBarFill" style="width:0%;"></div></div>
-          <div class="cw-prow">
-            <div class="cw-steptext" id="cwStepText">Đang khởi tạo…</div>
-            <div class="cw-pct" id="cwPct">0%</div>
+          <div class="cw-actions">
+            <button class="pill" id="cwStart" disabled style="background:linear-gradient(135deg,#48bb78,#38a169);color:#fff;">🚀 BẮT ĐẦU LÀM SẠCH</button>
           </div>
         </div>
+
+        <div class="cw-step" id="cwStep3" style="display:none;">
+          <div class="cw-progress">
+            <div class="cw-bar"><div class="cw-bar__fill" id="cwBarFill" style="width:0%;"></div></div>
+            <div class="cw-prow">
+              <div class="cw-steptext" id="cwStepText">Đang khởi tạo…</div>
+              <div class="cw-pct" id="cwPct">0%</div>
+            </div>
+          </div>
 
           <div class="cw-log" id="cwLog"></div>
           <div class="cw-report" id="cwReport" style="display:none;"></div>
 
-        <div class="cw-actions">
-          <a class="pill" id="cwViewBtn" href="#" style="display:none;background:#48bb78;color:#fff;">👀 XEM NGAY</a>
-          <a class="pill primary" id="cwDownloadBtn" href="#" style="display:none;background:#4299e1;color:#fff;">⬇️ TẢI VỀ</a>
-          <button class="pill" id="cwDone" style="display:none;">✅ Đóng</button>
+          <div class="cw-actions">
+            <a class="pill" id="cwViewBtn" href="#" style="display:none;background:#48bb78;color:#fff;">👀 XEM NGAY</a>
+            <a class="pill primary" id="cwDownloadBtn" href="#" style="display:none;background:#4299e1;color:#fff;">⬇️ TẢI VỀ</a>
+            <button class="pill" id="cwDone" style="display:none;">✅ Đóng</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    <div id="mergeResultModal" class="wf-modal" aria-hidden="true">
+      <div class="wf-modal__backdrop" data-close="1"></div>
 
-  <!-- MODAL KẾT QUẢ GỘP DỮ LIỆU -->
-  <div id="mergeResultModal" class="wf-modal" aria-hidden="true">
-    <div class="wf-modal__backdrop" data-close="1"></div>
+      <div class="wf-modal__panel" role="dialog" aria-modal="true" aria-labelledby="mergeModalTitle">
+        <button class="wf-modal__close" type="button" data-close="1">✕</button>
 
-    <div class="wf-modal__panel" role="dialog" aria-modal="true" aria-labelledby="mergeModalTitle">
-      <button class="wf-modal__close" type="button" data-close="1">✕</button>
+        <h3 id="mergeModalTitle">✅ GỘP DỮ LIỆU HOÀN TẤT</h3>
+        <p id="mergeModalMsg" class="wf-modal__msg"></p>
 
-      <h3 id="mergeModalTitle">✅ GỘP DỮ LIỆU HOÀN TẤT</h3>
-      <p id="mergeModalMsg" class="wf-modal__msg"></p>
+        <div class="wf-modal__file">
+          <div class="wf-kv"><span>📄 Tệp:</span> <b id="mergeFileName">—</b></div>
+          <div class="wf-kv"><span>📦 Dung lượng:</span> <b id="mergeFileSize">—</b></div>
+          <div class="wf-kv"><span>🕐 Cập nhật:</span> <b id="mergeFileTime">—</b></div>
+        </div>
 
-      <div class="wf-modal__file">
-        <div class="wf-kv"><span>📄 Tệp:</span> <b id="mergeFileName">—</b></div>
-        <div class="wf-kv"><span>📦 Dung lượng:</span> <b id="mergeFileSize">—</b></div>
-        <div class="wf-kv"><span>🕐 Cập nhật:</span> <b id="mergeFileTime">—</b></div>
-      </div>
-
-      <div class="wf-modal__actions">
-        <a id="mergeViewBtn" class="pill" href="#">👀 XEM</a>
-        <a id="mergeDownloadBtn" class="pill primary" href="#">⬇️ TẢI</a>
-        <button class="pill" type="button" data-close="1">✖ ĐÓNG</button>
+        <div class="wf-modal__actions">
+          <a id="mergeViewBtn" class="pill" href="#">👀 XEM</a>
+          <a id="mergeDownloadBtn" class="pill primary" href="#">⬇️ TẢI</a>
+          <button class="pill" type="button" data-close="1">✖ ĐÓNG</button>
+        </div>
       </div>
     </div>
-  </div>
 
   <script>
     <!-- CLEAN WIZARD MODAL -->
@@ -689,23 +536,13 @@
           }
         });
       }
-      
-      // ========== XỬ LÝ GỘP DỮ LIỆU ==========
-      const btnMerge = document.getElementById("btnMerge");
-      const mergeStatusEl = document.getElementById("mergeStatus");
-      
+
       if (btnMerge) {
         btnMerge.addEventListener("click", async function () {
+
           btnMerge.disabled = true;
           btnMerge.innerHTML = "⏳ ĐANG GỘP...";
           btnMerge.style.background = "linear-gradient(135deg, #718096, #4a5568)";
-          
-          // Cập nhật nút gộp chính nếu có
-          if (btnMergeMain) {
-            btnMergeMain.disabled = true;
-            btnMergeMain.innerHTML = "⏳ ĐANG GỘP...";
-            btnMergeMain.style.background = "linear-gradient(135deg, #718096, #4a5568)";
-          }
 
           showStatus("ĐANG XỬ LÝ GỘP DỮ LIỆU... VUI LÒNG CHỜ", "processing", mergeStatusEl);
 
@@ -736,68 +573,22 @@
                 openMergeModal(data.latest_merged, data.message);
               }
 
-              // Reset nút
-              resetMergeButtons();
+              btnMerge.disabled = false;
+              btnMerge.innerHTML = "🔗 GỘP DỮ LIỆU";
+              btnMerge.style.background = "linear-gradient(135deg, #9f7aea, #805ad5)";
             }
 
           } catch (err) {
             showStatus("❌ LỖI KẾT NỐI: " + err.message, "error", mergeStatusEl);
-            resetMergeButtons();
+            btnMerge.disabled = false;
+            btnMerge.innerHTML = "🔗 GỘP DỮ LIỆU";
+            btnMerge.style.background = "linear-gradient(135deg, #9f7aea, #805ad5)";
+          } finally {
+            btnMerge.disabled = false;
           }
         });
       }
-      
-      function resetMergeButtons() {
-        if (btnMerge) {
-          btnMerge.disabled = false;
-          btnMerge.innerHTML = "🔗 GỘP DỮ LIỆU";
-          btnMerge.style.background = "linear-gradient(135deg, #9f7aea, #805ad5)";
-        }
-        if (btnMergeMain) {
-          btnMergeMain.disabled = false;
-          btnMergeMain.innerHTML = "🔗 GỘP DỮ LIỆU";
-          btnMergeMain.style.background = "linear-gradient(135deg, #9f7aea, #805ad5)";
-        }
-      }
-      
-      // ========== MODAL KẾT QUẢ GỘP DỮ LIỆU ==========
-      function openMergeModal(file, msg){
-        const modal = document.getElementById('mergeResultModal');
-        if (!modal) return;
 
-        document.getElementById('mergeModalMsg').textContent = msg || 'Gộp dữ liệu thành công!';
-        document.getElementById('mergeFileName').textContent = (file && file.name) ? file.name : '—';
-        document.getElementById('mergeFileSize').textContent = (file && file.size_mb != null) ? (file.size_mb + ' MB') : '—';
-        document.getElementById('mergeFileTime').textContent = (file && file.mtime) ? file.mtime : '—';
-
-        const viewBtn = document.getElementById('mergeViewBtn');
-        const dlBtn = document.getElementById('mergeDownloadBtn');
-        viewBtn.href = (file && file.view_url) ? file.view_url : '#';
-        dlBtn.href = (file && file.download_url) ? file.download_url : '#';
-
-        modal.classList.add('wf-modal--open');
-        modal.setAttribute('aria-hidden', 'false');
-      }
-
-      function closeMergeModal(){
-        const modal = document.getElementById('mergeResultModal');
-        if (!modal) return;
-        modal.classList.remove('wf-modal--open');
-        modal.setAttribute('aria-hidden', 'true');
-        window.location.reload();
-      }
-
-      document.addEventListener('click', (e) => {
-        if (e.target && e.target.closest('#mergeResultModal [data-close]')) {
-          closeMergeModal();
-        }
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeMergeModal();
-      });
-      
-      // ========== WIZARD LÀM SẠCH DỮ LIỆU ==========
       const CLEAN_LIST_URL = "{% url 'weather:clean_list' %}";
       const CLEAN_START_URL = "{% url 'weather:clean_data' %}";
       const CLEAN_TAIL_URL = "{% url 'weather:clean_tail' %}";
@@ -829,14 +620,6 @@
       let cwJobId = null;
       let cwSince = 0;
       let cwTimer = null;
-      
-      // Cập nhật mô tả kỹ thuật
-      if (cwTechnique && techniqueDescription) {
-        cwTechnique.addEventListener("change", function() {
-          const selectedValue = this.value;
-          techniqueDescription.innerHTML = TECHNIQUE_DESCRIPTIONS[selectedValue] || TECHNIQUE_DESCRIPTIONS["all"];
-        });
-      }
 
       function cwShowStep(n){
         cwStep1.style.display = (n===1) ? "" : "none";
@@ -867,13 +650,9 @@
         cwTimer = null;
       }
 
-      // Nút làm sạch
-      const btnClean = document.getElementById("btnClean");
       if (btnClean) btnClean.addEventListener("click", cwOpen);
-      
-      // Các sự kiện đóng modal
-      if (cwClose) cwClose.addEventListener("click", cwCloseModal);
-      if (cwOverlay) cwOverlay.addEventListener("click", (e) => { if (e.target === cwOverlay) cwCloseModal(); });
+      cwClose.addEventListener("click", cwCloseModal);
+      cwOverlay.addEventListener("click", (e) => { if (e.target === cwOverlay) cwCloseModal(); });
 
       function cwRender(list){
         cwFileList.innerHTML = "";
@@ -919,34 +698,30 @@
         cwRender(cwFiles);
       }
 
-      if (cwStep1) {
-        cwStep1.querySelectorAll(".cw-choice").forEach(btn => {
-          btn.addEventListener("click", () => cwLoadList(btn.dataset.source));
-        });
-      }
+      cwStep1.querySelectorAll(".cw-choice").forEach(btn => {
+        btn.addEventListener("click", () => cwLoadList(btn.dataset.source));
+      });
 
-      if (cwBack) cwBack.addEventListener("click", () => cwShowStep(1));
+      cwBack.addEventListener("click", () => cwShowStep(1));
 
-      if (cwSearch) {
-        cwSearch.addEventListener("input", () => {
-          const q = (cwSearch.value || "").toLowerCase().trim();
-          const filtered = cwFiles.filter(x => x.name.toLowerCase().includes(q));
-          cwRender(filtered);
-        });
-      }
+      cwSearch.addEventListener("input", () => {
+        const q = (cwSearch.value || "").toLowerCase().trim();
+        const filtered = cwFiles.filter(x => x.name.toLowerCase().includes(q));
+        cwRender(filtered);
+      });
 
       cwStart.addEventListener("click", async () => {
         if (!cwSource || !cwSelected) return;
 
-          cwShowStep(3);
-          cwBarFill.style.width = "0%";
-          cwStepText.textContent = "Đang khởi tạo…";
-          cwPct.textContent = "0%";
-          cwLog.textContent = "";
-          cwReport.style.display = "none";
-          cwViewBtn.style.display = "none";
-          cwDownloadBtn.style.display = "none";
-          cwDone.style.display = "none";
+        cwShowStep(3);
+        cwBarFill.style.width = "0%";
+        cwStepText.textContent = "Đang khởi tạo…";
+        cwPct.textContent = "0%";
+        cwLog.textContent = "";
+        cwReport.style.display = "none";
+        cwViewBtn.style.display = "none";
+        cwDownloadBtn.style.display = "none";
+        cwDone.style.display = "none";
 
         const res = await fetch(CLEAN_START_URL, {
           method: "POST",
@@ -957,45 +732,45 @@
           body: JSON.stringify({ source: cwSource, filename: cwSelected })
         });
 
-          const data = await res.json();
-          if (!data.ok){
-            cwLog.textContent = "❌ " + (data.message || "Không start được job");
-            cwDone.style.display = "";
-            return;
+        const data = await res.json();
+        if (!data.ok){
+          cwLog.textContent = "❌ " + (data.message || "Không start được job");
+          cwDone.style.display = "";
+          return;
+        }
+
+        cwJobId = data.job_id;
+        cwSince = 0;
+
+        cwTimer = setInterval(async () => {
+          const r = await fetch(`${CLEAN_TAIL_URL}?job_id=${encodeURIComponent(cwJobId)}&since=${cwSince}`);
+          const t = await r.json();
+          if (!t.ok) return;
+
+          const p = t.progress || {pct:0, step:""};
+          cwBarFill.style.width = (p.pct || 0) + "%";
+          cwPct.textContent = (p.pct || 0) + "%";
+          cwStepText.textContent = p.step || "Đang chạy…";
+
+          const lines = t.lines || [];
+          if (lines.length){
+            cwLog.textContent += (cwLog.textContent ? "\n" : "") + lines.join("\n");
+            cwLog.scrollTop = cwLog.scrollHeight;
+            cwSince = t.next_since || cwSince;
           }
 
-          cwJobId = data.job_id;
-          cwSince = 0;
+          if (t.done){
+            clearInterval(cwTimer);
+            cwTimer = null;
 
-          cwTimer = setInterval(async () => {
-            const r = await fetch(`${CLEAN_TAIL_URL}?job_id=${encodeURIComponent(cwJobId)}&since=${cwSince}`);
-            const t = await r.json();
-            if (!t.ok) return;
-
-            const p = t.progress || {pct:0, step:""};
-            cwBarFill.style.width = (p.pct || 0) + "%";
-            cwPct.textContent = (p.pct || 0) + "%";
-            cwStepText.textContent = p.step || "Đang chạy…";
-
-            const lines = t.lines || [];
-            if (lines.length){
-              cwLog.textContent += (cwLog.textContent ? "\n" : "") + lines.join("\n");
-              cwLog.scrollTop = cwLog.scrollHeight;
-              cwSince = t.next_since || cwSince;
+            if (t.error){
+              cwLog.textContent += "\n\n❌ " + t.error;
+              cwDone.style.display = "";
+              return;
             }
 
-            if (t.done){
-              clearInterval(cwTimer);
-              cwTimer = null;
-
-              if (t.error){
-                cwLog.textContent += "\n\n❌ " + t.error;
-                cwDone.style.display = "";
-                return;
-              }
-
-              const rsl = t.result || {};
-              const rep = rsl.report || {};
+            const rsl = t.result || {};
+            const rep = rsl.report || {};
 
             cwReport.style.display = "";
             cwReport.innerHTML = `
@@ -1009,52 +784,25 @@
               </div>
             `;
 
-              if (rsl.view_url){
-                cwViewBtn.href = rsl.view_url;
-                cwViewBtn.style.display = "";
-              }
-              if (rsl.download_url){
-                cwDownloadBtn.href = rsl.download_url;
-                cwDownloadBtn.style.display = "";
-              }
-              cwDone.style.display = "";
+            if (rsl.view_url){
+              cwViewBtn.href = rsl.view_url;
+              cwViewBtn.style.display = "";
             }
-          }, 800);
-        });
-      }
+            if (rsl.download_url){
+              cwDownloadBtn.href = rsl.download_url;
+              cwDownloadBtn.style.display = "";
+            }
+            cwDone.style.display = "";
+          }
+        }, 800);
+      });
 
-      if (cwDone) cwDone.addEventListener("click", () => {
+      cwDone.addEventListener("click", () => {
         cwCloseModal();
         window.location.reload();
       });
-      
-      // ========== HIỆU ỨNG HOVER CHO CÁC BOX ==========
-      const processingBoxes = document.querySelectorAll(".processing-box");
-      processingBoxes.forEach(box => {
-        box.addEventListener("mouseenter", function() {
-          this.style.transform = "translateY(-8px)";
-          this.style.boxShadow = "0 25px 50px rgba(0, 0, 0, 0.15)";
-        });
-        
-        box.addEventListener("mouseleave", function() {
-          this.style.transform = "translateY(0)";
-          this.style.boxShadow = "0 8px 30px rgba(0, 0, 0, 0.08)";
-        });
-      });
-      
-      // Hiệu ứng hover cho stat cards
-      const statCards = document.querySelectorAll(".stat-card");
-      statCards.forEach(card => {
-        card.addEventListener("mouseenter", function() {
-          this.style.transform = "translateY(-5px)";
-        });
-        
-        card.addEventListener("mouseleave", function() {
-          this.style.transform = "translateY(0)";
-        });
-      });
-      
-      // ========== CÁC HÀM HỖ TRỢ ==========
+
+
       function showStatus(message, type, element) {
         if (!element) return;
         
@@ -1084,11 +832,11 @@
       }
     });
   </script>
-
-  <div class="wx-layer wx-clouds" aria-hidden="true"></div>
-  <div class="wx-layer wind-layer" aria-hidden="true"></div>
-  <div class="wx-layer wx-rain" aria-hidden="true"></div>
-  <div class="wx-layer wx-lightning" aria-hidden="true"></div>
-  <div class="wx-layer wx-lightning" aria-hidden="true"></div>
 </body>
+<div class="wx-layer wx-clouds" aria-hidden="true"></div>
+<div class="wx-layer wind-layer" aria-hidden="true"></div>
+<div class="wx-layer wx-rain" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
+
 </html>
