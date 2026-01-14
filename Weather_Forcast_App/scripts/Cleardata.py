@@ -106,7 +106,6 @@ def perform_cleaning(data_df, filename, file_type="merged"):
     if file_type not in ("merged", "output"):
         file_type = "merged"
 
-
     # =========================
     # Chuẩn hóa missing
     # =========================
@@ -114,22 +113,42 @@ def perform_cleaning(data_df, filename, file_type="merged"):
     data_df.replace(["N/A", "NA", "null", "NULL", ""], np.nan, inplace=True)
 
     # =========================
-    # Loại dòng rác / header lặp (cực quan trọng)
+    # Loại dòng rác / header lặp - CHỈ LOẠI DÒNG THỰC SỰ LÀ HEADER
     # =========================
     first_col = data_df.columns[0]
+    
+    # CHỈ xóa dòng có chứa "DANH SÁCH" trong cột đầu tiên
     data_df = data_df[~data_df[first_col].astype(str).str.contains("DANH SÁCH", case=False, na=False)]
-
+    
+    # Kiểm tra cột "Tên Trạm" nếu có
     if "Tên Trạm" in data_df.columns:
-        data_df = data_df[data_df["Tên Trạm"].astype(str).str.strip().ne("Tên Trạm")]
-    if "Tỉnh/Thành phố" in data_df.columns:
-        data_df = data_df[~data_df["Tỉnh/Thành phố"].astype(str).str.contains("Tỉnh/TP", na=False)]
-    if "STT" in data_df.columns:
-        data_df = data_df[data_df["STT"].astype(str).str.strip().ne("STT")]
+        # CHỈ xóa dòng mà toàn bộ giá trị đều giống header (dòng header lặp)
+        header_mask = data_df["Tên Trạm"].astype(str).str.strip().eq("Tên Trạm") & \
+                     data_df.iloc[:, 0].astype(str).str.strip().ne(data_df.iloc[:, 0].astype(str).str.strip().iloc[0] if len(data_df) > 0 else "")
+        data_df = data_df[~header_mask]
 
-    if "Unnamed: 2" in data_df.columns:
-        data_df = data_df[data_df["Unnamed: 2"].astype(str).str.strip().ne("Tên Trạm")]
+    # CHỈ xóa dòng trùng lặp nếu tất cả giá trị đều giống nhau
+    duplicate_header_mask = pd.Series([False] * len(data_df))
+    for col in data_df.columns:
+        if data_df[col].dtype == object:
+            duplicate_header_mask = duplicate_header_mask | data_df[col].astype(str).str.strip().eq(col.strip())
+    
+    # Chỉ xóa nếu có nhiều hơn 50% cột có giá trị trùng với tên cột
+    col_threshold = len(data_df.columns) * 0.5
+    rows_to_drop = duplicate_header_mask.groupby(duplicate_header_mask.index).sum() > col_threshold
+    data_df = data_df[~rows_to_drop]
 
+    # Reset index sau khi xóa
     data_df = data_df.reset_index(drop=True)
+
+    # =========================
+    # KIỂM TRA: In ra số dòng sau khi xử lý
+    # =========================
+    print(f"Số dòng sau khi loại header: {len(data_df)}")
+    if len(data_df) > 0:
+        print(f"Mẫu dữ liệu đầu tiên:\n{data_df.head(2)}")
+    else:
+        print("KHÔNG CÓ DỮ LIỆU SAU KHI XỬ LÝ!")
 
     # =========================
     # Xử lý dữ liệu âm
@@ -148,67 +167,58 @@ def perform_cleaning(data_df, filename, file_type="merged"):
     dtype_log = {}
     for col in data_df.columns:
         if data_df[col].dtype == object:
-            converted = pd.to_numeric(data_df[col], errors="coerce")
-            ratio = converted.notna().mean()
-            if ratio >= 0.85:
-                data_df[col] = converted
-                dtype_log[col] = f"string → numeric (parsed {ratio:.0%})"
-
+            # Kiểm tra nếu cột có thể chuyển thành số
+            try:
+                converted = pd.to_numeric(data_df[col], errors="coerce")
+                not_null_count = converted.notna().sum()
+                total_count = len(data_df[col])
+                ratio = not_null_count / total_count if total_count > 0 else 0
+                
+                if ratio >= 0.85 and not_null_count > 0:
+                    data_df[col] = converted
+                    dtype_log[col] = f"string → numeric (parsed {ratio:.0%})"
+            except:
+                pass
 
         col_l = col.lower()
         if ("date" in col_l) or ("time" in col_l) or ("thời gian" in col_l) or ("ngày" in col_l):
-            data_df[col] = pd.to_datetime(data_df[col], errors="coerce")
-            dtype_log[col] = "→ datetime"
+            try:
+                data_df[col] = pd.to_datetime(data_df[col], errors="coerce")
+                dtype_log[col] = "→ datetime"
+            except:
+                pass
 
     cleaning_log["datatype_standardized"] = dtype_log
 
-
-    key_cols = [c for c in ["station_id", "data_time"] if c in data_df.columns]
-    if key_cols:
-        before = len(data_df)
-        data_df = data_df.dropna(subset=key_cols)   # drop dòng thiếu key
-        cleaning_log["dropna_key_rows"] = before - len(data_df)
-
-    if set(["station_id", "data_time"]).issubset(data_df.columns):
-        if "timestamp" in data_df.columns:
-            data_df["timestamp"] = pd.to_datetime(data_df["timestamp"], errors="coerce")
-            data_df = data_df.sort_values(["station_id", "data_time", "timestamp"])
-        before = len(data_df)
-        data_df = data_df.drop_duplicates(subset=["station_id", "data_time"], keep="last")
-        cleaning_log["dedup_station_time_removed"] = before - len(data_df)
-
-
     # =========================
-    # Imputation
+    # Xử lý missing values - CHỈ áp dụng nếu có dữ liệu
     # =========================
-    num_cols = data_df.select_dtypes(include=[np.number]).columns.tolist()
-    dt_cols = data_df.select_dtypes(include=["datetime64[ns]"]).columns.tolist()
-    cat_cols = [c for c in data_df.columns if c not in num_cols and c not in dt_cols]
+    if len(data_df) > 0:
+        num_cols = data_df.select_dtypes(include=[np.number]).columns.tolist()
+        dt_cols = data_df.select_dtypes(include=["datetime64[ns]"]).columns.tolist()
+        cat_cols = [c for c in data_df.columns if c not in num_cols and c not in dt_cols]
 
-    for c in num_cols:
-        m = data_df[c].mean()
-        data_df[c] = data_df[c].fillna(m if pd.notna(m) else 0)
+        for c in num_cols:
+            if c in data_df.columns and len(data_df[c]) > 0:
+                m = data_df[c].mean()
+                data_df[c] = data_df[c].fillna(m if pd.notna(m) else 0)
 
-    for c in dt_cols:
-        mode = data_df[c].mode()
-        data_df[c] = data_df[c].fillna(mode.iloc[0] if not mode.empty else pd.NaT)
+        for c in dt_cols:
+            if c in data_df.columns and len(data_df[c]) > 0:
+                mode = data_df[c].mode()
+                data_df[c] = data_df[c].fillna(mode.iloc[0] if not mode.empty else pd.NaT)
 
-    for c in cat_cols:
-        mode = data_df[c].mode()
-        data_df[c] = data_df[c].fillna(mode.iloc[0] if not mode.empty else "")
-
-    # =========================
-    # Kiểm tra toàn vẹn dữ liệu
-    # =========================
-    integrity_report = []
-    if "category_id" in data_df.columns:
-        valid_ids = {1, 2, 3, 4}
-        invalid = ~data_df["category_id"].isin(valid_ids)
-        if invalid.sum() > 0:
-            integrity_report.append({
-                "column": "category_id",
-                "invalid_count": int(invalid.sum())
-            })
+        for c in cat_cols:
+            if c in data_df.columns and len(data_df[c]) > 0:
+                mode = data_df[c].mode()
+                data_df[c] = data_df[c].fillna(mode.iloc[0] if not mode.empty else "")
+    else:
+        # Nếu không có dữ liệu, trả về DataFrame rỗng
+        return {
+            "message": "Không có dữ liệu sau khi làm sạch",
+            "output_file": None,
+            "report_file": None
+        }
 
     # =========================
     # So sánh trước – sau
@@ -223,10 +233,16 @@ def perform_cleaning(data_df, filename, file_type="merged"):
         "missing_after": int(data_df.isna().sum().sum()),
     }
 
+    # =========================
+    # Xuất file CSV - CHỈ nếu có dữ liệu
+    # =========================
+    if len(data_df) == 0:
+        return {
+            "message": "Không có dữ liệu để xuất file",
+            "output_file": None,
+            "report_file": None
+        }
 
-    # =========================
-    # Xuất file CSV
-    # =========================
     today = datetime.now().strftime("%Y%m%d_%H%M%S")
     clean_filename = f"{os.path.splitext(filename)[0]}_cleaned_{today}.csv"
 
@@ -236,7 +252,6 @@ def perform_cleaning(data_df, filename, file_type="merged"):
     else:
         output_dir = os.path.join(base, "Clean_Data_For_File_Not_Merge")
     os.makedirs(output_dir, exist_ok=True)
-
 
     output_path = os.path.join(output_dir, clean_filename)
     data_df.to_csv(output_path, index=False, encoding="utf-8-sig")
@@ -249,11 +264,12 @@ def perform_cleaning(data_df, filename, file_type="merged"):
         json.dump({
             "comparison": comparison,
             "cleaning_log": cleaning_log,
-            "integrity_report": integrity_report
+            "sample_data": data_df.head(5).to_dict(orient="records") if len(data_df) > 0 else []
         }, f, ensure_ascii=False, indent=4)
 
     return {
         "message": "Làm sạch dữ liệu hoàn tất",
         "output_file": clean_filename,
-        "report_file": os.path.basename(report_path)
+        "report_file": os.path.basename(report_path),
+        "rows_remaining": len(data_df)
     }
