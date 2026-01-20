@@ -46,10 +46,17 @@ def _require_session_login(request):
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.method == "GET":
+        # Nếu đã đăng nhập thì chuyển về profile
+        if request.session.get("access_token"):
+            return redirect("weather:profile")
         return render(request, "weather/auth/Login.html")
 
     identifier = request.POST.get("username", "").strip()
     password = request.POST.get("password", "")
+
+    if not identifier or not password:
+        messages.error(request, "Vui lòng nhập đầy đủ thông tin đăng nhập.")
+        return redirect("weather:login")
 
     try:
         manager = ManagerService.authenticate(identifier, password)
@@ -62,8 +69,8 @@ def login_view(request):
         request.session["access_token"] = token
         request.session["profile"] = _make_json_safe(manager)
 
-        messages.success(request, "Đăng nhập thành công!")
-        return redirect("weather:profile")
+        messages.success(request, f"Chào mừng {manager.get('name', manager.get('userName'))}!")
+        return redirect("weather:home")
 
     except Exception as e:
         messages.error(request, str(e))
@@ -73,6 +80,9 @@ def login_view(request):
 @require_http_methods(["GET", "POST"])
 def register_view(request):
     if request.method == "GET":
+        # Nếu đã đăng nhập thì chuyển về profile
+        if request.session.get("access_token"):
+            return redirect("weather:profile")
         return render(request, "weather/auth/Register.html")
 
     # Lấy dữ liệu từ form (đúng theo Register.html hiện tại)
@@ -81,22 +91,28 @@ def register_view(request):
     name = f"{first_name} {last_name}".strip()
 
     userName = request.POST.get("username", "").strip()
-    email = request.POST.get("email", "").strip()
+    email = request.POST.get("email", "").strip().lower()  # Normalize email
     password = request.POST.get("password", "")
     confirm_password = request.POST.get("confirm_password", "")
 
-    # Validate cơ bản
-    if not name:
-        messages.error(request, "Vui lòng nhập Họ và Tên.")
-        return redirect("weather:register")
+    # Validate cơ bản phía server
+    if not first_name or not last_name:
+        messages.error(request, "Vui lòng nhập đầy đủ Họ và Tên.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
 
     if not userName or not email or not password:
-        messages.error(request, "Thiếu thông tin đăng ký (name, username, email, password).")
-        return redirect("weather:register")
+        messages.error(request, "Vui lòng nhập đầy đủ thông tin đăng ký.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
 
     if password != confirm_password:
         messages.error(request, "Mật khẩu xác nhận không khớp.")
-        return redirect("weather:register")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
 
     try:
         ManagerService.register_public({
@@ -107,12 +123,26 @@ def register_view(request):
             "role": "staff",  # public đăng ký mặc định staff
         })
 
-        messages.success(request, "Tạo tài khoản thành công! Hãy đăng nhập.")
-        return redirect("weather:login")
+        # Tự động đăng nhập sau khi đăng ký thành công
+        try:
+            manager = ManagerService.authenticate(userName, password)
+            token = create_access_token({
+                "manager_id": manager["_id"],
+                "role": manager.get("role", "guest"),
+            })
+            request.session["access_token"] = token
+            request.session["profile"] = _make_json_safe(manager)
+            messages.success(request, f"🎉 Chào mừng {name}! Tài khoản đã được tạo thành công.")
+            return redirect("weather:home")
+        except:
+            messages.success(request, "🎉 Tạo tài khoản thành công! Hãy đăng nhập để sử dụng.")
+            return redirect("weather:login")
 
     except Exception as e:
         messages.error(request, str(e))
-        return redirect("weather:register")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
 
 
 
@@ -123,7 +153,7 @@ def logout_view(request):
     return redirect("weather:login")
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "POST"])
 def profile_view(request):
     profile = _require_session_login(request)
     if not profile:
@@ -131,7 +161,55 @@ def profile_view(request):
         return redirect("weather:login")
 
     user_obj = SessionUser(profile)
-    return render(request, "weather/auth/Profile.html", {"user": user_obj})
+    
+    if request.method == "GET":
+        return render(request, "weather/auth/Profile.html", {"user": user_obj, "profile": profile})
+    
+    # POST - Update profile
+    name = request.POST.get("name", "").strip()
+    email = request.POST.get("email", "").strip().lower()
+    
+    if not name:
+        messages.error(request, "Họ tên không được để trống.")
+        return render(request, "weather/auth/Profile.html", {"user": user_obj, "profile": profile})
+    
+    try:
+        from Weather_Forcast_App.Repositories.Login_repositories import LoginRepository
+        from datetime import datetime, timezone
+        
+        user_id = profile.get("_id")
+        
+        # Chuẩn bị dữ liệu update
+        update_data = {
+            "name": name,
+            "updatedAt": datetime.now(timezone.utc)
+        }
+        
+        # Chỉ update email nếu thay đổi
+        old_email = profile.get("email", "")
+        if email and email != old_email:
+            # Kiểm tra email đã tồn tại chưa
+            existing = LoginRepository.find_by_username_or_email(email)
+            if existing and str(existing.get("_id")) != str(user_id):
+                messages.error(request, "Email đã được sử dụng bởi tài khoản khác.")
+                return render(request, "weather/auth/Profile.html", {"user": user_obj, "profile": profile})
+            update_data["email"] = email
+        
+        # Update trong database
+        LoginRepository.update_by_id(user_id, update_data)
+        
+        # Cập nhật session
+        profile["name"] = name
+        if email:
+            profile["email"] = email
+        request.session["profile"] = _make_json_safe(profile)
+        
+        messages.success(request, "✅ Cập nhật thông tin thành công!")
+        return redirect("weather:profile")
+        
+    except Exception as e:
+        messages.error(request, f"Lỗi cập nhật: {str(e)}")
+        return render(request, "weather/auth/Profile.html", {"user": user_obj, "profile": profile})
 
 
 @require_http_methods(["GET", "POST"])

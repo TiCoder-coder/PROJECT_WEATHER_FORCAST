@@ -74,6 +74,7 @@
                                 name="first_name"
                                 class="form-input"
                                 placeholder="Họ"
+                                value="{{ form_data.first_name|default:'' }}"
                                 required
                             >
                             <span class="input-border"></span>
@@ -92,6 +93,7 @@
                                 name="last_name"
                                 class="form-input"
                                 placeholder="Tên"
+                                value="{{ form_data.last_name|default:'' }}"
                                 required
                             >
                             <span class="input-border"></span>
@@ -110,13 +112,19 @@
                             id="username"
                             name="username"
                             class="form-input"
-                            placeholder="Nhập tên đăng nhập"
+                            placeholder="Nhập tên đăng nhập (3-30 ký tự)"
+                            value="{{ form_data.username|default:'' }}"
                             required
                             autofocus
                             minlength="3"
+                            maxlength="30"
+                            pattern="[a-zA-Z0-9_]+"
                         >
                         <span class="input-border"></span>
                     </div>
+                    <span class="form-hint" style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">
+                        Chỉ chứa chữ cái, số và dấu gạch dưới (_)
+                    </span>
                 </div>
 
                 <div class="form-group animated-input">
@@ -131,6 +139,7 @@
                             name="email"
                             class="form-input"
                             placeholder="example@domain.com"
+                            value="{{ form_data.email|default:'' }}"
                             required
                         >
                         <span class="input-border"></span>
@@ -148,11 +157,26 @@
                             id="password"
                             name="password"
                             class="form-input"
-                            placeholder="Tối thiểu 6 ký tự"
+                            placeholder="Tối thiểu 8 ký tự"
                             required
-                            minlength="6"
+                            minlength="8"
                         >
                         <span class="input-border"></span>
+                    </div>
+                    <div id="password-strength" style="margin-top: 8px; display: none;">
+                        <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                        </div>
+                        <div id="password-requirements" style="font-size: 11px; color: #94a3b8;">
+                            <div id="req-length">❌ Tối thiểu 8 ký tự</div>
+                            <div id="req-lower">❌ Có chữ thường (a-z)</div>
+                            <div id="req-upper">❌ Có chữ in hoa (A-Z)</div>
+                            <div id="req-digit">❌ Có chữ số (0-9)</div>
+                            <div id="req-special">❌ Có ký tự đặc biệt (!@#$%^&*()-_+=)</div>
+                        </div>
                     </div>
                 </div>
 
@@ -217,6 +241,42 @@
 
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirm_password');
+        const strengthContainer = document.getElementById('password-strength');
+        const strengthBars = document.querySelectorAll('.strength-bar');
+
+        // Password strength checker
+        password.addEventListener('input', function() {
+            const val = password.value;
+            strengthContainer.style.display = val.length > 0 ? 'block' : 'none';
+            
+            const checks = {
+                length: val.length >= 8,
+                lower: /[a-z]/.test(val),
+                upper: /[A-Z]/.test(val),
+                digit: /[0-9]/.test(val),
+                special: /[!@#$%^&*()\-_+=]/.test(val)
+            };
+            
+            // Update requirement indicators
+            document.getElementById('req-length').innerHTML = (checks.length ? '✅' : '❌') + ' Tối thiểu 8 ký tự';
+            document.getElementById('req-lower').innerHTML = (checks.lower ? '✅' : '❌') + ' Có chữ thường (a-z)';
+            document.getElementById('req-upper').innerHTML = (checks.upper ? '✅' : '❌') + ' Có chữ in hoa (A-Z)';
+            document.getElementById('req-digit').innerHTML = (checks.digit ? '✅' : '❌') + ' Có chữ số (0-9)';
+            document.getElementById('req-special').innerHTML = (checks.special ? '✅' : '❌') + ' Có ký tự đặc biệt (!@#$%^&*()-_+=)';
+            
+            // Count passed checks
+            const passed = Object.values(checks).filter(Boolean).length;
+            
+            // Update strength bars
+            const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
+            strengthBars.forEach((bar, i) => {
+                if (i < passed) {
+                    bar.style.background = colors[Math.min(passed - 1, 3)];
+                } else {
+                    bar.style.background = '#334155';
+                }
+            });
+        });
 
         // Validate confirm password
         confirmPassword.addEventListener('input', function() {
@@ -228,10 +288,17 @@
         });
 
         // ✅ Trước khi submit: build name + userName đúng key cho backend
-        form.addEventListener('submit', function() {
+        form.addEventListener('submit', function(e) {
             const fullName = (firstName.value.trim() + ' ' + lastName.value.trim()).trim();
             hiddenName.value = fullName;
             hiddenUserName.value = username.value.trim();
+            
+            // Final password validation
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('Mật khẩu xác nhận không khớp!');
+                return false;
+            }
         });
     </script>
 </body>

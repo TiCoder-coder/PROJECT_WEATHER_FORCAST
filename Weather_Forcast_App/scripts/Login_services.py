@@ -58,13 +58,37 @@ class ManagerService:
     # DINH NGHIA MOT HAM DUNG DE KIEM TRA XEM PASSWORD TAO RA CO MANH KHONG---------------------------------------------------------------------------------------------------------------------------------
     @staticmethod
     def check_password_strength(password: str) -> bool:
-        if len(password) <= 6:
+        """
+        Kiểm tra mật khẩu có đủ mạnh không:
+        - Tối thiểu 8 ký tự
+        - Có ít nhất 1 chữ thường
+        - Có ít nhất 1 chữ hoa  
+        - Có ít nhất 1 số
+        - Có ít nhất 1 ký tự đặc biệt (!@#$%^&*()-_+=)
+        """
+        if len(password) < 8:
             return False
         has_lower = any(c.islower() for c in password)                                       # Phai co ki tu thuong
         has_upper = any(c.isupper() for c in password)                                       # Phai co ki tu in hoa
         has_digit = any(c.isdigit() for c in password)                                       # Phai co so
         has_special = any(c in "!@#$%^&*()-_+=" for c in password)                           # Phai co ki tu dac biet
         return has_lower and has_upper and has_digit and has_special
+    
+    @staticmethod
+    def get_password_strength_errors(password: str) -> list:
+        """Trả về danh sách các yêu cầu chưa đạt"""
+        errors = []
+        if len(password) < 8:
+            errors.append("Tối thiểu 8 ký tự")
+        if not any(c.islower() for c in password):
+            errors.append("Cần có chữ thường (a-z)")
+        if not any(c.isupper() for c in password):
+            errors.append("Cần có chữ in hoa (A-Z)")
+        if not any(c.isdigit() for c in password):
+            errors.append("Cần có chữ số (0-9)")
+        if not any(c in "!@#$%^&*()-_+=" for c in password):
+            errors.append("Cần có ký tự đặc biệt (!@#$%^&*()-_+=)")
+        return errors
 
 
     # DINH NGHI MOT HAM DUNG DE KIEM TRA SO LAN DANG NHAP THAT BAI --- NEU LON HON SO LAN CHO PHEP THI ---> KHOA TAI KHOAN TRONG 1 KHOANG THOI GIAN --------------------------------------------------------
@@ -226,22 +250,33 @@ class ManagerService:
 
     # AUTHENTICATE: DUNG DE KIEM TRA DANH NHAP ----------------------------------------------------------------------------------------------------------------------------------------------------------
     @staticmethod
-    def authenticate(userName: str, password: str):
-        
-        # Kiem tra manager co ton tai khong
-        manager = LoginRepository.find_by_username(userName)
+    def authenticate(identifier: str, password: str):
+        """
+        Cho phép đăng nhập bằng username HOẶC email.
+        identifier: có thể là username hoặc email
+        """
+        # Kiem tra manager co ton tai khong (tim theo username hoac email)
+        manager = LoginRepository.find_by_username_or_email(identifier)
         if not manager:
-            raise ValidationError("Username does not exist")
+            raise ValidationError("Tên đăng nhập hoặc email không tồn tại")
 
         # Kiem tra tai khoan manager do co bi khoa tai khoan khong
         if manager.get("lock_until") and manager["lock_until"] > datetime.now(timezone.utc):
-            raise PermissionDenied(f"Account locked until {manager['lock_until']}")
+            remaining = (manager["lock_until"] - datetime.now(timezone.utc)).seconds // 60
+            raise PermissionDenied(f"Tài khoản đang bị khóa. Vui lòng thử lại sau {remaining} phút.")
 
+        # Kiem tra tai khoan co active khong
+        if not manager.get("is_active", True):
+            raise PermissionDenied("Tài khoản đã bị vô hiệu hóa. Vui lòng liên hệ admin.")
         
         # Kiem tra xem co dung password khong
         if not check_password(_apply_pepper(password), manager["password"]):        # Vi password da duoc hash nen phai ket hop voi _apply_peper moi kiem tra duoc
             ManagerService._increase_failed_attempt(manager)
-            raise PermissionDenied("Invalid username or password")
+            remaining_attempts = MAX_FAILED_ATTEMPTS - manager.get("failed_attempts", 0) - 1
+            if remaining_attempts > 0:
+                raise PermissionDenied(f"Mật khẩu không đúng. Còn {remaining_attempts} lần thử.")
+            else:
+                raise PermissionDenied("Mật khẩu không đúng. Tài khoản sẽ bị khóa tạm thời.")
         
         # Neu dang nhap thanh cong thi cap nhap lai cac thong tin
         LoginRepository.update_by_id(manager["_id"], {
@@ -289,22 +324,39 @@ class ManagerService:
         Cho phép đăng ký từ web (public). Nếu bạn muốn chặn public,
         thì xoá endpoint register hoặc yêu cầu admin tạo tài khoản.
         """
+        import re
+        
         name = (data.get("name") or "").strip()
         userName = (data.get("userName") or "").strip()
         password = data.get("password") or ""
-        email = (data.get("email") or "").strip()
+        email = (data.get("email") or "").strip().lower()  # Normalize email
         role = (data.get("role") or "staff").strip()
 
+        # Validate required fields
         if not name or not userName or not password or not email:
             raise Exception("Thiếu thông tin đăng ký (name, username, email, password).")
 
-        if not ManagerService.check_password_strength(password):
-            raise Exception("Mật khẩu yếu (>=8, có hoa/thường/số/ký tự đặc biệt).")
+        # Validate username format (3-30 ký tự, chỉ chữ, số, underscore)
+        if len(userName) < 3 or len(userName) > 30:
+            raise Exception("Tên đăng nhập phải từ 3-30 ký tự.")
+        if not re.match(r'^[a-zA-Z0-9_]+$', userName):
+            raise Exception("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
 
+        # Validate email format
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            raise Exception("Email không đúng định dạng.")
+
+        # Validate password strength
+        if not ManagerService.check_password_strength(password):
+            errors = ManagerService.get_password_strength_errors(password)
+            raise Exception("Mật khẩu yếu: " + ", ".join(errors))
+
+        # Check duplicates
         if LoginRepository.find_by_username(userName):
-            raise Exception("Username đã tồn tại.")
+            raise Exception("Tên đăng nhập đã tồn tại.")
         if LoginRepository.find_by_username_or_email(email):
-            raise Exception("Email đã tồn tại.")
+            raise Exception("Email đã được sử dụng.")
 
         hashed_password = make_password(_apply_pepper(password))
 
@@ -318,6 +370,8 @@ class ManagerService:
             "failed_attempts": 0,
             "lock_until": None,
             "last_login": None,
+            "createdAt": datetime.now(timezone.utc),
+            "updatedAt": datetime.now(timezone.utc),
         }
 
         LoginRepository.insert_one(doc)

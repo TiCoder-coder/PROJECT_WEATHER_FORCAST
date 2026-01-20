@@ -5,8 +5,228 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Thông tin cá nhân - VN Weather Hub</title>
-  <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=1.2">
   <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
+  <style>
+    .profile-card {
+      max-width: 550px;
+      padding: 32px;
+    }
+    .profile-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+    }
+    .avatar-text {
+      font-size: 40px;
+      font-weight: bold;
+      color: white;
+      text-transform: uppercase;
+    }
+    .profile-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+    .profile-username {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    
+    /* Tabs */
+    .profile-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      padding-bottom: 12px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: rgba(59, 130, 246, 0.1);
+      color: #60a5fa;
+    }
+    .tab-btn.active {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Info display */
+    .profile-info {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    .info-icon {
+      font-size: 20px;
+      width: 40px;
+      text-align: center;
+    }
+    .info-content {
+      flex: 1;
+    }
+    .info-label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .info-value {
+      font-size: 15px;
+      color: #f1f5f9;
+    }
+    
+    /* Edit form */
+    .edit-form {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      color: #f1f5f9;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .form-input:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .form-hint {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+    
+    /* Buttons */
+    .profile-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .btn-action {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color: white;
+    }
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(71, 85, 105, 0.3);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #94a3b8;
+    }
+    .btn-secondary:hover {
+      background: rgba(71, 85, 105, 0.5);
+      color: #f1f5f9;
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Role badge */
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .role-admin { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .role-manager { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .role-staff { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+  </style>
 </head>
 
 <body class="auth-page">
@@ -16,7 +236,7 @@
   <div class="wx-layer wx-rain" aria-hidden="true"></div>
   
   <div class="auth-container">
-    <div class="auth-card profile-card">
+    <div class="auth-card profile-card glass-effect">
       
       <div class="profile-header">
         <div class="profile-avatar">
@@ -24,62 +244,145 @@
         </div>
         <h2 class="profile-name">{{ user.get_full_name|default:user.username }}</h2>
         <p class="profile-username">@{{ user.username }}</p>
+        {% if profile.role %}
+          <span class="role-badge role-{{ profile.role|lower }}">{{ profile.role }}</span>
+        {% endif %}
       </div>
 
-      <div class="profile-info">
-        <div class="info-item">
-          <span class="info-icon">👤</span>
-          <div class="info-content">
-            <span class="info-label">Tên đăng nhập</span>
-            <span class="info-value">{{ user.username }}</span>
+      {% if messages %}
+        <div class="auth-messages" style="margin-bottom: 20px;">
+          {% for message in messages %}
+            <div class="auth-alert auth-alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Tabs -->
+      <div class="profile-tabs">
+        <button class="tab-btn active" data-tab="info">📋 Thông tin</button>
+        <button class="tab-btn" data-tab="edit">✏️ Chỉnh sửa</button>
+      </div>
+
+      <!-- Tab: Thông tin -->
+      <div class="tab-content active" id="tab-info">
+        <div class="profile-info">
+          <div class="info-item">
+            <span class="info-icon">👤</span>
+            <div class="info-content">
+              <span class="info-label">Tên đăng nhập</span>
+              <span class="info-value">{{ user.username }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icon">📧</span>
+            <div class="info-content">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ user.email|default:"Chưa cập nhật" }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icon">📝</span>
+            <div class="info-content">
+              <span class="info-label">Họ tên</span>
+              <span class="info-value">{{ user.get_full_name|default:"Chưa cập nhật" }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icon">📅</span>
+            <div class="info-content">
+              <span class="info-label">Ngày tham gia</span>
+              <span class="info-value">{{ user.date_joined|default:"Chưa có thông tin" }}</span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <span class="info-icon">🔐</span>
+            <div class="info-content">
+              <span class="info-label">Đăng nhập lần cuối</span>
+              <span class="info-value">{{ user.last_login|default:"Chưa có thông tin" }}</span>
+            </div>
           </div>
         </div>
 
-        <div class="info-item">
-          <span class="info-icon">📧</span>
-          <div class="info-content">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ user.email|default:"Chưa cập nhật" }}</span>
-          </div>
-        </div>
-
-        <div class="info-item">
-          <span class="info-icon">📝</span>
-          <div class="info-content">
-            <span class="info-label">Họ tên</span>
-            <span class="info-value">{{ user.get_full_name|default:"Chưa cập nhật" }}</span>
-          </div>
-        </div>
-
-        <div class="info-item">
-          <span class="info-icon">📅</span>
-          <div class="info-content">
-            <span class="info-label">Ngày tham gia</span>
-            <span class="info-value">{{ user.date_joined|date:"d/m/Y H:i" }}</span>
-          </div>
-        </div>
-
-        <div class="info-item">
-          <span class="info-icon">🔐</span>
-          <div class="info-content">
-            <span class="info-label">Đăng nhập lần cuối</span>
-            <span class="info-value">{{ user.last_login|date:"d/m/Y H:i"|default:"Chưa có thông tin" }}</span>
-          </div>
+        <div class="profile-actions">
+          <a href="{% url 'weather:home' %}" class="btn-action btn-primary">
+            <span>🏠</span>
+            <span>Về trang chủ</span>
+          </a>
+          <a href="{% url 'weather:logout' %}" class="btn-action btn-danger">
+            <span>🚪</span>
+            <span>Đăng xuất</span>
+          </a>
         </div>
       </div>
 
-      <div class="profile-actions">
-        <a href="{% url 'weather:home' %}" class="btn-action btn-primary">
-          <span class="btn-icon">🏠</span>
-          <span class="btn-text">Về trang chủ</span>
-        </a>
-        <a href="{% url 'weather:logout' %}" class="btn-action btn-danger">
-          <span class="btn-icon">🚪</span>
-          <span class="btn-text">Đăng xuất</span>
-        </a>
+      <!-- Tab: Chỉnh sửa -->
+      <div class="tab-content" id="tab-edit">
+        <form method="post" action="{% url 'weather:profile' %}" class="edit-form">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label">👤 Tên đăng nhập</label>
+            <input type="text" class="form-input" value="{{ user.username }}" disabled>
+            <p class="form-hint">Tên đăng nhập không thể thay đổi</p>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="name">📝 Họ và tên *</label>
+            <input type="text" id="name" name="name" class="form-input" 
+                   value="{{ user.get_full_name|default:profile.name }}" 
+                   placeholder="Nhập họ và tên" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="email">📧 Email *</label>
+            <input type="email" id="email" name="email" class="form-input" 
+                   value="{{ user.email|default:profile.email }}" 
+                   placeholder="example@domain.com" required>
+          </div>
+
+          <div class="profile-actions">
+            <button type="submit" class="btn-action btn-success">
+              <span>💾</span>
+              <span>Lưu thay đổi</span>
+            </button>
+            <button type="button" class="btn-action btn-secondary" onclick="switchTab('info')">
+              <span>❌</span>
+              <span>Hủy</span>
+            </button>
+          </div>
+        </form>
+        
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(148, 163, 184, 0.2);">
+          <a href="{% url 'weather:forgot_password_otp' %}" class="btn-action btn-secondary" style="width: 100%;">
+            <span>🔑</span>
+            <span>Đổi mật khẩu</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
+  <script>
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function switchTab(tabId) {
+      tabBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      tabContents.forEach(content => {
+        content.classList.toggle('active', content.id === 'tab-' + tabId);
+      });
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+  </script>
 </body>
 </html>

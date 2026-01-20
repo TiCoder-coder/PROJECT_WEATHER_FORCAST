@@ -688,6 +688,47 @@ body.no-scroll {
   color: #fff;
 }
 
+/* User avatar in nav */
+.home-nav .nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.15));
+  border-color: rgba(139, 92, 246, 0.35);
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+.home-nav .nav-user:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(139, 92, 246, 0.25));
+  border-color: rgba(139, 92, 246, 0.55);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25), 0 10px 24px rgba(0,0,0,0.22);
+  color: #fff;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.user-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .intro-modal__content{
   overflow: hidden;
 }

@@ -27,11 +27,18 @@ def home_view(request):
     total_vrain_runs = count_by_prefix(["bao_cao_mua", "vrain"])
     total_image_runs = count_by_prefix(["image", "camera"])
 
+    # Lấy thông tin user từ session (MongoDB-based auth)
+    profile = request.session.get("profile")
+    is_logged_in = bool(profile and request.session.get("access_token"))
+    
     context = {
         "latest_dataset_name": latest_file.name if latest_file else "Chưa có dataset",
         "latest_dataset_time": _fmt_dt(latest_file.stat().st_mtime) if latest_file else "—",
         "total_api_runs": total_api_runs,
         "total_vrain_runs": total_vrain_runs,
         "total_image_runs": total_image_runs,
+        # Thông tin đăng nhập
+        "is_logged_in": is_logged_in,
+        "current_user": profile if is_logged_in else None,
     }
     return render(request, "weather/Home.html", context)
