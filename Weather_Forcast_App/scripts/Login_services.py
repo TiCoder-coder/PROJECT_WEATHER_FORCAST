@@ -319,12 +319,17 @@ class ManagerService:
 
 
     @staticmethod
-    def register_public(data: dict):
+    def register_public(data: dict, skip_email_verification: bool = False):
         """
         Cho phép đăng ký từ web (public). Nếu bạn muốn chặn public,
         thì xoá endpoint register hoặc yêu cầu admin tạo tài khoản.
+        
+        Args:
+            data: Dữ liệu đăng ký
+            skip_email_verification: Bỏ qua xác thực email (mặc định False)
         """
         import re
+        from Weather_Forcast_App.scripts.Email_validator import EmailValidator, EmailValidationError
         
         name = (data.get("name") or "").strip()
         userName = (data.get("userName") or "").strip()
@@ -342,10 +347,15 @@ class ManagerService:
         if not re.match(r'^[a-zA-Z0-9_]+$', userName):
             raise Exception("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
 
-        # Validate email format
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_pattern, email):
-            raise Exception("Email không đúng định dạng.")
+        # Validate email - kiểm tra cú pháp, MX records và disposable
+        email_validation = EmailValidator.validate_email_exists(email)
+        if not email_validation['valid']:
+            raise Exception(', '.join(email_validation['errors']))
+        
+        # Kiểm tra email đã được xác thực OTP chưa (nếu không skip)
+        if not skip_email_verification:
+            if not EmailValidator.is_email_verified(email, within_seconds=3600):
+                raise Exception("Email chưa được xác thực. Vui lòng xác thực email trước khi đăng ký.")
 
         # Validate password strength
         if not ManagerService.check_password_strength(password):

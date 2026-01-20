@@ -30,6 +30,7 @@ from .views.View_login import (
     forgot_password_view, password_reset_sent_view,
     reset_password_view, password_reset_complete_view,
     forgot_password_otp_view, verify_otp_view, reset_password_otp_view,
+    verify_email_register_view, resend_email_otp_view, cancel_register_view,
 )
 
 app_name = "weather"
@@ -75,5 +76,10 @@ urlpatterns = [
     path("auth/forgot-password-otp/", forgot_password_otp_view, name="forgot_password_otp"),
     path("auth/verify-otp/", verify_otp_view, name="verify_otp"),
     path("auth/reset-password-otp/", reset_password_otp_view, name="reset_password_otp"),
+
+    # Email verification for registration
+    path("auth/verify-email-register/", verify_email_register_view, name="verify_email_register"),
+    path("auth/resend-email-otp/", resend_email_otp_view, name="resend_email_otp"),
+    path("auth/cancel-register/", cancel_register_view, name="cancel_register"),
 
 ]

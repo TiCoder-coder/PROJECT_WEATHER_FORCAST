@@ -5,7 +5,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký - VN Weather Hub</title>
-    <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=10022">
+    <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=10023">
+    <style>
+        /* Custom styles for Register page */
+        .auth-messages {
+            margin-bottom: 20px;
+        }
+        .auth-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            animation: slideInAlert 0.3s ease-out;
+        }
+        @keyframes slideInAlert {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .auth-alert-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+        .auth-alert-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            color: #86efac;
+        }
+        .auth-alert-warning {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.15) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            color: #fde047;
+        }
+        .auth-alert-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+        }
+        .email-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .email-hint .hint-icon {
+            font-size: 12px;
+        }
+        .form-input.input-error {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        .form-input.input-success {
+            border-color: rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        .validation-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .validation-icon.show {
+            opacity: 1;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+    </style>
 </head>
 <body class="auth-page">
     <div class="auth-bg">
@@ -138,11 +220,16 @@
                             id="email"
                             name="email"
                             class="form-input"
-                            placeholder="example@domain.com"
+                            placeholder="example@gmail.com"
                             value="{{ form_data.email|default:'' }}"
                             required
                         >
                         <span class="input-border"></span>
+                        <span class="validation-icon" id="email-validation-icon"></span>
+                    </div>
+                    <div class="email-hint">
+                        <span class="hint-icon">💡</span>
+                        <span>Sử dụng email thật (Gmail, Yahoo, Outlook...) để nhận mã xác thực. Không dùng ký tự có dấu.</span>
                     </div>
                 </div>
 
@@ -235,6 +322,7 @@
         const firstName = document.getElementById('first_name');
         const lastName = document.getElementById('last_name');
         const username = document.getElementById('username');
+        const email = document.getElementById('email');
 
         const hiddenName = document.getElementById('name');
         const hiddenUserName = document.getElementById('userName');
@@ -243,6 +331,60 @@
         const confirmPassword = document.getElementById('confirm_password');
         const strengthContainer = document.getElementById('password-strength');
         const strengthBars = document.querySelectorAll('.strength-bar');
+
+        // Email validation
+        const emailValidationIcon = document.getElementById('email-validation-icon');
+        
+        function validateEmailFormat(emailValue) {
+            // Check for Vietnamese/Unicode characters
+            for (let char of emailValue) {
+                if (char.charCodeAt(0) > 127) {
+                    return { valid: false, error: `Không được dùng ký tự có dấu: "${char}"` };
+                }
+            }
+            
+            // Basic email pattern
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(emailValue)) {
+                if (!emailValue.includes('@')) {
+                    return { valid: false, error: 'Email phải chứa ký tự @' };
+                }
+                const parts = emailValue.split('@');
+                if (!parts[0]) {
+                    return { valid: false, error: 'Thiếu tên người dùng trước @' };
+                }
+                if (!parts[1] || !parts[1].includes('.')) {
+                    return { valid: false, error: 'Tên miền không hợp lệ (cần .com, .vn...)' };
+                }
+                return { valid: false, error: 'Định dạng email không hợp lệ' };
+            }
+            
+            return { valid: true };
+        }
+        
+        email.addEventListener('input', function() {
+            const val = email.value.trim().toLowerCase();
+            
+            if (val.length === 0) {
+                email.classList.remove('input-error', 'input-success');
+                emailValidationIcon.classList.remove('show');
+                return;
+            }
+            
+            const result = validateEmailFormat(val);
+            
+            if (result.valid) {
+                email.classList.remove('input-error');
+                email.classList.add('input-success');
+                emailValidationIcon.innerHTML = '✅';
+                emailValidationIcon.classList.add('show');
+            } else {
+                email.classList.remove('input-success');
+                email.classList.add('input-error');
+                emailValidationIcon.innerHTML = '❌';
+                emailValidationIcon.classList.add('show');
+            }
+        });
 
         // Password strength checker
         password.addEventListener('input', function() {
@@ -282,8 +424,14 @@
         confirmPassword.addEventListener('input', function() {
             if (password.value !== confirmPassword.value) {
                 confirmPassword.setCustomValidity('Mật khẩu không khớp');
+                confirmPassword.classList.add('input-error');
+                confirmPassword.classList.remove('input-success');
             } else {
                 confirmPassword.setCustomValidity('');
+                confirmPassword.classList.remove('input-error');
+                if (confirmPassword.value.length > 0) {
+                    confirmPassword.classList.add('input-success');
+                }
             }
         });
 
@@ -293,10 +441,19 @@
             hiddenName.value = fullName;
             hiddenUserName.value = username.value.trim();
             
+            // Validate email before submit
+            const emailResult = validateEmailFormat(email.value.trim().toLowerCase());
+            if (!emailResult.valid) {
+                e.preventDefault();
+                alert('⚠️ Email không hợp lệ: ' + emailResult.error);
+                email.focus();
+                return false;
+            }
+            
             // Final password validation
             if (password.value !== confirmPassword.value) {
                 e.preventDefault();
-                alert('Mật khẩu xác nhận không khớp!');
+                alert('⚠️ Mật khẩu xác nhận không khớp!');
                 return false;
             }
         });

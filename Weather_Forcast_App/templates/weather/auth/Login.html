@@ -5,7 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - VN Weather Hub</title>
-    <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=10022">
+    <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=10023">
+    <style>
+        /* Custom styles for Login page */
+        .auth-messages {
+            margin-bottom: 20px;
+        }
+        .auth-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            animation: slideInAlert 0.3s ease-out;
+        }
+        @keyframes slideInAlert {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .auth-alert-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+        .auth-alert-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            color: #86efac;
+        }
+        .auth-alert-warning {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.15) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            color: #fde047;
+        }
+        .auth-alert-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+        }
+    </style>
 </head>
 <body class="auth-page">
     <div class="auth-bg">

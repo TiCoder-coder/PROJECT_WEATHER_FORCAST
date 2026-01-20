@@ -4,12 +4,17 @@ from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from datetime import datetime
 from Weather_Forcast_App.scripts.Login_services import ManagerService
+from Weather_Forcast_App.scripts.Email_validator import EmailValidator, EmailValidationError
 from Weather_Forcast_App.middleware.Jwt_handler import create_access_token
 from bson import ObjectId
 
 SESSION_RESET_EMAIL = "reset_email"
 SESSION_RESET_OTP_OK = "reset_otp_ok"
 SESSION_RESET_OTP = "reset_otp"
+
+# Session keys cho đăng ký với xác thực email
+SESSION_REGISTER_DATA = "register_data"
+SESSION_REGISTER_EMAIL_VERIFIED = "register_email_verified"
 
 def _make_json_safe(obj):
     if isinstance(obj, datetime):
@@ -19,6 +24,35 @@ def _make_json_safe(obj):
     if isinstance(obj, list):
         return [_make_json_safe(v) for v in obj]
     return obj
+
+
+def _extract_error_message(exception):
+    """
+    Trích xuất thông báo lỗi từ exception, xử lý cả ValidationError của DRF
+    """
+    from rest_framework.exceptions import ValidationError, PermissionDenied
+    
+    if isinstance(exception, (ValidationError, PermissionDenied)):
+        detail = exception.detail
+        # Nếu là list
+        if isinstance(detail, list):
+            # Lấy phần tử đầu tiên và convert sang string
+            if len(detail) > 0:
+                return str(detail[0])
+            return "Có lỗi xảy ra"
+        # Nếu là dict
+        if isinstance(detail, dict):
+            # Lấy lỗi đầu tiên
+            for key, value in detail.items():
+                if isinstance(value, list) and len(value) > 0:
+                    return str(value[0])
+                return str(value)
+            return "Có lỗi xảy ra"
+        # Nếu là string hoặc ErrorDetail
+        return str(detail)
+    
+    # Exception thông thường
+    return str(exception)
 
 class SessionUser:
     def __init__(self, data: dict):
@@ -54,8 +88,12 @@ def login_view(request):
     identifier = request.POST.get("username", "").strip()
     password = request.POST.get("password", "")
 
-    if not identifier or not password:
-        messages.error(request, "Vui lòng nhập đầy đủ thông tin đăng nhập.")
+    if not identifier:
+        messages.error(request, "⚠️ Vui lòng nhập tên đăng nhập hoặc email.")
+        return redirect("weather:login")
+    
+    if not password:
+        messages.error(request, "⚠️ Vui lòng nhập mật khẩu.")
         return redirect("weather:login")
 
     try:
@@ -69,11 +107,12 @@ def login_view(request):
         request.session["access_token"] = token
         request.session["profile"] = _make_json_safe(manager)
 
-        messages.success(request, f"Chào mừng {manager.get('name', manager.get('userName'))}!")
+        messages.success(request, f"✅ Đăng nhập thành công! Chào mừng {manager.get('name', manager.get('userName'))}!")
         return redirect("weather:home")
 
     except Exception as e:
-        messages.error(request, str(e))
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ {error_msg}")
         return redirect("weather:login")
 
 
@@ -96,50 +135,104 @@ def register_view(request):
     confirm_password = request.POST.get("confirm_password", "")
 
     # Validate cơ bản phía server
-    if not first_name or not last_name:
-        messages.error(request, "Vui lòng nhập đầy đủ Họ và Tên.")
+    if not first_name:
+        messages.error(request, "⚠️ Vui lòng nhập Họ của bạn.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+    
+    if not last_name:
+        messages.error(request, "⚠️ Vui lòng nhập Tên của bạn.")
         return render(request, "weather/auth/Register.html", {
             "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
         })
 
-    if not userName or not email or not password:
-        messages.error(request, "Vui lòng nhập đầy đủ thông tin đăng ký.")
+    if not userName:
+        messages.error(request, "⚠️ Vui lòng nhập tên đăng nhập.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+    
+    if not email:
+        messages.error(request, "⚠️ Vui lòng nhập địa chỉ email.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+    
+    if not password:
+        messages.error(request, "⚠️ Vui lòng nhập mật khẩu.")
         return render(request, "weather/auth/Register.html", {
             "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
         })
 
     if password != confirm_password:
-        messages.error(request, "Mật khẩu xác nhận không khớp.")
+        messages.error(request, "⚠️ Mật khẩu xác nhận không khớp. Vui lòng nhập lại.")
         return render(request, "weather/auth/Register.html", {
             "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
         })
 
+    # Validate email tồn tại thực sự (kiểm tra MX records và disposable)
     try:
-        ManagerService.register_public({
+        email_validation = EmailValidator.validate_email_exists(email)
+        if not email_validation['valid']:
+            messages.error(request, ', '.join(email_validation['errors']))
+            return render(request, "weather/auth/Register.html", {
+                "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+            })
+    except Exception as e:
+        messages.error(request, f"Lỗi kiểm tra email: {str(e)}")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+
+    # Kiểm tra username và email đã tồn tại chưa
+    from Weather_Forcast_App.Repositories.Login_repositories import LoginRepository
+    if LoginRepository.find_by_username(userName):
+        messages.error(request, f"❌ Tên đăng nhập '{userName}' đã được sử dụng. Vui lòng chọn tên khác.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": "", "email": email}
+        })
+    if LoginRepository.find_by_username_or_email(email):
+        messages.error(request, f"❌ Email '{email}' đã được đăng ký. Vui lòng sử dụng email khác hoặc đăng nhập nếu đã có tài khoản.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": ""}
+        })
+
+    # Kiểm tra độ mạnh mật khẩu
+    if not ManagerService.check_password_strength(password):
+        errors = ManagerService.get_password_strength_errors(password)
+        messages.error(request, "⚠️ Mật khẩu chưa đủ mạnh: " + ", ".join(errors))
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+
+    # Lưu thông tin đăng ký vào session và gửi OTP xác thực email
+    try:
+        # Gửi OTP xác thực email
+        EmailValidator.send_verification_otp(email, name)
+        
+        # Lưu thông tin đăng ký vào session
+        request.session[SESSION_REGISTER_DATA] = {
             "name": name,
+            "first_name": first_name,
+            "last_name": last_name,
             "userName": userName,
             "email": email,
             "password": password,
-            "role": "staff",  # public đăng ký mặc định staff
+            "role": "staff",
+        }
+        request.session[SESSION_REGISTER_EMAIL_VERIFIED] = False
+        
+        messages.success(request, f"📧 Mã OTP đã được gửi đến {email}. Vui lòng kiểm tra hộp thư (bao gồm cả thư mục Spam) để xác thực.")
+        return redirect("weather:verify_email_register")
+        
+    except EmailValidationError as e:
+        messages.error(request, f"❌ {str(e)}")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
         })
-
-        # Tự động đăng nhập sau khi đăng ký thành công
-        try:
-            manager = ManagerService.authenticate(userName, password)
-            token = create_access_token({
-                "manager_id": manager["_id"],
-                "role": manager.get("role", "guest"),
-            })
-            request.session["access_token"] = token
-            request.session["profile"] = _make_json_safe(manager)
-            messages.success(request, f"🎉 Chào mừng {name}! Tài khoản đã được tạo thành công.")
-            return redirect("weather:home")
-        except:
-            messages.success(request, "🎉 Tạo tài khoản thành công! Hãy đăng nhập để sử dụng.")
-            return redirect("weather:login")
-
     except Exception as e:
-        messages.error(request, str(e))
+        messages.error(request, f"❌ Không thể gửi email xác thực. Vui lòng thử lại sau. Chi tiết: {str(e)}")
         return render(request, "weather/auth/Register.html", {
             "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
         })
@@ -208,7 +301,8 @@ def profile_view(request):
         return redirect("weather:profile")
         
     except Exception as e:
-        messages.error(request, f"Lỗi cập nhật: {str(e)}")
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ Lỗi cập nhật: {error_msg}")
         return render(request, "weather/auth/Profile.html", {"user": user_obj, "profile": profile})
 
 
@@ -235,7 +329,8 @@ def forgot_password_view(request):
         return redirect("weather:password_reset_sent")
 
     except Exception as e:
-        messages.error(request, str(e))
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ {error_msg}")
         return redirect("weather:forgot_password")
 
 
@@ -270,11 +365,12 @@ def reset_password_view(request, token: str):
 
     try:
         ManagerService.reset_password_with_token(token, new_password)
-        messages.success(request, "Đặt lại mật khẩu thành công!")
+        messages.success(request, "✅ Đặt lại mật khẩu thành công!")
         return redirect("weather:password_reset_complete")
 
     except Exception as e:
-        messages.error(request, str(e))
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ {error_msg}")
         return render(request, "weather/auth/Reset_password.html", {"validlink": True})
 
 
@@ -296,11 +392,12 @@ def forgot_password_otp_view(request):
         ManagerService.send_reset_otp(email)
 
         request.session[SESSION_RESET_EMAIL] = email
-        messages.success(request, "Nếu email tồn tại, OTP đã được gửi. Vui lòng kiểm tra hộp thư (Mailtrap Inbox).")
+        messages.success(request, "📧 Nếu email tồn tại, OTP đã được gửi. Vui lòng kiểm tra hộp thư (bao gồm cả Spam).")
         return redirect("weather:verify_otp")
 
     except Exception as e:
-        messages.error(request, f"Gửi OTP thất bại: {e}")
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ Gửi OTP thất bại: {error_msg}")
         return redirect("weather:forgot_password_otp")
 
 
@@ -325,11 +422,12 @@ def verify_otp_view(request):
 
         request.session[SESSION_RESET_OTP_OK] = True
         request.session[SESSION_RESET_OTP] = otp  # giữ tạm để bước reset dùng
-        messages.success(request, "OTP hợp lệ. Bạn có thể đặt mật khẩu mới.")
+        messages.success(request, "✅ OTP hợp lệ. Bạn có thể đặt mật khẩu mới.")
         return redirect("weather:reset_password_otp")
 
     except Exception as e:
-        messages.error(request, str(e))
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ {error_msg}")
         return redirect("weather:verify_otp")
 
 
@@ -361,9 +459,117 @@ def reset_password_otp_view(request):
         request.session.pop(SESSION_RESET_OTP_OK, None)
         request.session.pop(SESSION_RESET_OTP, None)
 
-        messages.success(request, "Đổi mật khẩu thành công! Hãy đăng nhập lại.")
+        messages.success(request, "✅ Đổi mật khẩu thành công! Hãy đăng nhập lại.")
         return redirect("weather:login")
 
     except Exception as e:
-        messages.error(request, str(e))
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ {error_msg}")
         return redirect("weather:reset_password_otp")
+
+
+# ============== XÁC THỰC EMAIL KHI ĐĂNG KÝ ==============
+
+@require_http_methods(["GET", "POST"])
+def verify_email_register_view(request):
+    """
+    Xác thực email OTP khi đăng ký tài khoản mới
+    """
+    register_data = request.session.get(SESSION_REGISTER_DATA)
+    
+    if not register_data:
+        messages.warning(request, "Vui lòng điền thông tin đăng ký trước.")
+        return redirect("weather:register")
+    
+    email = register_data.get("email", "")
+    
+    if request.method == "GET":
+        return render(request, "weather/auth/Verify_email_register.html", {
+            "email": email,
+            "name": register_data.get("name", "")
+        })
+    
+    otp = request.POST.get("otp", "").strip()
+    
+    if not otp:
+        messages.error(request, "Vui lòng nhập mã OTP.")
+        return redirect("weather:verify_email_register")
+    
+    try:
+        # Xác thực OTP
+        EmailValidator.verify_email_otp(email, otp)
+        
+        # Đánh dấu email đã được xác thực
+        request.session[SESSION_REGISTER_EMAIL_VERIFIED] = True
+        
+        # Tiến hành đăng ký tài khoản
+        ManagerService.register_public(register_data, skip_email_verification=True)
+        
+        # Tự động đăng nhập sau khi đăng ký thành công
+        try:
+            manager = ManagerService.authenticate(register_data["userName"], register_data["password"])
+            token = create_access_token({
+                "manager_id": manager["_id"],
+                "role": manager.get("role", "guest"),
+            })
+            request.session["access_token"] = token
+            request.session["profile"] = _make_json_safe(manager)
+            
+            # Xóa dữ liệu đăng ký khỏi session
+            request.session.pop(SESSION_REGISTER_DATA, None)
+            request.session.pop(SESSION_REGISTER_EMAIL_VERIFIED, None)
+            
+            messages.success(request, f"🎉 Chào mừng {register_data.get('name', '')}! Tài khoản đã được tạo thành công.")
+            return redirect("weather:home")
+        except Exception as login_err:
+            # Xóa dữ liệu đăng ký khỏi session
+            request.session.pop(SESSION_REGISTER_DATA, None)
+            request.session.pop(SESSION_REGISTER_EMAIL_VERIFIED, None)
+            
+            messages.success(request, "🎉 Tạo tài khoản thành công! Hãy đăng nhập để sử dụng.")
+            return redirect("weather:login")
+            
+    except EmailValidationError as e:
+        messages.error(request, f"❌ {str(e)}")
+        return redirect("weather:verify_email_register")
+    except Exception as e:
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ {error_msg}")
+        return redirect("weather:verify_email_register")
+
+
+@require_http_methods(["POST"])
+def resend_email_otp_view(request):
+    """
+    Gửi lại OTP xác thực email đăng ký
+    """
+    register_data = request.session.get(SESSION_REGISTER_DATA)
+    
+    if not register_data:
+        messages.warning(request, "Phiên đăng ký đã hết hạn. Vui lòng đăng ký lại.")
+        return redirect("weather:register")
+    
+    email = register_data.get("email", "")
+    name = register_data.get("name", "")
+    
+    try:
+        EmailValidator.send_verification_otp(email, name)
+        messages.success(request, f"📧 Mã OTP mới đã được gửi đến {email}.")
+    except EmailValidationError as e:
+        messages.error(request, f"❌ {str(e)}")
+    except Exception as e:
+        error_msg = _extract_error_message(e)
+        messages.error(request, f"❌ Lỗi gửi email: {error_msg}")
+    
+    return redirect("weather:verify_email_register")
+
+
+@require_http_methods(["GET"])
+def cancel_register_view(request):
+    """
+    Hủy quá trình đăng ký và xóa session
+    """
+    request.session.pop(SESSION_REGISTER_DATA, None)
+    request.session.pop(SESSION_REGISTER_EMAIL_VERIFIED, None)
+    messages.info(request, "Đã hủy quá trình đăng ký.")
+    return redirect("weather:register")
