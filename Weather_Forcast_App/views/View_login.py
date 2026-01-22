@@ -388,12 +388,20 @@ def forgot_password_otp_view(request):
         return redirect("weather:forgot_password_otp")
 
     try:
-        # luôn hiển thị thông báo chung chung (security)
-        ManagerService.send_reset_otp(email)
-
-        request.session[SESSION_RESET_EMAIL] = email
-        messages.success(request, "📧 Nếu email tồn tại, OTP đã được gửi. Vui lòng kiểm tra hộp thư (bao gồm cả Spam).")
-        return redirect("weather:verify_otp")
+        # Gửi OTP và kiểm tra email tồn tại
+        result = ManagerService.send_reset_otp(email)
+        
+        if not result["email_exists"]:
+            messages.error(request, "❌ Email này chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại hoặc đăng ký tài khoản mới.")
+            return redirect("weather:forgot_password_otp")
+        
+        if result["success"]:
+            request.session[SESSION_RESET_EMAIL] = email
+            messages.success(request, f"📧 {result['message']}. Vui lòng kiểm tra hộp thư (bao gồm cả Spam).")
+            return redirect("weather:verify_otp")
+        else:
+            messages.error(request, f"❌ {result['message']}")
+            return redirect("weather:forgot_password_otp")
 
     except Exception as e:
         error_msg = _extract_error_message(e)

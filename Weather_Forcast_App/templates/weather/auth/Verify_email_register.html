@@ -179,7 +179,6 @@
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
-          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
         </div>
 
         <button class="btn btn-primary btn-full btn-glow btn-glow-green" type="submit" style="background: linear-gradient(135deg, #10b981, #059669);">
@@ -222,8 +221,8 @@
         
         updateHiddenOTP();
         
-        // Auto submit when all 6 digits are entered
-        if (otpHidden.value.length === 6) {
+        // Auto submit when all 5 digits are entered
+        if (otpHidden.value.length === 5) {
           form.submit();
         }
       });
@@ -237,7 +236,7 @@
       digit.addEventListener('paste', (e) => {
         e.preventDefault();
         const paste = (e.clipboardData || window.clipboardData).getData('text');
-        const numbers = paste.replace(/\D/g, '').slice(0, 6);
+        const numbers = paste.replace(/\D/g, '').slice(0, 5);
         
         numbers.split('').forEach((num, i) => {
           if (digits[i]) {
@@ -246,12 +245,12 @@
         });
         
         if (numbers.length > 0) {
-          digits[Math.min(numbers.length, 5)].focus();
+          digits[Math.min(numbers.length, 4)].focus();
         }
         updateHiddenOTP();
         
-        // Auto submit when pasting 6 digits
-        if (numbers.length === 6) {
+        // Auto submit when pasting 5 digits
+        if (numbers.length === 5) {
           setTimeout(() => form.submit(), 100);
         }
       });
@@ -263,9 +262,9 @@
 
     form.addEventListener('submit', (e) => {
       updateHiddenOTP();
-      if (otpHidden.value.length !== 6) {
+      if (otpHidden.value.length !== 5) {
         e.preventDefault();
-        alert('Vui lòng nhập đủ 6 số OTP');
+        alert('Vui lòng nhập đủ 5 số OTP');
       }
     });
 

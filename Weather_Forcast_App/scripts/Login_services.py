@@ -8,9 +8,9 @@ from Weather_Forcast_App.Repositories.Login_repositories import LoginRepository
 from bson import ObjectId
 from Weather_Forcast_App.middleware.Auth import require_manager, require_manager_or_admin
 import random, secrets, hashlib
-from django.core.mail import send_mail
 from django.conf import settings
-from pymongo import MongoClient, ASCENDING, DESCENDING
+from pymongo import ASCENDING, DESCENDING
+from Weather_Forcast_App.db_connection import get_database, create_index_safe
 # Dinh nghia mot ham dung de convert cac object -> str
 def convert_objectid(obj):
     # Neu la list: duyet qua cac phan tu torng list va chuyen doi object -> str
@@ -36,14 +36,13 @@ RESET_TOKEN_SALT = config("RESET_TOKEN_SALT", default="reset_secret")
 RESET_TOKEN_EXPIRY_SECONDS = int(config("RESET_TOKEN_EXPIRY_SECONDS", default=3600))
 # signer = TimestampSigner(config("SECRET_KEY"))
 signer = TimestampSigner(key=config("SECRET_KEY"))
-client = MongoClient(config("MONGO_URI"))
-db = client[config("DB_NAME")]
+db = get_database()
 
 managers = db["logins"]  # trùng với LoginRepository đang dùng
 password_reset_otps = db["password_reset_otps"]
 
-password_reset_otps.create_index("expiresAt", expireAfterSeconds=0)
-password_reset_otps.create_index([("email", ASCENDING), ("createdAt", DESCENDING)])
+create_index_safe(password_reset_otps, "expiresAt", expireAfterSeconds=0)
+create_index_safe(password_reset_otps, [("email", ASCENDING), ("createdAt", DESCENDING)])
 
 def _apply_pepper(raw_password: str) -> str:
     return raw_password + PASSWORD_PEPPER if PASSWORD_PEPPER else raw_password
@@ -393,19 +392,37 @@ class ManagerService:
         return hashlib.sha256(raw).hexdigest()
 
     @staticmethod
-    def send_reset_otp(email: str) -> None:
+    def send_reset_otp(email: str, check_exists: bool = True) -> dict:
+        """
+        Gửi OTP đặt lại mật khẩu qua email.
+        
+        Args:
+            email: Địa chỉ email người dùng
+            check_exists: Nếu True, sẽ trả về thông tin email có tồn tại không
+            
+        Returns:
+            dict với keys: success, email_exists, message
+        """
+        from Weather_Forcast_App.scripts.email_templates import generate_otp, send_otp_email
+        
         email = (email or "").strip().lower()
         if not email:
             raise ValueError("Vui lòng nhập email.")
 
         user = managers.find_one({"email": email, "is_active": True})
         if not user:
-            return  # không leak thông tin
+            # Trả về thông tin để caller quyết định cách xử lý
+            return {
+                "success": False,
+                "email_exists": False,
+                "message": "Email chưa được đăng ký trong hệ thống."
+            }
 
         # vô hiệu hoá OTP cũ (optional nhưng nên)
         password_reset_otps.update_many({"email": email, "used": False}, {"$set": {"used": True}})
 
-        otp = f"{random.randint(0, 999999):06d}"
+        # Tạo OTP mới (5 số)
+        otp = generate_otp()
         salt = secrets.token_hex(8)
 
         now = datetime.now(timezone.utc)
@@ -421,12 +438,23 @@ class ManagerService:
             "expiresAt": expires_at,
         })
 
-        subject = "VN Weather Hub - Mã OTP đặt lại mật khẩu"
-        message = (
-            f"Mã OTP của bạn là: {otp}\n\n"
-            f"Mã có hiệu lực trong {settings.PASSWORD_RESET_OTP_EXPIRE_SECONDS // 60} phút."
+        # Lấy tên người dùng
+        user_name = user.get("name", user.get("userName", ""))
+        
+        # Gửi email với template đẹp
+        send_otp_email(
+            email=email,
+            name=user_name,
+            otp=otp,
+            purpose="đặt lại mật khẩu",
+            expire_minutes=settings.PASSWORD_RESET_OTP_EXPIRE_SECONDS // 60
         )
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+        
+        return {
+            "success": True,
+            "email_exists": True,
+            "message": f"Mã OTP đã được gửi đến {email}"
+        }
 
 
     @staticmethod

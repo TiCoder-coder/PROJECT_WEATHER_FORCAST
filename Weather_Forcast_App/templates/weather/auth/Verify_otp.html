@@ -89,7 +89,7 @@
           </div>
         </div>
         <h1 class="auth-title">Xác thực OTP</h1>
-        <p class="auth-subtitle">Nhập mã 6 số đã gửi đến email của bạn</p>
+        <p class="auth-subtitle">Nhập mã 5 số đã gửi đến email của bạn</p>
       </div>
 
       <div class="email-display">
@@ -111,7 +111,6 @@
         
         <div class="otp-input-group">
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autofocus>
-          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
@@ -170,7 +169,7 @@
       digit.addEventListener('paste', (e) => {
         e.preventDefault();
         const paste = (e.clipboardData || window.clipboardData).getData('text');
-        const numbers = paste.replace(/\D/g, '').slice(0, 6);
+        const numbers = paste.replace(/\D/g, '').slice(0, 5);
         
         numbers.split('').forEach((num, i) => {
           if (digits[i]) {
@@ -179,7 +178,7 @@
         });
         
         if (numbers.length > 0) {
-          digits[Math.min(numbers.length, 5)].focus();
+          digits[Math.min(numbers.length, 4)].focus();
         }
         updateHiddenOTP();
       });
@@ -191,9 +190,9 @@
 
     form.addEventListener('submit', (e) => {
       updateHiddenOTP();
-      if (otpHidden.value.length !== 6) {
+      if (otpHidden.value.length !== 5) {
         e.preventDefault();
-        alert('Vui lòng nhập đủ 6 số OTP');
+        alert('Vui lòng nhập đủ 5 số OTP');
       }
     });
 

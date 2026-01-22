@@ -1,14 +1,13 @@
-from pymongo import MongoClient, ASCENDING
-from decouple import config
+from pymongo import ASCENDING
 from bson import ObjectId
+from Weather_Forcast_App.db_connection import get_database, create_index_safe
 
-client = MongoClient(config("MONGO_URI"))
-db = client[config("DB_NAME")]
-
+db = get_database()
 login_collection = db["logins"]
 
-login_collection.create_index([("userName", ASCENDING)], unique=True)
-login_collection.create_index([("email", ASCENDING)], unique=True)
+# Tạo indexes an toàn
+create_index_safe(login_collection, [("userName", ASCENDING)], unique=True)
+create_index_safe(login_collection, [("email", ASCENDING)], unique=True)
 
 class LoginRepository:
     @staticmethod

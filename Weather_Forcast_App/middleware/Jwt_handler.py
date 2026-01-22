@@ -2,8 +2,8 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from decouple import config
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
-from pymongo import MongoClient
 from django.conf import settings
+from Weather_Forcast_App.db_connection import get_database, create_index_safe
 
 JWT_ALGORITHM = config("JWT_ALGORITHM", default="HS256")
 JWT_SECRET = config("JWT_SECRET")
@@ -13,10 +13,9 @@ AUDIENCE = config("JWT_AUDIENCE", default="weather_web")
 ACCESS_TOKEN_EXPIRE_HOURS = int(config("ACCESS_TOKEN_EXPIRE_HOURS", default=3))
 REFRESH_TOKEN_EXPIRE_DAYS = int(config("REFRESH_TOKEN_EXPIRE_DAYS", default=1))
 
-client = MongoClient(config("MONGO_URI"))
-db = client[config("DB_NAME")]
+db = get_database()
 revoked_tokens = db["revoked_tokens"]
-revoked_tokens.create_index("token", unique=True)
+create_index_safe(revoked_tokens, "token", unique=True)
 
 SECRET = config("JWT_SECRET", default=settings.SECRET_KEY)
 

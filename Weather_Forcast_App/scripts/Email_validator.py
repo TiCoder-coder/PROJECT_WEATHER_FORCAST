@@ -12,21 +12,20 @@ import hashlib
 import secrets
 import random
 from datetime import datetime, timezone, timedelta
-from django.core.mail import send_mail
 from django.conf import settings
-from pymongo import MongoClient, ASCENDING, DESCENDING
+from pymongo import ASCENDING, DESCENDING
 from decouple import config
+from Weather_Forcast_App.db_connection import get_database, create_index_safe
 
 # MongoDB connection
-client = MongoClient(config("MONGO_URI"))
-db = client[config("DB_NAME")]
+db = get_database()
 
 # Collection lưu OTP xác thực email đăng ký
 email_verification_otps = db["email_verification_otps"]
 
 # Tạo index tự động xóa OTP hết hạn
-email_verification_otps.create_index("expiresAt", expireAfterSeconds=0)
-email_verification_otps.create_index([("email", ASCENDING), ("createdAt", DESCENDING)])
+create_index_safe(email_verification_otps, "expiresAt", expireAfterSeconds=0)
+create_index_safe(email_verification_otps, [("email", ASCENDING), ("createdAt", DESCENDING)])
 
 # Config
 EMAIL_OTP_EXPIRE_SECONDS = int(config("PASSWORD_RESET_OTP_EXPIRE_SECONDS", default=600))  # 10 phút
@@ -262,6 +261,8 @@ class EmailValidator:
         Raises:
             EmailValidationError: Nếu email không hợp lệ
         """
+        from Weather_Forcast_App.scripts.email_templates import generate_otp, send_otp_email
+        
         email = (email or '').strip().lower()
         
         # Validate email trước khi gửi
@@ -275,8 +276,8 @@ class EmailValidator:
             {"$set": {"used": True}}
         )
         
-        # Tạo OTP mới
-        otp = f"{random.randint(0, 999999):06d}"
+        # Tạo OTP mới (5 số)
+        otp = generate_otp()
         salt = secrets.token_hex(8)
         
         now = datetime.now(timezone.utc)
@@ -293,30 +294,14 @@ class EmailValidator:
             "expiresAt": expires_at,
         })
         
-        # Gửi email
-        greeting = f"Xin chào {name}!" if name else "Xin chào!"
-        subject = "VN Weather Hub - Mã xác thực email đăng ký"
-        message = f"""{greeting}
-
-Cảm ơn bạn đã đăng ký tài khoản tại VN Weather Hub.
-
-Mã OTP xác thực email của bạn là: {otp}
-
-Mã có hiệu lực trong {EMAIL_OTP_EXPIRE_SECONDS // 60} phút.
-
-Nếu bạn không yêu cầu đăng ký tài khoản, vui lòng bỏ qua email này.
-
-Trân trọng,
-VN Weather Hub Team
-"""
-        
+        # Gửi email với template đẹp
         try:
-            send_mail(
-                subject, 
-                message, 
-                settings.DEFAULT_FROM_EMAIL, 
-                [email], 
-                fail_silently=False
+            send_otp_email(
+                email=email,
+                name=name,
+                otp=otp,
+                purpose="đăng ký",
+                expire_minutes=EMAIL_OTP_EXPIRE_SECONDS // 60
             )
         except Exception as e:
             raise EmailValidationError(f"Không thể gửi email xác thực: {str(e)}")

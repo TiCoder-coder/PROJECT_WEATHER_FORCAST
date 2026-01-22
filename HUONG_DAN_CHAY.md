@@ -5,11 +5,72 @@
 - Windows 10/11
 - Python 3.10+
 - Docker Desktop
-- MongoDB Compass (tùy chọn)
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt Lần Đầu
+## 🚀 Hướng Dẫn Nhanh (3 bước)
+
+### Bước 1: Khởi động Docker MongoDB
+
+```powershell
+# Tạo network (chỉ cần chạy lần đầu)
+docker network create mongoNet
+
+# Khởi động MongoDB containers
+docker start r4 r5 r6
+
+# Nếu chưa có container, chạy lệnh sau:
+docker run -d --name r4 --net mongoNet -p 27108:27017 mongo:latest mongod --replSet mongoRepSet --bind_ip_all
+docker run -d --name r5 --net mongoNet -p 27109:27017 mongo:latest mongod --replSet mongoRepSet --bind_ip_all
+docker run -d --name r6 --net mongoNet -p 27110:27017 mongo:latest mongod --replSet mongoRepSet --bind_ip_all
+
+# Khởi tạo replica set (chỉ lần đầu)
+docker exec r4 mongosh --eval "rs.initiate({ _id: 'mongoRepSet', members: [ { _id: 0, host: 'r4:27017' }, { _id: 1, host: 'r5:27017' }, { _id: 2, host: 'r6:27017' } ] })"
+```
+
+### Bước 2: Cấu hình môi trường
+
+```powershell
+# Copy file .env mẫu
+copy .env.example .env
+
+# Tạo virtual environment và cài dependencies
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Bước 3: Chạy server
+
+```powershell
+python manage.py runserver
+```
+
+Truy cập: http://127.0.0.1:8000
+
+---
+
+## 📧 Cấu hình Email (TÙY CHỌN)
+
+**Mặc định**: OTP sẽ in ra console (terminal) - phù hợp cho development.
+
+**Để gửi email thật**, thêm vào file `.env`:
+
+```env
+# Gmail SMTP
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-16-char-app-password
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=VN Weather Hub <your-email@gmail.com>
+```
+
+> 📝 Để lấy App Password: https://myaccount.google.com/apppasswords
+
+---
+
+## 📋 Hướng Dẫn Chi Tiết
 
 ### Bước 1: Cài Đặt Docker Desktop
 
@@ -68,25 +129,41 @@ docker exec r4 mongosh --eval "rs.status().members.map(m=>({name:m.name,stateStr
 
 ### Bước 3: Tạo File .env
 
-Tạo file `.env` trong thư mục gốc dự án với nội dung sau:
+Copy file `.env.example` thành `.env`:
+
+```powershell
+copy .env.example .env
+```
+
+Hoặc tạo file `.env` với nội dung tối thiểu:
 
 ```env
-SECRET_KEY=django-insecure-4$t0@wnk+#qu19m66%a90(d10z69tr$-ei@u_pf_%#m5it@=t+
-MONGO_URI=mongodb://localhost:27108/Login?directConnection=true
-DB_HOST=mongodb+srv://voanhnhat1612:<Nhat@16122006>@cluster0.9xeejj9.mongodb.net/
+SECRET_KEY=django-insecure-your-secret-key-here
+MONGO_URI=mongodb://localhost:27110/Login?directConnection=true
 DB_NAME=Login
 
-DB_USER=Ti-coder
-DB_PASSWORD=Nhat@16122006
-DB_PORT=27017
-DB_ADMIN_EMAIL=voanhnhat1612@gmail.com
-DB_AUTH_SOURCE=admin
-
-DB_AUTH_MECHANISM=SCRAM_SHA-1
 MAX_FAILED_ATTEMPS=5
 LOCKOUT_SECOND=600
 RESET_TOKEN_SALT=manager-reset-salt
 RESET_TOKEN_EXPIRY_SECONDS=3600
+PASSWORD_PEPPER=your-password-pepper
+
+JWT_SECRET=your-jwt-secret
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TTL=900
+JWT_REFRESH_TTL=604800
+JWT_ISSUER=weather_api
+JWT_AUDIENCE=weather_web
+
+USER_NAME_ADMIN=Admin
+ADMIN_PASSWORD=Admin@123456
+ADMIN_EMAIL=admin@example.com
+
+PASSWORD_RESET_OTP_EXPIRE_SECONDS=600
+PASSWORD_RESET_OTP_MAX_ATTEMPTS=5
+```
+
+> 📝 **Lưu ý**: Không cần cấu hình Email. OTP sẽ tự động in ra console.
 SECRET_KEY=O4qvkC2lzeVn70eOD7qajoMHbZhsV3MPYL2WI8bDhG19pFp1g17_VPQw54bJ0kIzSX9uP49-4mZGXrplf_I6Rg
 PASSWORD_PEPPER=yPTp0tlNjhhCmktx_FInwo0bLcu2aquaT3BLVMJaQqw
 JWT_SECRET=MHGtW9YsZcP1O04ScNbiOTVMPS-DCS_NKeenFBzaWXzR2Fk7_3xxnT2vubAMIuXNVybtBsCYifEYHxVW6fRnEQ
@@ -104,17 +181,45 @@ JWT_ISSUER=weather_api
 JWT_AUDIENCE=weather_web
 
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=sandbox.smtp.mailtrap.io
+EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
-EMAIL_HOST_USER=7cea9fdc3a8f18
-EMAIL_HOST_PASSWORD=c8d8e13c72a1b4
+EMAIL_HOST_USER=your_gmail@gmail.com
+EMAIL_HOST_PASSWORD=your_app_password
 EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=your_gmail@gmail.com
 
 PASSWORD_RESET_OTP_EXPIRE_SECONDS=600
 PASSWORD_RESET_OTP_MAX_ATTEMPTS=5
 ```
 
-> ⚠️ **LƯU Ý**: Thay đổi các giá trị `USER_NAME_ADMIN`, `ADMIN_PASSWORD`, `ADMIN_EMAIL` và các key EMAIL theo thông tin của bạn.
+> ⚠️ **LƯU Ý**: 
+> - Thay đổi các giá trị `USER_NAME_ADMIN`, `ADMIN_PASSWORD`, `ADMIN_EMAIL` theo thông tin của bạn.
+> - **Cấu hình Gmail SMTP**: Xem hướng dẫn bên dưới để tạo App Password.
+
+---
+
+### Bước 3.1: Tạo App Password cho Gmail (Bắt buộc để gửi OTP)
+
+Để gửi email OTP thực sự qua Gmail, bạn cần tạo **App Password**:
+
+1. **Bật xác thực 2 bước** cho tài khoản Gmail:
+   - Truy cập: https://myaccount.google.com/security
+   - Tìm mục **"2-Step Verification"** → Bật
+
+2. **Tạo App Password**:
+   - Truy cập: https://myaccount.google.com/apppasswords
+   - Chọn **"Select app"** → **Other (Custom name)** → Nhập `VN Weather Hub`
+   - Click **Generate**
+   - **Sao chép mật khẩu 16 ký tự** (ví dụ: `abcd efgh ijkl mnop`)
+
+3. **Cập nhật file `.env`**:
+   ```env
+   EMAIL_HOST_USER=your_gmail@gmail.com
+   EMAIL_HOST_PASSWORD=abcdefghijklmnop  # Không có khoảng trắng
+   DEFAULT_FROM_EMAIL=your_gmail@gmail.com
+   ```
+
+> 💡 **Mẹo**: App Password chỉ hiển thị 1 lần. Nếu quên, hãy tạo mới.
 
 ---
 
