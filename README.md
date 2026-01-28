@@ -542,6 +542,37 @@ if failed_attempts >= 5:
         ├── 📁 Enums
         │   ├── 🐍 Enums.py
         │   └── 🐍 __init__.py
+        ├── 📁 Machine_learning_artifacts                         // 📁 Đây là nơi chứa output cuối cùng của pipeline ML, để app Django chỉ cần load lên và predict, không cần train lại.
+        │   └── 📁 latest
+        │       ├── ⚙️ Feature_list.json                                // Danh sách các cột feature model dùng. Mục đích: Đảm bảo lúc predict: input phải có đúng feature theo thứ tự. Tránh lỗi “thiếu cột”, “sai thứ tự cột”. Là “hợp đồng” giữa features/ và models/
+        │       ├── ⚙️ Metrics.json                                     // Lưu chỉ số đánh giá của lần train gần nhất. Dùng để: show trên trang web (Accuracy/MAE/RMSE…), báo cáo khoa học, so sánh các model khác nhau
+        │       ├── 📄 Model.pkl                                        // File chứa model đã train xong (được serialize bằng pickle/joblib). Khi dự đoán (predict), app sẽ: Load Model.pkl ==> Nhận input mới ==> Transform features giống lúc train ==> Predict ra kết quả
+        │       └── ⚙️ Train_info.json                                  // Lưu “thông tin cấu hình train” của lần train đó. Dùng để: trace lại train bằng dataset nào, train thời gian nào, split kiểu gì, dùng thuật toán nào, hyperparameters ra sao
+        ├── 📁 Machine_learning_model                            // 📁 Thư mục dùng để  làm về chức năng dự báo cho app
+        │   ├── 📁 config                                               
+        │   │   └── ⚙️ default.yaml                                     // File cấu hình trung tâm (Chứa: path dataset, target column, horizon (dự báo trước    bao nhiêu bước), model type (xgboost, lgbm, …), params, split ratio hoặc time split rules
+        │   ├── 📁 data                                          // 📁 Nơi xử lý dữ liệu đầu vào: đọc + validate + chia train/test.
+        │   │   ├── 🐍 Loader.py                                        // Chịu trách nhiệm load dataset (csv/xlsx) vào DataFrame (Xử lí về: parse datetime, sort theo thời gian, xử lý missing cơ bản).
+        │   │   ├── 🐍 Schema.py                                        // Định nghĩa “luật dữ liệu” (data contract): cột nào bắt buộc phải có, kiểu dữ liệu (datetime/float/int), giá trị hợp lệ (>=0, không âm, …). Nếu file đầu vào sai → báo lỗi rõ ràng.
+        │   │   └── 🐍 Split.py                                         // Chia dữ liệu train/valid/test. Với dự báo thời tiết (time series), file này quan trọng vì: Không được split ngẫu nhiên như classification thường. Nên split theo thời gian (train quá khứ, test tương lai).
+        │   ├── 📁 evaluation                                    // 📁 Chuyên đánh giá kết quả train.
+        │   │   ├── 🐍 metrics.py                                       //Nơi định nghĩa các metric: MAE, RMSE, MAPE, R2…Dùng chung cho mọi model.
+        │   │   └── 🐍 report.py                                        // Xuất báo cáo: bảng so sánh model, lưu biểu đồ, lưu file report csv/json. Đây là phần cực hợp để “bỏ vào báo cáo nghiên cứu”.
+        │   ├── 📁 features                                      // 📁 Nơi biến dữ liệu thô thành “đặc trưng” model học được.
+        │   │   ├── 🐍 Build_transfer.py                                //Xây features từ raw data (Bao gồm: lag features: rain(t-1), rain(t-7), rolling mean: mean_7days, time features: day/month, sin/cos theo chu kỳ, features theo location (nếu có)
+        │   │   └── 🐍 Transformers.py                                  // Các transformer dạng module dùng lại: StandardScaler/MinMaxScaler (nếu cần), encoding cho categorical, xử lý missing nâng cao, pipeline transform thống nhất cho train & predict   ====> File này giúp: “train và predict dùng đúng cùng 1 kiểu transform”.
+        │   ├── 📁 interface                                    // Đây là “cổng” để app Django gọi dự báo.
+        │   │   └── 🐍 predictor.py                                     //Predictor: ==> load Model.pkl ==> load Feature_list.json ==> nhận input mới ==> build features/transform giống lúc train ==> predict ==>trả kết quả cho view/API
+        │   ├── 📁 models                                       // 📁 Nơi chứa code cho từng thuật toán (CatBoost, LightGBM, XGBoost…).
+        │   │   ├── 🐍 Base_model.py                            Đây là “interface/khung chuẩn” cho mọi model. Define các hàm: fit(X, y), predict(X), save(path),load(path), get_params()
+        │   │   ├── 🐍 CatBoost.py
+        │   │   ├── 🐍 LightGBM.py
+        │   │   ├── 🐍 Random Forest.py
+        │   │   └── 🐍 XGBoost.py
+        │   ├── 📁 trainning                                    
+        │   │   ├── 🐍 train.py                                 // “tổng chỉ huy” của quá trình train. Flow: đọc config ==> load data ==> validate schema ==> split train/valid/test ==> build features ==> train model ==> evaluate metrics ==> save artifacts (Model.pkl, Feature_list.json, Metrics.json, Train_info.json)
+        │   │   └── 🐍 tuning.py                                // Hyperparameter tuning: grid search / random search / optuna. Output: params tốt nhất để đưa vào config hoặc train_info.
+        │   └── ⚙️ .gitkeep
         ├── 📁 Merge_data
         │   ├── 📄 merged_files_log.txt
         │   └── 📄 merged_vrain_data.xlsx
@@ -561,16 +592,11 @@ if failed_attempts >= 5:
         │   └── ⚙️ .gitkeep
         ├── 📁 cleaned_data
         │   ├── 📁 Clean_Data_For_File_Merge
-        │   │   ├── 📄 cleaned_merge_merged_vrain_data_20260115_014829.csv
-        │   │   ├── 📄 cleaned_merge_merged_vrain_data_20260116_101452.csv
-        │   │   ├── 📄 cleaned_merge_merged_vrain_data_20260116_102916.csv
-        │   │   ├── 📄 cleaned_merge_merged_vrain_data_20260117_184741.csv
-        │   │   ├── 📄 cleaned_merge_merged_vrain_data_20260117_185051.csv
-        │   │   └── 📄 cleaned_merge_merged_vrain_data_20260123_174125.csv
+        │   │   └── 📄 cleaned_merge_merged_vrain_data_20260124_192207.csv
         │   └── 📁 Clean_Data_For_File_Not_Merge
-        │       ├── 📄 cleaned_output_Bao_cao_20260115_004844_20260115_015011.csv
-        │       ├── 📄 cleaned_output_Bao_cao_20260115_004844_20260116_102949.csv
-        │       └── 📄 cleaned_output_Bao_cao_20260115_011058_20260115_014959.csv
+        │       ├── 📄 cleaned_output_Bao_cao_20260124_191737_20260124_192237.csv
+        │       ├── 📄 cleaned_output_Bao_cao_20260124_191946_20260124_192226.csv
+        │       └── 📄 cleaned_output_Bao_cao_20260124_191959_20260124_192219.csv
         ├── 📁 logs
         │   └── ⚙️ .gitkeep
         ├── 📁 management
@@ -585,19 +611,10 @@ if failed_attempts >= 5:
         │   └── 🐍 __init__.py
         ├── 📁 migrations
         │   └── 🐍 __init__.py
-        ├── 📁 ml_models
-        │   └── ⚙️ .gitkeep
         ├── 📁 output
-        │   ├── 📄 Bao_cao_20260115_004844.csv
-        │   ├── 📄 Bao_cao_20260115_005400.xlsx
-        │   ├── 📄 Bao_cao_20260115_011058.xlsx
-        │   ├── 📄 Bao_cao_20260116_101751.csv
-        │   ├── 📄 Bao_cao_20260117_184503.csv
-        │   ├── 📄 Bao_cao_20260117_184706.xlsx
-        │   ├── 📄 Bao_cao_20260123_174028.xlsx
-        │   ├── 📄 Bao_cao_20260123_174048.csv
-        │   ├── 📄 Bao_cao_20260123_174236.xlsx
-        │   └── 📄 Bao_cao_20260123_175632.xlsx
+        │   ├── 📄 Bao_cao_20260124_191737.xlsx
+        │   ├── 📄 Bao_cao_20260124_191946.xlsx
+        │   └── 📄 Bao_cao_20260124_191959.csv
         ├── 📁 runtime
         │   └── 📁 logs
         │       └── ⚙️ .gitkeep
@@ -634,6 +651,7 @@ if failed_attempts >= 5:
         │       │       ├── 🖼️ earth_texture.png
         │       │       ├── 🖼️ sun.png
         │       │       ├── 🖼️ thunder.png
+        │       │       ├── 🖼️ tree.png
         │       │       └── 🖼️ water.png
         │       └── 📁 js
         │           ├── 📄 Home.js
@@ -686,7 +704,6 @@ if failed_attempts >= 5:
         ├── 🐍 settings.py
         ├── 🐍 urls.py
         └── 🐍 wsgi.py
-        
 ```
 
 ---

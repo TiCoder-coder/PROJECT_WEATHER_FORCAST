@@ -107,3 +107,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (openCrawl) openCrawl.click();
   });
 });
+
+// Quick Crawl button for logged-in users
+document.addEventListener("DOMContentLoaded", () => {
+  const quickCrawlBtn = document.getElementById("btnQuickCrawl");
+  if (!quickCrawlBtn) return;
+
+  quickCrawlBtn.addEventListener("click", () => {
+    const openCrawl = document.getElementById("btnOpenCrawlModal");
+    if (openCrawl) openCrawl.click();
+  });
+});
