@@ -18,12 +18,15 @@
         </div>
         <nav class="home-nav">
             <button type="button" class="nav-pill" id="btnIntro">Giới thiệu</button>
-            {% if user.is_authenticated %}
-                <a href="{% url 'weather:profile' %}" class="nav-pill">👤 {{ user.username }}</a>
-                <a href="{% url 'weather:logout' %}" class="nav-pill nav-logout">Đăng xuất</a>
+            {% if is_logged_in and profile %}
+                <a href="{% url 'weather:profile' %}" class="nav-user-profile">
+                    <span class="nav-user-avatar">{{ profile.userName|default:profile.name|slice:":1"|upper }}</span>
+                    <span class="nav-user-name">{{ profile.name|default:profile.userName }}</span>
+                </a>
+                <a href="{% url 'weather:logout' %}" class="nav-pill nav-logout">🚪 Đăng xuất</a>
             {% else %}
-                <a href="{% url 'weather:login' %}" class="nav-pill nav-login">Đăng nhập</a>
-                <a href="{% url 'weather:register' %}" class="nav-pill nav-register">Đăng ký</a>
+                <a href="{% url 'weather:login' %}" class="nav-pill nav-login">🔑 Đăng nhập</a>
+                <a href="{% url 'weather:register' %}" class="nav-pill nav-register">✨ Đăng ký</a>
             {% endif %}
         </nav>
     </header>
@@ -160,14 +163,14 @@
             </p>
             <div class="hero-actions">
                 <button type="button" class="btn primary" id="btnOpenCrawlModal">
-                    Bắt đầu thu thập data
+                    🌐 Bắt đầu thu thập data
                 </button>
                 <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">
-                    Xử lí dữ liệu
+                    📊 Xử lí dữ liệu
                 </a>
 
                 <button type="button" class="btn secondary btn-help" id="btnOpenHelpModal">
-                    Hướng dẫn sử dụng
+                    ❓ Hướng dẫn sử dụng
                 </button>
 
             </div>
