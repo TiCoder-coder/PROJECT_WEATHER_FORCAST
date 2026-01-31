@@ -1,0 +1,34 @@
+[
+  {
+    "file": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/cleaned_data/Clean_Data_For_File_Merge/cleaned_merge_merged_vrain_data_20260124_192207.csv",
+    "rows_total": 6100,
+    "rows_train": 4880,
+    "rows_validate": 610,
+    "rows_test": 610,
+    "out_dir": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge"
+  },
+  {
+    "file": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/cleaned_data/Clean_Data_For_File_Not_Merge/cleaned_output_Bao_cao_20260124_191737_20260124_192237.csv",
+    "rows_total": 427,
+    "rows_train": 341,
+    "rows_validate": 42,
+    "rows_test": 44,
+    "out_dir": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_not_merge"
+  },
+  {
+    "file": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/cleaned_data/Clean_Data_For_File_Not_Merge/cleaned_output_Bao_cao_20260124_191946_20260124_192226.csv",
+    "rows_total": 5673,
+    "rows_train": 4538,
+    "rows_validate": 567,
+    "rows_test": 568,
+    "out_dir": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_not_merge"
+  },
+  {
+    "file": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/cleaned_data/Clean_Data_For_File_Not_Merge/cleaned_output_Bao_cao_20260124_191959_20260124_192219.csv",
+    "rows_total": 2543,
+    "rows_train": 2034,
+    "rows_validate": 254,
+    "rows_test": 255,
+    "out_dir": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_not_merge"
+  }
+]
