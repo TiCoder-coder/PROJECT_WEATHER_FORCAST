@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xác thực OTP - VN Weather Hub</title>
+  <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=299002">
+  <style>
+    .otp-input-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .otp-digit {
+      width: 50px;
+      height: 60px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      background: rgba(30, 41, 59, 0.8);
+      color: #f1f5f9;
+      transition: all 0.3s ease;
+    }
+    .otp-digit:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      outline: none;
+    }
+    .resend-section {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #334155;
+    }
+    .countdown {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .resend-btn {
+      background: transparent;
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .resend-btn:hover:not(:disabled) {
+      background: #3b82f6;
+      color: white;
+    }
+    .resend-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .email-display {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .email-display b {
+      color: #60a5fa;
+    }
+  </style>
+</head>
+<body class="auth-page">
+  <div class="auth-bg">
+    <div class="auth-particles"></div>
+    <div class="auth-gradient"></div>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card glass-effect">
+      <div class="auth-header">
+        <div class="icon-wrapper-large">
+          <div class="icon-circle-gradient">
+            <div class="icon-inner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <h1 class="auth-title">Xác thực OTP</h1>
+        <p class="auth-subtitle">Nhập mã 5 số đã gửi đến email của bạn</p>
+      </div>
+
+      <div class="email-display">
+        📧 OTP đã gửi đến: <b>{{ email }}</b>
+      </div>
+
+      {% if messages %}
+        <div class="auth-messages">
+          {% for message in messages %}
+            <div class="auth-alert auth-alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'weather:verify_otp' %}" class="auth-form" id="otpForm">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="otp" id="otpHidden">
+        
+        <div class="otp-input-group">
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]" autofocus>
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+          <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        </div>
+
+        <button class="btn btn-primary btn-full btn-glow" type="submit">
+          <span class="btn-text">Xác nhận OTP</span>
+          <span class="btn-icon">✓</span>
+        </button>
+      </form>
+
+      <div class="resend-section">
+        <p class="countdown" id="countdown">Có thể gửi lại OTP sau <span id="timer">60</span> giây</p>
+        <form method="post" action="{% url 'weather:forgot_password_otp' %}" id="resendForm" style="display: none;">
+          {% csrf_token %}
+          <input type="hidden" name="email" value="{{ email }}">
+          <button type="submit" class="resend-btn" id="resendBtn">
+            🔄 Gửi lại mã OTP
+          </button>
+        </form>
+      </div>
+
+      <div class="auth-footer" style="margin-top: 20px;">
+        <a href="{% url 'weather:forgot_password_otp' %}" class="auth-link">
+          ← Quay lại nhập email khác
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // OTP input handling
+    const digits = document.querySelectorAll('.otp-digit');
+    const otpHidden = document.getElementById('otpHidden');
+    const form = document.getElementById('otpForm');
+
+    digits.forEach((digit, index) => {
+      digit.addEventListener('input', (e) => {
+        const value = e.target.value.replace(/\D/g, '');
+        e.target.value = value.slice(-1);
+        
+        if (value && index < digits.length - 1) {
+          digits[index + 1].focus();
+        }
+        
+        updateHiddenOTP();
+      });
+
+      digit.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+          digits[index - 1].focus();
+        }
+      });
+
+      digit.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        const numbers = paste.replace(/\D/g, '').slice(0, 5);
+        
+        numbers.split('').forEach((num, i) => {
+          if (digits[i]) {
+            digits[i].value = num;
+          }
+        });
+        
+        if (numbers.length > 0) {
+          digits[Math.min(numbers.length, 4)].focus();
+        }
+        updateHiddenOTP();
+      });
+    });
+
+    function updateHiddenOTP() {
+      otpHidden.value = Array.from(digits).map(d => d.value).join('');
+    }
+
+    form.addEventListener('submit', (e) => {
+      updateHiddenOTP();
+      if (otpHidden.value.length !== 5) {
+        e.preventDefault();
+        alert('Vui lòng nhập đủ 5 số OTP');
+      }
+    });
+
+    let timeLeft = 60;
+    const timerSpan = document.getElementById('timer');
+    const countdownP = document.getElementById('countdown');
+    const resendForm = document.getElementById('resendForm');
+
+    const countdown = setInterval(() => {
+      timeLeft--;
+      timerSpan.textContent = timeLeft;
+      
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        countdownP.style.display = 'none';
+        resendForm.style.display = 'block';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

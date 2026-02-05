@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thu thập dữ liệu OpenWeather bằng API</title>
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_by_API.css' %}?v=972855">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="page">
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__logo">
+                <div class="sidebar__logo-circle">WF</div>
+                <div class="sidebar__logo-text">
+                    <span class="sidebar__logo-title">Dự báo thời tiết</span>
+                    <span class="sidebar__logo-sub">Công cụ thu thập dữ liệu thời tiết qua API</span>
+                </div>
+            </div>
+
+            {% include 'weather/Sidebar_nav.html' %}
+
+        </aside>
+
+        <main class="main">
+            <header class="main__header">
+                <div>
+                    <h1 class="main__title main__title--neon">
+                        THU THẬP DỮ LIỆU THỜI TIẾT TỪ OPENWEATHER QUA API
+                    </h1>
+                </div>
+
+                {% if is_running %}
+                <div class="run-panel">
+                    <div class="run-panel__row">
+                        <span class="run-panel__spinner"></span>
+                        <div>
+                            <div class="run-panel__title">
+                                Đang chạy... đang thu thập dữ liệu...
+                            </div>
+                            <div class="run-panel__desc">
+                                Nhật ký đang được cập nhật theo thời gian thực bên dưới
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </header>
+
+            <section class="card">
+                <h2 class="card__title">Cấu hình và điều khiển quá trình thu thập</h2>
+
+                <form method="post" class="form">
+                    {% csrf_token %}
+
+                    <div class="form__grid">
+                        <div class="form__group">
+                            <label class="form__label">Chế độ chạy</label>
+                            <select name="mode" class="form__select">
+                                <option value="full" selected>Đầy đủ – Thu thập toàn bộ</option>
+                                <option value="sample">Mẫu – Kiểm tra nhanh</option>
+                            </select>
+                        </div>
+
+                        <div class="form__group">
+                            <label class="form__label">Ghi log chi tiết</label>
+                            <div class="form__toggle">
+                                <input type="checkbox" id="verbose" name="verbose" checked>
+                                <label for="verbose">Bật chế độ ghi log chi tiết</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form__actions">
+                        <button type="submit" name="action" value="start" class="btn btn--primary">
+                            🚀 Bắt đầu thu thập ngay
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2 class="card__title">Kết quả của lần thu thập gần nhất</h2>
+
+                <div class="summary">
+                    <div class="summary__item">
+                        <span class="summary__label">Tệp đầu ra</span>
+                        <span class="summary__value">
+                            {% if last_csv_name %}
+                                <a class="summary__link" href="/media/{{ last_csv_name }}" target="_blank">
+                                    {{ last_csv_name }}
+                                </a>
+                            {% else %}
+                                Chưa có tệp nào
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="summary__item">
+                        <span class="summary__label">Dung lượng</span>
+                        <span class="summary__value">
+                            {% if csv_size_mb %}
+                                {{ csv_size_mb }} MB
+                            {% else %}
+                                –
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card card--log">
+                <div class="card__header">
+                    <h2 class="card__title">Nhật ký</h2>
+                    <button type="button" class="btn btn--ghost" onclick="clearLog()">
+                        🧹 Xoá nhật ký
+                    </button>
+                </div>
+
+                <div id="log-container" class="log log--top">
+                    {% if logs %}
+                        {% for line in logs %}
+                            <div class="log__line">{{ line }}</div>
+                        {% endfor %}
+                    {% else %}
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function clearLog() {
+            const log = document.getElementById('log-container');
+            if (log) {
+                log.innerHTML = '<div class="log__line log__line--muted">Nhật ký đã được xoá.</div>';
+            }
+        }
+    </script>
+
+    <script src="{% static 'weather/js/JS_Crawl_data_by_API.js' %}?v=87738513379"></script>
+</body>
+<div class="wx-layer wx-clouds" aria-hidden="true"></div>
+<div class="wx-layer wind-layer" aria-hidden="true"></div>
+<div class="wx-layer wx-rain" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
+
+</html>

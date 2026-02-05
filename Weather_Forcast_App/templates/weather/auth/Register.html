@@ -1,0 +1,450 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - VN Weather Hub</title>
+    <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=1002993">
+    <style>
+        .auth-messages {
+            margin-bottom: 20px;
+        }
+        .auth-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            animation: slideInAlert 0.3s ease-out;
+        }
+        @keyframes slideInAlert {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .auth-alert-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+        .auth-alert-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            color: #86efac;
+        }
+        .auth-alert-warning {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.15) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            color: #fde047;
+        }
+        .auth-alert-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+        }
+        .email-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .email-hint .hint-icon {
+            font-size: 12px;
+        }
+        .form-input.input-error {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        .form-input.input-success {
+            border-color: rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        .validation-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .validation-icon.show {
+            opacity: 1;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <div class="auth-bg">
+        <div class="auth-particles"></div>
+        <div class="auth-gradient"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card glass-effect">
+            <div class="auth-header">
+                <div class="auth-logo-wrapper">
+                    <div class="auth-logo">
+                        <span class="logo-dot pulse-dot"></span>
+                        <span class="logo-text">VN Weather Hub</span>
+                    </div>
+                </div>
+                <div class="icon-wrapper-large">
+                    <div class="icon-circle-gradient">
+                        <div class="icon-inner">
+                            <svg class="lock-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="auth-title">Đăng ký tài khoản</h1>
+                <p class="auth-subtitle">Tạo tài khoản mới để sử dụng đầy đủ tính năng</p>
+            </div>
+
+            {% if messages %}
+                <div class="auth-messages">
+                    {% for message in messages %}
+                        <div class="auth-alert auth-alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'weather:register' %}" class="auth-form" id="registerForm" novalidate>
+                {% csrf_token %}
+
+                <!-- ✅ Hidden fields để backend Mongo nhận đúng key -->
+                <input type="hidden" name="name" id="name">
+                <input type="hidden" name="userName" id="userName">
+                <input type="hidden" name="role" id="role" value="staff">
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+                    <div class="form-group animated-input" style="margin-bottom: 0;">
+                        <label for="first_name" class="form-label">
+                            <span class="label-icon">📝</span>
+                            Họ <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input
+                                type="text"
+                                id="first_name"
+                                name="first_name"
+                                class="form-input"
+                                placeholder="Họ"
+                                value="{{ form_data.first_name|default:'' }}"
+                                required
+                            >
+                            <span class="input-border"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group animated-input" style="margin-bottom: 0;">
+                        <label for="last_name" class="form-label">
+                            <span class="label-icon">📝</span>
+                            Tên <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input
+                                type="text"
+                                id="last_name"
+                                name="last_name"
+                                class="form-input"
+                                placeholder="Tên"
+                                value="{{ form_data.last_name|default:'' }}"
+                                required
+                            >
+                            <span class="input-border"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group animated-input">
+                    <label for="username" class="form-label">
+                        <span class="label-icon">👤</span>
+                        Tên đăng nhập <span style="color: #ef4444;">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            class="form-input"
+                            placeholder="Nhập tên đăng nhập (3-30 ký tự)"
+                            value="{{ form_data.username|default:'' }}"
+                            required
+                            autofocus
+                            minlength="3"
+                            maxlength="30"
+                            pattern="[a-zA-Z0-9_]+"
+                        >
+                        <span class="input-border"></span>
+                    </div>
+                    <span class="form-hint" style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">
+                        Chỉ chứa chữ cái, số và dấu gạch dưới (_)
+                    </span>
+                </div>
+
+                <div class="form-group animated-input">
+                    <label for="email" class="form-label">
+                        <span class="label-icon">📧</span>
+                        Email <span style="color: #ef4444;">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-input"
+                            placeholder="example@gmail.com"
+                            value="{{ form_data.email|default:'' }}"
+                            required
+                        >
+                        <span class="input-border"></span>
+                        <span class="validation-icon" id="email-validation-icon"></span>
+                    </div>
+                    <div class="email-hint">
+                        <span class="hint-icon">💡</span>
+                        <span>Sử dụng email thật (Gmail, Yahoo, Outlook...) để nhận mã xác thực. Không dùng ký tự có dấu.</span>
+                    </div>
+                </div>
+
+                <div class="form-group animated-input">
+                    <label for="password" class="form-label">
+                        <span class="label-icon">🔒</span>
+                        Mật khẩu <span style="color: #ef4444;">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-input"
+                            placeholder="Tối thiểu 8 ký tự"
+                            required
+                            minlength="8"
+                        >
+                        <span class="input-border"></span>
+                    </div>
+                    <div id="password-strength" style="margin-top: 8px; display: none;">
+                        <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                            <div class="strength-bar" style="flex: 1; height: 4px; background: #334155; border-radius: 2px;"></div>
+                        </div>
+                        <div id="password-requirements" style="font-size: 11px; color: #94a3b8;">
+                            <div id="req-length">❌ Tối thiểu 8 ký tự</div>
+                            <div id="req-lower">❌ Có chữ thường (a-z)</div>
+                            <div id="req-upper">❌ Có chữ in hoa (A-Z)</div>
+                            <div id="req-digit">❌ Có chữ số (0-9)</div>
+                            <div id="req-special">❌ Có ký tự đặc biệt (!@#$%^&*()-_+=)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group animated-input">
+                    <label for="confirm_password" class="form-label">
+                        <span class="label-icon">🔒</span>
+                        Xác nhận mật khẩu <span style="color: #ef4444;">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            class="form-input"
+                            placeholder="Nhập lại mật khẩu"
+                            required
+                        >
+                        <span class="input-border"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-glow">
+                    <span class="btn-ripple"></span>
+                    <span class="btn-text">Đăng ký</span>
+                    <span class="btn-icon">✓</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <div class="auth-divider-line"></div>
+                <div class="auth-links">
+                    <span style="color: #94a3b8; font-size: 13px;">Đã có tài khoản?</span>
+                    <a href="{% url 'weather:login' %}" class="auth-link hover-slide">
+                        <span class="link-text">Đăng nhập ngay</span>
+                        <span class="link-icon">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-extra">
+            <a href="{% url 'weather:home' %}" class="back-home glass-button">
+                <span class="home-icon">🏠</span>
+                <span class="home-text">Về trang chủ</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="wx-layer wx-clouds" aria-hidden="true"></div>
+    <div class="wx-layer wx-rain" aria-hidden="true"></div>
+    <div class="wx-lightning-subtle" aria-hidden="true"></div>
+
+    <script>
+        const form = document.getElementById('registerForm');
+
+        const firstName = document.getElementById('first_name');
+        const lastName = document.getElementById('last_name');
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+
+        const hiddenName = document.getElementById('name');
+        const hiddenUserName = document.getElementById('userName');
+
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const strengthContainer = document.getElementById('password-strength');
+        const strengthBars = document.querySelectorAll('.strength-bar');
+
+        const emailValidationIcon = document.getElementById('email-validation-icon');
+        
+        function validateEmailFormat(emailValue) {
+            for (let char of emailValue) {
+                if (char.charCodeAt(0) > 127) {
+                    return { valid: false, error: `Không được dùng ký tự có dấu: "${char}"` };
+                }
+            }
+            
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(emailValue)) {
+                if (!emailValue.includes('@')) {
+                    return { valid: false, error: 'Email phải chứa ký tự @' };
+                }
+                const parts = emailValue.split('@');
+                if (!parts[0]) {
+                    return { valid: false, error: 'Thiếu tên người dùng trước @' };
+                }
+                if (!parts[1] || !parts[1].includes('.')) {
+                    return { valid: false, error: 'Tên miền không hợp lệ (cần .com, .vn...)' };
+                }
+                return { valid: false, error: 'Định dạng email không hợp lệ' };
+            }
+            
+            return { valid: true };
+        }
+        
+        email.addEventListener('input', function() {
+            const val = email.value.trim().toLowerCase();
+            
+            if (val.length === 0) {
+                email.classList.remove('input-error', 'input-success');
+                emailValidationIcon.classList.remove('show');
+                return;
+            }
+            
+            const result = validateEmailFormat(val);
+            
+            if (result.valid) {
+                email.classList.remove('input-error');
+                email.classList.add('input-success');
+                emailValidationIcon.innerHTML = '✅';
+                emailValidationIcon.classList.add('show');
+            } else {
+                email.classList.remove('input-success');
+                email.classList.add('input-error');
+                emailValidationIcon.innerHTML = '❌';
+                emailValidationIcon.classList.add('show');
+            }
+        });
+
+        password.addEventListener('input', function() {
+            const val = password.value;
+            strengthContainer.style.display = val.length > 0 ? 'block' : 'none';
+            
+            const checks = {
+                length: val.length >= 8,
+                lower: /[a-z]/.test(val),
+                upper: /[A-Z]/.test(val),
+                digit: /[0-9]/.test(val),
+                special: /[!@#$%^&*()\-_+=]/.test(val)
+            };
+            
+            document.getElementById('req-length').innerHTML = (checks.length ? '✅' : '❌') + ' Tối thiểu 8 ký tự';
+            document.getElementById('req-lower').innerHTML = (checks.lower ? '✅' : '❌') + ' Có chữ thường (a-z)';
+            document.getElementById('req-upper').innerHTML = (checks.upper ? '✅' : '❌') + ' Có chữ in hoa (A-Z)';
+            document.getElementById('req-digit').innerHTML = (checks.digit ? '✅' : '❌') + ' Có chữ số (0-9)';
+            document.getElementById('req-special').innerHTML = (checks.special ? '✅' : '❌') + ' Có ký tự đặc biệt (!@#$%^&*()-_+=)';
+            
+            const passed = Object.values(checks).filter(Boolean).length;
+            
+            const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
+            strengthBars.forEach((bar, i) => {
+                if (i < passed) {
+                    bar.style.background = colors[Math.min(passed - 1, 3)];
+                } else {
+                    bar.style.background = '#334155';
+                }
+            });
+        });
+
+        confirmPassword.addEventListener('input', function() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Mật khẩu không khớp');
+                confirmPassword.classList.add('input-error');
+                confirmPassword.classList.remove('input-success');
+            } else {
+                confirmPassword.setCustomValidity('');
+                confirmPassword.classList.remove('input-error');
+                if (confirmPassword.value.length > 0) {
+                    confirmPassword.classList.add('input-success');
+                }
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            const fullName = (firstName.value.trim() + ' ' + lastName.value.trim()).trim();
+            hiddenName.value = fullName;
+            hiddenUserName.value = username.value.trim();
+            
+            const emailResult = validateEmailFormat(email.value.trim().toLowerCase());
+            if (!emailResult.valid) {
+                e.preventDefault();
+                alert('⚠️ Email không hợp lệ: ' + emailResult.error);
+                email.focus();
+                return false;
+            }
+            
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('⚠️ Mật khẩu xác nhận không khớp!');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+/venv
+Crawl_data_from_image.py
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+db.sqlite3
+media/
+staticfiles/
+
+.env

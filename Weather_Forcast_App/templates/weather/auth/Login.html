@@ -1,0 +1,194 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - VN Weather Hub</title>
+    <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=10099923">
+    <style>
+        .auth-messages {
+            margin-bottom: 20px;
+        }
+        .auth-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            animation: slideInAlert 0.3s ease-out;
+        }
+        @keyframes slideInAlert {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .auth-alert-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.15) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+        .auth-alert-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            color: #86efac;
+        }
+        .auth-alert-warning {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.15) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            color: #fde047;
+        }
+        .auth-alert-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <div class="auth-bg">
+        <div class="auth-particles"></div>
+        <div class="auth-gradient"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card glass-effect">
+            <div class="auth-header">
+                <div class="auth-logo-wrapper">
+                    <div class="auth-logo">
+                        <span class="logo-dot pulse-dot"></span>
+                        <span class="logo-text">VN Weather Hub</span>
+                    </div>
+                </div>
+                <div class="icon-wrapper-large">
+                    <div class="icon-circle-gradient">
+                        <div class="icon-inner">
+                            <svg class="lock-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 21V5L19 2L22 5V21H16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 21V9L5 6L8 9V21H2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="5" cy="13" r="1" fill="currentColor"/>
+                                <circle cx="19" cy="9" r="1" fill="currentColor"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <h1 class="auth-title">Đăng nhập</h1>
+                <p class="auth-subtitle">Chào mừng bạn quay trở lại!</p>
+            </div>
+
+            {% if messages %}
+                <div class="auth-messages">
+                    {% for message in messages %}
+                        <div class="auth-alert auth-alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'weather:login' %}" class="auth-form" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-group animated-input">
+                    <label for="username" class="form-label">
+                        <span class="label-icon">👤</span>
+                        Tên đăng nhập hoặc Email
+                    </label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            class="form-input"
+                            placeholder="Nhập username hoặc email"
+                            required
+                            autofocus
+                        >
+                        <span class="input-border"></span>
+                    </div>
+                </div>
+
+                <div class="form-group animated-input">
+                    <label for="password" class="form-label">
+                        <span class="label-icon">🔒</span>
+                        Mật khẩu
+                    </label>
+                    <div class="input-wrapper">
+                        <input id="password" type="password" name="password" required class="form-input" />
+                        <button type="button" class="toggle-password" data-target="password" aria-label="Hiện/ẩn mật khẩu">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="form-options" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; color: #94a3b8;">
+                        <input type="checkbox" name="remember_me" style="cursor: pointer;">
+                        <span>Ghi nhớ</span>
+                    </label>
+                    <a href="{% url 'weather:forgot_password_otp' %}" class="auth-link" style="font-size: 13px;">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-glow">
+                    <span class="btn-ripple"></span>
+                    <span class="btn-text">Đăng nhập</span>
+                    <span class="btn-icon">→</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <div class="auth-divider-line"></div>
+                <div class="auth-links">
+                    <span style="color: #94a3b8; font-size: 13px;">Chưa có tài khoản?</span>
+                    <a href="{% url 'weather:register' %}" class="auth-link hover-slide">
+                        <span class="link-text">Đăng ký ngay</span>
+                        <span class="link-icon">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-extra">
+            <a href="{% url 'weather:home' %}" class="back-home glass-button">
+                <span class="home-icon">🏠</span>
+                <span class="home-text">Về trang chủ</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="wx-layer wx-clouds" aria-hidden="true"></div>
+    <div class="wx-layer wx-rain" aria-hidden="true"></div>
+    <div class="wx-lightning-subtle" aria-hidden="true"></div>
+    <div class="auth-card electric-border" aria-hidden="true"></div>
+    <div class="profile-card electric-border" aria-hidden="true"></div>
+</body>
+<script>
+  document.querySelectorAll(".toggle-password").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-target");
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.type = (input.type === "password") ? "text" : "password";
+    });
+  });
+</script>
+
+</html>

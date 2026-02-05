@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thu thập dữ liệu Vrain bằng Selenium</title>
+  <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_Vrain_by_Selenium.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body class="page">
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-circle">WF</div>
+        <div class="sidebar__logo-text">
+          <span class="sidebar__logo-title">Dự báo thời tiết</span>
+          <span class="sidebar__logo-sub">Công cụ thu thập dữ liệu Vrain bằng Selenium</span>
+        </div>
+      </div>
+
+      {% include 'weather/Sidebar_nav.html' %}
+
+    </aside>
+
+    <main class="main">
+      <header class="main__header">
+        <div>
+          <h1 class="main__title">
+            THU THẬP DỮ LIỆU VRAIN BẰNG SELENIUM
+          </h1>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2 class="card__title">Điều khiển quá trình thu thập</h2>
+
+        <div class="form__actions">
+          <button id="btnStartCrawl" class="btn btn--primary">
+            🚀 Bắt đầu thu thập ngay
+          </button>
+          <span class="run-pill">
+            <span class="run-pill__spinner" style="display:none" id="spinner"></span>
+            <span>Nhật ký thời gian thực</span>
+          </span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">Kết quả của lần thu thập gần nhất</h2>
+
+        <div class="summary">
+          <div class="summary__item">
+            <span class="summary__label">Tệp đầu ra</span>
+            <span class="summary__value">
+              {% if last_file %}{{ last_file }}{% else %}Chưa có tệp{% endif %}
+            </span>
+          </div>
+
+          <div class="summary__item">
+            <span class="summary__label">Dung lượng</span>
+            <span class="summary__value" id="lastFileSize">
+              {% if last_size_mb %}{{ last_size_mb }} MB{% else %}–{% endif %}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card card--log">
+        <div class="card__header">
+          <h2 class="card__title">Nhật ký</h2>
+          <button type="button" class="btn btn--ghost" onclick="clearLog()">
+            🧹 Xoá nhật ký
+          </button>
+        </div>
+
+        <div id="log-container" class="log">
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    window.__VRAIN_SELENIUM__ = {
+      startUrl: "{% url 'weather:crawl_vrain_selenium_start' %}",
+      logsUrl: "{% url 'weather:crawl_vrain_selenium_tail' %}"
+    };
+  </script>
+  <script src="{% static 'weather/js/JS_Crawl_data_from_Vrain_by_Selenium.js' %}?v=8102s"></script>
+</body>
+<div class="wx-layer wx-clouds" aria-hidden="true"></div>
+<div class="wx-layer wind-layer" aria-hidden="true"></div>
+<div class="wx-layer wx-rain" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
+<div class="wx-layer wx-lightning" aria-hidden="true"></div>
+
+</html>

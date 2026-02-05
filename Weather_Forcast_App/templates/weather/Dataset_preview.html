@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem: {{ filename }}</title>
+    <link rel="stylesheet" href="{% static 'weather/css/Dataset_preview.css' %}?v=9991199987778899888887988878907_01">
+    
+    {% if file_type == 'json' %}
+    <script>
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const jsonContent = document.getElementById('jsonContent');
+            if (jsonContent) {
+                try {
+                    const jsonObj = JSON.parse(jsonContent.textContent);
+                    jsonContent.innerHTML = syntaxHighlight(jsonObj);
+                } catch (e) {
+                    console.log('Not a valid JSON file');
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</head>
+<body>
+    <div class="weather-fx" aria-hidden="true">
+        <div class="fx fx-wind"></div>
+        <div class="fx fx-clouds"></div>
+        <div class="fx fx-rain"></div>
+        <div class="fx fx-lightning"></div>
+    </div>
+
+    <div class="container">
+        <div class="file-header">
+            <div class="file-title">
+                <span class="file-icon">📄</span>
+                <h1 class="title-text">{{ filename }}</h1>
+                <span class="file-type type-{{ file_type }}">{{ file_type|upper }}</span>
+            </div>
+
+            <div class="file-actions">
+                <a href="{{ referer_url }}" class="back-btn">📋 QUAY LẠI</a>
+            </div>
+        </div>
+
+        
+        <div class="file-info">
+            <strong>📁 Thư mục:</strong> {{ folder }}<br>
+            <strong>📏 Kích thước:</strong> {{ file_size_kb|floatformat:2 }} KB<br>
+            {% if is_table %}
+                <strong>📊 Tổng số dòng:</strong> <span id="totalRows">{{ total_rows }}</span><br>
+                <strong>👁️ Đang hiển thị:</strong> <span id="showingRows">{{ showing_rows }}</span> dòng đầu
+            {% endif %}
+        </div>
+        
+        {% if is_table %}
+            <div class="table-container" id="tableContainer">
+                {{ html_table|safe }}
+            </div>
+            
+            <div class="loading" id="loading">
+                ⏳ Đang tải thêm dữ liệu...
+            </div>
+            
+            <div class="load-more" id="loadMoreContainer">
+                <button class="btn" id="loadMoreBtn" onclick="loadMoreData()">
+                    ⬇️ Tải thêm dữ liệu
+                </button>
+            </div>
+            
+            <div class="pagination" id="pagination">
+            </div>
+        {% else %}
+            <div class="text-container">
+                {% if file_type == 'json' %}
+                    <pre id="jsonContent">{{ content }}</pre>
+                {% else %}
+                    <pre>{{ content }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <div class="action-buttons">
+            <a href="{{ referer_url }}" class="back-btn">📋 Quay lại danh sách</a>
+            <a href="{{ download_url }}" class="back-btn" style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white;">
+                ⬇️ Tải toàn bộ file
+            </a>
+        </div>
+    </div>
+    
+    {% if is_table %}
+    <script>
+        let currentPage = 1;
+        const rowsPerPage = {{ rows_per_page }};
+        let totalRows = {{ total_rows }};
+        let totalPages = Math.ceil(totalRows / rowsPerPage);
+        
+        function createPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+            
+            if (currentPage > 1) {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn';
+                btn.innerHTML = '⏮️ Đầu';
+                btn.onclick = () => loadPage(1);
+                pagination.appendChild(btn);
+            }
+            
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+                btn.innerHTML = i;
+                btn.onclick = () => loadPage(i);
+                pagination.appendChild(btn);
+            }
+            
+            if (currentPage < totalPages) {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn';
+                btn.innerHTML = '⏭️ Cuối';
+                btn.onclick = () => loadPage(totalPages);
+                pagination.appendChild(btn);
+            }
+        }
+        
+        async function loadMoreData() {
+            currentPage++;
+            await loadPage(currentPage);
+        }
+        
+        async function loadPage(page) {
+            const loading = document.getElementById('loading');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const tableContainer = document.getElementById('tableContainer');
+            
+            loading.style.display = 'block';
+            loadMoreBtn.disabled = true;
+            
+            try {
+                const response = await fetch(`?page=${page}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.data.length > 0) {
+                    let tableHtml = '<table class="table table-striped table-bordered"><thead><tr>';
+                    
+                    const firstRow = data.data[0];
+                    for (const key in firstRow) {
+                        tableHtml += `<th>${key}</th>`;
+                    }
+                    tableHtml += '</tr></thead><tbody>';
+                    
+                    data.data.forEach(row => {
+                        tableHtml += '<tr>';
+                        for (const key in row) {
+                            tableHtml += `<td>${row[key]}</td>`;
+                        }
+                        tableHtml += '</tr>';
+                    });
+                    
+                    tableHtml += '</tbody></table>';
+                    
+                    if (page === 1) {
+                        tableContainer.innerHTML = tableHtml;
+                    } else {
+                        const currentTable = tableContainer.querySelector('table');
+                        if (currentTable) {
+                            const tbody = currentTable.querySelector('tbody');
+                            const newRows = new DOMParser().parseFromString(tableHtml, 'text/html')
+                                .querySelector('tbody').innerHTML;
+                            tbody.innerHTML += newRows;
+                        }
+                    }
+                    
+                    document.getElementById('showingRows').textContent = 
+                        Math.min(page * rowsPerPage, totalRows);
+                    currentPage = page;
+                    
+                    if (page * rowsPerPage >= totalRows) {
+                        document.getElementById('loadMoreContainer').style.display = 'none';
+                    }
+                }
+                
+                createPagination();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Lỗi khi tải dữ liệu: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                loadMoreBtn.disabled = false;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            createPagination();
+            
+            if (rowsPerPage >= totalRows) {
+                document.getElementById('loadMoreContainer').style.display = 'none';
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+<script>
+(function(){
+  const layer = document.querySelector('.fx-lightning');
+  if (!layer) return;
+
+  function flashOnce(){
+    layer.classList.add('flash');
+    setTimeout(() => layer.classList.remove('flash'), 200);
+  }
+
+  function loop(){
+    const next = 2500 + Math.random() * 7000;
+    setTimeout(() => {
+      flashOnce();
+      if (Math.random() < 0.25) setTimeout(flashOnce, 180);
+      loop();
+    }, next);
+  }
+  setTimeout(loop, 1500 + Math.random() * 1500);
+})();
+</script>
+
+</html>

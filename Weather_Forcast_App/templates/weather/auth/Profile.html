@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thông tin cá nhân - VN Weather Hub</title>
+  <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v={{ now|date:'U' }}">
+</head>
+
+<body class="auth-page profile-page">
+  
+  <!-- Background Effects -->
+  <div class="auth-bg">
+    <div class="auth-particles"></div>
+    <div class="auth-gradient"></div>
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+
+  <div class="auth-container">
+    <div class="auth-card profile-card">
+      
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <span class="avatar-text">{{ user.username|slice:":1"|upper }}</span>
+        </div>
+        <h2 class="profile-name">{{ user.get_full_name|default:user.username }}</h2>
+        <p class="profile-username">@{{ user.username }}</p>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="profile-info">
+        <div class="info-item">
+          <span class="info-icon">👤</span>
+          <div class="info-content">
+            <span class="info-label">Tên đăng nhập</span>
+            <span class="info-value">{{ user.username }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">📧</span>
+          <div class="info-content">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ user.email|default:"Chưa cập nhật" }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">📝</span>
+          <div class="info-content">
+            <span class="info-label">Họ tên</span>
+            <span class="info-value">{{ user.get_full_name|default:"Chưa cập nhật" }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">📅</span>
+          <div class="info-content">
+            <span class="info-label">Ngày tham gia</span>
+            <span class="info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">🕐</span>
+          <div class="info-content">
+            <span class="info-label">Đăng nhập lần cuối</span>
+            <span class="info-value">{{ user.last_login|date:"d/m/Y H:i"|default:"Chưa có thông tin" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Actions -->
+      <div class="profile-actions">
+        <a href="{% url 'weather:home' %}" class="btn-action btn-primary">
+          <span class="btn-icon">🏠</span>
+          <span class="btn-text">Về trang chủ</span>
+        </a>
+        <a href="{% url 'weather:logout' %}" class="btn-action btn-danger">
+          <span class="btn-icon">🚪</span>
+          <span class="btn-text">Đăng xuất</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
