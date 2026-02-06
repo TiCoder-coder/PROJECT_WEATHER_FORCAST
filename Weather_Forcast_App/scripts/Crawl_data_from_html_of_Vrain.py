@@ -1,3 +1,68 @@
+"""
+CRAWL_DATA_FROM_HTML_OF_VRAIN.PY
+================================
+
+Script crawl dữ liệu thời tiết từ VRAIN.VN bằng HTML parsing (Selenium + Regex)
+
+Mục đích:
+    - Lấy dữ liệu lượng mưa, tên trạm từ các trang tỉnh VRAIN
+    - Sử dụng Selenium để load dynamic content (JavaScript render)
+    - Dùng Regex để parse HTML và trích xuất thông tin
+    - Xuất dữ liệu trực tiếp sang CSV
+
+Đặc điểm:
+    - Crawl tuần tự (1 tỉnh / 1 tab) để tránh quá tải server
+    - Parse HTML bằng Regex (nhanh hơn BeautifulSoup nhưng khó maintain hơn)
+    - Xử lý các biến thể tên tỉnh, trạm (normalize Unicode)
+    - Tự động lấy ngày/giờ cập nhật từ trang chủ
+    - Xuất CSV với encoding UTF-8 BOM (compatible Excel)
+
+Cách sử dụng:
+    python Crawl_data_from_html_of_Vrain.py
+    
+    # Sẽ crawl tất cả 64 tỉnh và xuất sang CSV
+
+Dữ liệu được lưu:
+    - CSV: output/Bao_cao_YYYYMMDD_HHMMSS.csv
+    - Columns:
+      - Tỉnh/Thành phố
+      - Tên trạm
+      - Huyện
+      - Tổng lượng mưa
+      - Tình trạng
+      - Dấu thời gian
+      - Thời gian cập nhập
+
+Luồng chạy:
+    1. Truy cập trang chủ VRAIN để lấy ngày/giờ cập nhật
+    2. Duyệt 34 URL tỉnh thành (hardcode)
+    3. Với mỗi tỉnh:
+       - Load trang bằng Selenium
+       - Wait cho content load (max 15s)
+       - Parse HTML bằng Regex để trích tên tỉnh, trạm, lượng mưa
+       - Ghi dòng vào CSV
+    4. Đóng browser khi xong
+
+Biến cấu hình (hardcode trong code):
+    - province_urls: danh sách 34 URL tỉnh (cần update khi VRAIN thay đổi)
+    - OUTPUT_DIR: thư mục xuất CSV
+
+Dependencies:
+    - selenium: điều khiển Chrome headless
+    - re (regex): parse HTML
+    - csv: xuất CSV
+    - datetime: thêm timestamp
+
+Lưu ý:
+    - Crawl tuần tự => chậm (2-3 phút)
+    - Nếu muốn nhanh hơn => dùng Crawl_data_from_Vrain_by_Selenium.py (đa luồng)
+    - Cần thư mục output/ có sẵn
+
+Author: Weather Forecast Team
+Version: 1.0
+Last Updated: 2026-02-06
+"""
+
 import re
 import csv
 import time

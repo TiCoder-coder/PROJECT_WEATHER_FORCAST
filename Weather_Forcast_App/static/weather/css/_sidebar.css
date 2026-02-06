@@ -1,0 +1,221 @@
+/* ========== SIDEBAR LAYOUT ========== */
+
+.sidebar {
+  background: linear-gradient(180deg, rgba(2,6,23,0.96), rgba(11,17,32,0.92));
+  border-right: 1px solid rgba(148,163,184,0.22);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar__logo-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #0b1120;
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.7);
+}
+
+.sidebar__logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__logo-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.sidebar__logo-sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.sidebar__nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: rgba(229,231,235,0.92);
+  font-size: 14px;
+  font-weight: 650;
+  background: rgba(2,6,23,0.25);
+  border: 1px solid rgba(148,163,184,0.14);
+  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+
+.sidebar__nav-item:hover {
+  transform: translateY(-1px);
+  background: rgba(148,163,184,0.10);
+  border-color: rgba(56,189,248,0.32);
+  box-shadow: 0 10px 26px rgba(2,6,23,0.55);
+}
+
+.sidebar__nav-item:active {
+  transform: translateY(0);
+}
+
+.sidebar__nav-item--active {
+  background: radial-gradient(circle at 25% 25%, rgba(56,189,248,0.22), rgba(34,197,94,0.16) 45%, rgba(2,6,23,0.55) 76%);
+  border-color: rgba(34,197,94,0.42);
+  box-shadow: 0 0 0 1px rgba(34,197,94,0.14) inset,
+              0 16px 40px rgba(2,6,23,0.65),
+              0 0 22px rgba(34,197,94,0.16);
+}
+
+.sidebar__nav-item--active .nav-ico {
+  background: linear-gradient(135deg, rgba(56,189,248,0.30), rgba(34,197,94,0.22));
+  border-color: rgba(34,197,94,0.45);
+}
+
+.sidebar__nav-item--active::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8, #22c55e);
+  box-shadow: 0 0 18px rgba(34,197,94,0.35);
+}
+
+.nav-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(56,189,248,0.12);
+  border: 1px solid rgba(56,189,248,0.20);
+  box-shadow: 0 0 0 1px rgba(2,6,23,0.20) inset;
+  flex: 0 0 auto;
+  font-size: 16px;
+}
+
+.nav-content {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nav-text {
+  font-size: 13.5px;
+  font-weight: 750;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-sub {
+  font-size: 11px;
+  font-weight: 550;
+  color: rgba(156,163,175,0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__footer {
+  margin-top: auto;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.sidebar__hint {
+  line-height: 1.4;
+}
+
+/* ========== SIDEBAR LAYOUT ========== */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.main {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.main__title {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.main__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.main__subtitle code {
+  background: rgba(15, 23, 42, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.main__status-card {
+  background: radial-gradient(circle at top right, #0ea5e9, #0f172a);
+  border-radius: 14px;
+  padding: 10px 14px;
+  min-width: 320px;
+  box-shadow: 0 12px 30px rgba(15, 118, 110, 0.4);
+  font-size: 13px;
+}
+
+.status-label {
+  display: block;
+  color: #cbd5f5;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.status-value {
+  display: block;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.status-time {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #e5e7eb;
+}

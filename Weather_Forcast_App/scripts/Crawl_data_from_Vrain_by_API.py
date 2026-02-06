@@ -1,3 +1,50 @@
+"""
+CRAWL_DATA_FROM_VRAIN_BY_API.PY
+================================
+
+Script crawl dữ liệu thời tiết từ VRAIN.VN qua REST API
+
+Mục đích:
+    - Lấy dữ liệu lượng mưa, nhiệt độ, độ ẩm, v.v. từ các trạm đo VRAIN
+    - Lưu vào database SQLite + xuất file Excel/CSV cho phân tích
+    - Cấu trúc dữ liệu chuẩn hoá để training ML models
+
+Đặc điểm:
+    - Lấy dữ liệu trực tiếp từ API VRAIN (tin cậy, ổn định)
+    - Hỗ trợ đa luồng (threading) để crawl nhanh hơn
+    - Tự động tạo bảng SQLite nếu chưa tồn tại
+    - Xuất dữ liệu sang Excel với styling (font, màu, border)
+    - Lưu log chi tiết để debugging
+
+Cách sử dụng:
+    python Crawl_data_from_Vrain_by_API.py
+    
+    # Hoặc từ Django view:
+    python manage.py runscript commands.crawl_vrain_api
+
+Dữ liệu được lưu:
+    - SQLite: vietnam_weather.db (bảng provinces, stations, weather_data, ...)
+    - Excel: output/*.xlsx với format đẹp
+    - CSV: output/*.csv (raw data)
+
+Biến cấu hình:
+    - BASE_DIR: thư mục script
+    - OUTPUT_DIR: thư mục xuất file (output/)
+    - DATABASE_PATH: đường dẫn SQLite database
+
+Dependencies:
+    - requests: gọi API
+    - pandas: xử lý dữ liệu
+    - openpyxl: xuất Excel
+    - sqlite3: lưu database (built-in Python)
+    - threading, concurrent.futures: đa luồng
+    - beautifulsoup4: parse HTML (nếu cần)
+
+Author: Weather Forecast Team
+Version: 1.0
+Last Updated: 2026-02-06
+"""
+
 import requests
 import pandas as pd
 import time
@@ -25,8 +72,6 @@ logging.basicConfig(
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
-
-class SQLiteManager:
     """Quản lý kết nối và thao tác với SQLite database"""
 
     def __init__(self, db_path="/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/vietnam_weather.db"):

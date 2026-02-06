@@ -1,3 +1,55 @@
+"""
+CRAWL_DATA_FROM_VRAIN_BY_SELENIUM.PY
+====================================
+
+Script crawl dữ liệu thời tiết từ VRAIN.VN bằng Selenium (trình duyệt tự động)
+
+Mục đích:
+    - Lấy dữ liệu từ các trạm đo VRAIN qua giao diện web
+    - Sử dụng Selenium để điều khiển Chrome headless (tự động nhấp chuột, scroll, v.v.)
+    - Phù hợp khi API không sẵn hoặc cấu trúc HTML phức tạp
+
+Đặc điểm:
+    - Sử dụng Selenium + Chrome headless (không cần giao diện đồ họa)
+    - Đa luồng (ThreadPoolExecutor) để crawl 64 tỉnh song song
+    - Xử lý timeout, lỗi kết nối, retry tự động
+    - Chuẩn hóa dữ liệu Tiếng Việt (Unicode normalization)
+    - Xuất Excel với định dạng đẹp
+
+Cách sử dụng:
+    python Crawl_data_from_Vrain_by_Selenium.py
+    
+    # Hoặc từ Django view:
+    crawler = VrainCrawlerFinal(headless=True, max_workers=5)
+    crawler.run()
+
+Dữ liệu được lưu:
+    - Excel: output/Bao_cao_YYYYMMDD_HHMMSS.xlsx
+    - Ghi log chi tiết vào console + file
+
+Biến cấu hình:
+    - headless: True = chạy trong background, False = hiển thị browser
+    - max_workers: số luồng (5-10 hợp lý, tránh quá tải server VRAIN)
+    - max_retries: số lần retry nếu kết nối thất bại
+
+Lưu ý:
+    - Cần cài ChromeDriver phù hợp với phiên bản Chrome hiện tại
+    - Cần thư mục output/ có sẵn
+    - Selenium chậm hơn API/requests nhưng linh hoạt hơn
+
+Dependencies:
+    - selenium: điều khiển trình duyệt
+    - pandas: xử lý dữ liệu
+    - openpyxl: xuất Excel
+    - beautifulsoup4: parse HTML
+    - threading: đa luồng
+    - unicodedata: xử lý Tiếng Việt
+
+Author: Weather Forecast Team
+Version: 1.0
+Last Updated: 2026-02-06
+"""
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
