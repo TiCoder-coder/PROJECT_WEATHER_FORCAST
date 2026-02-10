@@ -1,0 +1,40 @@
+{
+  "data": {
+    "folder_key": "cleaned_merge",
+    "filename": "PUT_YOUR_CLEANED_FILE_NAME_HERE.csv"
+  },
+
+  "target_column": "Tổng lượng mưa",
+
+  "group_by": null,
+
+  "split": {
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "sort_by_time": true,
+    "time_col": "Thời gian"
+  },
+
+  "features": {
+    "lags": [1, 2, 3],
+    "rolling_windows": [3, 7]
+  },
+
+  "transform": {
+    "use_scaler": true
+  },
+
+  "model": {
+    "type": "xgboost",
+    "params": {
+      "task_type": "regression",
+      "random_state": 42,
+      "use_gpu": false
+    }
+  },
+
+  "artifacts": {
+    "root_dir": "Weather_Forcast_App/Machine_learning_artifacts/latest"
+  }
+}
