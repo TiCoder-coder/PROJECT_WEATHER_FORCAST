@@ -47,7 +47,6 @@ try:
     CATBOOST_AVAILABLE = True
 except ImportError:
     CATBOOST_AVAILABLE = False
-    print("⚠️ CatBoost not installed. Run: pip install catboost")
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import (
@@ -58,23 +57,14 @@ from sklearn.metrics import (
 from sklearn.preprocessing import LabelEncoder
 
 # Setup logging
+from Weather_Forcast_App.Machine_learning_model.Models import (
+    TaskType,
+    ModelStatus,
+    TrainingResult,
+    PredictionResult,
+)
+
 logger = logging.getLogger(__name__)
-
-
-# ============================= ENUMS & CONSTANTS =============================
-
-class TaskType(Enum):
-    """Loại bài toán ML."""
-    CLASSIFICATION = 'classification'
-    REGRESSION = 'regression'
-    RANKING = 'ranking'
-
-
-class ModelStatus(Enum):
-    """Trạng thái của model."""
-    UNTRAINED = 'untrained'
-    TRAINED = 'trained'
-    FAILED = 'failed'
 
 
 class LossFunction(Enum):
@@ -108,56 +98,6 @@ DEFAULT_PARAMS = {
 
 # Model save directory
 MODEL_DIR = Path(__file__).parent.parent / 'ml_models'
-
-
-# ============================= DATA CLASSES =============================
-
-@dataclass
-class TrainingResult:
-    """
-    Kết quả huấn luyện model.
-    
-    Attributes:
-        success: Huấn luyện thành công
-        metrics: Dict các metrics
-        training_time: Thời gian huấn luyện (seconds)
-        best_iteration: Iteration tốt nhất (với early stopping)
-        n_samples: Số samples
-        n_features: Số features
-        feature_names: Tên features
-        feature_importances: Độ quan trọng features
-        message: Thông báo
-    """
-    success: bool
-    metrics: Dict[str, float] = field(default_factory=dict)
-    training_time: float = 0.0
-    best_iteration: Optional[int] = None
-    n_samples: int = 0
-    n_features: int = 0
-    feature_names: List[str] = field(default_factory=list)
-    feature_importances: Dict[str, float] = field(default_factory=dict)
-    message: str = ''
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class PredictionResult:
-    """
-    Kết quả dự đoán.
-    
-    Attributes:
-        predictions: Array dự đoán
-        probabilities: Xác suất (classification)
-        prediction_time: Thời gian dự đoán
-    """
-    predictions: np.ndarray
-    probabilities: Optional[np.ndarray] = None
-    prediction_time: float = 0.0
-    
-    def to_list(self) -> List[Any]:
-        return self.predictions.tolist()
 
 
 @dataclass 
@@ -296,7 +236,6 @@ class WeatherCatBoost:
         elif self.task_type == TaskType.REGRESSION:
             self.model = CatBoostRegressor(**self.params)
         else:
-            # Ranking sử dụng CatBoostRanker (cần import riêng)
             self.model = CatBoostRegressor(**self.params)
     
     # ============================= TRAINING METHODS =============================

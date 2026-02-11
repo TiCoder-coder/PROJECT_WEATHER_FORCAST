@@ -17,9 +17,7 @@ from __future__ import annotations
 import joblib
 import logging
 import time
-from dataclasses import dataclass, field, asdict
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -64,26 +62,14 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import LabelEncoder
 
+from Weather_Forcast_App.Machine_learning_model.Models import (
+    TaskType,
+    ModelStatus,
+    TrainingResult,
+    PredictionResult,
+)
+
 logger = logging.getLogger(__name__)
-
-
-# ============================= ENUMS & CONSTANTS =============================
-# Enum dùng để tránh “magic string” (nhập sai chữ) và làm code rõ nghĩa hơn.
-
-class TaskType(Enum):
-    # CLASSIFICATION: dự đoán nhãn (ví dụ: Sunny/Cloudy/Rainy)
-    CLASSIFICATION = "classification"
-    # REGRESSION: dự đoán số (ví dụ: lượng mưa mm, nhiệt độ, ...)
-    REGRESSION = "regression"
-
-
-class ModelStatus(Enum):
-    # UNTRAINED: chưa train, chưa load
-    UNTRAINED = "untrained"
-    # TRAINED: đã train thành công hoặc load thành công
-    TRAINED = "trained"
-    # FAILED: train bị lỗi
-    FAILED = "failed"
 
 
 # =============================================================================
@@ -130,48 +116,6 @@ DEFAULT_XGB_PARAMS: Dict[str, Any] = {
 # - parent.parent đi lên 2 cấp thư mục
 # =============================================================================
 MODEL_DIR = Path(__file__).parent.parent / "ml_models"
-
-
-# ============================= DATA CLASSES =============================
-# Dataclass để gom kết quả (train / predict) thành object có cấu trúc rõ ràng.
-
-@dataclass
-class TrainingResult:
-    # success: train thành công hay không
-    success: bool
-    # metrics: dict chứa chỉ số đánh giá (rmse/mae/r2... hoặc accuracy/f1...)
-    metrics: Dict[str, Any] = field(default_factory=dict)
-    # training_time: thời gian train (giây)
-    training_time: float = 0.0
-    # n_samples: số mẫu dùng để train (thường là X_train rows)
-    n_samples: int = 0
-    # n_features: số feature sau khi FE (datetime + onehot)
-    n_features: int = 0
-    # feature_names: tên cột sau khi chuẩn hoá (đã one-hot, đã tách datetime)
-    feature_names: List[str] = field(default_factory=list)
-    # feature_importances: độ quan trọng feature (xgb feature_importances_)
-    feature_importances: Dict[str, float] = field(default_factory=dict)
-    # best_iteration: vòng tốt nhất (nếu early stopping có hiệu lực)
-    best_iteration: Optional[int] = None
-    # message: thông báo (success/fail)
-    message: str = ""
-
-    # to_dict: convert sang dict để dễ json/serialize/log
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class PredictionResult:
-    # predictions: kết quả dự đoán
-    predictions: np.ndarray
-    # probabilities: chỉ dùng cho classification nếu return_proba=True
-    probabilities: Optional[np.ndarray] = None
-    # prediction_time: thời gian dự đoán (giây)
-    prediction_time: float = 0.0
-
-    def to_list(self) -> List[Any]:
-        return self.predictions.tolist()
 
 
 # ============================= MAIN CLASS =============================

@@ -35,8 +35,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Union, Tuple
-from dataclasses import dataclass, field, asdict
-from enum import Enum
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
@@ -49,24 +48,16 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
+# Import shared types
+from Weather_Forcast_App.Machine_learning_model.Models import (
+    TaskType, ModelStatus, TrainingResult, PredictionResult,
+)
+
 # Setup logging
 logger = logging.getLogger(__name__)
 
 
-# ============================= ENUMS & CONSTANTS =============================
-
-class TaskType(Enum):
-    """Loại bài toán ML."""
-    CLASSIFICATION = 'classification'
-    REGRESSION = 'regression'
-
-
-class ModelStatus(Enum):
-    """Trạng thái của model."""
-    UNTRAINED = 'untrained'
-    TRAINED = 'trained'
-    FAILED = 'failed'
-
+# ============================= CONSTANTS =============================
 
 # Default hyperparameters
 DEFAULT_PARAMS = {
@@ -84,53 +75,7 @@ DEFAULT_PARAMS = {
 MODEL_DIR = Path(__file__).parent.parent / 'ml_models'
 
 
-# ============================= DATA CLASSES =============================
-
-@dataclass
-class TrainingResult:
-    """
-    Kết quả huấn luyện model.
-    
-    Attributes:
-        success: Huấn luyện thành công hay không
-        metrics: Dict các metrics đánh giá
-        training_time: Thời gian huấn luyện (seconds)
-        n_samples: Số samples training
-        n_features: Số features
-        feature_names: Tên các features
-        feature_importances: Độ quan trọng của features
-        message: Thông báo
-    """
-    success: bool
-    metrics: Dict[str, float] = field(default_factory=dict)
-    training_time: float = 0.0
-    n_samples: int = 0
-    n_features: int = 0
-    feature_names: List[str] = field(default_factory=list)
-    feature_importances: Dict[str, float] = field(default_factory=dict)
-    message: str = ''
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class PredictionResult:
-    """
-    Kết quả dự đoán.
-    
-    Attributes:
-        predictions: Array các dự đoán
-        probabilities: Xác suất (cho classification)
-        prediction_time: Thời gian dự đoán (seconds)
-    """
-    predictions: np.ndarray
-    probabilities: Optional[np.ndarray] = None
-    prediction_time: float = 0.0
-    
-    def to_list(self) -> List[Any]:
-        return self.predictions.tolist()
-
+# ============================= MODEL-SPECIFIC DATA CLASSES =============================
 
 @dataclass
 class ModelConfig:

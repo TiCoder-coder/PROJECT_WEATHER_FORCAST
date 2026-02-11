@@ -30,13 +30,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
+import importlib
+import joblib
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
-from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -60,18 +60,27 @@ if str(project_root) not in sys.path:
 # (2) IMPORT CÁC MODULE BẠN ĐÃ CÓ
 # ======================================================================================
 from Weather_Forcast_App.Machine_learning_model.data.Loader import DataLoader
-from Weather_Forcast_App.Machine_learning_model.data.Schema import validate_weather_dataframe, WeatherDataSchema
+from Weather_Forcast_App.Machine_learning_model.data.Schema import validate_weather_dataframe
 from Weather_Forcast_App.Machine_learning_model.data.Split import SplitConfig, split_dataframe
 
 from Weather_Forcast_App.Machine_learning_model.features.Build_transfer import WeatherFeatureBuilder
 from Weather_Forcast_App.Machine_learning_model.features.Transformers import WeatherTransformPipeline
 
-# Model wrappers (bạn nói đã code rồi)
-# LƯU Ý: tên class phải khớp file bạn đang dùng trong project
-from Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model import WeatherRandomForest
-from Weather_Forcast_App.Machine_learning_model.Models.XGBoost_Model import WeatherXGBoost
-from Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model import WeatherLightGBM
-from Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model import WeatherCatBoost
+# Evaluation metrics - sử dụng module đã có thay vì import trực tiếp từ sklearn
+from Weather_Forcast_App.Machine_learning_model.evaluation.metrics import calculate_all_metrics
+
+# Model wrappers - sử dụng dict để giảm code
+MODEL_REGISTRY = {
+    "rf": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
+    "random_forest": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
+    "randomforest": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
+    "xgb": "Weather_Forcast_App.Machine_learning_model.Models.XGBoost_Model.WeatherXGBoost",
+    "xgboost": "Weather_Forcast_App.Machine_learning_model.Models.XGBoost_Model.WeatherXGBoost",
+    "lgbm": "Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model.WeatherLightGBM",
+    "lightgbm": "Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model.WeatherLightGBM",
+    "cat": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
+    "catboost": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
+}
 
 
 # ======================================================================================
@@ -210,28 +219,24 @@ def _build_features_for_split(
 
 
 # ======================================================================================
-# (7) MODEL FACTORY
+# (7) MODEL FACTORY - Đơn giản hóa bằng dynamic import
 # ======================================================================================
 def _create_model(model_type: str, model_config: Dict[str, Any]):
     """
     Tạo instance model wrapper theo config.
-    model_type: random_forest | xgboost | lightgbm | catboost
+    Sử dụng dynamic import để giảm số dòng code.
     """
     model_type = (model_type or "").lower().strip()
-
-    if model_type in ["rf", "random_forest", "randomforest"]:
-        return WeatherRandomForest(**model_config)
-
-    if model_type in ["xgb", "xgboost"]:
-        return WeatherXGBoost(**model_config)
-
-    if model_type in ["lgbm", "lightgbm"]:
-        return WeatherLightGBM(**model_config)
-
-    if model_type in ["cat", "catboost"]:
-        return WeatherCatBoost(**model_config)
-
-    raise ValueError(f"Unsupported model_type='{model_type}'. Use: random_forest/xgboost/lightgbm/catboost")
+    
+    if model_type not in MODEL_REGISTRY:
+        raise ValueError(f"Unsupported model_type='{model_type}'. Use: {list(set(MODEL_REGISTRY.keys()))}")
+    
+    # Dynamic import (importlib already imported at top-level)
+    module_path, class_name = MODEL_REGISTRY[model_type].rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    model_class = getattr(module, class_name)
+    
+    return model_class(**model_config)
 
 
 # ======================================================================================
@@ -247,8 +252,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     # Root: .../Weather_Forcast_App/Machine_learning_model/trainning/train.py
     ml_model_root = THIS_FILE.parents[1]  # Machine_learning_model
-    app_root = Path(__file__).resolve()   # Weather_Forcast_App
-    app_root = app_root.parents[3]
+    app_root = THIS_FILE.parents[2]       # Weather_Forcast_App
 
     dataset_after_split_root = ml_model_root / "Dataset_after_split"
     dataset_after_split_merge = dataset_after_split_root / "Dataset_merge"
@@ -273,8 +277,6 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     # (2) Load data (Loader.py)
     # --------------------------
-    loader = DataLoader(base_path=str(ml_model_root))
-
     folder_key = data_cfg.get("folder_key")
     filename = data_cfg.get("filename")
 
@@ -299,15 +301,17 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     # (4) Split train/valid/test (Split.py) + save to Dataset_after_split/...
     # --------------------------
+    # Chuyển đổi config sang format của SplitConfig (Split.py)
+    test_ratio = float(split_cfg.get("test_size", split_cfg.get("test_ratio", 0.1)))
+    val_ratio = float(split_cfg.get("valid_size", split_cfg.get("val_ratio", 0.1)))
+    train_ratio = 1.0 - test_ratio - val_ratio
+    
     split_config = SplitConfig(
-        test_size=float(split_cfg.get("test_size", 0.1)),
-        valid_size=float(split_cfg.get("valid_size", 0.1)),
-        random_state=int(split_cfg.get("random_state", 42)),
-        shuffle=bool(split_cfg.get("shuffle", True)),
-        stratify_col=split_cfg.get("stratify_col"),  # thường để None (vì regression)
-        time_col=split_cfg.get("time_col"),          # nếu time-series: set cột thời gian
-        sort_by_time=bool(split_cfg.get("sort_by_time", False)),
-        group_col=split_cfg.get("group_col"),        # nếu split theo trạm
+        train_ratio=train_ratio,
+        val_ratio=val_ratio,
+        test_ratio=test_ratio,
+        shuffle=bool(split_cfg.get("shuffle", False)),
+        sort_by_time_if_possible=bool(split_cfg.get("sort_by_time", True)),
     )
 
     df_train, df_valid_split, df_test = split_dataframe(df_valid, split_config)
@@ -391,24 +395,23 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
 
     # --------------------------
-    # (8) Evaluate metrics
+    # (8) Evaluate metrics - Sử dụng module metrics.py
     # --------------------------
     metrics: Dict[str, Any] = {"generated_at": _now_tag(), "model_type": model_type}
 
-    # Ưu tiên wrapper.evaluate() nếu có
-    if hasattr(model, "evaluate"):
-        metrics["train"] = model.evaluate(X_train, y_train)
-        metrics["valid"] = model.evaluate(X_valid_t, y_valid)
-        metrics["test"] = model.evaluate(X_test_t, y_test)
-    else:
-        # fallback tự tính (nếu wrapper không có)
-        from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-        y_pred = model.predict(X_test_t)
-        metrics["test"] = {
-            "mae": float(mean_absolute_error(y_test, y_pred)),
-            "rmse": float(np.sqrt(mean_squared_error(y_test, y_pred))),
-            "r2": float(r2_score(y_test, y_pred)),
-        }
+    def _evaluate_set(X, y):
+        """Helper để evaluate một dataset."""
+        if hasattr(model, "evaluate"):
+            return model.evaluate(X, y)
+        # Fallback: sử dụng metrics.py
+        y_pred = model.predict(X)
+        if hasattr(y_pred, "predictions"):  # Handle PredictionResult dataclass
+            y_pred = y_pred.predictions
+        return calculate_all_metrics(np.array(y), np.array(y_pred), n_features=X.shape[1])
+
+    metrics["train"] = _evaluate_set(X_train, y_train)
+    metrics["valid"] = _evaluate_set(X_valid_t, y_valid)
+    metrics["test"] = _evaluate_set(X_test_t, y_test)
 
     metrics_path = artifacts_latest / "Metrics.json"
     _save_json(metrics_path, metrics)
@@ -420,8 +423,6 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     if hasattr(model, "save"):
         model.save(model_path)
     else:
-        # fallback joblib dump
-        import joblib
         joblib.dump(model, model_path)
 
     # --------------------------

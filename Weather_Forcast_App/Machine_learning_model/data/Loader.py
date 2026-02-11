@@ -58,7 +58,7 @@ SUPPORTED_EXTENSIONS: Tuple[str, ...] = ('.csv', '.xlsx', '.xls', '.json', '.txt
 
 # Default pagination
 DEFAULT_PAGE_SIZE = 10
-MAX_PAGE_SIZE = 100000000000000
+MAX_PAGE_SIZE = 1_000_000  # 1 triệu dòng tối đa mỗi trang (đủ lớn cho load_all)
 
 
 # ============================= ENUMS =============================
@@ -478,7 +478,7 @@ class DataLoader:
         Returns:
             LoadResult với toàn bộ dữ liệu
         """
-        return self.load_file(folder_key, filename, page=1, per_page=MAX_PAGE_SIZE * 10, columns=columns)
+        return self.load_file(folder_key, filename, page=1, per_page=MAX_PAGE_SIZE, columns=columns)
     
     def get_preview(
         self,

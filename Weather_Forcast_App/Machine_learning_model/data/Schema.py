@@ -22,10 +22,15 @@ Cách sử dụng:
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Optional, List, Dict, Any
+
+import pandas as pd
 from pydantic import BaseModel, Field, validator
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 
 # ============================= ENUMS =============================
@@ -175,17 +180,30 @@ class WeatherDataSchema(BaseModel):
     @classmethod
     def from_flat_dict(cls, data: Dict[str, Any]) -> WeatherDataSchema:
         """Tạo instance từ dict phẳng."""
+        # Không mutate dict gốc
+        data = dict(data)
+
         # Extract location fields
         location_fields = ['ma_tram', 'ten_tram', 'tinh_thanh_pho', 'huyen', 'vi_do', 'kinh_do']
-        location_data = {field: data.pop(f'location_{field}', data.get(field)) for field in location_fields}
+        location_data = {}
+        for f in location_fields:
+            prefixed = f'location_{f}'
+            if prefixed in data:
+                location_data[f] = data.pop(prefixed)
+            elif f in data:
+                location_data[f] = data.pop(f)
 
-        # Extract metrics fields
-        metrics_data = {k: v for k, v in data.items() if k not in ['dau_thoi_gian', 'thoi_gian_cap_nhat', 'nguon_du_lieu', 'chat_luong_du_lieu']}
+        # Extract top-level fields
+        top_level_keys = ['dau_thoi_gian', 'thoi_gian_cap_nhat', 'nguon_du_lieu', 'chat_luong_du_lieu']
+        top_level = {k: data.pop(k) for k in top_level_keys if k in data}
+
+        # Còn lại là metrics
+        metrics_data = data
 
         return cls(
             location=LocationSchema(**location_data),
             metrics=WeatherMetricsSchema(**metrics_data),
-            **data
+            **top_level,
         )
 
 
@@ -196,7 +214,7 @@ def validate_weather_data(data: Dict[str, Any]) -> WeatherDataSchema:
     return WeatherDataSchema(**data)
 
 
-def validate_weather_dataframe(df: 'pd.DataFrame') -> List[WeatherDataSchema]:
+def validate_weather_dataframe(df: pd.DataFrame) -> List[WeatherDataSchema]:
     """Validate toàn bộ DataFrame."""
     records = []
     for _, row in df.iterrows():
@@ -205,7 +223,7 @@ def validate_weather_dataframe(df: 'pd.DataFrame') -> List[WeatherDataSchema]:
             records.append(record)
         except Exception as e:
             # Log lỗi và bỏ qua bản ghi không hợp lệ
-            print(f"Invalid record: {e}")
+            logger.warning("Invalid record: %s", e)
             continue
     return records
 
