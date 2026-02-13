@@ -21,10 +21,9 @@ if sys.platform == "win32":
 # ============================================================
 # CẤU HÌNH THƯ MỤC & TÊN FILE
 # ============================================================
-# - OUTPUT_DIR_NAME: nơi chứa các file excel đầu vào (được crawler/export ra)
-# - MERGE_DIR_NAME: nơi lưu các file excel đã merge + log theo dõi
-MERGE_DIR_NAME = "Merge_data"
-OUTPUT_DIR_NAME = "output"
+# ĐƯỜNG DẪN TUYỆT ĐỐI THEO YÊU CẦU
+MERGE_DIR_ABS = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge"
+OUTPUT_DIR_ABS = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
 
 # Tên file output sau khi merge cho nhóm "khác" (không phải vietnam_weather_)
 MERGE_FILENAME = "merged_vrain_data.xlsx"
@@ -457,8 +456,9 @@ def merge_excel_files_once(base_dir: Path) -> None:
     # Merge theo 2 nhóm:
     # 1) vietnam_weather_  -> merged_vietnam_weather_data.xlsx + log riêng
     # 2) các file còn lại  -> merged_vrain_data.xlsx + log riêng
-    output_dir = base_dir / OUTPUT_DIR_NAME
-    merge_dir = base_dir / MERGE_DIR_NAME
+
+    output_dir = Path(OUTPUT_DIR_ABS)
+    merge_dir = Path(MERGE_DIR_ABS)
     merge_dir.mkdir(parents=True, exist_ok=True)
 
     merge_vietnam_path = merge_dir / MERGE_VIETNAM_FILENAME
@@ -509,17 +509,11 @@ if __name__ == "__main__":
     # ============================================================
     # - SCRIPT_DIR: thư mục chứa file script hiện tại
     # - BASE_DIR: thư mục cha của SCRIPT_DIR (thường là root project)
-    SCRIPT_DIR = Path(__file__).parent
-    BASE_DIR = SCRIPT_DIR.parent
-
-    print(f"Script dir: {SCRIPT_DIR}")
-    print(f"Base dir:   {BASE_DIR}")
-
-    # Kiểm tra xem thư mục output có tồn tại không, nếu không thì dừng
-    output_dir = BASE_DIR / OUTPUT_DIR_NAME
+    # Không cần BASE_DIR nữa, dùng đường dẫn tuyệt đối
+    output_dir = Path(OUTPUT_DIR_ABS)
     if not output_dir.exists():
         print(f"ERROR: Khong tim thay thu muc output tai: {output_dir}")
         sys.exit(1)
 
     # Chạy merge 1 lần
-    merge_excel_files_once(BASE_DIR)               # (giữ nguyên theo yêu cầu: chỉ thêm chú thích, không đổi logic)
+    merge_excel_files_once(None)

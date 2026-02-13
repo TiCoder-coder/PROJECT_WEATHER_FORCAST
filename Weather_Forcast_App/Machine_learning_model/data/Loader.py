@@ -46,11 +46,11 @@ import pandas as pd
 
 # Mapping folder key -> đường dẫn thực tế (relative to app)
 FOLDER_MAPPING: Dict[str, str] = {
-    'output': 'output',
-    'merged': 'Merge_data',
-    'cleaned': 'cleaned_data',
-    'cleaned_merge': 'cleaned_data/Clean_Data_For_File_Merge',
-    'cleaned_raw': 'cleaned_data/Clean_Data_For_File_Not_Merge',
+    'output': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl',
+    'merged': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge',
+    'cleaned': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean',
+    'cleaned_merge': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_merge_clean',
+    'cleaned_raw': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_not_merge_clean',
 }
 
 # Các extension được hỗ trợ

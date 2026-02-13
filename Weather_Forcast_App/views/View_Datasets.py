@@ -69,13 +69,13 @@ def _base_dir() -> Path:
 def _output_dir() -> Path:
     """Trả về thư mục output"""
     # output/ chứa file crawl mới nhất (raw datasets)
-    return _base_dir() / "output"
+    return Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
 
 
 def _merged_dir() -> Path:
     """Trả về thư mục Merge_data"""
     # Merge_data/ chứa file đã merge (e.g. merged_vrain_data.xlsx)
-    return _base_dir() / "Merge_data"
+    return Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge")
 
 
 def _cleaned_dir() -> Path:

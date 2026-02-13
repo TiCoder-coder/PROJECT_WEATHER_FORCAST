@@ -1,0 +1,15 @@
+/* =====================
+	 Weather App Effects: radius, shadow, opacity
+	 ===================== */
+:root {
+	--radius-lg: 18px;
+	--radius-md: 12px;
+	--radius-sm: 6px;
+
+	--shadow-main: 0 24px 70px rgba(0,0,0,0.38);
+	--shadow-strong: 0 28px 80px rgba(0,0,0,0.45);
+	--shadow-soft: 0 8px 24px rgba(56,189,248,0.08);
+
+	--opacity-glass: 0.78;
+	--opacity-glass2: 0.35;
+}

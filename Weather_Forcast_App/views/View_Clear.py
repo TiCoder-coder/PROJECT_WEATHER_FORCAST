@@ -18,27 +18,13 @@ from django.views.decorators.http import require_http_methods
 # - Thư mục gốc của app (tính từ file hiện tại)
 # - Path(__file__).resolve(): đường dẫn tuyệt đối tới file python đang chạy
 # - .parents[1]: đi lên 2 cấp (tuỳ cấu trúc project) để ra "root" của app
-APP_ROOT = Path(__file__).resolve().parents[1]
 
-# MERGE_DIR:
-# - Thư mục chứa file đã merge (vd: merged_vrain_data.xlsx)
-MERGE_DIR = APP_ROOT / "Merge_data"
-
-# OUTPUT_DIR:
-# - Thư mục output thô (dữ liệu crawl ra, chưa merge hoặc chưa clean)
-OUTPUT_DIR = APP_ROOT / "output"
-
-# CLEANED_ROOT:
-# - Thư mục gốc chứa dữ liệu đã clean
-CLEANED_ROOT = APP_ROOT / "cleaned_data"
-
-# CLEANED_MERGE_DIR:
-# - nơi lưu file clean từ nguồn "merge"
-CLEANED_MERGE_DIR = CLEANED_ROOT / "Clean_Data_For_File_Merge"
-
-# CLEANED_RAW_DIR:
-# - nơi lưu file clean từ nguồn "output"
-CLEANED_RAW_DIR = CLEANED_ROOT / "Clean_Data_For_File_Not_Merge"
+# Đường dẫn tuyệt đối mới
+MERGE_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge")
+OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
+CLEANED_ROOT = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean")
+CLEANED_MERGE_DIR = CLEANED_ROOT / "data_merge_clean"
+CLEANED_RAW_DIR = CLEANED_ROOT / "data_not_merge_clean"
 
 # ALLOWED_EXTS:
 # - chỉ cho phép clean các file có đuôi trong danh sách (để an toàn)

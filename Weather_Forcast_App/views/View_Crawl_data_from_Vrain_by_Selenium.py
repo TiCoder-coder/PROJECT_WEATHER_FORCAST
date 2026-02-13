@@ -26,7 +26,7 @@ SCRIPT_PATH = APP_ROOT / "scripts" / "Crawl_data_from_Vrain_by_Selenium.py"
 
 # OUTPUT_DIR:
 # - thư mục output nơi script selenium sẽ xuất file (xlsx/csv/xls)
-OUTPUT_DIR = APP_ROOT / "output"
+OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
 
 
 # ============================================================

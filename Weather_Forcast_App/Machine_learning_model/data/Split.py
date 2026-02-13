@@ -209,7 +209,7 @@ def run_split_all(
 
 if __name__ == "__main__":
     CLEANED_DATA_ROOT = Path(
-        "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/cleaned_data"
+        "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean"
     )
     OUT_ROOT = Path(
         "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split"

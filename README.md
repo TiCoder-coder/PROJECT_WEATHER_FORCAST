@@ -1,3 +1,17 @@
+---
+
+<h3>🔒 License</h3>
+
+<p>
+        <b>MIT License</b> <br>
+        Copyright (c) 2026 Võ Anh Nhật, Dư Quốc Việt, Trương Hoài Tú, Võ Huỳnh Anh Tuần
+        <br>
+        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+        <br>
+        The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+        <br>
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
 <div align="center">
 
 # 🌦️ Weather_Forcast_App — Weather Data Pipeline & Dashboard
@@ -539,40 +553,145 @@ if failed_attempts >= 5:
 
 ```
 ├── 📁 Weather_Forcast_App
-        ├── 📁 Enums
-        │   ├── 🐍 Enums.py
-        │   └── 🐍 __init__.py
-        ├── 📁 Machine_learning_artifacts                         // 📁 Đây là nơi chứa output cuối cùng của pipeline ML, để app Django chỉ cần load lên và predict, không cần train lại.
-        │   └── 📁 latest
-        │       ├── ⚙️ Feature_list.json                                // Danh sách các cột feature model dùng. Mục đích: Đảm bảo lúc predict: input phải có đúng feature theo thứ tự. Tránh lỗi “thiếu cột”, “sai thứ tự cột”. Là “hợp đồng” giữa features/ và models/
-        │       ├── ⚙️ Metrics.json                                     // Lưu chỉ số đánh giá của lần train gần nhất. Dùng để: show trên trang web (Accuracy/MAE/RMSE…), báo cáo khoa học, so sánh các model khác nhau
-        │       ├── 📄 Model.pkl                                        // File chứa model đã train xong (được serialize bằng pickle/joblib). Khi dự đoán (predict), app sẽ: Load Model.pkl ==> Nhận input mới ==> Transform features giống lúc train ==> Predict ra kết quả
-        │       └── ⚙️ Train_info.json                                  // Lưu “thông tin cấu hình train” của lần train đó. Dùng để: trace lại train bằng dataset nào, train thời gian nào, split kiểu gì, dùng thuật toán nào, hyperparameters ra sao
-        ├── 📁 Machine_learning_model                            // 📁 Thư mục dùng để  làm về chức năng dự báo cho app
-        │   ├── 📁 config                                               
-        │   │   └── ⚙️ default.yaml                                     // File cấu hình trung tâm (Chứa: path dataset, target column, horizon (dự báo trước    bao nhiêu bước), model type (xgboost, lgbm, …), params, split ratio hoặc time split rules
-        │   ├── 📁 data                                          // 📁 Nơi xử lý dữ liệu đầu vào: đọc + validate + chia train/test.
-        │   │   ├── 🐍 Loader.py                                        // Chịu trách nhiệm load dataset (csv/xlsx) vào DataFrame (Xử lí về: parse datetime, sort theo thời gian, xử lý missing cơ bản).
-        │   │   ├── 🐍 Schema.py                                        // Định nghĩa “luật dữ liệu” (data contract): cột nào bắt buộc phải có, kiểu dữ liệu (datetime/float/int), giá trị hợp lệ (>=0, không âm, …). Nếu file đầu vào sai → báo lỗi rõ ràng.
-        │   │   └── 🐍 Split.py                                         // Chia dữ liệu train/valid/test. Với dự báo thời tiết (time series), file này quan trọng vì: Không được split ngẫu nhiên như classification thường. Nên split theo thời gian (train quá khứ, test tương lai).
-        │   ├── 📁 evaluation                                    // 📁 Chuyên đánh giá kết quả train.
-        │   │   ├── 🐍 metrics.py                                       //Nơi định nghĩa các metric: MAE, RMSE, MAPE, R2…Dùng chung cho mọi model.
-        │   │   └── 🐍 report.py                                        // Xuất báo cáo: bảng so sánh model, lưu biểu đồ, lưu file report csv/json. Đây là phần cực hợp để “bỏ vào báo cáo nghiên cứu”.
-        │   ├── 📁 features                                      // 📁 Nơi biến dữ liệu thô thành “đặc trưng” model học được.
-        │   │   ├── 🐍 Build_transfer.py                                //Xây features từ raw data (Bao gồm: lag features: rain(t-1), rain(t-7), rolling mean: mean_7days, time features: day/month, sin/cos theo chu kỳ, features theo location (nếu có)
-        │   │   └── 🐍 Transformers.py                                  // Các transformer dạng module dùng lại: StandardScaler/MinMaxScaler (nếu cần), encoding cho categorical, xử lý missing nâng cao, pipeline transform thống nhất cho train & predict   ====> File này giúp: “train và predict dùng đúng cùng 1 kiểu transform”.
-        │   ├── 📁 interface                                    // Đây là “cổng” để app Django gọi dự báo.
-        │   │   └── 🐍 predictor.py                                     //Predictor: ==> load Model.pkl ==> load Feature_list.json ==> nhận input mới ==> build features/transform giống lúc train ==> predict ==>trả kết quả cho view/API
-        │   ├── 📁 models                                       // 📁 Nơi chứa code cho từng thuật toán (CatBoost, LightGBM, XGBoost…).
-        │   │   ├── 🐍 Base_model.py                            Đây là “interface/khung chuẩn” cho mọi model. Define các hàm: fit(X, y), predict(X), save(path),load(path), get_params()
-        │   │   ├── 🐍 CatBoost.py
-        │   │   ├── 🐍 LightGBM.py
-        │   │   ├── 🐍 Random Forest.py
-        │   │   └── 🐍 XGBoost.py
-        │   ├── 📁 trainning                                    
-        │   │   ├── 🐍 train.py                                 // “tổng chỉ huy” của quá trình train. Flow: đọc config ==> load data ==> validate schema ==> split train/valid/test ==> build features ==> train model ==> evaluate metrics ==> save artifacts (Model.pkl, Feature_list.json, Metrics.json, Train_info.json)
-        │   │   └── 🐍 tuning.py                                // Hyperparameter tuning: grid search / random search / optuna. Output: params tốt nhất để đưa vào config hoặc train_info.
-        │   └── ⚙️ .gitkeep
+│   ├── 📁 Enums
+│   │   ├── 🐍 Enums.py
+│   │   └── 🐍 __init__.py
+│   ├── 📁 Machine_learning_artifacts
+│   │   └── 📁 latest
+│   │       ├── ⚙️ Feature_list.json         // Danh sách các cột feature model dùng. Đảm bảo input predict đúng schema, tránh lỗi thiếu/sai thứ tự cột. Là “hợp đồng” giữa features/ và models/
+│   │       ├── ⚙️ Metrics.json              // Chỉ số đánh giá lần train gần nhất. Dùng show web, báo cáo, so sánh model
+│   │       ├── 📄 Model.pkl                 // Model đã train (pickle/joblib). App chỉ cần load file này để predict, không cần train lại
+│   │       └── ⚙️ Train_info.json           // Thông tin cấu hình train: dataset, thời gian, split, thuật toán, hyperparams
+│   ├── 📁 Machine_learning_model
+│   │   ├── 📁 config
+│   │   │   └── ⚙️ default.yaml              // File cấu hình trung tâm: path dataset, target, horizon, model type, params, split rules
+│   │   ├── 📁 data
+│   │   │   ├── 🐍 Loader.py                 // Load dataset (csv/xlsx) vào DataFrame, xử lý datetime, sort, missing cơ bản
+│   │   │   ├── 🐍 Schema.py                 // Định nghĩa “luật dữ liệu”: cột bắt buộc, kiểu dữ liệu, giá trị hợp lệ. Sai báo lỗi rõ
+│   │   │   └── 🐍 Split.py                  // Chia train/valid/test. Time series: split theo thời gian, không random
+│   │   ├── 📁 evaluation
+│   │   │   ├── 🐍 metrics.py                // Định nghĩa các metric: MAE, RMSE, MAPE, R2… Dùng chung cho mọi model
+│   │   │   └── 🐍 report.py                 // Xuất báo cáo: bảng so sánh model, lưu biểu đồ, file report csv/json
+│   │   ├── 📁 features
+│   │   │   ├── 🐍 Build_transfer.py         // Xây features từ raw data: lag, rolling, time features, location features
+│   │   │   └── 🐍 Transformers.py           // Module transformer: scaler, encoder, missing, pipeline transform cho train & predict
+│   │   ├── 📁 interface
+│   │   │   └── 🐍 predictor.py              // Cổng dự báo: load Model.pkl, Feature_list.json, nhận input, build features, predict
+│   │   ├── 📁 Models
+│   │   │   ├── 🐍 Base_model.py             // Interface chuẩn cho mọi model: fit, predict, save, load, get_params
+│   │   │   ├── 🐍 CatBoost.py
+│   │   │   ├── 🐍 LightGBM_Model.py
+│   │   │   ├── 🐍 Random_Forest_Model.py
+│   │   │   └── 🐍 XGBoost_Model.py
+│   │   ├── 📁 trainning
+│   │   │   ├── 🐍 train.py                  // Tổng chỉ huy train: đọc config, load data, validate, split, build features, train, evaluate, save artifacts
+│   │   │   └── 🐍 tuning.py                 // Hyperparameter tuning: grid search, random search, optuna. Output: params tốt nhất
+│   │   └── ⚙️ .gitkeep
+│   ├── 📁 Merge_data
+│   │   ├── 📄 merged_files_log.txt
+│   │   └── 📄 merged_vrain_data.xlsx
+│   ├── 📁 Models
+│   │   ├── 🐍 Login.py
+│   │   └── 🐍 __init__.py
+│   ├── 📁 Repositories
+│   │   ├── 🐍 Login_repositories.py
+│   │   └── 🐍 __init__.py
+│   ├── 📁 Seriallizer
+│   │   └── 📁 Login
+│   │       ├── 🐍 Base_login.py
+│   │       ├── 🐍 Create_login.py
+│   │       ├── 🐍 Update_login.py
+│   │       └── 🐍 __init__.py
+│   ├── 📁 TEST
+│   │   └── ⚙️ .gitkeep
+│   ├── 📁 cleaned_data
+│   │   ├── 📁 Clean_Data_For_File_Merge
+│   │   │   └── 📄 cleaned_merge_merged_vrain_data_20260124_192207.csv
+│   │   └── 📁 Clean_Data_For_File_Not_Merge
+│   │       ├── 📄 cleaned_output_Bao_cao_20260124_191737_20260124_192237.csv
+│   │       ├── 📄 cleaned_output_Bao_cao_20260124_191946_20260124_192226.csv
+│   │       └── 📄 cleaned_output_Bao_cao_20260124_191959_20260124_192219.csv
+│   ├── 📁 logs
+│   │   └── ⚙️ .gitkeep
+│   ├── 📁 management
+│   │   ├── 📁 commands
+│   │   │   ├── 🐍 __init__.py
+│   │   │   └── 🐍 insert_first_data.py
+│   │   └── 🐍 __init__.py
+│   ├── 📁 middleware
+│   │   ├── 🐍 Auth.py
+│   │   ├── 🐍 Authentication.py
+│   │   ├── 🐍 Jwt_handler.py
+│   │   └── 🐍 __init__.py
+│   ├── 📁 migrations
+│   │   └── 🐍 __init__.py
+│   ├── 📁 output
+│   │   ├── 📄 Bao_cao_20260124_191737.xlsx
+│   │   ├── 📄 Bao_cao_20260124_191946.xlsx
+│   │   └── 📄 Bao_cao_20260124_191959.csv
+│   ├── 📁 runtime
+│   │   └── 📁 logs
+│   │       └── ⚙️ .gitkeep
+│   ├── 📁 scripts
+│   │   ├── 🐍 Cleardata.py
+│   │   ├── 🐍 Crawl_data_by_API.py
+│   │   ├── 🐍 Crawl_data_from_Vrain_by_API.py
+│   │   ├── 🐍 Crawl_data_from_Vrain_by_Selenium.py
+│   │   ├── 🐍 Crawl_data_from_html_of_Vrain.py
+│   │   ├── 🐍 Email_validator.py
+│   │   ├── 🐍 Login_services.py
+│   │   ├── 🐍 Merge_xlsx.py
+│   │   ├── 🐍 __init__.py
+│   │   └── 🐍 email_templates.py
+│   ├── 📁 static
+│   │   └── 📁 weather
+│   │       ├── 📁 css
+│   │       ├── 📁 img
+│   │       └── 📁 js
+│   ├── 📁 templates
+│   │   └── 📁 weather
+│   │       ├── 📁 auth
+│   │       ├── 🌐 Dataset_preview.html
+│   │       ├── 🌐 Datasets.html
+│   │       ├── 🌐 Error.html
+│   │       ├── 🌐 HTML_Crawl_data_by_API.html
+│   │       ├── 🌐 HTML_Crawl_data_from_Vrain_by_API.html
+│   │       ├── 🌐 HTML_Crawl_data_from_Vrain_by_Selenium.html
+│   │       ├── 🌐 HTML_Crawl_data_from_html_of_Vrain.html
+│   │       ├── 🌐 Home.html
+│   │       └── 🌐 Sidebar_nav.html
+│   ├── 📁 views
+│   │   ├── 🐍 Home.py
+│   │   ├── 🐍 View_Clear.py
+│   │   ├── 🐍 View_Crawl_data_by_API.py
+│   │   ├── 🐍 View_Crawl_data_from_Vrain_by_API.py
+│   │   ├── 🐍 View_Crawl_data_from_Vrain_by_Selenium.py
+│   │   ├── 🐍 View_Crawl_data_from_html_of_Vrain.py
+│   │   ├── 🐍 View_Datasets.py
+│   │   ├── 🐍 View_Merge_Data.py
+│   │   ├── 🐍 View_login.py
+│   │   └── 🐍 __init__.py
+│   ├── 🐍 __init__.py
+│   ├── 🐍 admin.py
+│   ├── 🐍 apps.py
+│   ├── 🐍 db_connection.py
+│   ├── 🐍 models.py
+│   └── 🐍 urls.py
+├── 📁 WeatherForcast
+│   ├── 🐍 __init__.py
+│   ├── 🐍 asgi.py
+│   ├── 🐍 settings.py
+│   ├── 🐍 urls.py
+│   └── 🐍 wsgi.py
+```
+
+---
+#### 📝 Lưu ý thực tế đã tối ưu và refactor:
+- Đã chuẩn hóa toàn bộ đường dẫn artifacts ML về `Machine_learning_artifacts/latest` (không còn hardcode rải rác, chỉ dùng 1 nơi duy nhất cho export/load model, pipeline, metrics, train_info).
+- Các module ML (train.py, LightGBM_Model.py, predictor.py) đã tách biệt, mỗi file 1 nhiệm vụ rõ ràng, gọi lẫn nhau qua interface chuẩn, không còn code thừa, không có file rác.
+- Nếu muốn mở rộng/thay đổi cấu trúc thư mục, chỉ cần sửa 1 nơi (config hoặc biến LATEST_ARTIFACTS_DIR), không phải sửa nhiều file.
+- Đã kiểm tra và loại bỏ hoàn toàn file thừa, file không dùng trong artifacts.
+- Đề xuất cấu trúc cây thư mục rõ ràng, tách biệt backend, ML, scripts, data, static, template, artifacts, giúp bảo trì và mở rộng dễ dàng.
         ├── 📁 Merge_data
         │   ├── 📄 merged_files_log.txt
         │   └── 📄 merged_vrain_data.xlsx
@@ -1209,10 +1328,17 @@ python manage.py runserver
 ---
 
 ## 13. Roadmap
-- 📈 Dashboard biểu đồ dự báo (ML models)
-- 🔐 Auth/Role cho thao tác pipeline (merge/clean/crawl)
-- ✅ Schema validation trước khi merge/clean
-- 🚀 Deploy (Docker/Railway) + storage (S3/MinIO)
+
+<ul>
+        <li>📈 <b>Dashboard ML models</b>: Xây dựng dashboard trực quan, biểu đồ dự báo, so sánh các model, export report.</li>
+        <li>🔐 <b>Auth/Role</b>: Phân quyền thao tác pipeline (merge/clean/crawl), quản lý user, role, log hoạt động.</li>
+        <li>✅ <b>Schema validation</b>: Kiểm tra schema trước khi merge/clean, cảnh báo lỗi, tự động sửa lỗi phổ biến.</li>
+        <li>🚀 <b>Deploy</b>: Triển khai Docker/Railway, tích hợp CI/CD, lưu trữ dữ liệu trên S3/MinIO, backup tự động.</li>
+        <li>🧠 <b>ML pipeline mở rộng</b>: Thêm module dự báo nâng cao, tuning tự động, tích hợp Optuna, XGBoost, LightGBM, CatBoost.</li>
+        <li>🧩 <b>Service layer</b>: Tách biệt business logic, dễ bảo trì, mở rộng.</li>
+        <li>🧪 <b>Test/Benchmark</b>: Bổ sung test, benchmark, validate pipeline, đảm bảo chất lượng.</li>
+        <li>🌐 <b>API RESTful</b>: Mở rộng API cho frontend/mobile, tích hợp Swagger/OpenAPI.</li>
+</ul>
 
 ---
 

@@ -1,3 +1,4 @@
+@import '../theme/index.css';
 .sidebar{
   background: linear-gradient(180deg, rgba(2,6,23,0.96), rgba(11,17,32,0.92));
   border-right: 1px solid rgba(148,163,184,0.22);

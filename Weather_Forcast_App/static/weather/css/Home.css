@@ -1,11 +1,13 @@
+@import '../theme/index.css';
+
 :root {
-    --bg-dark: #050816;
-    --bg-card: #111827;
-    --accent: #38bdf8;
-    --accent-soft: rgba(56, 189, 248, 0.16);
-    --text-main: #e5e7eb;
-    --text-muted: #9ca3af;
-    --border-soft: rgba(148, 163, 184, 0.3);
+  --bg-dark: var(--color-bg-main);
+  --bg-card: var(--color-bg-card);
+  --accent: var(--color-accent);
+  --accent-soft: var(--color-accent-soft);
+  --text-main: var(--color-text-main);
+  --text-muted: var(--color-text-muted);
+  --border-soft: var(--color-border);
 }
 
 * {
@@ -17,47 +19,40 @@ html {
 }
 
 body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #020617 100%);
-    color: var(--text-main);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+  margin: 0;
+  font-family: var(--font-main);
+  background: radial-gradient(circle at top, var(--color-bg-gradient1) 0, var(--color-bg-gradient2) 45%, var(--color-bg-gradient2) 100%);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .home-page {
     min-height: 100vh;
 }
 
+/* Header glassmorphism, shadow, accent border */
 .home-header{
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 64px;
+  height: var(--header-height);
   padding: 0 40px;
   z-index: 40;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-
-  background: rgba(5, 8, 22, 0.58);
+  background: rgba(5, 8, 22, var(--opacity-glass));
   backdrop-filter: blur(16px) saturate(135%);
   -webkit-backdrop-filter: blur(16px) saturate(135%);
-
-  border-bottom: 1px solid rgba(56, 189, 248, 0.16);
-  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
-  
+  border-bottom: 1px solid var(--color-accent-soft);
+  box-shadow: var(--shadow-main);
   will-change: transform;
   transform: translateZ(0);
 }
 
-.home-header::after{
-  content:"";
-  position:absolute;
-  left: 12px;
-  right: 12px;
+/* ...existing code... */
   bottom: -1px;
   height: 1px;
   background: linear-gradient(90deg,

@@ -71,7 +71,7 @@ logging.basicConfig(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
+OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
     """Quản lý kết nối và thao tác với SQLite database"""
 
     def __init__(self, db_path="/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/vietnam_weather.db"):

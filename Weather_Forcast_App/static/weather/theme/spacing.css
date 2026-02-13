@@ -1,0 +1,12 @@
+/* =====================
+	 Weather App Spacing scale (4pt base)
+	 ===================== */
+:root {
+	--space-xxs: 4px;
+	--space-xs: 8px;
+	--space-sm: 12px;
+	--space-md: 18px;
+	--space-lg: 28px;
+	--space-xl: 40px;
+	--space-xxl: 64px;
+}

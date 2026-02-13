@@ -25,7 +25,7 @@ SCRIPT_PATH = APP_ROOT / "scripts" / "Crawl_data_from_html_of_Vrain.py"
 
 # OUTPUT_DIR:
 # - thư mục output nơi script sẽ xuất file (.xlsx/.csv)
-OUTPUT_DIR = APP_ROOT / "output"
+OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
 
 
 # ============================================================

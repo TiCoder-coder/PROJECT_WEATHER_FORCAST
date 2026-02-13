@@ -88,23 +88,11 @@ def merge_data_view(request):
         # - __file__ là path file python hiện tại
         # - abspath -> lấy đường dẫn tuyệt đối
         # - dirname 2 lần -> đi lên 2 cấp thư mục
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-        # script_path: đường dẫn script merge excel của bạn
-        # - scripts/Merge_xlsx.py là script thực hiện merge
-        script_path = os.path.join(BASE_DIR, "scripts", "Merge_xlsx.py")
-
-        # python_exe: đường dẫn python interpreter đang chạy server Django
-        # - đảm bảo chạy script bằng đúng môi trường/venv hiện tại
+        # Đường dẫn tuyệt đối mới
+        script_path = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/scripts/Merge_xlsx.py"
         python_exe = sys.executable
-
-        # output_dir: thư mục chứa file crawl raw
-        # - bạn dùng để đếm số file mới sinh ra (new_files_count)
-        output_dir = os.path.join(BASE_DIR, "output")
-
-        # merge_dir: thư mục chứa file merge đầu ra
-        # - _latest_file_info(merge_dir) sẽ lấy file merge mới nhất
-        merge_dir = os.path.join(BASE_DIR, "Merge_data")
+        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
+        merge_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge"
 
         # ============================================================
         # 3) Snapshot file trước khi merge (để đếm file mới)

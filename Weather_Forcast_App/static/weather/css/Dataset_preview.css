@@ -1,18 +1,20 @@
+@import '../theme/index.css';
+
 :root{
-  --bg0:#050b1a;
-  --bg1:#07112b;
-  --card: rgba(14, 24, 42, .62);
-  --card2: rgba(10, 18, 32, .55);
-  --stroke: rgba(255,255,255,.085);
-  --stroke-strong: rgba(255,255,255,.14);
-  --text:#dbe8ff;
-  --muted: rgba(219,232,255,.72);
-  --accent:#2fe1ff;
-  --accent2:#8b5cf6;
-  --good:#22c55e;
-  --warn:#f59e0b;
-  --shadow: 0 18px 60px rgba(0,0,0,.45);
-  --radius: 18px;
+  --bg0: var(--color-bg-main);
+  --bg1: var(--color-bg-gradient1);
+  --card: var(--color-bg-card-glass);
+  --card2: var(--color-bg-card-glass2);
+  --stroke: var(--color-border);
+  --stroke-strong: var(--color-border-accent);
+  --text: var(--color-text-soft);
+  --muted: var(--color-text-muted);
+  --accent: var(--color-accent);
+  --accent2: var(--color-accent2);
+  --good: var(--color-good);
+  --warn: var(--color-warn);
+  --shadow: var(--shadow-main);
+  --radius: var(--radius-lg);
 }
 
 *{ box-sizing:border-box; }
@@ -21,11 +23,11 @@ html, body{ height:100%; }
 
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-family: var(--font-main);
   color: var(--text);
   background:
-    radial-gradient(900px 420px at 18% 12%, rgba(46, 225, 255, .16), transparent 60%),
-    radial-gradient(780px 380px at 82% 22%, rgba(139, 92, 246, .18), transparent 62%),
+    radial-gradient(900px 420px at 18% 12%, var(--color-accent-soft), transparent 60%),
+    radial-gradient(780px 380px at 82% 22%, var(--color-accent2), transparent 62%),
     linear-gradient(180deg, var(--bg1), var(--bg0));
   overflow-x:hidden;
 }
@@ -35,8 +37,8 @@ body::before{
   position:fixed;
   inset:0;
   background:
-    radial-gradient(650px 260px at 30% 8%, rgba(34,197,94,.11), transparent 60%),
-    radial-gradient(520px 220px at 70% 86%, rgba(47,225,255,.10), transparent 58%);
+    radial-gradient(650px 260px at 30% 8%, var(--color-good), transparent 60%),
+    radial-gradient(520px 220px at 70% 86%, var(--color-accent-soft), transparent 58%);
   pointer-events:none;
   z-index:0;
 }
@@ -54,10 +56,7 @@ body::after{
   mix-blend-mode: overlay;
 }
 
-.weather-fx{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
+/* ...existing code... */
   z-index:1;
   overflow:hidden;
 }

@@ -65,13 +65,11 @@ def clean_data_view(request):
         # Sau đó nối với path con theo cấu trúc project của bạn.
         if file_type == 'merged':
             file_path = os.path.join(
-                settings.BASE_DIR,
-                'Weather_Forcast_App', 'Merge_data', filename
+                '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge', filename
             )
         else:
             file_path = os.path.join(
-                settings.BASE_DIR,
-                'Weather_Forcast_App', 'output', filename
+                '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl', filename
             )
 
         # Kiểm tra xem file đó có đang tồn tại hay không
@@ -397,23 +395,16 @@ def perform_cleaning(data_df, filename, file_type="merged"):
             "report_file": None
         }
 
-    # today: timestamp để đặt tên file unique, tránh ghi đè
+
     today = datetime.now().strftime("%Y%m%d_%H%M%S")
     clean_filename = f"{os.path.splitext(filename)[0]}_cleaned_{today}.csv"
 
-    # Thư mục gốc để lưu cleaned:
-    # Weather_Forcast_App/cleaned_data/...
-    base = os.path.join(settings.BASE_DIR, "Weather_Forcast_App", "cleaned_data")
-
-    # Phân loại nơi lưu theo file_type để bạn dễ quản lý:
-    # - Clean_Data_For_File_Merge: file nguồn thuộc nhóm merged
-    # - Clean_Data_For_File_Not_Merge: file nguồn thuộc nhóm output
+    # Lưu cleaned vào đúng thư mục tuyệt đối như yêu cầu
     if file_type == "merged":
-        output_dir = os.path.join(base, "Clean_Data_For_File_Merge")
+        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_merge_clean"
     else:
-        output_dir = os.path.join(base, "Clean_Data_For_File_Not_Merge")
-    os.makedirs(output_dir, exist_ok=True)  # tạo folder nếu chưa có
-
+        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_not_merge_clean"
+    os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, clean_filename)
 
     # Lưu CSV:

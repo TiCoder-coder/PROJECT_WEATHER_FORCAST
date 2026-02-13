@@ -1,0 +1,10 @@
+/* =====================
+	Weather App Theme Index: import tất cả token/theme
+	===================== */
+@import './color.css';
+@import './effect.css';
+@import './animation.css';
+@import './layout.css';
+@import './spacing.css';
+@import './typography.css';
+@import './themeProvider.css';

@@ -430,7 +430,7 @@ class SQLiteManager:
 
 FILE_PATH = Path(__file__).resolve()
 APP_DIR = FILE_PATH.parents[1]
-OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/output"
+OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
 
 class VietnamWeatherDataCrawler:
     def __init__(self):
