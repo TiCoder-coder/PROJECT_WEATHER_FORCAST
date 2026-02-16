@@ -282,13 +282,36 @@ class VrainCrawlerFinal:
         df = pd.DataFrame(self.all_rainfall_data)
         df = df.drop(columns=["province_id"], errors="ignore")
 
+        # Đồng bộ tên cột chuẩn schema
         df = df.rename(columns={
-            "tinh": "Tỉnh/Thành phố",
-            "tram": "Tên trạm",
-            "luong_mua": "Tổng lượng mưa",
-            "thoi_gian": "Thời gian cập nhập",
+            "tinh": "province",
+            "tram": "station_name",
+            "luong_mua": "rain_total",
+            "thoi_gian": "timestamp",
         })
 
+        # Thêm các cột còn thiếu
+        if "station_id" not in df.columns:
+            df["station_id"] = df["station_name"]
+        if "district" not in df.columns:
+            df["district"] = ""
+        if "status" not in df.columns:
+            df["status"] = ""
+        if "data_time" not in df.columns:
+            df["data_time"] = df["timestamp"]
+
+        # Sắp xếp và chọn đúng thứ tự cột
+        schema_columns = [
+            "station_id",
+            "station_name",
+            "province",
+            "district",
+            "rain_total",
+            "status",
+            "timestamp",
+            "data_time"
+        ]
+        df = df[schema_columns]
 
         output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
         os.makedirs(output_dir, exist_ok=True)

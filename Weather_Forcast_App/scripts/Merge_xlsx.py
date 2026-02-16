@@ -43,28 +43,175 @@ LOG_VIETNAM_FILENAME = "merged_vietnam_files_log.txt"
 # - N càng nhỏ càng an toàn nhưng save nhiều -> chậm hơn
 SAVE_EVERY_N_ROWS = 30000
 
-# ============================================================
-# MASTER_COLUMNS = "SCHEMA CHUẨN" CHO FILE MERGE
-# ============================================================
-# - Đây là danh sách cột chuẩn mà file merge sẽ có
-# - Khi đọc file mới:
-#   + Nếu thiếu cột nào so với MASTER_COLUMNS -> tự thêm cột đó (NA)
-#   + Nếu phát hiện cột mới ngoài schema -> mở rộng header (tự thêm vào cuối)
-# - Mục tiêu: các file nguồn có thể lệch nhau chút về cột, vẫn merge được
 MASTER_COLUMNS = [
-    "Mã trạm", "Tên trạm", "Tỉnh/Thành phố", "Huyện", "Vĩ độ", "Kinh độ",
-    "Dấu thời gian", "Nguồn dữ liệu", "Chất lượng dữ liệu", "Thời gian cập nhật",
-    "Nhiệt độ hiện tại", "Nhiệt độ tối đa", "Nhiệt độ tối thiểu", "Nhiệt độ trung bình",
-    "Độ ẩm hiện tại", "Độ ẩm tối đa", "Độ ẩm tối thiểu", "Độ ẩm trung bình",
-    "Áp suất hiện tại", "Áp suất tối đa", "Áp suất tối thiểu", "Áp suất trung bình",
-    "Tốc độ gió hiện tại", "Tốc độ gió tối đa", "Tốc độ gió tối thiểu", "Tốc độ gió trung bình",
-    "Hướng gió hiện tại", "Hướng gió trung bình",
-    "Lượng mưa hiện tại", "Lượng mưa tối đa", "Lượng mưa tối thiểu", "Lượng mưa trung bình",
-    "Tổng lượng mưa",
-    "Độ che phủ mây hiện tại", "Độ che phủ mây tối đa", "Độ che phủ mây tổi thiểu", "Độ che phủ mây trung bình",
-    "Tầm nhìn hiện tại", "Tầm nhìn đa", "Tầm nhìn tối thiểu", "Tầm nhìn trung bình",
-    "Xác xuất sấm sét", "Tình trạng",
+    "station_id",
+    "station_name",
+    "province",
+    "district",
+    "latitude",
+    "longitude",
+    "timestamp",
+    "data_source",
+    "data_quality",
+    "data_time",
+    "temperature_current",
+    "temperature_max",
+    "temperature_min",
+    "temperature_avg",
+    "humidity_current",
+    "humidity_max",
+    "humidity_min",
+    "humidity_avg",
+    "pressure_current",
+    "pressure_max",
+    "pressure_min",
+    "pressure_avg",
+    "wind_speed_current",
+    "wind_speed_max",
+    "wind_speed_min",
+    "wind_speed_avg",
+    "wind_direction_current",
+    "wind_direction_avg",
+    "rain_current",
+    "rain_max",
+    "rain_min",
+    "rain_avg",
+    "rain_total",
+    "cloud_cover_current",
+    "cloud_cover_max",
+    "cloud_cover_min",
+    "cloud_cover_avg",
+    "visibility_current",
+    "visibility_max",
+    "visibility_min",
+    "visibility_avg",
+    "thunder_probability",
+    "status",
 ]
+
+# Mapping chuẩn hóa từ tiếng Việt, camelCase, snake_case cũ sang snake_case chuẩn
+COLUMN_SCHEMA_MAPPING = {
+    # Tiếng Việt sang snake_case
+    "Mã trạm": "station_id",
+    "Tên trạm": "station_name",
+    "Tỉnh/Thành phố": "province",
+    "Huyện": "district",
+    "Vĩ độ": "latitude",
+    "Kinh độ": "longitude",
+    "Dấu thời gian": "timestamp",
+    "Nguồn dữ liệu": "data_source",
+    "Chất lượng dữ liệu": "data_quality",
+    "Thời gian cập nhật": "data_time",
+    "Nhiệt độ hiện tại": "temperature_current",
+    "Nhiệt độ tối đa": "temperature_max",
+    "Nhiệt độ tối thiểu": "temperature_min",
+    "Nhiệt độ trung bình": "temperature_avg",
+    "Độ ẩm hiện tại": "humidity_current",
+    "Độ ẩm tối đa": "humidity_max",
+    "Độ ẩm tối thiểu": "humidity_min",
+    "Độ ẩm trung bình": "humidity_avg",
+    "Áp suất hiện tại": "pressure_current",
+    "Áp suất tối đa": "pressure_max",
+    "Áp suất tối thiểu": "pressure_min",
+    "Áp suất trung bình": "pressure_avg",
+    "Tốc độ gió hiện tại": "wind_speed_current",
+    "Tốc độ gió tối đa": "wind_speed_max",
+    "Tốc độ gió tối thiểu": "wind_speed_min",
+    "Tốc độ gió trung bình": "wind_speed_avg",
+    "Hướng gió hiện tại": "wind_direction_current",
+    "Hướng gió trung bình": "wind_direction_avg",
+    "Lượng mưa hiện tại": "rain_current",
+    "Lượng mưa tối đa": "rain_max",
+    "Lượng mưa tối thiểu": "rain_min",
+    "Lượng mưa trung bình": "rain_avg",
+    "Tổng lượng mưa": "rain_total",
+    "Độ che phủ mây hiện tại": "cloud_cover_current",
+    "Độ che phủ mây tối đa": "cloud_cover_max",
+    "Độ che phủ mây tổi thiểu": "cloud_cover_min",
+    "Độ che phủ mây trung bình": "cloud_cover_avg",
+    "Tầm nhìn hiện tại": "visibility_current",
+    "Tầm nhìn đa": "visibility_max",
+    "Tầm nhìn tối thiểu": "visibility_min",
+    "Tầm nhìn trung bình": "visibility_avg",
+    "Xác xuất sấm sét": "thunder_probability",
+    "Tình trạng": "status",
+    # camelCase sang snake_case
+    "stationId": "station_id",
+    "stationName": "station_name",
+    "dataSource": "data_source",
+    "dataQuality": "data_quality",
+    "dataTime": "data_time",
+    "temperatureCurrent": "temperature_current",
+    "temperatureMax": "temperature_max",
+    "temperatureMin": "temperature_min",
+    "temperatureAvg": "temperature_avg",
+    "humidityCurrent": "humidity_current",
+    "humidityMax": "humidity_max",
+    "humidityMin": "humidity_min",
+    "humidityAvg": "humidity_avg",
+    "pressureCurrent": "pressure_current",
+    "pressureMax": "pressure_max",
+    "pressureMin": "pressure_min",
+    "pressureAvg": "pressure_avg",
+    "windSpeedCurrent": "wind_speed_current",
+    "windSpeedMax": "wind_speed_max",
+    "windSpeedMin": "wind_speed_min",
+    "windSpeedAvg": "wind_speed_avg",
+    "windDirectionCurrent": "wind_direction_current",
+    "windDirectionAvg": "wind_direction_avg",
+    "rainCurrent": "rain_current",
+    "rainMax": "rain_max",
+    "rainMin": "rain_min",
+    "rainAvg": "rain_avg",
+    "rainTotal": "rain_total",
+    "cloudCoverCurrent": "cloud_cover_current",
+    "cloudCoverMax": "cloud_cover_max",
+    "cloudCoverMin": "cloud_cover_min",
+    "cloudCoverAvg": "cloud_cover_avg",
+    "visibilityCurrent": "visibility_current",
+    "visibilityMax": "visibility_max",
+    "visibilityMin": "visibility_min",
+    "visibilityAvg": "visibility_avg",
+    "thunderProbability": "thunder_probability",
+    # snake_case cũ sang snake_case chuẩn (giữ nguyên)
+    "station_id": "station_id",
+    "station_name": "station_name",
+    "data_source": "data_source",
+    "data_quality": "data_quality",
+    "data_time": "data_time",
+    "temperature_current": "temperature_current",
+    "temperature_max": "temperature_max",
+    "temperature_min": "temperature_min",
+    "temperature_avg": "temperature_avg",
+    "humidity_current": "humidity_current",
+    "humidity_max": "humidity_max",
+    "humidity_min": "humidity_min",
+    "humidity_avg": "humidity_avg",
+    "pressure_current": "pressure_current",
+    "pressure_max": "pressure_max",
+    "pressure_min": "pressure_min",
+    "pressure_avg": "pressure_avg",
+    "wind_speed_current": "wind_speed_current",
+    "wind_speed_max": "wind_speed_max",
+    "wind_speed_min": "wind_speed_min",
+    "wind_speed_avg": "wind_speed_avg",
+    "wind_direction_current": "wind_direction_current",
+    "wind_direction_avg": "wind_direction_avg",
+    "rain_current": "rain_current",
+    "rain_max": "rain_max",
+    "rain_min": "rain_min",
+    "rain_avg": "rain_avg",
+    "rain_total": "rain_total",
+    "cloud_cover_current": "cloud_cover_current",
+    "cloud_cover_max": "cloud_cover_max",
+    "cloud_cover_min": "cloud_cover_min",
+    "cloud_cover_avg": "cloud_cover_avg",
+    "visibility_current": "visibility_current",
+    "visibility_max": "visibility_max",
+    "visibility_min": "visibility_min",
+    "visibility_avg": "visibility_avg",
+    "thunder_probability": "thunder_probability",
+}
 
 # ============================================================
 # COLUMN_ALIASES = BẢN ĐỒ CHUẨN HOÁ TÊN CỘT (alias -> chuẩn)
@@ -160,8 +307,8 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     # 4) Xoá các cột "Unnamed: ..." (thường do excel xuất dư cột)
     df = df.copy()
 
-    # Chuẩn hoá tên cột
-    df.columns = [norm_col(c) for c in df.columns]
+    # Chuẩn hoá tên cột và mapping về snake_case chuẩn
+    df.columns = [COLUMN_SCHEMA_MAPPING.get(norm_col(c), norm_col(c)) for c in df.columns]
 
     # Nếu sau chuẩn hoá bị trùng cột (vd: 2 cột khác nhau map về cùng alias)
     # -> giữ cột đầu tiên, bỏ cột trùng
@@ -328,8 +475,7 @@ def append_df_incremental(
         # Nếu df không có cột nào đó trong schema -> tạo cột đó toàn NA
         if c not in df.columns:
             df[c] = pd.NA
-
-    # Reorder đúng schema để dữ liệu nằm đúng cột
+    # Chỉ giữ đúng các cột trong header (không mở rộng thêm cột ngoài schema)
     df = df[header]
 
     appended = 0
@@ -406,12 +552,10 @@ def merge_single_category_incremental(
         # Làm sạch: chuẩn hoá tên cột, bỏ cột unnamed, bỏ cột trùng
         df = clean_dataframe(df)
 
-        # Nếu df có cột mới ngoài header hiện tại -> mở rộng schema
+        # Không mở rộng schema, chỉ giữ đúng các cột chuẩn
         new_cols = [c for c in df.columns if c not in header]
         if new_cols:
-            print(f"  + Phat hien {len(new_cols)} cot moi: {new_cols}")
-            header = _ensure_header_has_columns(ws, header, new_cols)
-            wb.save(merge_path)
+            print(f"  ! File có cột lạ không thuộc schema chuẩn, sẽ bị loại bỏ: {new_cols}")
 
         try:
             # Append dữ liệu theo từng dòng + save theo batch

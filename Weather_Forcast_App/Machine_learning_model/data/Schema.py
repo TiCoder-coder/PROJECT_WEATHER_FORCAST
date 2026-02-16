@@ -53,65 +53,65 @@ class DataQuality(Enum):
 
 class LocationSchema(BaseModel):
     """Schema cho thông tin vị trí."""
-    ma_tram: str = Field(..., description="Mã trạm quan trắc")
-    ten_tram: str = Field(..., description="Tên trạm quan trắc")
-    tinh_thanh_pho: str = Field(..., description="Tỉnh/Thành phố")
-    huyen: str = Field(..., description="Huyện/Quận")
-    vi_do: float = Field(..., ge=-90, le=90, description="Vĩ độ")
-    kinh_do: float = Field(..., ge=-180, le=180, description="Kinh độ")
+    station_id: str = Field(..., description="Station ID")
+    station_name: str = Field(..., description="Station name")
+    province: str = Field(..., description="Province")
+    district: str = Field(..., description="District")
+    latitude: float = Field(..., ge=-90, le=90, description="Latitude")
+    longitude: float = Field(..., ge=-180, le=180, description="Longitude")
 
 
 class WeatherMetricsSchema(BaseModel):
     """Schema cho các chỉ số thời tiết."""
-    # Nhiệt độ (°C)
-    nhiet_do_hien_tai: Optional[float] = Field(None, description="Nhiệt độ hiện tại")
-    nhiet_do_toi_da: Optional[float] = Field(None, description="Nhiệt độ tối đa")
-    nhiet_do_toi_thieu: Optional[float] = Field(None, description="Nhiệt độ tối thiểu")
-    nhiet_do_trung_binh: Optional[float] = Field(None, description="Nhiệt độ trung bình")
+    # Temperature (°C)
+    temperature_current: Optional[float] = Field(None, description="Current temperature")
+    temperature_max: Optional[float] = Field(None, description="Max temperature")
+    temperature_min: Optional[float] = Field(None, description="Min temperature")
+    temperature_avg: Optional[float] = Field(None, description="Average temperature")
 
-    # Độ ẩm (%)
-    do_am_hien_tai: Optional[float] = Field(None, ge=0, le=100, description="Độ ẩm hiện tại")
-    do_am_toi_da: Optional[float] = Field(None, ge=0, le=100, description="Độ ẩm tối đa")
-    do_am_toi_thieu: Optional[float] = Field(None, ge=0, le=100, description="Độ ẩm tối thiểu")
-    do_am_trung_binh: Optional[float] = Field(None, ge=0, le=100, description="Độ ẩm trung bình")
+    # Humidity (%)
+    humidity_current: Optional[float] = Field(None, ge=0, le=100, description="Current humidity")
+    humidity_max: Optional[float] = Field(None, ge=0, le=100, description="Max humidity")
+    humidity_min: Optional[float] = Field(None, ge=0, le=100, description="Min humidity")
+    humidity_avg: Optional[float] = Field(None, ge=0, le=100, description="Average humidity")
 
-    # Áp suất (hPa)
-    ap_suat_hien_tai: Optional[float] = Field(None, description="Áp suất hiện tại")
-    ap_suat_toi_da: Optional[float] = Field(None, description="Áp suất tối đa")
-    ap_suat_toi_thieu: Optional[float] = Field(None, description="Áp suất tối thiểu")
-    ap_suat_trung_binh: Optional[float] = Field(None, description="Áp suất trung bình")
+    # Pressure (hPa)
+    pressure_current: Optional[float] = Field(None, description="Current pressure")
+    pressure_max: Optional[float] = Field(None, description="Max pressure")
+    pressure_min: Optional[float] = Field(None, description="Min pressure")
+    pressure_avg: Optional[float] = Field(None, description="Average pressure")
 
-    # Tốc độ gió (m/s)
-    toc_do_gio_hien_tai: Optional[float] = Field(None, ge=0, description="Tốc độ gió hiện tại")
-    toc_do_gio_toi_da: Optional[float] = Field(None, ge=0, description="Tốc độ gió tối đa")
-    toc_do_gio_toi_thieu: Optional[float] = Field(None, ge=0, description="Tốc độ gió tối thiểu")
-    toc_do_gio_trung_binh: Optional[float] = Field(None, ge=0, description="Tốc độ gió trung bình")
+    # Wind speed (m/s)
+    wind_speed_current: Optional[float] = Field(None, ge=0, description="Current wind speed")
+    wind_speed_max: Optional[float] = Field(None, ge=0, description="Max wind speed")
+    wind_speed_min: Optional[float] = Field(None, ge=0, description="Min wind speed")
+    wind_speed_avg: Optional[float] = Field(None, ge=0, description="Average wind speed")
 
-    # Hướng gió (độ)
-    huong_gio_hien_tai: Optional[float] = Field(None, ge=0, le=360, description="Hướng gió hiện tại")
-    huong_gio_trung_binh: Optional[float] = Field(None, ge=0, le=360, description="Hướng gió trung bình")
+    # Wind direction (degrees)
+    wind_direction_current: Optional[float] = Field(None, ge=0, le=360, description="Current wind direction")
+    wind_direction_avg: Optional[float] = Field(None, ge=0, le=360, description="Average wind direction")
 
-    # Lượng mưa (mm)
-    luong_mua_hien_tai: Optional[float] = Field(None, ge=0, description="Lượng mưa hiện tại")
-    luong_mua_toi_da: Optional[float] = Field(None, ge=0, description="Lượng mưa tối đa")
-    luong_mua_toi_thieu: Optional[float] = Field(None, ge=0, description="Lượng mưa tối thiểu")
-    luong_mua_trung_binh: Optional[float] = Field(None, ge=0, description="Lượng mưa trung bình")
-    tong_luong_mua: Optional[float] = Field(None, ge=0, description="Tổng lượng mưa")
+    # Rain (mm)
+    rain_current: Optional[float] = Field(None, ge=0, description="Current rain")
+    rain_max: Optional[float] = Field(None, ge=0, description="Max rain")
+    rain_min: Optional[float] = Field(None, ge=0, description="Min rain")
+    rain_avg: Optional[float] = Field(None, ge=0, description="Average rain")
+    rain_total: Optional[float] = Field(None, ge=0, description="Total rain")
 
-    # Độ che phủ mây (%)
-    do_che_phu_may_hien_tai: Optional[float] = Field(None, ge=0, le=100, description="Độ che phủ mây hiện tại")
-    do_che_phu_may_toi_da: Optional[float] = Field(None, ge=0, le=100, description="Độ che phủ mây tối đa")
-    do_che_phu_may_toi_thieu: Optional[float] = Field(None, ge=0, le=100, description="Độ che phủ mây tối thiểu")
-    do_che_phu_may_trung_binh: Optional[float] = Field(None, ge=0, le=100, description="Độ che phủ mây trung bình")
+    # Cloud cover (%)
+    cloud_cover_current: Optional[float] = Field(None, ge=0, le=100, description="Current cloud cover")
+    cloud_cover_max: Optional[float] = Field(None, ge=0, le=100, description="Max cloud cover")
+    cloud_cover_min: Optional[float] = Field(None, ge=0, le=100, description="Min cloud cover")
+    cloud_cover_avg: Optional[float] = Field(None, ge=0, le=100, description="Average cloud cover")
 
-    # Tầm nhìn (km)
-    tam_nhin_hien_tai: Optional[float] = Field(None, ge=0, description="Tầm nhìn hiện tại")
-    tam_nhin_toi_da: Optional[float] = Field(None, ge=0, description="Tầm nhìn tối đa")
-    tam_nhin_toi_thieu: Optional[float] = Field(None, ge=0, description="Tầm nhìn tối thiểu")
-    tam_nhin_trung_binh: Optional[float] = Field(None, ge=0, description="Tầm nhìn trung bình")
+    # Visibility (km)
+    visibility_current: Optional[float] = Field(None, ge=0, description="Current visibility")
+    visibility_max: Optional[float] = Field(None, ge=0, description="Max visibility")
+    visibility_min: Optional[float] = Field(None, ge=0, description="Min visibility")
+    visibility_avg: Optional[float] = Field(None, ge=0, description="Average visibility")
 
-    # Xác suất sấm sét (%)
-    xac_suat_sam_set: Optional[float] = Field(None, ge=0, le=100, description="Xác suất sấm sét")
+    # Thunder probability (%)
+    thunder_probability: Optional[float] = Field(None, ge=0, le=100, description="Thunder probability")
 
 
 # ============================= MAIN SCHEMA =============================
@@ -122,13 +122,13 @@ class WeatherDataSchema(BaseModel):
     # Thông tin vị trí
     location: LocationSchema = Field(..., description="Thông tin vị trí trạm quan trắc")
 
-    # Thời gian
-    dau_thoi_gian: datetime = Field(..., description="Dấu thời gian quan trắc")
-    thoi_gian_cap_nhat: datetime = Field(..., description="Thời gian cập nhật dữ liệu")
+    # Time
+    timestamp: datetime = Field(..., description="Observation timestamp")
+    data_time: datetime = Field(..., description="Data update time")
 
     # Metadata
-    nguon_du_lieu: DataSource = Field(..., description="Nguồn dữ liệu")
-    chat_luong_du_lieu: DataQuality = Field(..., description="Chất lượng dữ liệu")
+    data_source: DataSource = Field(..., description="Data source")
+    data_quality: DataQuality = Field(..., description="Data quality")
 
     # Chỉ số thời tiết
     metrics: WeatherMetricsSchema = Field(..., description="Các chỉ số thời tiết")
@@ -140,21 +140,21 @@ class WeatherDataSchema(BaseModel):
             datetime: lambda v: v.isoformat(),
         }
 
-    @validator('dau_thoi_gian', 'thoi_gian_cap_nhat', pre=True)
+    @validator('timestamp', 'data_time', pre=True, check_fields=False)
     def parse_datetime(cls, v):
         """Parse datetime từ string nếu cần."""
         if isinstance(v, str):
             return datetime.fromisoformat(v.replace('Z', '+00:00'))
         return v
 
-    @validator('nguon_du_lieu', pre=True)
+    @validator('data_source', pre=True, check_fields=False)
     def parse_data_source(cls, v):
         """Parse data source từ string."""
         if isinstance(v, str):
             return DataSource(v.lower())
         return v
 
-    @validator('chat_luong_du_lieu', pre=True)
+    @validator('data_quality', pre=True, check_fields=False)
     def parse_data_quality(cls, v):
         """Parse data quality từ string."""
         if isinstance(v, str):
@@ -179,12 +179,12 @@ class WeatherDataSchema(BaseModel):
 
     @classmethod
     def from_flat_dict(cls, data: Dict[str, Any]) -> WeatherDataSchema:
-        """Tạo instance từ dict phẳng."""
+        """Tạo instance từ dict phẳng với tên cột snake_case tiếng Anh."""
         # Không mutate dict gốc
         data = dict(data)
 
-        # Extract location fields
-        location_fields = ['ma_tram', 'ten_tram', 'tinh_thanh_pho', 'huyen', 'vi_do', 'kinh_do']
+        # Extract location fields (snake_case English)
+        location_fields = ['station_id', 'station_name', 'province', 'district', 'latitude', 'longitude']
         location_data = {}
         for f in location_fields:
             prefixed = f'location_{f}'
@@ -194,7 +194,7 @@ class WeatherDataSchema(BaseModel):
                 location_data[f] = data.pop(f)
 
         # Extract top-level fields
-        top_level_keys = ['dau_thoi_gian', 'thoi_gian_cap_nhat', 'nguon_du_lieu', 'chat_luong_du_lieu']
+        top_level_keys = ['timestamp', 'data_time', 'data_source', 'data_quality']
         top_level = {k: data.pop(k) for k in top_level_keys if k in data}
 
         # Còn lại là metrics

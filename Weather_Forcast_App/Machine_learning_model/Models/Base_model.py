@@ -1,3 +1,22 @@
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
+# Kết quả training model
+@dataclass
+class TrainingResult:
+    success: bool = True
+    message: str = ""
+    metrics: Optional[Dict[str, Any]] = None
+    best_params: Optional[Dict[str, Any]] = None
+    history: Optional[List[Dict[str, Any]]] = None
+
+# Kết quả dự đoán model
+@dataclass
+class PredictionResult:
+    predictions: Any = None
+    probabilities: Any = None
+    message: str = ""
+    timestamp: Optional[float] = None
 # ----------------------------- BASE MODEL - LỚP CƠ SỞ CHO TẤT CẢ MODELS -----------------------------------------------------------
 """
 Base_model.py - Định nghĩa lớp cơ sở (Base Model) cho tất cả các Model trong hệ thống

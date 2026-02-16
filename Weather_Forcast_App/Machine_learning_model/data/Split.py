@@ -17,11 +17,7 @@ class SplitConfig:
 
     sort_by_time_if_possible: bool = True # Sắp xếp các dữ liệu theo cột thời gian
 
-    time_col_candidates: Tuple[str, ...] = (
-        "datetime", "date_time", "timestamp", "time", "date",
-        "created_at", "updated_at",
-        "ngay", "gio", "thoigian", "thoi_gian"
-    )
+    time_col_candidates: Tuple[str, ...] = ("timestamp",)
 
 # Hàm dùng để tìm cột thời gian
 def _find_time_col(df: pd.DataFrame, candidates: Tuple[str, ...]) -> Optional[str]:

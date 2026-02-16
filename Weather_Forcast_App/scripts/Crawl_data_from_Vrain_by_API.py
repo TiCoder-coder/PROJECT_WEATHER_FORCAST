@@ -59,6 +59,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, NamedStyle
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.dataframe import dataframe_to_rows
+
 import sqlite3
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -72,8 +73,8 @@ logging.basicConfig(
 
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
-    """Quản lý kết nối và thao tác với SQLite database"""
 
+class SQLiteManager:
     def __init__(self, db_path="/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/vietnam_weather.db"):
         self.db_path = db_path
         self.conn = None
@@ -2422,19 +2423,23 @@ class VietnamWeatherCrawler:
         ws_rainfall.title = "Dữ Liệu Mưa"
 
         # Tiêu đề
-        ws_rainfall.merge_cells("A1:D1")
+        ws_rainfall.merge_cells("A1:H1")
         title_cell = ws_rainfall.cell(
             row=1, column=1, value="DỮ LIỆU LƯỢNG MƯA THEO TRẠM"
         )
         title_cell.font = Font(bold=True, size=14, color="FF6600")
         title_cell.alignment = Alignment(horizontal="center")
 
-        # Header
+        # Header đồng bộ với Crawl_data_by_API.py
         rain_headers = [
-            "Tỉnh/Thành Phố",
-            "Tên trạm",
-            "Tổng lượng mưa",
-            "Thời gian cập nhật",
+            "stationId",
+            "stationName",
+            "province",
+            "district",
+            "rainTotal",
+            "rainStatus",
+            "timestamp",
+            "dataTime"
         ]
 
         for col_idx, header in enumerate(rain_headers, start=1):
@@ -2448,31 +2453,19 @@ class VietnamWeatherCrawler:
         # Dữ liệu mưa
         for idx, data in enumerate(sorted_data, start=1):
             row_data = [
-                data.get("province_name", ""),
-                data.get("station_name", ""),
-                round(data.get("rainfall_value", 0), 2),
-                data.get("measurement_time", ""),
+                data.get("stationId", data.get("station_id", data.get("station_name", ""))),
+                data.get("stationName", data.get("station_name", "")),
+                data.get("province", data.get("province_name", "")),
+                data.get("district", ""),
+                data.get("rainTotal", data.get("rain_total", data.get("rainfall_value", 0))),
+                data.get("rainStatus", data.get("status", data.get("rainfall_description", ""))),
+                data.get("timestamp", data.get("measurement_time", "")),
+                data.get("dataTime", data.get("data_time", "")),
             ]
 
             for col_idx, value in enumerate(row_data, start=1):
                 cell = ws_rainfall.cell(row=idx + 3, column=col_idx, value=value)
                 cell.alignment = Alignment(horizontal="center", vertical="center")
-
-                # Đánh dấu màu cho lượng mưa
-                if col_idx == 5:
-                    rainfall = data.get("rainfall_value", 0)
-                    if rainfall > 10:
-                        cell.fill = PatternFill(
-                            start_color="FF9999", end_color="FF9999", fill_type="solid"
-                        )
-                    elif rainfall > 5:
-                        cell.fill = PatternFill(
-                            start_color="FFFF99", end_color="FFFF99", fill_type="solid"
-                        )
-                    elif rainfall > 1:
-                        cell.fill = PatternFill(
-                            start_color="CCFFCC", end_color="CCFFCC", fill_type="solid"
-                        )
 
                 cell.border = Border(
                     left=Side(style="thin", color="CCCCCC"),

@@ -195,49 +195,49 @@ class SQLiteManager:
     def convert_vietnamese_keys_to_english(self, data):
         """Chuyển đổi khóa tiếng Việt sang tiếng Anh"""
         key_mapping = {
-            "Mã trạm": "station_id",
-            "Tên trạm": "station_name",
-            "Tỉnh/Thành phố": "province",
-            "Huyện": "district",
-            "Vĩ độ": "latitude",
-            "Kinh độ": "longitude",
-            "Dấu thời gian": "timestamp",
-            "Nguồn dữ liệu": "data_source",
-            "Chất lượng dữ liệu": "data_quality",
-            "Thời gian cập nhật": "data_time",
-            "Nhiệt độ hiện tại": "temperature_current",
-            "Nhiệt độ tối đa": "temperature_max",
-            "Nhiệt độ tối thiểu": "temperature_min",
-            "Nhiệt độ trung bình": "temperature_avg",
-            "Độ ẩm hiện tại": "humidity_current",
-            "Độ ẩm tối đa": "humidity_max",
-            "Độ ẩm tối thiểu": "humidity_min",
-            "Độ ẩm trung bình": "humidity_avg",
-            "Áp suất hiện tại": "pressure_current",
-            "Áp suất tối đa": "pressure_max",
-            "Áp suất tối thiểu": "pressure_min",
-            "Áp suất trung bình": "pressure_avg",
-            "Tốc độ gió hiện tại": "wind_speed_current",
-            "Tốc độ gió tối đa": "wind_speed_max",
-            "Tốc độ gió tối thiểu": "wind_speed_min",
-            "Tốc độ gió trung bình": "wind_speed_avg",
-            "Hướng gió hiện tại": "wind_direction_current",
-            "Hướng gió trung bình": "wind_direction_avg",
-            "Lượng mưa hiện tại": "rain_current",
-            "Lượng mưa tối đa": "rain_max",
-            "Lượng mưa tối thiểu": "rain_min",
-            "Lượng mưa trung bình": "rain_avg",
-            "Tổng lượng mưa": "rain_total",
-            "Độ che phủ mây hiện tại": "cloud_cover_current",
-            "Độ che phủ mây tối đa": "cloud_cover_max",
-            "Độ che phủ mây tổi thiểu": "cloud_cover_min",
-            "Độ che phủ mây trung bình": "cloud_cover_avg",
-            "Tầm nhìn hiện tại": "visibility_current",
-            "Tầm nhìn đa": "visibility_max",
-            "Tầm nhìn tối thiểu": "visibility_min",
-            "Tầm nhìn trung bình": "visibility_avg",
-            "Xác xuất sấm sét": "thunder_probability",
-            "Lý do lỗi": "error_reason",
+            "station_id": "station_id",
+            "station_name": "station_name",
+            "province": "province",
+            "district": "district",
+            "latitude": "latitude",
+            "longitude": "longitude",
+            "timestamp": "timestamp",
+            "data_source": "data_source",
+            "data_quality": "data_quality",
+            "data_time": "data_time",
+            "temperature_current": "temperature_current",
+            "temperature_max": "temperature_max",
+            "temperature_min": "temperature_min",
+            "temperature_avg": "temperature_avg",
+            "humidity_current": "humidity_current",
+            "humidity_max": "humidity_max",
+            "humidity_min": "humidity_min",
+            "humidity_avg": "humidity_avg",
+            "pressure_current": "pressure_current",
+            "pressure_max": "pressure_max",
+            "pressure_min": "pressure_min",
+            "pressure_avg": "pressure_avg",
+            "wind_speed_current": "wind_speed_current",
+            "wind_speed_max": "wind_speed_max",
+            "wind_speed_min": "wind_speed_min",
+            "wind_speed_avg": "wind_speed_avg",
+            "wind_direction_current": "wind_direction_current",
+            "wind_direction_avg": "wind_direction_avg",
+            "rain_current": "rain_current",
+            "rain_max": "rain_max",
+            "rain_min": "rain_min",
+            "rain_avg": "rain_avg",
+            "rain_total": "rain_total",
+            "cloud_cover_current": "cloud_cover_current",
+            "cloud_cover_max": "cloud_cover_max",
+            "cloud_cover_min": "cloud_cover_min",
+            "cloud_cover_avg": "cloud_cover_avg",
+            "visibility_current": "visibility_current",
+            "visibility_max": "visibility_max",
+            "visibility_min": "visibility_min",
+            "visibility_avg": "visibility_avg",
+            "thunder_probability": "thunder_probability",
+            "error_reason": "error_reason",
         }
         
         converted = {}
@@ -812,64 +812,49 @@ class VietnamWeatherDataCrawler:
         rain_avg = rain_total / 24 if rain_hourly else rain_current
 
         return {
-    "Mã trạm": station_info["station_id"],
-    "Tên trạm": station_info["station_name"],
-    "Tỉnh/Thành phố": station_info["province"],
-    "Huyện": station_info["district"],
-    "Vĩ độ": station_info["latitude"],
-    "Kinh độ": station_info["longitude"],
-
-    "Dấu thời gian": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "Nguồn dữ liệu": source,
-    "Chất lượng dữ liệu": quality,
-    "Thời gian cập nhật": current.get("time", datetime.now().isoformat()),
-
-    # 🌡️ Nhiệt độ
-    "Nhiệt độ hiện tại": round(temp_current, 1),
-    "Nhiệt độ tối đa": round(temp_max, 1),
-    "Nhiệt độ tối thiểu": round(temp_min, 1),
-    "Nhiệt độ trung bình": round(temp_avg, 1),
-
-    # 💧 Độ ẩm
-    "Độ ẩm hiện tại": round(humidity_current, 1),
-    "Độ ẩm tối đa": round(humidity_max, 1),
-    "Độ ẩm tối thiểu": round(humidity_min, 1),
-    "Độ ẩm trung bình": round(humidity_avg, 1),
-
-    # 🧭 Áp suất
-    "Áp suất hiện tại": round(pressure_current, 1),
-    "Áp suất tối đa": round(pressure_max, 1),
-    "Áp suất tối thiểu": round(pressure_min, 1),
-    "Áp suất trung bình": round(pressure_avg, 1),
-
-    # 🌬️ Gió
-    "Tốc độ gió hiện tại": round(wind_speed_current, 1),
-    "Tốc độ gió tối đa": round(wind_speed_max, 1),
-    "Tốc độ gió tối thiểu": round(wind_speed_min, 1),
-    "Tốc độ gió trung bình": round(wind_speed_avg, 1),
-    "Hướng gió hiện tại": round(wind_direction_current, 1),
-    "Hướng gió trung bình": round(wind_direction_avg, 1),
-
-    # 🌧️ Mưa
-    "Lượng mưa hiện tại": round(rain_current, 1),
-    "Lượng mưa tối đa": round(rain_max, 1),
-    "Lượng mưa tối thiểu": round(rain_min, 1),
-    "Lượng mưa trung bình": round(rain_avg, 1),
-    "Tổng lượng mưa": round(rain_total, 1),
-
-    # ☁️ Các chỉ số ước tính
-    "Độ che phủ mây hiện tại": random.randint(20, 80),
-    "Độ che phủ mây tối đa": random.randint(60, 95),
-    "Độ che phủ mây tổi thiểu": random.randint(10, 40),
-    "Độ che phủ mây trung bình": random.randint(30, 70),
-
-    "Tầm nhìn hiện tại": random.randint(5, 15),
-    "Tầm nhìn đa": random.randint(10, 20),
-    "Tầm nhìn tối thiểu": random.randint(2, 8),
-    "Tầm nhìn trung bình": random.randint(6, 12),
-
-    "Xác xuất sấm sét": random.randint(0, 30),
-}
+            "station_id": station_info["station_id"],
+            "station_name": station_info["station_name"],
+            "province": station_info["province"],
+            "district": station_info["district"],
+            "latitude": station_info["latitude"],
+            "longitude": station_info["longitude"],
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "data_source": source,
+            "data_quality": quality,
+            "data_time": current.get("time", datetime.now().isoformat()),
+            "temperature_current": round(temp_current, 1),
+            "temperature_max": round(temp_max, 1),
+            "temperature_min": round(temp_min, 1),
+            "temperature_avg": round(temp_avg, 1),
+            "humidity_current": round(humidity_current, 1),
+            "humidity_max": round(humidity_max, 1),
+            "humidity_min": round(humidity_min, 1),
+            "humidity_avg": round(humidity_avg, 1),
+            "pressure_current": round(pressure_current, 1),
+            "pressure_max": round(pressure_max, 1),
+            "pressure_min": round(pressure_min, 1),
+            "pressure_avg": round(pressure_avg, 1),
+            "wind_speed_current": round(wind_speed_current, 1),
+            "wind_speed_max": round(wind_speed_max, 1),
+            "wind_speed_min": round(wind_speed_min, 1),
+            "wind_speed_avg": round(wind_speed_avg, 1),
+            "wind_direction_current": round(wind_direction_current, 1),
+            "wind_direction_avg": round(wind_direction_avg, 1),
+            "rain_current": round(rain_current, 1),
+            "rain_max": round(rain_max, 1),
+            "rain_min": round(rain_min, 1),
+            "rain_avg": round(rain_avg, 1),
+            "rain_total": round(rain_total, 1),
+            "cloud_cover_current": random.randint(20, 80),
+            "cloud_cover_max": random.randint(60, 95),
+            "cloud_cover_min": random.randint(10, 40),
+            "cloud_cover_avg": random.randint(30, 70),
+            "visibility_current": random.randint(5, 15),
+            "visibility_max": random.randint(10, 20),
+            "visibility_min": random.randint(2, 8),
+            "visibility_avg": random.randint(6, 12),
+            "thunder_probability": random.randint(0, 30),
+        }
 
 
     def calculate_avg_wind_direction(self, directions):
@@ -888,55 +873,49 @@ class VietnamWeatherDataCrawler:
     def create_fallback_weather_record(self, station_info, reason):
         """Tạo bản ghi thời tiết fallback với đầy đủ max, min, avg"""
         return {
-            "Mã trạm": station_info["station_id"],
-            "Tên trạm": station_info["station_name"],
-            "Tỉnh/Thành phố": station_info["province"],
-            "Huyện": station_info["district"],
-            "Vĩ độ": station_info["latitude"],
-            "Kinh độ": station_info["longitude"],
-            "Dấu thời gian": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Nguồn dữ liệu": "fallback",
-            "Chất lượng dữ liệu": "low",
-            "Thời gian cập nhật": datetime.now().isoformat(),
-            "Lý do lỗi": reason,
-            # Nhiệt độ
-            "Nhiệt độ hiện tại": 25.0,
-            "Nhiệt độ tối đa": 30.0,
-            "Nhiệt độ tối thiểu": 20.0,
-            "Nhiệt độ trung bình": 25.0,
-            # Độ ẩm
-            "Độ ẩm hiện tại": 75.0,
-            "Độ ẩm tối đa": 85.0,
-            "Độ ẩm tối thiểu": 65.0,
-            "Độ ẩm trung bình": 75.0,
-            # Áp suất
-            "Áp suất hiện tại": 1013.0,
-            "Áp suất tối đa": 1020.0,
-            "Áp suất tối thiểu": 1005.0,
-            "Áp suấtạirung bình": 1013.0,
-            # Gió
-            "Tốc độ gió hiện tại": 3.0,
-            "Tốc độ gió tối đa": 6.0,
-            "Tốc độ gió tối thiểu": 1.0,
-            "Tốc độ gió trung bình": 3.5,
-            "Hướng gió hiện tại": 180,
-            "Hướng gió trung bình": 180,
-            # Mưa
-            "Lượng mưa hiện tại": 0,
-            "Lượng mưa tối đa": 0,
-            "Lượng mưa tối thiểu": 0,
-            "Lượng mưa trung bình": 0,
-            "Tổng lượng mưa": 0,
-            # Các chỉ số ước tính
-            "Độ che phủ mây hiện tại": 50,
-            "Độ che phủ mây tối đa": 80,
-            "Độ che phủ mây tổi thiểu": 20,
-            "Độ che phủ mây trung bình": 50,
-            "Tầm nhìn hiện tại": 10,
-            "Tầm nhìn đa": 15,
-            "Tầm nhìn tối thiểu": 5,
-            "Tầm nhìn trung bình": 10,
-            "Xác xuất sấm sét": 5,
+            "station_id": station_info["station_id"],
+            "station_name": station_info["station_name"],
+            "province": station_info["province"],
+            "district": station_info["district"],
+            "latitude": station_info["latitude"],
+            "longitude": station_info["longitude"],
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "data_source": "fallback",
+            "data_quality": "low",
+            "data_time": datetime.now().isoformat(),
+            "error_reason": reason,
+            "temperature_current": 25.0,
+            "temperature_max": 30.0,
+            "temperature_min": 20.0,
+            "temperature_avg": 25.0,
+            "humidity_current": 75.0,
+            "humidity_max": 85.0,
+            "humidity_min": 65.0,
+            "humidity_avg": 75.0,
+            "pressure_current": 1013.0,
+            "pressure_max": 1020.0,
+            "pressure_min": 1005.0,
+            "pressure_avg": 1013.0,
+            "wind_speed_current": 3.0,
+            "wind_speed_max": 6.0,
+            "wind_speed_min": 1.0,
+            "wind_speed_avg": 3.5,
+            "wind_direction_current": 180,
+            "wind_direction_avg": 180,
+            "rain_current": 0,
+            "rain_max": 0,
+            "rain_min": 0,
+            "rain_avg": 0,
+            "rain_total": 0,
+            "cloud_cover_current": 50,
+            "cloud_cover_max": 80,
+            "cloud_cover_min": 20,
+            "cloud_cover_avg": 50,
+            "visibility_current": 10,
+            "visibility_max": 15,
+            "visibility_min": 5,
+            "visibility_avg": 10,
+            "thunder_probability": 5,
         }
 
     def crawl_all_locations(self, locations, delay=2.0):
@@ -960,8 +939,9 @@ class VietnamWeatherDataCrawler:
                 weather_data = self.parse_weather_data(location)
                 if weather_data:
                     all_weather_data.append(weather_data)
+                    # Sử dụng key tiếng Anh/camelCase
                     logging.info(
-                        f"  ✅ Thời tiết: {weather_data['Nguồn dữ liệu']} ({weather_data['Chất lượng dữ liệu']})"
+                        f"  ✅ Thời tiết: {weather_data.get('data_source', 'N/A')} ({weather_data.get('data_quality', 'N/A')})"
                     )
 
                 time.sleep(delay)
@@ -1037,9 +1017,26 @@ class VietnamWeatherDataCrawler:
 
         wb = Workbook()
 
-        # Sheet thời tiết
         if weather_data:
-            weather_df = pd.DataFrame(weather_data)
+            # Đảm bảo mọi dict đều đủ key, nếu thiếu thì bổ sung None
+            full_columns = [
+                "station_id", "station_name", "province", "district", "latitude", "longitude",
+                "timestamp", "data_source", "data_quality", "data_time", "error_reason",
+                "temperature_current", "temperature_max", "temperature_min", "temperature_avg",
+                "humidity_current", "humidity_max", "humidity_min", "humidity_avg",
+                "pressure_current", "pressure_max", "pressure_min", "pressure_avg",
+                "wind_speed_current", "wind_speed_max", "wind_speed_min", "wind_speed_avg",
+                "wind_direction_current", "wind_direction_avg",
+                "rain_current", "rain_max", "rain_min", "rain_avg", "rain_total",
+                "cloud_cover_current", "cloud_cover_max", "cloud_cover_min", "cloud_cover_avg",
+                "visibility_current", "visibility_max", "visibility_min", "visibility_avg",
+                "thunder_probability"
+            ]
+            normalized_data = []
+            for row in weather_data:
+                normalized_row = {col: row.get(col, None) for col in full_columns}
+                normalized_data.append(normalized_row)
+            weather_df = pd.DataFrame(normalized_data, columns=full_columns)
             ws_weather = wb.active
             ws_weather.title = "Weather Data"
 
@@ -1064,6 +1061,7 @@ class VietnamWeatherDataCrawler:
                     except:
                         pass
                 adjusted_width = min(max_length + 2, 50)
+                ws_weather.column_dimensions[column_letter].width = adjusted_width
                 ws_weather.column_dimensions[column_letter].width = adjusted_width
         else:
             ws_weather = wb.active

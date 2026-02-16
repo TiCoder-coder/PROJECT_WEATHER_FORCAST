@@ -1,40 +1,43 @@
 {
   "data": {
     "folder_key": "cleaned_merge",
-    "filename": "PUT_YOUR_CLEANED_FILE_NAME_HERE.csv"
+    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv"
   },
-
-  "target_column": "Tổng lượng mưa",
-
-  "group_by": null,
-
-  "split": {
-    "train_ratio": 0.8,
-    "val_ratio": 0.1,
-    "test_ratio": 0.1,
-    "sort_by_time": true,
-    "time_col": "Thời gian"
-  },
-
+  "target_column": "rain_total",
   "features": {
-    "lags": [1, 2, 3],
-    "rolling_windows": [3, 7]
+      "input_columns": [
+        "latitude", "longitude", "timestamp", "data_quality", "data_time",
+        "temperature_current", "temperature_max", "temperature_min", "temperature_avg",
+        "humidity_current", "humidity_max", "humidity_min", "humidity_avg",
+        "pressure_current", "pressure_max", "pressure_min", "pressure_avg",
+        "wind_speed_current", "wind_speed_max", "wind_speed_min", "wind_speed_avg",
+        "wind_direction_current", "wind_direction_avg",
+        "rain_current", "rain_max", "rain_min", "rain_avg",
+        "cloud_cover_current", "cloud_cover_max", "cloud_cover_min", "cloud_cover_avg",
+        "visibility_current", "visibility_max", "visibility_min", "visibility_avg",
+        "thunder_probability"
+      ]
   },
-
-  "transform": {
-    "use_scaler": true
-  },
-
   "model": {
-    "type": "xgboost",
+    "type": "ensemble",
     "params": {
-      "task_type": "regression",
-      "random_state": 42,
-      "use_gpu": false
+      "base_models": [
+        {"type": "xgboost", "params": {"n_estimators": 800, "learning_rate": 0.02, "max_depth": 16, "reg_alpha": 0, "reg_lambda": 0}},
+        {"type": "random_forest", "params": {"n_estimators": 800, "max_depth": 18}},
+        {"type": "lightgbm", "params": {"n_estimators": 800, "learning_rate": 0.02, "max_depth": 16, "reg_alpha": 0, "reg_lambda": 0}},
+        {"type": "catboost", "params": {"iterations": 800, "learning_rate": 0.02, "depth": 12}}
+      ],
+      "ensemble_type": "voting",
+      "voting": "soft"
     }
   },
-
-  "artifacts": {
-    "root_dir": "Weather_Forcast_App/Machine_learning_artifacts/latest"
-  }
+  "split": {
+    "test_size": 0.1,
+    "valid_size": 0.1,
+    "shuffle": true,
+    "sort_by_time": true
+  },
+  "cv_folds": 5,
+  "random_state": 42,
+  "metric": "rmse"
 }

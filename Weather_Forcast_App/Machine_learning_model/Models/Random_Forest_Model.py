@@ -470,12 +470,12 @@ class WeatherRandomForest:
         if return_proba and self.task_type == TaskType.CLASSIFICATION:
             probabilities = self.model.predict_proba(X_array)
         
-        prediction_time = (datetime.now() - start_time).total_seconds()
+        timestamp = (datetime.now() - start_time).total_seconds()
         
         return PredictionResult(
             predictions=predictions,
             probabilities=probabilities,
-            prediction_time=prediction_time
+            timestamp=timestamp
         )
     
     def predict_single(self, sample: Dict[str, Any]) -> Any:

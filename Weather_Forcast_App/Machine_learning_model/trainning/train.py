@@ -1,3 +1,8 @@
+
+
+from __future__ import annotations
+import sys
+from pathlib import Path
 # /media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/trainning/train.py
 # ----------------------------- TRAIN "TỔNG CHỈ HUY" -----------------------------------------------------------
 """
@@ -25,13 +30,31 @@ Chạy gợi ý:
 Hoặc chạy trực tiếp:
     python /.../Weather_Forcast_App/Machine_learning_model/trainning/train.py --config config/train_config.json
 """
+# ======================================================================================
+# (1) FIX IMPORT PATH: chạy trực tiếp file vẫn import được Weather_Forcast_App.*
+# ======================================================================================
+THIS_FILE = Path(__file__).resolve()
+# .../Weather_Forcast_App/Machine_learning_model/trainning/train.py
+# project_root = .../PROJECT_WEATHER_FORECAST
+project_root = THIS_FILE
+# đi lên tới thư mục chứa Weather_Forcast_App
+for _ in range(5):
+    if (project_root / "Weather_Forcast_App").exists():
+        break
+    project_root = project_root.parent
 
-from __future__ import annotations
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Now import _load_df_via_loader (after sys.path is set)
+from Weather_Forcast_App.Machine_learning_model.trainning.tuning import _load_df_via_loader
 
 import argparse
 import json
 import sys
 import importlib
+
+# Fix: Import _load_df_via_loader from tuning.py
 import joblib
 from dataclasses import asdict
 from datetime import datetime
@@ -102,23 +125,11 @@ def _load_config(path: Path) -> Dict[str, Any]:
         # Không ép bạn cài pyyaml, nhưng nếu có thì đọc được
         try:
             import yaml  # type: ignore
+            return yaml.safe_load(path.read_text(encoding="utf-8"))
         except Exception as e:
             raise RuntimeError("Config is YAML but PyYAML not installed. Install pyyaml or use JSON.") from e
-        return yaml.safe_load(path.read_text(encoding="utf-8"))
 
-    raise ValueError(f"Unsupported config extension: {ext}. Use .json or .yml/.yaml")
-
-def _load_df_via_loader(app_root: Path, folder_key: str, filename: str) -> tuple[pd.DataFrame, object]:
-    loader = DataLoader(base_path=str(app_root))  # ✅ base_path trỏ về Weather_Forcast_App
-    result = loader.load_all(folder_key, filename)
-
-    if not result.is_success or result.data is None:
-        raise FileNotFoundError(f"Cannot load data: folder_key={folder_key}, filename={filename}. Error: {result.message}")
-
-    if not isinstance(result.data, pd.DataFrame):
-        raise ValueError(f"Loaded data is not a DataFrame. Got: {type(result.data)}")
-
-    return result.data, result.file_info
+    raise ValueError(f"Unsupported config extension: {ext}")
 
 def _now_tag() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -132,8 +143,23 @@ def _ensure_dir(p: Path) -> None:
 
 
 def _save_json(path: Path, data: Dict[str, Any]) -> None:
+    import enum
+    def default(obj):
+        if isinstance(obj, enum.Enum):
+            return obj.value
+        if hasattr(obj, "to_dict"):
+            return obj.to_dict()
+        if hasattr(obj, "__dict__"):
+            return obj.__dict__
+        try:
+            from dataclasses import asdict as dc_asdict
+            if hasattr(obj, "__dataclass_fields__"):
+                return dc_asdict(obj)
+        except Exception:
+            pass
+        return str(obj)
     _ensure_dir(path.parent)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2, default=default), encoding="utf-8")
 
 
 def _save_split_csvs(
@@ -227,15 +253,15 @@ def _create_model(model_type: str, model_config: Dict[str, Any]):
     Sử dụng dynamic import để giảm số dòng code.
     """
     model_type = (model_type or "").lower().strip()
-    
+    if model_type == "ensemble":
+        base_models = model_config.get("base_models", [])
+        from Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Model import WeatherEnsembleModel
+        return WeatherEnsembleModel(base_models=base_models, model_registry=MODEL_REGISTRY)
     if model_type not in MODEL_REGISTRY:
         raise ValueError(f"Unsupported model_type='{model_type}'. Use: {list(set(MODEL_REGISTRY.keys()))}")
-    
-    # Dynamic import (importlib already imported at top-level)
     module_path, class_name = MODEL_REGISTRY[model_type].rsplit(".", 1)
     module = importlib.import_module(module_path)
     model_class = getattr(module, class_name)
-    
     return model_class(**model_config)
 
 
@@ -288,7 +314,8 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     # (3) Validate schema (Schema.py)
     # --------------------------
-    df_raw, file_info = _load_df_via_loader(app_root, folder_key, filename)
+    df_raw = _load_df_via_loader(app_root, folder_key, filename)
+    file_info = None  # tuning._load_df_via_loader does not return file_info
 
     if len(df_raw) == 0:
         raise RuntimeError("After loading data: no rows left. Check input data.")
@@ -413,6 +440,62 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     metrics["valid"] = _evaluate_set(X_valid_t, y_valid)
     metrics["test"] = _evaluate_set(X_test_t, y_test)
 
+
+    # --- Overfit/Underfit & Accuracy Diagnostics ---
+    def detect_overfit_underfit(metrics_dict, tolerance=0.05):
+        """
+        Detect overfit/underfit based on train/valid metrics.
+        For regression: use RMSE or MAE. For classification: use Rain_Accuracy if present.
+        Returns: (status, details)
+        """
+        train = metrics_dict.get("train", {})
+        valid = metrics_dict.get("valid", {})
+        # Prefer RMSE, fallback to MAE
+        metric_name = None
+        for m in ["RMSE", "MAE", "Rain_Accuracy"]:
+            if m in train and m in valid:
+                metric_name = m
+                break
+        if not metric_name:
+            return ("unknown", "Insufficient metrics for overfit/underfit detection.")
+        train_score = train[metric_name]
+        valid_score = valid[metric_name]
+        # For accuracy, higher is better; for errors, lower is better
+        if metric_name == "Rain_Accuracy":
+            diff = train_score - valid_score
+            if diff > tolerance:
+                return ("overfit", f"Train accuracy ({train_score:.3f}) > Valid accuracy ({valid_score:.3f}) by {diff:.3f}")
+            elif diff < -tolerance:
+                return ("underfit", f"Valid accuracy ({valid_score:.3f}) > Train accuracy ({train_score:.3f}) by {-diff:.3f}")
+            else:
+                return ("good", f"Train/Valid accuracy are similar (diff={diff:.3f})")
+        else:
+            diff = valid_score - train_score
+            if diff > tolerance * train_score:
+                return ("overfit", f"Valid error ({valid_score:.3f}) > Train error ({train_score:.3f}) by {diff:.3f}")
+            elif diff < -tolerance * train_score:
+                return ("underfit", f"Train error ({train_score:.3f}) > Valid error ({valid_score:.3f}) by {-diff:.3f}")
+            else:
+                return ("good", f"Train/Valid errors are similar (diff={diff:.3f})")
+
+    overfit_status, overfit_details = detect_overfit_underfit(metrics)
+    metrics["diagnostics"] = {
+        "overfit_status": overfit_status,
+        "overfit_details": overfit_details,
+    }
+
+    # Print accuracy if available
+    accuracy_msg = ""
+    if "Rain_Accuracy" in metrics["test"]:
+        acc = metrics["test"]["Rain_Accuracy"]
+        accuracy_msg = f"Test Rain_Accuracy: {acc:.4f} ({acc*100:.2f}%)"
+    elif "RMSE" in metrics["test"]:
+        rmse = metrics["test"]["RMSE"]
+        accuracy_msg = f"Test RMSE: {rmse:.4f}"
+    elif "MAE" in metrics["test"]:
+        mae = metrics["test"]["MAE"]
+        accuracy_msg = f"Test MAE: {mae:.4f}"
+
     metrics_path = artifacts_latest / "Metrics.json"
     _save_json(metrics_path, metrics)
 
@@ -489,6 +572,29 @@ def main():
     print("Pipeline:", info["transform"]["pipeline_path"])
     print("Metrics:", info["artifacts"]["metrics"])
     print("Train info:", str(Path(info["model"]["model_path"]).parent / "Train_info.json"))
+    # Print diagnostics if available
+    try:
+        import json
+        with open(info["artifacts"]["metrics"], "r") as f:
+            metrics = json.load(f)
+        diag = metrics.get("diagnostics", {})
+        print("-" * 80)
+        print(f"Overfit/Underfit status: {diag.get('overfit_status', 'N/A')}")
+        print(f"Details: {diag.get('overfit_details', '')}")
+        if "test" in metrics:
+            test_metrics = metrics["test"]
+            if "Rain_Accuracy" in test_metrics:
+                acc = test_metrics["Rain_Accuracy"]
+                print(f"Test Rain_Accuracy: {acc:.4f} ({acc*100:.2f}%)")
+            elif "RMSE" in test_metrics:
+                rmse = test_metrics["RMSE"]
+                print(f"Test RMSE: {rmse:.4f}")
+            elif "MAE" in test_metrics:
+                mae = test_metrics["MAE"]
+                print(f"Test MAE: {mae:.4f}")
+        print("-" * 80)
+    except Exception as e:
+        print(f"[Diagnostics] Could not print overfit/underfit/accuracy: {e}")
     print("=" * 80)
 
 

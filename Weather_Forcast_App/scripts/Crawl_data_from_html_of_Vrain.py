@@ -157,13 +157,14 @@ csv_path = OUTPUT_DIR / f"Bao_cao_{timestamp}.csv"
 
 with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
     fieldnames = [
-        "Tỉnh/Thành phố",
-        "Tên trạm",
-        "Huyện",
-        "Tổng lượng mưa",
-        "Tình trạng",
-        "Dấu thời gian",
-        "Thời gian cập nhập",
+        "station_id",
+        "station_name",
+        "province",
+        "district",
+        "rain_total",
+        "status",
+        "timestamp",
+        "data_time"
     ]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
@@ -245,13 +246,14 @@ with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
 
                 writer.writerow(
                     {
-                        "Tỉnh/Thành phố": province_name,
-                        "Tên trạm": station_name,
-                        "Huyện": xa_phuong,
-                        "Tổng lượng mưa": rainfall,
-                        "Tình trạng": status,
-                        "Dấu thời gian": datetime_info,
-                        "Thời gian cập nhập": current_crawl_datetime,
+                        "station_id": station_name,  # station_id chưa có, tạm dùng station_name
+                        "station_name": station_name,
+                        "province": province_name,
+                        "district": xa_phuong,
+                        "rain_total": rainfall,
+                        "status": status,
+                        "timestamp": datetime_info,
+                        "data_time": current_crawl_datetime,
                     }
                 )
 

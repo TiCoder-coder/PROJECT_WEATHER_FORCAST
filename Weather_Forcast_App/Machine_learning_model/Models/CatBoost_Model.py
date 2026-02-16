@@ -319,12 +319,19 @@ class WeatherCatBoost:
                 print(f"   📉 Loss function: {self.loss_function}")
             
             # Train
-            self.model.fit(
-                train_pool,
-                eval_set=val_pool,
-                plot=plot,
-                verbose=self.params.get('verbose', 100) if verbose else 0
-            )
+            if validation_split and validation_split > 0:
+                self.model.fit(
+                    train_pool,
+                    eval_set=val_pool,
+                    plot=plot,
+                    verbose=self.params.get('verbose', 100) if verbose else 0
+                )
+            else:
+                self.model.fit(
+                    train_pool,
+                    plot=plot,
+                    verbose=self.params.get('verbose', 100) if verbose else 0
+                )
             
             # Evaluate
             y_pred = self.model.predict(X_val)
@@ -541,12 +548,12 @@ class WeatherCatBoost:
         if return_proba and self.task_type == TaskType.CLASSIFICATION:
             probabilities = self.model.predict_proba(pool)
         
-        prediction_time = (datetime.now() - start_time).total_seconds()
+        timestamp = (datetime.now() - start_time).total_seconds()
         
         return PredictionResult(
             predictions=predictions,
             probabilities=probabilities,
-            prediction_time=prediction_time
+            timestamp=timestamp
         )
     
     def predict_single(self, sample: Dict[str, Any]) -> Any:

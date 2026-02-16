@@ -141,6 +141,14 @@ class WeatherLightGBM:
         if not LIGHTGBM_AVAILABLE:
             raise ImportError("LightGBM chưa được cài. Hãy chạy: pip install lightgbm")
 
+        # Trộn params người dùng + params mặc định
+        base = DEFAULT_LGB_PARAMS.copy()
+        user_params = dict(params) if params else {}
+        # Pop task_type from params if present
+        if "task_type" in user_params:
+            task_type = user_params.pop("task_type")
+        base.update(user_params)
+
         # Xác định task: regression / classification
         self.task_type = TaskType(task_type.lower())
 
@@ -149,11 +157,6 @@ class WeatherLightGBM:
 
         # Tuỳ chọn GPU (nếu lightgbm build hỗ trợ GPU)
         self.use_gpu = bool(use_gpu)
-
-        # Trộn params người dùng + params mặc định
-        base = DEFAULT_LGB_PARAMS.copy()
-        if params:
-            base.update(params)
 
         # đồng bộ random_state
         base["random_state"] = self.random_state
@@ -168,7 +171,8 @@ class WeatherLightGBM:
         self.status = ModelStatus.UNTRAINED
 
         # Estimator sklearn wrapper của LightGBM (LGBMRegressor hoặc LGBMClassifier)
-        self.model: Union[LGBMRegressor, LGBMClassifier, None] = None
+        from typing import Any, Optional
+        self.model: Optional[Any] = None
 
         # Schema / metadata
         # feature_names: cột feature sau preprocess (datetime -> derived, categorical -> category)
@@ -302,7 +306,7 @@ class WeatherLightGBM:
 
             # 5) callbacks: early stopping + log
             callbacks = []
-            # Nếu có validation => mới early stopping được
+            # Only add early stopping callback if validation is present
             if X_val_df is not None and y_val_arr is not None and early_stopping_rounds and early_stopping_rounds > 0:
                 callbacks.append(
                     lgb.early_stopping(
@@ -330,27 +334,25 @@ class WeatherLightGBM:
             if self.cat_features:
                 fit_kwargs["categorical_feature"] = self.cat_features
 
-            # eval_set: truyền validation set để LightGBM theo dõi metric và early stopping
+            # Only set eval_set, early stopping, and callbacks if validation set is present
             if X_val_df is not None and y_val_arr is not None:
                 fit_kwargs["eval_set"] = [(X_val_df, y_val_arr)]
-
-            # callbacks: early stopping + log
-            if callbacks:
-                fit_kwargs["callbacks"] = callbacks
-
-            # Thử fit với callbacks (LightGBM version mới thường ok)
-            try:
-                self.model.fit(X_train_df, y_train, **fit_kwargs)
-            except TypeError:
-                # Fallback cho một số version LightGBM cũ không nhận callbacks trong fit()
-                fit_kwargs.pop("callbacks", None)
-
-                # Với version cũ: dùng early_stopping_rounds + verbose=False
-                if (X_val_df is not None and y_val_arr is not None) and early_stopping_rounds and early_stopping_rounds > 0:
-                    fit_kwargs["early_stopping_rounds"] = int(early_stopping_rounds)
-                    fit_kwargs["verbose"] = False
-
-                self.model.fit(X_train_df, y_train, **fit_kwargs)
+                if callbacks:
+                    fit_kwargs["callbacks"] = callbacks
+                # Try fit with callbacks (newer LightGBM)
+                try:
+                    self.model.fit(X_train_df, y_train, **fit_kwargs)
+                except TypeError:
+                    fit_kwargs.pop("callbacks", None)
+                    # Fallback for old LightGBM: use early_stopping_rounds + verbose=False
+                    if early_stopping_rounds and early_stopping_rounds > 0:
+                        fit_kwargs["early_stopping_rounds"] = int(early_stopping_rounds)
+                        fit_kwargs["verbose"] = False
+                    self.model.fit(X_train_df, y_train, **fit_kwargs)
+            else:
+                # No validation set: fit with only X_train_df, y_train and minimal kwargs (no early stopping)
+                minimal_fit_kwargs = {k: v for k, v in fit_kwargs.items() if k in ["eval_metric", "categorical_feature"]}
+                self.model.fit(X_train_df, y_train, **minimal_fit_kwargs)
             self.status = ModelStatus.TRAINED
 
             # 7) Collect metrics / evals
@@ -444,7 +446,7 @@ class WeatherLightGBM:
         return PredictionResult(
             predictions=np.array(pred),
             probabilities=probs,
-            prediction_time=float(time.time() - start),
+            timestamp=float(time.time() - start),
         )
 
     def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:

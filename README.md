@@ -1,19 +1,5 @@
 ---
 
-<h3>🔒 License</h3>
-
-<p>
-        <b>MIT License</b> <br>
-        Copyright (c) 2026 Võ Anh Nhật, Dư Quốc Việt, Trương Hoài Tú, Võ Huỳnh Anh Tuần
-        <br>
-        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-        <br>
-        The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-        <br>
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-</p>
-<div align="center">
-
 # 🌦️ Weather_Forcast_App — Weather Data Pipeline & Dashboard
 
 <b>Django</b> app để <b>crawl</b> dữ liệu thời tiết → <b>gộp (merge)</b> → <b>làm sạch (clean)</b> → <b>xem trước / tải về</b> dataset (CSV/Excel/JSON/TXT) với giao diện “glass + weather effects”.
@@ -1301,6 +1287,8 @@ pip install -r requirements.txt
 
 python manage.py migrate
 python manage.py runserver
+
+Check train: python3 Weather_Forcast_App/Machine_learning_model/trainning/train.py --config Weather_Forcast_App/Machine_learning_model/config/train_config.json
 ```
 
 ---

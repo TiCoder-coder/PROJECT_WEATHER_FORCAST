@@ -182,7 +182,8 @@ class WeatherXGBoost:
         self.status = ModelStatus.UNTRAINED
 
         # model sẽ là XGBRegressor hoặc XGBClassifier tuỳ task_type
-        self.model: Union[XGBRegressor, XGBClassifier, None] = None
+        from typing import Any, Optional
+        self.model: Optional[Any] = None
 
         # metadata để lưu / debug
         self.feature_names: List[str] = []
@@ -334,12 +335,11 @@ class WeatherXGBoost:
             except Exception:
                 pass
 
-            # Nếu có validation và early_stopping_rounds > 0 thì set early stopping
+            # Only set early_stopping_rounds if validation is present
             if X_val_df is not None and y_val_arr is not None and early_stopping_rounds and early_stopping_rounds > 0:
                 try:
                     self.model.set_params(early_stopping_rounds=int(early_stopping_rounds))
                 except Exception:
-                    # nếu version nào đó không hỗ trợ, bỏ qua early stopping
                     pass
 
             # =============================================================
@@ -348,13 +348,14 @@ class WeatherXGBoost:
             #   + verbose: in log quá trình train
             #   + eval_set: chỉ đưa vào nếu có validation
             # =============================================================
-            fit_kwargs: Dict[str, Any] = {
-                "verbose": bool(verbose),
-            }
+            fit_kwargs: Dict[str, Any] = {"verbose": bool(verbose)}
             if X_val_df is not None and y_val_arr is not None:
                 fit_kwargs["eval_set"] = [(X_val_df, y_val_arr)]
-
-            self.model.fit(X_train_df, y_train, **fit_kwargs)
+                self.model.fit(X_train_df, y_train, **fit_kwargs)
+            else:
+                # No validation: fit with only X_train_df, y_train and minimal kwargs (no early stopping)
+                minimal_fit_kwargs = {k: v for k, v in fit_kwargs.items() if k in ["verbose"]}
+                self.model.fit(X_train_df, y_train, **minimal_fit_kwargs)
 
             # =============================================================
             # (7) UPDATE STATUS
@@ -432,7 +433,7 @@ class WeatherXGBoost:
         return PredictionResult(
             predictions=np.array(pred),
             probabilities=probs,
-            prediction_time=float(time.time() - start),
+            timestamp=float(time.time() - start),
         )
 
     def predict_proba(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:

@@ -26,6 +26,18 @@ class CustomEnum(Enum):
         # ------------------------------------------------------------
         pass
 
+# ============================================================
+# ModelStatus: Enum cho trạng thái của mô hình ML
+# ============================================================
+class ModelStatus(CustomEnum):
+    UNTRAINED = "untrained"
+    INIT = "init"
+    TRAINING = "training"
+    TRAINED = "trained"
+    FAILED = "failed"
+    SAVED = "saved"
+    LOADED = "loaded"
+
 
 # ============================================================
 # Role: Enum định nghĩa các vai trò (role) trong hệ thống.
@@ -36,6 +48,12 @@ class CustomEnum(Enum):
 # ============================================================
 
 # Dinh nghia class Role
+class TaskType(CustomEnum):
+    """Enum for ML task types."""
+    CLASSIFICATION = "classification"
+    REGRESSION = "regression"
+    RANKING = "ranking"
+
 class Role(CustomEnum):
     # ------------------------------------------------------------
     # Mỗi dòng dưới đây tạo ra một "member" của Enum Role.

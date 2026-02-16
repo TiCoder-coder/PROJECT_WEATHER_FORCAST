@@ -46,11 +46,8 @@ import pandas as pd
 
 # Mapping folder key -> đường dẫn thực tế (relative to app)
 FOLDER_MAPPING: Dict[str, str] = {
-    'output': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl',
-    'merged': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge',
-    'cleaned': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean',
+    # Only allow loading from the clean merged folder
     'cleaned_merge': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_merge_clean',
-    'cleaned_raw': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_not_merge_clean',
 }
 
 # Các extension được hỗ trợ
@@ -124,7 +121,7 @@ class FileInfo:
             'path': self.path,
             'size_bytes': self.size_bytes,
             'size_display': self.size_display,
-            'file_type': self.file_type.value,
+            'file_type': self.file_type.value if isinstance(self.file_type, Enum) else self.file_type,
             'extension': self.extension,
             'modified_time': self.modified_time.isoformat() if self.modified_time else None,
             'created_time': self.created_time.isoformat() if self.created_time else None,
@@ -177,9 +174,8 @@ class LoadResult:
                 data_serialized = self.data
             else:
                 data_serialized = str(self.data)
-        
         return {
-            'status': self.status.value,
+            'status': self.status.value if isinstance(self.status, Enum) else self.status,
             'data': data_serialized,
             'file_info': self.file_info.to_dict() if self.file_info else None,
             'message': self.message,
@@ -209,18 +205,15 @@ class DataLoader:
     
     Example:
         >>> loader = DataLoader()
-        >>> 
-        >>> # Lấy danh sách file trong thư mục output
-        >>> files = loader.list_files('output')
+        >>> # Lấy danh sách file trong thư mục cleaned_merge (chỉ folder này được phép)
+        >>> files = loader.list_files('cleaned_merge')
         >>> for f in files:
         ...     print(f.name, f.size_display)
-        >>> 
-        >>> # Load file với pagination
-        >>> result = loader.load_file('merged', 'data.csv', page=1, per_page=50)
+        >>> # Load file với pagination (chỉ từ cleaned_merge)
+        >>> result = loader.load_file('cleaned_merge', 'data.csv', page=1, per_page=50)
         >>> if result.is_success:
         ...     df = result.data
         ...     print(f"Loaded {len(df)} rows")
-        >>> 
         >>> # Lấy thông tin chi tiết file
         >>> info = loader.get_file_info('cleaned_merge', 'cleaned_data.csv')
         >>> print(f"Rows: {info.row_count}, Columns: {info.columns}")
@@ -664,9 +657,8 @@ class DataLoader:
         skiprows: Optional[int] = None,
         usecols: Optional[List[str]] = None
     ) -> pd.DataFrame:
-        """Đọc file thành DataFrame."""
+        """Đọc file thành DataFrame và kiểm tra cột 'timestamp'."""
         file_type = self._get_file_type(file_path)
-        
         kwargs: Dict[str, Any] = {}
         if nrows is not None:
             kwargs['nrows'] = nrows if nrows > 0 else None
@@ -674,20 +666,23 @@ class DataLoader:
             kwargs['skiprows'] = range(1, skiprows + 1)  # Skip rows sau header
         if usecols:
             kwargs['usecols'] = usecols
-        
         if file_type == FileType.CSV:
-            return pd.read_csv(file_path, encoding='utf-8', **kwargs)
+            df = pd.read_csv(file_path, encoding='utf-8', **kwargs)
         elif file_type == FileType.EXCEL:
             # Excel không hỗ trợ skiprows range tốt
             if 'skiprows' in kwargs:
                 del kwargs['skiprows']
                 df = pd.read_excel(file_path, **kwargs)
                 if skiprows:
-                    return df.iloc[skiprows:]
-                return df
-            return pd.read_excel(file_path, **kwargs)
+                    df = df.iloc[skiprows:]
+            else:
+                df = pd.read_excel(file_path, **kwargs)
         else:
             raise ValueError(f"Cannot read as DataFrame: {file_type}")
+        # Enforce 'timestamp' column
+        if 'timestamp' not in df.columns:
+            raise ValueError(f"File {file_path} is missing required 'timestamp' column.")
+        return df
     
     def _load_tabular(
         self,
@@ -741,21 +736,28 @@ class DataLoader:
         """Load file JSON."""
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
-        # Nếu là list, có thể pagination
+        # Nếu là list, convert sang DataFrame
         if isinstance(data, list):
-            total_rows = len(data)
+            import pandas as pd
+            data_df = pd.DataFrame(data)
+            total_rows = len(data_df)
+            return LoadResult(
+                status=LoadStatus.SUCCESS,
+                data=data_df,
+                file_info=file_info,
+                message="JSON loaded successfully (as DataFrame)",
+                total_rows=total_rows,
+                total_pages=1,
+            )
         else:
-            total_rows = 1
-        
-        return LoadResult(
-            status=LoadStatus.SUCCESS,
-            data=data,
-            file_info=file_info,
-            message="JSON loaded successfully",
-            total_rows=total_rows,
-            total_pages=1,
-        )
+            return LoadResult(
+                status=LoadStatus.SUCCESS,
+                data=data,
+                file_info=file_info,
+                message="JSON loaded successfully",
+                total_rows=1,
+                total_pages=1,
+            )
     
     def _load_text(
         self,
@@ -818,9 +820,10 @@ def quick_load(folder_key: str, filename: str) -> Optional[pd.DataFrame]:
         >>> if df is not None:
         ...     print(df.head())
     """
+    if folder_key != 'cleaned_merge':
+        raise ValueError("Only 'cleaned_merge' folder is allowed for loading data.")
     loader = get_loader()
     result = loader.load_all(folder_key, filename)
-    
     if result.is_success and isinstance(result.data, pd.DataFrame):
         return result.data
     return None
@@ -836,6 +839,8 @@ def quick_list(folder_key: str) -> List[str]:
     Returns:
         List tên file
     """
+    if folder_key != 'cleaned_merge':
+        raise ValueError("Only 'cleaned_merge' folder is allowed for listing files.")
     loader = get_loader()
     files = loader.list_files(folder_key)
     return [f.name for f in files]
