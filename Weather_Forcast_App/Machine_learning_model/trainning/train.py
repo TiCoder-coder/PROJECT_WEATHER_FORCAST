@@ -51,7 +51,6 @@ from Weather_Forcast_App.Machine_learning_model.trainning.tuning import _load_df
 
 import argparse
 import json
-import sys
 import importlib
 
 # Fix: Import _load_df_via_loader from tuning.py
@@ -64,25 +63,8 @@ import pandas as pd
 import numpy as np
 
 # ======================================================================================
-# (1) FIX IMPORT PATH: chạy trực tiếp file vẫn import được Weather_Forcast_App.*
-# ======================================================================================
-THIS_FILE = Path(__file__).resolve()
-# .../Weather_Forcast_App/Machine_learning_model/trainning/train.py
-# project_root = .../PROJECT_WEATHER_FORECAST
-project_root = THIS_FILE
-# đi lên tới thư mục chứa Weather_Forcast_App
-for _ in range(5):
-    if (project_root / "Weather_Forcast_App").exists():
-        break
-    project_root = project_root.parent
-
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-# ======================================================================================
 # (2) IMPORT CÁC MODULE BẠN ĐÃ CÓ
 # ======================================================================================
-from Weather_Forcast_App.Machine_learning_model.data.Loader import DataLoader
 from Weather_Forcast_App.Machine_learning_model.data.Schema import validate_weather_dataframe
 from Weather_Forcast_App.Machine_learning_model.data.Split import SplitConfig, split_dataframe
 
@@ -253,16 +235,117 @@ def _create_model(model_type: str, model_config: Dict[str, Any]):
     Sử dụng dynamic import để giảm số dòng code.
     """
     model_type = (model_type or "").lower().strip()
+    cfg = dict(model_config or {})
+
     if model_type == "ensemble":
-        base_models = model_config.get("base_models", [])
+        base_models = cfg.get("base_models", [])
         from Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Model import WeatherEnsembleModel
         return WeatherEnsembleModel(base_models=base_models, model_registry=MODEL_REGISTRY)
     if model_type not in MODEL_REGISTRY:
         raise ValueError(f"Unsupported model_type='{model_type}'. Use: {list(set(MODEL_REGISTRY.keys()))}")
+
     module_path, class_name = MODEL_REGISTRY[model_type].rsplit(".", 1)
     module = importlib.import_module(module_path)
     model_class = getattr(module, class_name)
-    return model_class(**model_config)
+
+    # task_type mặc định cho training pipeline hiện tại là regression
+    task_type = str(cfg.pop("task_type", "regression")).lower()
+
+    # Các wrapper có signature khác nhau:
+    # - XGBoost/LightGBM: nhận `params=...`
+    # - RandomForest/CatBoost: nhận trực tiếp kwargs
+    if model_type in {"xgb", "xgboost", "lgbm", "lightgbm"}:
+        return model_class(task_type=task_type, params=cfg)
+
+    if model_type in {"rf", "random_forest", "randomforest", "cat", "catboost"}:
+        return model_class(task_type=task_type, **cfg)
+
+    return model_class(**cfg)
+
+
+def _train_model(model, model_type: str, X_train, y_train, X_valid, y_valid):
+    """
+    Train model theo đúng signature từng wrapper, ưu tiên dùng validation set
+    khi wrapper hỗ trợ để tránh split lặp không cần thiết.
+    """
+    mtype = (model_type or "").lower().strip()
+
+    def _ensure_training_success(train_output):
+        # Nhiều wrapper trả TrainingResult(success=...) thay vì raise exception
+        # -> ép fail-fast để không tiếp tục với model train lỗi.
+        if hasattr(train_output, "success") and not bool(getattr(train_output, "success")):
+            msg = getattr(train_output, "message", "Unknown training error")
+            raise RuntimeError(f"Model training failed: {msg}")
+        return train_output
+
+    if hasattr(model, "train"):
+        # XGBoost / LightGBM wrappers hỗ trợ truyền validation trực tiếp
+        if mtype in {"xgb", "xgboost", "lgbm", "lightgbm"}:
+            try:
+                out = model.train(
+                    X_train,
+                    y_train,
+                    X_val=X_valid,
+                    y_val=y_valid,
+                    val_size=0.0,
+                    shuffle=False,
+                    verbose=False,
+                )
+                return _ensure_training_success(out)
+            except TypeError:
+                pass
+
+        # RandomForest/CatBoost wrappers hiện chưa nhận X_val/y_val trực tiếp,
+        # nên để wrapper tự split nội bộ với default validation_split hợp lệ.
+        if mtype in {"rf", "random_forest", "randomforest"}:
+            try:
+                out = model.train(X_train, y_train, verbose=False)
+                return _ensure_training_success(out)
+            except TypeError:
+                pass
+        if mtype in {"cat", "catboost"}:
+            try:
+                out = model.train(X_train, y_train, verbose=False)
+                return _ensure_training_success(out)
+            except TypeError:
+                pass
+
+        out = model.train(X_train, y_train)
+        return _ensure_training_success(out)
+
+    if hasattr(model, "fit"):
+        return model.fit(X_train, y_train)
+
+    raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
+
+
+def _normalize_metric_keys(metric_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Chuẩn hóa key metric giữa các wrapper để phần diagnostics/summary dùng ổn định.
+    """
+    if not isinstance(metric_dict, dict):
+        return metric_dict
+
+    out = dict(metric_dict)
+    alias = {
+        "rmse": "RMSE",
+        "mae": "MAE",
+        "mse": "MSE",
+        "r2": "R2",
+        "r2_score": "R2",
+        "accuracy": "Accuracy",
+        "rain_accuracy": "Rain_Accuracy",
+        "f1_score": "F1",
+        "precision": "Precision",
+        "recall": "Recall",
+    }
+
+    for key, value in list(metric_dict.items()):
+        k = str(key).lower()
+        mapped = alias.get(k)
+        if mapped and mapped not in out:
+            out[mapped] = value
+    return out
 
 
 # ======================================================================================
@@ -344,7 +427,11 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     df_train, df_valid_split, df_test = split_dataframe(df_valid, split_config)
 
     # Xác định lưu vào Dataset_merge hay Dataset_not_merge theo folder_key
-    if "merge" in folder_key.lower():
+    folder_key_lc = folder_key.lower()
+    if any(token in folder_key_lc for token in ["output", "raw", "not_merge", "not-merge"]):
+        split_out_dir = dataset_after_split_not_merge
+        split_name = "not_merge"
+    elif "merge" in folder_key_lc:
         split_out_dir = dataset_after_split_merge
         split_name = "merge"
     else:
@@ -414,12 +501,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
 
     # Wrapper của bạn thường có model.train(X, y) (nhiều file bạn làm kiểu vậy)
     # Nếu wrapper bạn khác, bạn sửa đúng method name ở đây.
-    if hasattr(model, "train"):
-        model.train(X_train, y_train)
-    elif hasattr(model, "fit"):
-        model.fit(X_train, y_train)
-    else:
-        raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
+    _train_model(model, model_type=model_type, X_train=X_train, y_train=y_train, X_valid=X_valid_t, y_valid=y_valid)
 
     # --------------------------
     # (8) Evaluate metrics - Sử dụng module metrics.py
@@ -429,12 +511,12 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     def _evaluate_set(X, y):
         """Helper để evaluate một dataset."""
         if hasattr(model, "evaluate"):
-            return model.evaluate(X, y)
+            return _normalize_metric_keys(model.evaluate(X, y))
         # Fallback: sử dụng metrics.py
         y_pred = model.predict(X)
         if hasattr(y_pred, "predictions"):  # Handle PredictionResult dataclass
             y_pred = y_pred.predictions
-        return calculate_all_metrics(np.array(y), np.array(y_pred), n_features=X.shape[1])
+        return _normalize_metric_keys(calculate_all_metrics(np.array(y), np.array(y_pred), n_features=X.shape[1]))
 
     metrics["train"] = _evaluate_set(X_train, y_train)
     metrics["valid"] = _evaluate_set(X_valid_t, y_valid)
@@ -452,7 +534,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         valid = metrics_dict.get("valid", {})
         # Prefer RMSE, fallback to MAE
         metric_name = None
-        for m in ["RMSE", "MAE", "Rain_Accuracy"]:
+        for m in ["RMSE", "MAE", "Accuracy", "Rain_Accuracy"]:
             if m in train and m in valid:
                 metric_name = m
                 break
@@ -461,7 +543,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         train_score = train[metric_name]
         valid_score = valid[metric_name]
         # For accuracy, higher is better; for errors, lower is better
-        if metric_name == "Rain_Accuracy":
+        if metric_name in {"Rain_Accuracy", "Accuracy"}:
             diff = train_score - valid_score
             if diff > tolerance:
                 return ("overfit", f"Train accuracy ({train_score:.3f}) > Valid accuracy ({valid_score:.3f}) by {diff:.3f}")
@@ -489,6 +571,9 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     if "Rain_Accuracy" in metrics["test"]:
         acc = metrics["test"]["Rain_Accuracy"]
         accuracy_msg = f"Test Rain_Accuracy: {acc:.4f} ({acc*100:.2f}%)"
+    elif "Accuracy" in metrics["test"]:
+        acc = metrics["test"]["Accuracy"]
+        accuracy_msg = f"Test Accuracy: {acc:.4f} ({acc*100:.2f}%)"
     elif "RMSE" in metrics["test"]:
         rmse = metrics["test"]["RMSE"]
         accuracy_msg = f"Test RMSE: {rmse:.4f}"
@@ -504,7 +589,12 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     model_path = artifacts_latest / "Model.pkl"
     if hasattr(model, "save"):
-        model.save(model_path)
+        try:
+            model.save(model_path)
+        except Exception:
+            # Một số wrapper (vd CatBoost) có định dạng save riêng (.cbm)
+            # nên fallback về joblib để chuẩn hóa artifact đầu ra.
+            joblib.dump(model, model_path)
     else:
         joblib.dump(model, model_path)
 
