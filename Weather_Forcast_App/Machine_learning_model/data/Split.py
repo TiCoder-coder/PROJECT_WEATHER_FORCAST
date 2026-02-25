@@ -204,11 +204,13 @@ def run_split_all(
               f"train={item['rows_train']}, val={item['rows_validate']}, test={item['rows_test']}")
 
 if __name__ == "__main__":
+    # Dynamic path: tự tính từ vị trí project root
+    _split_project_root = Path(__file__).resolve().parents[3]
     CLEANED_DATA_ROOT = Path(
-        "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean"
+        _split_project_root / "data" / "data_clean"
     )
     OUT_ROOT = Path(
-        "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split"
+        _split_project_root / "Weather_Forcast_App" / "Machine_learning_model" / "Dataset_after_split"
     )
 
     cfg = SplitConfig(train_ratio=0.80, val_ratio=0.10, test_ratio=0.10, shuffle=False)

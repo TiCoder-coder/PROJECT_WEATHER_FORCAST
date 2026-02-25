@@ -1,19 +1,63 @@
 {
-  "model_type": "xgboost",
-  "train_data": "data/data_crawl/Bao_cao_20260211_173719.csv",
-  "target": "Tổng lượng mưa",
-  "features": [
-    "Tỉnh/Thành phố",
-    "Tên trạm",
-    "Huyện",
-    "Tình trạng",
-    "Dấu thời gian",
-    "Thời gian cập nhập"
-  ],
-  "params": {
-    "n_estimators": 200,
-    "learning_rate": 0.05,
-    "max_depth": 6
+  "data": {
+    "folder_key": "cleaned_merge",
+    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv"
+  },
+  "target_column": "rain_total",
+  "group_by": "station_id",
+  "features": {
+    "lag_features": {
+      "enabled": true,
+      "windows": [1, 3, 6]
+    },
+    "rolling_features": {
+      "enabled": true,
+      "windows": [3, 6, 12]
+    },
+    "time_features": {
+      "enabled": true
+    },
+    "interaction_features": {
+      "enabled": true
+    },
+    "location_features": {
+      "enabled": true
+    }
+  },
+  "split": {
+    "test_size": 0.15,
+    "valid_size": 0.15,
+    "shuffle": false,
+    "sort_by_time": true
+  },
+  "transform": {
+    "missing_strategy": "median",
+    "scaler_type": "standard",
+    "encoding_type": "label",
+    "handle_outliers": true,
+    "outlier_method": "iqr"
+  },
+  "transform_target": {
+    "log1p": true
+  },
+  "feature_selection": {
+    "enabled": true,
+    "max_features": 150
+  },
+  "model": {
+    "type": "xgboost",
+    "params": {
+      "n_estimators": 500,
+      "learning_rate": 0.05,
+      "max_depth": 8,
+      "min_child_weight": 5,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "reg_alpha": 0.1,
+      "reg_lambda": 1.0,
+      "random_state": 42,
+      "n_jobs": -1
+    }
   },
   "cv_folds": 5,
   "random_state": 42,

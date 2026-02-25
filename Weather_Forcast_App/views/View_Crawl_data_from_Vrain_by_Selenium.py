@@ -26,7 +26,10 @@ SCRIPT_PATH = APP_ROOT / "scripts" / "Crawl_data_from_Vrain_by_Selenium.py"
 
 # OUTPUT_DIR:
 # - thư mục output nơi script selenium sẽ xuất file (xlsx/csv/xls)
-OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
+# Dynamic path: tự tính từ vị trí project, không hardcode Linux path
+from Weather_Forcast_App.paths import DATA_CRAWL_DIR
+OUTPUT_DIR = DATA_CRAWL_DIR
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
@@ -69,6 +72,9 @@ _STATE = {
     "last_size_mb": None,
 }
 
+# Thread Lock để tránh race condition khi đọc/ghi _STATE từ nhiều thread
+_STATE_LOCK = threading.Lock()
+
 # _LOG_LIMIT:
 # - giới hạn số dòng log lưu trong RAM để tránh tràn bộ nhớ
 # - nếu vượt giới hạn, chỉ giữ lại N dòng cuối cùng
@@ -87,9 +93,10 @@ def _push_log(line: str):
     line = (line or "").rstrip("\n")
     if not line:
         return
-    _STATE["logs"].append(line)
-    if len(_STATE["logs"]) > _LOG_LIMIT:
-        _STATE["logs"] = _STATE["logs"][-_LOG_LIMIT:]
+    with _STATE_LOCK:
+        _STATE["logs"].append(line)
+        if len(_STATE["logs"]) > _LOG_LIMIT:
+            _STATE["logs"] = _STATE["logs"][-_LOG_LIMIT:]
 
 
 # ============================================================
@@ -258,22 +265,15 @@ def crawl_vrain_selenium_start_view(request):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
-    # chặn chạy song song
-    if _STATE["is_running"]:
-        return JsonResponse({"ok": False, "message": "Job đang chạy rồi."}, status=409)
+    with _STATE_LOCK:
+        if _STATE["is_running"]:
+            return JsonResponse({"ok": False, "message": "Job đang chạy rồi."}, status=409)
+        job_id = uuid.uuid4().hex
+        _STATE["job_id"] = job_id
+        _STATE["is_running"] = True
+        _STATE["logs"] = []
+        _STATE["last_returncode"] = None
 
-    # tạo job_id duy nhất cho lần chạy này
-    job_id = uuid.uuid4().hex
-
-    # lưu job_id vào state để endpoint tail trả về cho frontend
-    _STATE["job_id"] = job_id
-
-    # set trạng thái running + reset logs/returncode
-    _STATE["is_running"] = True
-    _STATE["logs"] = []
-    _STATE["last_returncode"] = None
-
-    # tạo thread daemon chạy subprocess (không block request)
     t = threading.Thread(target=_run_script_worker, args=(job_id,), daemon=True)
     t.start()
 
@@ -306,18 +306,19 @@ def crawl_vrain_selenium_tail_view(request):
     except:
         offset_i = 0
 
-    logs = _STATE["logs"]
-    new_lines = logs[offset_i:]
+    with _STATE_LOCK:
+        logs = list(_STATE["logs"])
+        data = {
+            "ok": True,
+            "job_id": _STATE["job_id"],
+            "lines": logs[offset_i:],
+            "offset": len(logs),
+            "done": (not _STATE["is_running"]),
+            "is_running": _STATE["is_running"],
+            "last_returncode": _STATE["last_returncode"],
+            "last_crawl_time": _STATE["last_crawl_time"],
+            "last_file": _STATE["last_file"],
+            "last_size_mb": _STATE["last_size_mb"],
+        }
 
-    return JsonResponse({
-        "ok": True,
-        "job_id": _STATE["job_id"],
-        "lines": new_lines,
-        "offset": len(logs),
-        "done": (not _STATE["is_running"]),
-        "is_running": _STATE["is_running"],
-        "last_returncode": _STATE["last_returncode"],
-        "last_crawl_time": _STATE["last_crawl_time"],
-        "last_file": _STATE["last_file"],
-        "last_size_mb": _STATE["last_size_mb"],
-    })
+    return JsonResponse(data)

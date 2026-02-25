@@ -1,7 +1,7 @@
 {
-  "trained_at": "2026-02-16 15:00:52",
-  "project_root": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST",
-  "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model",
+  "trained_at": "2026-02-25 19:44:06",
+  "project_root": "D:\\PROJECT_WEATHER_FORCAST",
+  "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
     "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv",
@@ -9,8 +9,9 @@
   },
   "schema_report": {
     "rows_before": 7356,
-    "rows_after": 5648,
-    "rows_dropped": 1708
+    "rows_after": 7356,
+    "rows_dropped": 0,
+    "note": "schema_validation_skipped"
   },
   "split_config": {
     "train_ratio": 0.8,
@@ -23,33 +24,40 @@
     ]
   },
   "split_saved_paths": {
-    "train": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_train.csv",
-    "valid": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_valid.csv",
-    "test": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_test.csv"
+    "train": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_train.csv",
+    "valid": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_valid.csv",
+    "test": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_test.csv"
   },
   "target_column": "rain_total",
   "group_by": null,
   "feature_info": {
-    "n_created_features": 396,
-    "n_total_feature_columns": 437
+    "n_created_features": 320,
+    "n_total_feature_columns": 150,
+    "n_static_features_removed": 0,
+    "feature_selection_enabled": true
+  },
+  "target_transform": {
+    "log1p_applied": true,
+    "target_zero_ratio": 0.8531611148878314
   },
   "transform": {
-    "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Transform_pipeline.pkl",
+    "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-02-16T15:00:44.418518",
-      "n_steps": 3,
+      "fitted_at": "2026-02-25T19:43:45.791265",
+      "n_steps": 4,
       "steps": [
         "MissingValueHandler",
+        "OutlierHandler",
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 437,
+      "n_features": 150,
       "config": {
         "missing_strategy": "median",
         "scaler_type": "standard",
         "encoding_type": "label",
-        "handle_outliers": false
+        "handle_outliers": true
       }
     }
   },
@@ -87,20 +95,20 @@
         {
           "type": "catboost",
           "params": {
-            "iterations": 800,
+            "iterations": 200,
             "learning_rate": 0.02,
-            "depth": 12
+            "depth": 8
           }
         }
       ],
       "ensemble_type": "voting",
       "voting": "soft"
     },
-    "model_path": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Model.pkl"
+    "model_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Model.pkl"
   },
   "artifacts": {
-    "feature_list": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Feature_list.json",
-    "metrics": "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Metrics.json"
+    "feature_list": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Feature_list.json",
+    "metrics": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Metrics.json"
   },
   "note": "Artifacts saved to Weather_Forcast_App/Machine_learning_artifacts/latest"
 }

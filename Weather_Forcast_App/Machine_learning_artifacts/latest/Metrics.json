@@ -1,35 +1,52 @@
 {
-  "generated_at": "2026-02-16 15:00:50",
+  "generated_at": "2026-02-25 19:44:04",
   "model_type": "ensemble",
+  "applied_log_target": true,
   "train": {
-    "MAE": 0.41214240742634717,
-    "MSE": 2.1354855798414794,
-    "RMSE": 1.4613300721744829,
-    "MAPE": 206677029996.91614,
-    "sMAPE": 191.23384782876926,
-    "R2": 0.49761650006217584,
-    "Adjusted_R2": 0.4438072869560903
+    "MAE": 0.51068197395367,
+    "MSE": 4.508602588077347,
+    "RMSE": 2.123347024882496,
+    "MAPE": 68813252230.99927,
+    "sMAPE": 186.858352651616,
+    "R2": 0.09900560455768526,
+    "Adjusted_R2": 0.07543170619446404,
+    "NonZero_MAE": 3.009207822540322,
+    "NonZero_RMSE": 5.537700797600099,
+    "NonZero_count": 864,
+    "Rain_Detection_Accuracy": 0.9376274643099932
   },
   "valid": {
-    "MAE": 0.20795329486526176,
-    "MSE": 0.23830124470365485,
-    "RMSE": 0.48816108479031267,
-    "MAPE": 182929292597.7807,
-    "sMAPE": 198.8932625448472,
-    "R2": -0.12085317777662796,
-    "Adjusted_R2": -4.008256659430489
+    "MAE": 1.1705474511486558,
+    "MSE": 7.381213069345082,
+    "RMSE": 2.71683880076553,
+    "MAPE": 28772660296.308613,
+    "sMAPE": 131.21874402802462,
+    "R2": 0.17051724787511646,
+    "Adjusted_R2": -0.04253482886928861,
+    "NonZero_MAE": 1.9886361879145384,
+    "NonZero_RMSE": 3.5849246930156857,
+    "NonZero_count": 422,
+    "Rain_Detection_Accuracy": 0.9319727891156463
   },
   "test": {
-    "MAE": 0.24805152627076477,
-    "MSE": 0.4439791547868849,
-    "RMSE": 0.6663176080420544,
-    "MAPE": 172233193812.48413,
-    "sMAPE": 194.47397312065422,
-    "R2": -0.020405808851920115,
-    "Adjusted_R2": -3.5041350156354287
+    "MAE": 0.4876773513884366,
+    "MSE": 3.220002276242269,
+    "RMSE": 1.7944364787426355,
+    "MAPE": 71580203776.2225,
+    "sMAPE": 186.1755302718873,
+    "R2": 0.2307284475940382,
+    "Adjusted_R2": 0.033815934179542984,
+    "NonZero_MAE": 2.69003155963207,
+    "NonZero_RMSE": 4.558150829247221,
+    "NonZero_count": 114,
+    "Rain_Detection_Accuracy": 0.9199457259158752
   },
   "diagnostics": {
     "overfit_status": "underfit",
-    "overfit_details": "Train error (1.461) > Valid error (0.488) by 0.973"
+    "overfit_details": "Valid error (2.717) > Train error (2.123) by 0.593 | Train R2=0.099 (too low, model not learning patterns)",
+    "applied_log_target": true,
+    "n_features_after_selection": 150,
+    "n_static_features_removed": 0,
+    "target_zero_ratio": 0.8531611148878314
   }
 }

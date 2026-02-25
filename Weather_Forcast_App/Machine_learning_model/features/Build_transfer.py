@@ -72,6 +72,16 @@ VIETNAM_REGIONS = {
     'south': {'lat_min': 8.0, 'lat_max': 15.0}        # Nam Bộ
 }
 
+# Các cột TĨNH (static) - KHÔNG nên tạo lag/rolling/diff vì giá trị không đổi theo thời gian
+# Tạo features trên các cột này chỉ tạo ra noise, gây underfitting
+STATIC_COLUMN_KEYWORDS = [
+    'location_vi_do', 'location_kinh_do', 'location_ma_tram',
+    'location_tinh_thanh_pho', 'location_huyen',
+    'vi_do', 'kinh_do', 'latitude', 'longitude',
+    'lat_scaled', 'lon_scaled', 'lat_lon_interaction',
+    'region', 'province',
+]
+
 
 # ============================= WEATHER FEATURE BUILDER =============================
 
@@ -192,7 +202,11 @@ class WeatherFeatureBuilder:
         
         # Lấy config
         lag_config = self.config.get('lag_features', {})
-        if not lag_config.get('enabled', True):
+        if isinstance(lag_config, bool):
+            if not lag_config:
+                return df_result
+            lag_config = {}
+        elif not lag_config.get('enabled', True):
             return df_result
         
         # Xác định columns
@@ -255,7 +269,11 @@ class WeatherFeatureBuilder:
         
         # Lấy config
         rolling_config = self.config.get('rolling_features', {})
-        if not rolling_config.get('enabled', True):
+        if isinstance(rolling_config, bool):
+            if not rolling_config:
+                return df_result
+            rolling_config = {}
+        elif not rolling_config.get('enabled', True):
             return df_result
         
         # Xác định columns
@@ -330,7 +348,12 @@ class WeatherFeatureBuilder:
         
         # Lấy config
         time_config = self.config.get('time_features', {})
-        if not time_config.get('enabled', True):
+        # Hỗ trợ cả bool (true/false) và dict config
+        if isinstance(time_config, bool):
+            if not time_config:
+                return df_result
+            time_config = {}
+        elif not time_config.get('enabled', True):
             return df_result
         
         # Xác định time column
@@ -442,7 +465,11 @@ class WeatherFeatureBuilder:
         
         # Lấy config
         loc_config = self.config.get('location_features', {})
-        if not loc_config.get('enabled', True):
+        if isinstance(loc_config, bool):
+            if not loc_config:
+                return df_result
+            loc_config = {}
+        elif not loc_config.get('enabled', True):
             return df_result
         
         # Encode region từ tọa độ
@@ -516,7 +543,11 @@ class WeatherFeatureBuilder:
         
         # Lấy config
         inter_config = self.config.get('interaction_features', {})
-        if not inter_config.get('enabled', True):
+        if isinstance(inter_config, bool):
+            if not inter_config:
+                return df_result
+            inter_config = {}
+        elif not inter_config.get('enabled', True):
             return df_result
         
         # Tìm các cột thời tiết
@@ -727,8 +758,14 @@ class WeatherFeatureBuilder:
     
     # ============================= UTILITY METHODS =============================
     
-    def _get_numeric_weather_columns(self, df: pd.DataFrame) -> List[str]:
-        """Lấy danh sách cột numeric liên quan đến thời tiết."""
+    def _get_numeric_weather_columns(self, df: pd.DataFrame, exclude_static: bool = True) -> List[str]:
+        """Lấy danh sách cột numeric liên quan đến thời tiết.
+        
+        Args:
+            df: DataFrame
+            exclude_static: Nếu True, loại bỏ cột tĩnh (location coords) khỏi kết quả.
+                           Các cột tĩnh không nên tạo lag/rolling/diff vì chỉ tạo noise.
+        """
         weather_keywords = ['nhiet_do', 'do_am', 'ap_suat', 'toc_do_gio', 
                           'luong_mua', 'do_che_phu_may', 'tam_nhin']
         
@@ -736,7 +773,14 @@ class WeatherFeatureBuilder:
         weather_cols = [col for col in numeric_cols 
                        if any(kw in col.lower() for kw in weather_keywords)]
         
-        return weather_cols if weather_cols else numeric_cols[:10]  # Fallback to first 10 numeric
+        result = weather_cols if weather_cols else numeric_cols[:10]
+        
+        # Loại bỏ cột tĩnh (tọa độ, mã trạm) - tạo lag/rolling trên chúng chỉ tạo noise
+        if exclude_static:
+            result = [col for col in result 
+                     if not any(kw in col.lower() for kw in STATIC_COLUMN_KEYWORDS)]
+        
+        return result
     
     def _find_column(self, df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
         """Tìm cột đầu tiên tồn tại trong DataFrame."""

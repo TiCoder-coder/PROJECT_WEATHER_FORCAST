@@ -658,8 +658,16 @@ class OutlierHandler(BaseWeatherTransformer):
                 Q1 = X[col].quantile(0.25)
                 Q3 = X[col].quantile(0.75)
                 IQR = Q3 - Q1
-                lower = Q1 - self.iqr_multiplier * IQR
-                upper = Q3 + self.iqr_multiplier * IQR
+                
+                # Edge case: IQR=0 (e.g. zero-inflated data ≥75% same value)
+                # → clipping to [Q1, Q3] would destroy ALL variation.
+                # Fallback: use min/max (no clipping) for this column.
+                if IQR == 0:
+                    lower = X[col].min()
+                    upper = X[col].max()
+                else:
+                    lower = Q1 - self.iqr_multiplier * IQR
+                    upper = Q3 + self.iqr_multiplier * IQR
                 
             elif self.method == 'zscore':
                 mean = X[col].mean()

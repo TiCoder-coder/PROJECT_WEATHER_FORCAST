@@ -25,7 +25,10 @@ SCRIPT_PATH = APP_ROOT / "scripts" / "Crawl_data_from_html_of_Vrain.py"
 
 # OUTPUT_DIR:
 # - thư mục output nơi script sẽ xuất file (.xlsx/.csv)
-OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
+# Dynamic path: tự tính từ vị trí project, không hardcode Linux path
+from Weather_Forcast_App.paths import DATA_CRAWL_DIR
+OUTPUT_DIR = DATA_CRAWL_DIR
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================
@@ -62,6 +65,9 @@ _STATE = {
     "last_size_mb": None,
 }
 
+# Thread Lock để tránh race condition khi đọc/ghi _STATE từ nhiều thread
+_STATE_LOCK = threading.Lock()
+
 # _LOG_LIMIT:
 # - giới hạn số dòng log lưu giữ
 # - nếu vượt -> chỉ giữ lại N dòng cuối (mới nhất)
@@ -84,9 +90,10 @@ def _push_log(line: str):
     line = (line or "").rstrip("\n")
     if not line:
         return
-    _STATE["logs"].append(line)
-    if len(_STATE["logs"]) > _LOG_LIMIT:
-        _STATE["logs"] = _STATE["logs"][-_LOG_LIMIT:]
+    with _STATE_LOCK:
+        _STATE["logs"].append(line)
+        if len(_STATE["logs"]) > _LOG_LIMIT:
+            _STATE["logs"] = _STATE["logs"][-_LOG_LIMIT:]
 
 
 # ============================================================
@@ -262,16 +269,13 @@ def crawl_vrain_html_start_view(request):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
-    # nếu job đang chạy thì không start job mới
-    if _STATE["is_running"]:
-        return JsonResponse({"ok": False, "message": "Job đang chạy rồi."}, status=409)
+    with _STATE_LOCK:
+        if _STATE["is_running"]:
+            return JsonResponse({"ok": False, "message": "Job đang chạy rồi."}, status=409)
+        _STATE["is_running"] = True
+        _STATE["logs"] = []
+        _STATE["last_returncode"] = None
 
-    # set trạng thái bắt đầu chạy
-    _STATE["is_running"] = True
-    _STATE["logs"] = []              # reset log
-    _STATE["last_returncode"] = None # reset return code (chưa có kết quả)
-
-    # tạo thread daemon chạy worker
     t = threading.Thread(target=_run_script_worker, daemon=True)
     t.start()
 
@@ -297,32 +301,23 @@ def crawl_vrain_html_start_view(request):
 # - is_running: job còn chạy không
 # - last_*: metadata lần chạy gần nhất
 def crawl_vrain_html_tail_view(request):
-    """
-    Frontend gọi polling để lấy log mới.
-    Query param:
-      - since: index log đã có (int)
-    """
     since = request.GET.get("since", "0")
     try:
         since_i = max(0, int(since))
     except:
         since_i = 0
 
-    # logs hiện tại trong state
-    logs = _STATE["logs"]
+    with _STATE_LOCK:
+        logs = list(_STATE["logs"])
+        data = {
+            "ok": True,
+            "is_running": _STATE["is_running"],
+            "next_since": len(logs),
+            "lines": logs[since_i:],
+            "last_returncode": _STATE["last_returncode"],
+            "last_crawl_time": _STATE["last_crawl_time"],
+            "last_file": _STATE["last_file"],
+            "last_size_mb": _STATE["last_size_mb"],
+        }
 
-    # chỉ lấy các dòng log mới kể từ since_i
-    new_lines = logs[since_i:]
-
-    # trả JSON cho frontend:
-    # - next_since = len(logs) để frontend cập nhật offset
-    return JsonResponse({
-        "ok": True,
-        "is_running": _STATE["is_running"],
-        "next_since": len(logs),
-        "lines": new_lines,
-        "last_returncode": _STATE["last_returncode"],
-        "last_crawl_time": _STATE["last_crawl_time"],
-        "last_file": _STATE["last_file"],
-        "last_size_mb": _STATE["last_size_mb"],
-    })
+    return JsonResponse(data)

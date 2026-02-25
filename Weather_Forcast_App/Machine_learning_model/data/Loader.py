@@ -44,10 +44,11 @@ import pandas as pd
 
 # ============================= CONSTANTS =============================
 
-# Mapping folder key -> đường dẫn thực tế (relative to app)
+# Mapping folder key -> đường dẫn thực tế (dynamic, không hardcode)
+_LOADER_PROJECT_ROOT = str(Path(__file__).resolve().parents[3])
 FOLDER_MAPPING: Dict[str, str] = {
     # Only allow loading from the clean merged folder
-    'cleaned_merge': '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_merge_clean',
+    'cleaned_merge': str(Path(_LOADER_PROJECT_ROOT) / 'data' / 'data_clean' / 'data_merge_clean'),
 }
 
 # Các extension được hỗ trợ

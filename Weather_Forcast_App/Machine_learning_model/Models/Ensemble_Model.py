@@ -131,10 +131,6 @@ class WeatherEnsembleModel:
         except Exception:
             # Try sklearn-style: Class(**cfg)
             return model_class(**cfg)
-            # Nếu là catboost thì loại bỏ random_state khỏi config
-            if model_type == "catboost" and "random_state" in model_config:
-                model_config = dict(model_config)  # copy tránh ảnh hưởng ngoài
-                model_config.pop("random_state", None)
 
     def _fit_model(self, model: Any, X, y) -> None:
         if hasattr(model, "train"):

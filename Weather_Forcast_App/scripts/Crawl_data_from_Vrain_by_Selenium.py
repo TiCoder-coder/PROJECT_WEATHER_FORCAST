@@ -313,7 +313,9 @@ class VrainCrawlerFinal:
         ]
         df = df[schema_columns]
 
-        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
+        # Dynamic path: tự tính từ vị trí project root
+        _project_root = Path(__file__).resolve().parents[2]
+        output_dir = str(_project_root / "data" / "data_crawl")
         os.makedirs(output_dir, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

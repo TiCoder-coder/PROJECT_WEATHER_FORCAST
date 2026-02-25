@@ -63,13 +63,15 @@ def clean_data_view(request):
         # ============================================================
         # settings.BASE_DIR: root Django project (thường là thư mục manage.py)
         # Sau đó nối với path con theo cấu trúc project của bạn.
+        # Dynamic path: tự tính từ vị trí project root
+        _project_root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         if file_type == 'merged':
             file_path = os.path.join(
-                '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge', filename
+                _project_root_dir, 'data', 'data_merge', filename
             )
         else:
             file_path = os.path.join(
-                '/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl', filename
+                _project_root_dir, 'data', 'data_crawl', filename
             )
 
         # Kiểm tra xem file đó có đang tồn tại hay không
@@ -400,10 +402,12 @@ def perform_cleaning(data_df, filename, file_type="merged"):
     clean_filename = f"{os.path.splitext(filename)[0]}_cleaned_{today}.csv"
 
     # Lưu cleaned vào đúng thư mục tuyệt đối như yêu cầu
+    # Dynamic path: tự tính từ vị trí project root
+    _project_root_dir2 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     if file_type == "merged":
-        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_merge_clean"
+        output_dir = os.path.join(_project_root_dir2, "data", "data_clean", "data_merge_clean")
     else:
-        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean/data_not_merge_clean"
+        output_dir = os.path.join(_project_root_dir2, "data", "data_clean", "data_not_merge_clean")
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, clean_filename)
 

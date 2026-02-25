@@ -220,6 +220,76 @@ def _validate_schema_keep_valid_rows(df: pd.DataFrame) -> Tuple[pd.DataFrame, Di
 # ======================================================================================
 # (6) BUILD FEATURES + TRANSFORM
 # ======================================================================================
+
+# --- Các cột static KHÔNG nên tạo lag/rolling/diff (chỉ tạo noise) ---
+_STATIC_COL_KEYWORDS = [
+    'location_vi_do', 'location_kinh_do', 'location_ma_tram',
+    'location_tinh_thanh_pho', 'location_huyen',
+    'vi_do', 'kinh_do', 'latitude', 'longitude',
+]
+
+
+def _is_static_derived_feature(col_name: str) -> bool:
+    """Kiểm tra xem feature có phải là lag/rolling/diff trên cột static không."""
+    col_lower = col_name.lower()
+    temporal_suffixes = ['_lag_', '_rolling_', '_diff_', '_pct_change_']
+    for kw in _STATIC_COL_KEYWORDS:
+        if kw in col_lower and any(suf in col_lower for suf in temporal_suffixes):
+            return True
+    return False
+
+
+def _remove_static_derived_features(X: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Loại bỏ features tạo từ cột static (lat/lon lag, rolling, diff).
+    Các features này chỉ tạo noise vì lat/lon không đổi theo thời gian.
+    
+    Returns:
+        (X_cleaned, removed_columns)
+    """
+    remove_cols = [col for col in X.columns if _is_static_derived_feature(col)]
+    if remove_cols:
+        print(f"  [FEATURE CLEAN] Removed {len(remove_cols)} static-derived features (lat/lon lag/rolling/diff)")
+    return X.drop(columns=remove_cols, errors='ignore'), remove_cols
+
+
+def _select_features_by_importance(
+    X_train: pd.DataFrame, y_train: pd.Series,
+    max_features: int = 150,
+    min_importance: float = 0.0,
+) -> List[str]:
+    """
+    Dùng LightGBM nhanh để chọn top features theo importance.
+    Giúp giảm chiều dữ liệu, tránh underfitting do nhiều features noise.
+    
+    Returns:
+        list tên features đã chọn (sorted by importance desc)
+    """
+    try:
+        from lightgbm import LGBMRegressor
+        selector = LGBMRegressor(
+            n_estimators=100, max_depth=6, learning_rate=0.1,
+            subsample=0.8, colsample_bytree=0.8,
+            verbose=-1, random_state=42, n_jobs=-1,
+        )
+        selector.fit(X_train, y_train)
+        importances = selector.feature_importances_
+        feature_imp = sorted(
+            zip(X_train.columns, importances),
+            key=lambda x: x[1], reverse=True
+        )
+        # Chọn top max_features, bỏ qua min_importance nếu nó loại hết
+        selected = [name for name, imp in feature_imp if imp > min_importance][:max_features]
+        # Fallback: nếu quá ít features được chọn, lấy top max_features bất kể importance
+        if len(selected) < min(20, len(X_train.columns)):
+            selected = [name for name, _ in feature_imp[:max_features]]
+        print(f"  [FEATURE SELECT] Selected {len(selected)}/{len(X_train.columns)} features (top importance)")
+        return selected
+    except Exception as e:
+        print(f"  [FEATURE SELECT] Cannot run feature selection: {e}")
+        return X_train.columns.tolist()
+
+
 def _build_features_for_split(
     builder: WeatherFeatureBuilder,
     df: pd.DataFrame,
@@ -320,7 +390,44 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     if len(df_raw) == 0:
         raise RuntimeError("After loading data: no rows left. Check input data.")
 
-    df_valid, schema_report = _validate_schema_keep_valid_rows(df_raw)
+    skip_schema = config.get("skip_schema_validation", False)
+    if skip_schema:
+        # Skip strict schema validation — use raw data with basic cleanup
+        df_valid = df_raw.copy()
+        # Rename raw columns to expected names if needed
+        rename_map = {
+            'station_id': 'location_station_id',
+            'station_name': 'location_station_name',
+            'province': 'location_province',
+            'district': 'location_district',
+            'latitude': 'location_latitude',
+            'longitude': 'location_longitude',
+        }
+        for old, new in rename_map.items():
+            if old in df_valid.columns and new not in df_valid.columns:
+                df_valid = df_valid.rename(columns={old: new})
+        # Drop columns not needed for ML
+        for drop_col in ['status']:
+            if drop_col in df_valid.columns:
+                df_valid = df_valid.drop(columns=[drop_col])
+        # Fill NaN timestamps with a default (to allow time feature building)
+        for tc in ['timestamp', 'data_time']:
+            if tc in df_valid.columns:
+                df_valid[tc] = pd.to_datetime(df_valid[tc], errors='coerce')
+                if df_valid[tc].isna().any():
+                    default_ts = df_valid[tc].dropna().mode()
+                    if len(default_ts) > 0:
+                        df_valid[tc] = df_valid[tc].fillna(default_ts.iloc[0])
+        schema_report = {"rows_before": len(df_raw), "rows_after": len(df_valid),
+                         "rows_dropped": 0, "note": "schema_validation_skipped"}
+        print(f"  [SCHEMA] Skipped strict validation. Keeping {len(df_valid)} rows (was {len(df_raw)}).")
+        # Warn if features lack variation
+        num_cols = df_valid.select_dtypes(include='number').columns
+        n_const = sum(1 for c in num_cols if df_valid[c].nunique() <= 1)
+        if n_const > len(num_cols) * 0.5:
+            print(f"  [WARNING] {n_const}/{len(num_cols)} numeric columns are constant! Data may be a single-snapshot.")
+    else:
+        df_valid, schema_report = _validate_schema_keep_valid_rows(df_raw)
 
     if len(df_valid) == 0:
         raise RuntimeError("After schema validation: no valid rows left. Check input data & schema rules.")
@@ -337,7 +444,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         train_ratio=train_ratio,
         val_ratio=val_ratio,
         test_ratio=test_ratio,
-        shuffle=bool(split_cfg.get("shuffle", False)),
+        shuffle=bool(split_cfg.get("shuffle", False)),  # Time series: KHÔNG shuffle
         sort_by_time_if_possible=bool(split_cfg.get("sort_by_time", True)),
     )
 
@@ -368,8 +475,28 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     X_valid_raw, y_valid = _build_features_for_split(builder, df_valid_split, target_col=target_col, group_by=group_by)
     X_test_raw, y_test = _build_features_for_split(builder, df_test, target_col=target_col, group_by=group_by)
 
-    # feature list: list các feature mới + toàn bộ cột output (sau build)
-    # - builder.get_feature_names() là "features tạo thêm"
+    # --- ANTI-UNDERFIT: Loại bỏ features noise từ cột static (lat/lon lag/rolling/diff) ---
+    X_train_raw, removed_static = _remove_static_derived_features(X_train_raw)
+    if removed_static:
+        X_valid_raw = X_valid_raw.drop(columns=removed_static, errors='ignore')
+        X_test_raw = X_test_raw.drop(columns=removed_static, errors='ignore')
+
+    # --- ANTI-UNDERFIT: Feature selection bằng importance (giảm noise) ---
+    enable_feature_selection = config.get("feature_selection", {}).get("enabled", True)
+    max_features = config.get("feature_selection", {}).get("max_features", 150)
+    
+    if enable_feature_selection and len(X_train_raw.columns) > max_features:
+        # Tạm dùng y_train gốc để select features (chưa transform target)
+        selected_features = _select_features_by_importance(
+            X_train_raw.select_dtypes(include=[np.number]).fillna(0),
+            y_train.fillna(0),
+            max_features=max_features,
+        )
+        X_train_raw = X_train_raw[[c for c in selected_features if c in X_train_raw.columns]]
+        X_valid_raw = X_valid_raw[[c for c in selected_features if c in X_valid_raw.columns]]
+        X_test_raw = X_test_raw[[c for c in selected_features if c in X_test_raw.columns]]
+
+    # feature list: list các feature mới + toàn bộ cột output (sau build + selection)
     created_feature_names = builder.get_feature_names()
     all_feature_columns = X_train_raw.columns.tolist()
 
@@ -381,8 +508,32 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "target_column": target_col,
         "generated_at": _now_tag(),
         "group_by": group_by,
-        "note": "all_feature_columns là danh sách cột X sau build_all_features (để predict align đúng cột)."
+        "removed_static_features": removed_static,
+        "feature_selection_enabled": enable_feature_selection,
+        "note": "all_feature_columns là danh sách cột X sau build + feature selection (để predict align đúng cột)."
     })
+
+    # --------------------------
+    # (5b) ANTI-UNDERFIT: Log1p target transformation cho zero-inflated targets
+    # --------------------------
+    # Rainfall data thường là zero-inflated (rất nhiều giá trị 0 hoặc gần 0).
+    # Log1p giúp model học tốt hơn vì nén phạm vi giá trị lớn.
+    use_log_target = config.get("transform_target", {}).get("log1p", True)
+    target_is_rain = any(kw in target_col.lower() for kw in ['mua', 'rain', 'precipitation'])
+    
+    # Chỉ tự động bật log1p nếu target liên quan đến mưa VÀ có nhiều giá trị 0
+    zero_ratio = (y_train == 0).mean() if len(y_train) > 0 else 0
+    if use_log_target and target_is_rain and zero_ratio > 0.3:
+        print(f"  [TARGET TRANSFORM] Applied log1p for '{target_col}' (zero_ratio={zero_ratio:.2%})")
+        y_train_model = np.log1p(y_train.clip(lower=0))
+        y_valid_model = np.log1p(y_valid.clip(lower=0))
+        y_test_model = np.log1p(y_test.clip(lower=0))
+        applied_log_target = True
+    else:
+        y_train_model = y_train
+        y_valid_model = y_valid
+        y_test_model = y_test
+        applied_log_target = False
 
     # --------------------------
     # (6) Transform pipeline thống nhất train/predict (Transformers.py)
@@ -391,12 +542,12 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         missing_strategy=transform_cfg.get("missing_strategy", "median"),
         scaler_type=transform_cfg.get("scaler_type", "standard"),
         encoding_type=transform_cfg.get("encoding_type", "label"),
-        handle_outliers=bool(transform_cfg.get("handle_outliers", False)),
+        handle_outliers=bool(transform_cfg.get("handle_outliers", True)),
         outlier_method=transform_cfg.get("outlier_method", "iqr"),
     )
 
     # Fit ONLY on train, rồi transform valid/test
-    X_train = pipeline.fit_transform(X_train_raw, y_train if transform_cfg.get("pass_y_to_transform", False) else None)
+    X_train = pipeline.fit_transform(X_train_raw, y_train_model if transform_cfg.get("pass_y_to_transform", False) else None)
     X_valid_t = pipeline.transform(X_valid_raw)
     X_test_t = pipeline.transform(X_test_raw)
 
@@ -405,40 +556,101 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     pipeline.save(pipeline_path)
 
     # --------------------------
-    # (7) Train model
+    # (7) Train model (dùng y đã log1p nếu áp dụng)
     # --------------------------
     model_type = model_cfg.get("type", "random_forest")
     model_params = model_cfg.get("params", {})
 
     model = _create_model(model_type=model_type, model_config=model_params)
 
-    # Wrapper của bạn thường có model.train(X, y) (nhiều file bạn làm kiểu vậy)
-    # Nếu wrapper bạn khác, bạn sửa đúng method name ở đây.
+    # --- ANTI-UNDERFIT: Tạo sample_weight cho zero-inflated target ---
+    # Upweight non-zero samples để model chú ý hơn vào rain events
+    sample_weight = None
+    if applied_log_target and zero_ratio > 0.5:
+        # Non-zero samples nhận weight cao hơn tỉ lệ nghịch với tần suất
+        weight_ratio = min(zero_ratio / (1 - zero_ratio + 1e-8), 10.0)  # cap tại 10x
+        sample_weight = np.where(y_train > 0, weight_ratio, 1.0)
+        print(f"  [SAMPLE WEIGHT] Applied sample_weight: non-zero={weight_ratio:.2f}x, zero=1.0x")
+
+    # Wrapper thường có model.train(X, y, ...) - truyền X_val, y_val cho early stopping
     if hasattr(model, "train"):
-        model.train(X_train, y_train)
+        train_kwargs = {}
+        # Truyền validation data cho early stopping (nếu wrapper hỗ trợ)
+        train_kwargs["X_val"] = X_valid_t
+        train_kwargs["y_val"] = y_valid_model
+        train_kwargs["val_size"] = 0  # Đã có val riêng, không cần split thêm
+        # Truyền sample_weight nếu model wrapper hỗ trợ
+        if sample_weight is not None:
+            try:
+                import inspect
+                sig = inspect.signature(model.train)
+                if "sample_weight" in sig.parameters:
+                    train_kwargs["sample_weight"] = sample_weight
+            except Exception:
+                pass
+        try:
+            model.train(X_train, y_train_model, **train_kwargs)
+        except TypeError:
+            # Fallback nếu wrapper không hỗ trợ kwargs đó
+            model.train(X_train, y_train_model)
     elif hasattr(model, "fit"):
-        model.fit(X_train, y_train)
+        fit_kwargs = {}
+        if sample_weight is not None:
+            fit_kwargs["sample_weight"] = sample_weight
+        try:
+            model.fit(X_train, y_train_model, **fit_kwargs)
+        except TypeError:
+            model.fit(X_train, y_train_model)
     else:
         raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
 
     # --------------------------
     # (8) Evaluate metrics - Sử dụng module metrics.py
     # --------------------------
-    metrics: Dict[str, Any] = {"generated_at": _now_tag(), "model_type": model_type}
+    metrics: Dict[str, Any] = {
+        "generated_at": _now_tag(),
+        "model_type": model_type,
+        "applied_log_target": applied_log_target,
+    }
 
-    def _evaluate_set(X, y):
-        """Helper để evaluate một dataset."""
-        if hasattr(model, "evaluate"):
-            return model.evaluate(X, y)
-        # Fallback: sử dụng metrics.py
-        y_pred = model.predict(X)
-        if hasattr(y_pred, "predictions"):  # Handle PredictionResult dataclass
-            y_pred = y_pred.predictions
-        return calculate_all_metrics(np.array(y), np.array(y_pred), n_features=X.shape[1])
+    def _evaluate_set(X, y_original, y_transformed):
+        """
+        Helper để evaluate một dataset.
+        - Nếu dùng log1p target: predict rồi expm1 trước khi so sánh với y_original.
+        - Luôn đánh giá trên scale gốc để metrics có ý nghĩa thực tế.
+        """
+        y_pred_raw = model.predict(X)
+        if hasattr(y_pred_raw, "predictions"):
+            y_pred_raw = y_pred_raw.predictions
+        y_pred_raw = np.array(y_pred_raw)
+        
+        # Inverse transform nếu dùng log1p
+        if applied_log_target:
+            y_pred = np.expm1(y_pred_raw).clip(min=0)
+        else:
+            y_pred = y_pred_raw
+        
+        y_actual = np.array(y_original)
+        result = calculate_all_metrics(y_actual, y_pred, n_features=X.shape[1])
+        
+        # Thêm metrics riêng cho non-zero values (quan trọng cho rain prediction)
+        non_zero_mask = y_actual > 0
+        if non_zero_mask.sum() > 10:
+            result["NonZero_MAE"] = float(np.mean(np.abs(y_actual[non_zero_mask] - y_pred[non_zero_mask])))
+            result["NonZero_RMSE"] = float(np.sqrt(np.mean((y_actual[non_zero_mask] - y_pred[non_zero_mask])**2)))
+            result["NonZero_count"] = int(non_zero_mask.sum())
+        
+        # Thêm rain detection accuracy (classify: has rain or not)
+        pred_has_rain = (y_pred > 0.1).astype(int)
+        actual_has_rain = (y_actual > 0.1).astype(int)
+        if len(y_actual) > 0:
+            result["Rain_Detection_Accuracy"] = float((pred_has_rain == actual_has_rain).mean())
+        
+        return result
 
-    metrics["train"] = _evaluate_set(X_train, y_train)
-    metrics["valid"] = _evaluate_set(X_valid_t, y_valid)
-    metrics["test"] = _evaluate_set(X_test_t, y_test)
+    metrics["train"] = _evaluate_set(X_train, y_train, y_train_model)
+    metrics["valid"] = _evaluate_set(X_valid_t, y_valid, y_valid_model)
+    metrics["test"] = _evaluate_set(X_test_t, y_test, y_test_model)
 
 
     # --- Overfit/Underfit & Accuracy Diagnostics ---
@@ -479,9 +691,31 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
                 return ("good", f"Train/Valid errors are similar (diff={diff:.3f})")
 
     overfit_status, overfit_details = detect_overfit_underfit(metrics)
+    
+    # Kiểm tra thêm R² score - nếu âm tức model tệ hơn dự đoán mean
+    r2_train = metrics.get("train", {}).get("R2", None)
+    r2_valid = metrics.get("valid", {}).get("R2", None)
+    r2_test = metrics.get("test", {}).get("R2", None)
+    
+    underfit_hints = []
+    if r2_valid is not None and r2_valid < 0:
+        underfit_hints.append(f"Valid R2={r2_valid:.3f} (negative = worse than mean baseline)")
+    if r2_test is not None and r2_test < 0:
+        underfit_hints.append(f"Test R2={r2_test:.3f} (negative = worse than mean baseline)")
+    if r2_train is not None and r2_train < 0.3:
+        underfit_hints.append(f"Train R2={r2_train:.3f} (too low, model not learning patterns)")
+    
+    if underfit_hints:
+        overfit_status = "underfit"
+        overfit_details += " | " + " | ".join(underfit_hints)
+    
     metrics["diagnostics"] = {
         "overfit_status": overfit_status,
         "overfit_details": overfit_details,
+        "applied_log_target": applied_log_target,
+        "n_features_after_selection": len(all_feature_columns),
+        "n_static_features_removed": len(removed_static),
+        "target_zero_ratio": float(zero_ratio),
     }
 
     # Print accuracy if available
@@ -528,6 +762,12 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "feature_info": {
             "n_created_features": int(len(created_feature_names)),
             "n_total_feature_columns": int(len(all_feature_columns)),
+            "n_static_features_removed": int(len(removed_static)),
+            "feature_selection_enabled": enable_feature_selection,
+        },
+        "target_transform": {
+            "log1p_applied": applied_log_target,
+            "target_zero_ratio": float(zero_ratio),
         },
         "transform": {
             "pipeline_path": str(pipeline_path),
@@ -566,7 +806,7 @@ def main():
 
     # print nhanh cho bạn nhìn log
     print("=" * 80)
-    print("✅ TRAIN DONE")
+    print("[OK] TRAIN DONE")
     print("Artifacts:", (Path(info["model"]["model_path"]).parent))
     print("Model:", info["model"]["model_path"])
     print("Pipeline:", info["transform"]["pipeline_path"])
@@ -575,12 +815,17 @@ def main():
     # Print diagnostics if available
     try:
         import json
-        with open(info["artifacts"]["metrics"], "r") as f:
+        with open(info["artifacts"]["metrics"], "r", encoding="utf-8") as f:
             metrics = json.load(f)
         diag = metrics.get("diagnostics", {})
         print("-" * 80)
         print(f"Overfit/Underfit status: {diag.get('overfit_status', 'N/A')}")
-        print(f"Details: {diag.get('overfit_details', '')}")
+        # Convert to ASCII-safe for Windows console
+        details_str = diag.get('overfit_details', '')
+        try:
+            print(f"Details: {details_str}")
+        except UnicodeEncodeError:
+            print(f"Details: {details_str.encode('ascii', 'replace').decode()}")
         if "test" in metrics:
             test_metrics = metrics["test"]
             if "Rain_Accuracy" in test_metrics:

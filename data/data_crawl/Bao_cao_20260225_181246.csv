@@ -1,0 +1,904 @@
+﻿station_id,station_name,province,district,rain_total,status,timestamp,data_time
+Bất Bạt,Bất Bạt,Hà Nội,xã Bất Bạt,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quảng Oai,Quảng Oai,Hà Nội,xã Quảng Oai,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Suối Hai,Suối Hai,Hà Nội,xã Bất Bạt,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sóc Sơn,Sóc Sơn,Hà Nội,xã Sóc Sơn,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Miếu Môn,Miếu Môn,Hà Nội,xã Trần Phú,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trâu Quỳ,Trâu Quỳ,Hà Nội,xã Gia Lâm,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Trì,Thanh Trì,Hà Nội,xã Thanh Trì,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kim Anh,Kim Anh,Hà Nội,xã Nội Bài,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Oai,Thanh Oai,Hà Nội,xã Thanh Oai,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Thọ,Phúc Thọ,Hà Nội,xã Phúc Lộc,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vân Đình,Vân Đình,Hà Nội,xã Vân Đình,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Liên Mạc,Liên Mạc,Hà Nội,phường Thượng Cát,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chợ Cháy,Chợ Cháy,Hà Nội,xã Ứng Hòa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thường Tín,Thường Tín,Hà Nội,xã Thường Tín,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hoài Đức,Hoài Đức,Hà Nội,xã Sơn Đồng,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quốc Oai,Quốc Oai,Hà Nội,xã Kiều Phú,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phú Xuyên,Phú Xuyên,Hà Nội,xã Phượng Dực,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đập Đáy,Đập Đáy,Hà Nội,xã Đan Phượng,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Mai,Xuân Mai,Hà Nội,xã Xuân Mai,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cầu Rậm,Cầu Rậm,Hà Nội,xã Hồng Sơn,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thạch Thất,Thạch Thất,Hà Nội,xã Thạch Thất,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hương Sơn,Hương Sơn,Hà Nội,xã Hương Sơn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Đông Anh,Đông Anh,Hà Nội,xã Đông Anh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chúc Sơn,Chúc Sơn,Hà Nội,phường Chương Mỹ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+An Khánh,An Khánh,Hà Nội,xã An Khánh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Kim Loan,Kim Loan,Cao Bằng,xã Vinh Quý,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hạ Lang,Hạ Lang,Cao Bằng,xã Hạ Lang,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thành Công,Thành Công,Cao Bằng,xã Thành Công,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cách Linh,Cách Linh,Cao Bằng,xã Bế Văn Đàn,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phi Hải,Phi Hải,Cao Bằng,xã Quảng Uyên,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quảng Uyên,Quảng Uyên,Cao Bằng,xã Quảng Uyên,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đức Long,Đức Long,Cao Bằng,xã Đức Long,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tri Phương,Tri Phương,Cao Bằng,xã Quang Trung,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trương Lương,Trương Lương,Cao Bằng,xã Minh Tâm,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thạch An,Thạch An,Cao Bằng,xã Đông Khê,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đàm Thủy,Đàm Thủy,Cao Bằng,xã Đàm Thủy,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quang Vinh,Quang Vinh,Cao Bằng,xã Quang Hán,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đức Thông,Đức Thông,Cao Bằng,xã Canh Tân,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trà Lĩnh,Trà Lĩnh,Cao Bằng,xã Trà Lĩnh,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Ràng,Nà Ràng,Cao Bằng,xã Hà Quảng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Sa,Tà Sa,Cao Bằng,xã Minh Tâm,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Năm Làng,Năm Làng,Cao Bằng,xã Kim Đồng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Án Lại,Án Lại,Cao Bằng,xã Nguyễn Huệ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tam Kim,Tam Kim,Cao Bằng,xã Tam Kim,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Lộ,Sơn Lộ,Cao Bằng,xã Sơn Lộ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Thổ,Yên Thổ,Cao Bằng,xã Yên Thổ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tĩnh Túc,Tĩnh Túc,Cao Bằng,xã Tĩnh Túc,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Long,Minh Long,Cao Bằng,xã Lý Quốc,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cốc Pàng,Cốc Pàng,Cao Bằng,xã Cốc Pàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Cần Yên,Cần Yên,Cao Bằng,xã Cần Yên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Cô Ba,Cô Ba,Cao Bằng,xã Cô Ba,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thạch Lâm,Thạch Lâm,Cao Bằng,xã Quảng Lâm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thái Học,Thái Học,Cao Bằng,xã Yên Thổ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thông Nông,Thông Nông,Cao Bằng,xã Thông Nông,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Thanh,Minh Thanh,Cao Bằng,xã Nguyên Bình,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Minh 2,Xuân Minh 2,Tuyên Quang,xã Thông Nguyên,4.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ninh Lai,Ninh Lai,Tuyên Quang,xã Sơn Thủy,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lăng Quán,Lăng Quán,Tuyên Quang,xã Yên Sơn,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thái Hòa,Thái Hòa,Tuyên Quang,xã Thái Hòa,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hòa An,Hòa An,Tuyên Quang,xã Hòa An,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Giang 1,Xuân Giang 1,Tuyên Quang,xã Xuân Giang,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hà Lang,Hà Lang,Tuyên Quang,xã Tân An,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mỹ Bằng,Mỹ Bằng,Tuyên Quang,phường Mỹ Lâm,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hùng Đức,Hùng Đức,Tuyên Quang,xã Hùng Đức,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thành Long,Thành Long,Tuyên Quang,xã Thái Sơn,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vĩ Thượng,Vĩ Thượng,Tuyên Quang,xã Tiên Yên,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Ngòi Là,Hồ Ngòi Là,Tuyên Quang,phường Minh Xuân,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Ninh,Phúc Ninh,Tuyên Quang,xã Xuân Vân,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Nguyên,Yên Nguyên,Tuyên Quang,xã Yên Nguyên,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Linh Phú,Linh Phú,Tuyên Quang,xã Tri Phú,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Văn phòng BCH PCTT,Văn phòng BCH PCTT,Tuyên Quang,phường Minh Xuân,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kiên Đài,Kiên Đài,Tuyên Quang,xã Kiên Đài,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nhữ Hán,Nhữ Hán,Tuyên Quang,xã Nhữ Khê,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Minh,Trung Minh,Tuyên Quang,xã Hùng Lợi,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Hương,Minh Hương,Tuyên Quang,xã Bình Xa,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bằng Cốc,Bằng Cốc,Tuyên Quang,xã Hàm Yên,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Lập 2,Tân Lập 2,Tuyên Quang,xã Tân Quang,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tri Phú,Tri Phú,Tuyên Quang,xã Tri Phú,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mỹ Lâm,Mỹ Lâm,Tuyên Quang,phường Mỹ Lâm,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thiện Kế,Thiện Kế,Tuyên Quang,xã Sơn Thủy,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Bình,Yên Bình,Tuyên Quang,xã Quang Bình,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phú Bình,Phú Bình,Tuyên Quang,xã Kiên Đài,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kiến Thiết,Kiến Thiết,Tuyên Quang,xã Kiến Thiết,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Thanh,Tân Thanh,Tuyên Quang,xã Tân Thanh,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đông Lợi,Đông Lợi,Tuyên Quang,xã Trường Sinh,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chi Thiết,Chi Thiết,Tuyên Quang,xã Hồng Sơn,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Nam 2,Tân Nam 2,Tuyên Quang,xã Quang Bình,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Thầu 2,Hồ Thầu 2,Tuyên Quang,xã Hồ Thầu,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đạo Viện 1,Đạo Viện 1,Tuyên Quang,xã Trung Sơn,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thuận Hòa PCTT,Thuận Hòa PCTT,Tuyên Quang,xã Thuận Hòa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quyết Tiến,Quyết Tiến,Tuyên Quang,xã Quản Bạ,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đồng Quý,Đồng Quý,Tuyên Quang,xã Đông Thọ,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Phú,Bình Phú,Tuyên Quang,xã Yên Lập,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tiến Bộ,Tiến Bộ,Tuyên Quang,xã Thái Bình,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tam Đa,Tam Đa,Tuyên Quang,xã Phú Lương,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thuận Hòa,Thuận Hòa,Tuyên Quang,xã Thuận Hòa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kim Quan,Kim Quan,Tuyên Quang,xã Tân Trào,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kỳ Lâm,Kỳ Lâm,Tuyên Quang,xã Sơn Dương,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Rịa,Bản Rịa,Tuyên Quang,xã Yên Thành,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chế Là PCTT,Chế Là PCTT,Tuyên Quang,xã Nấm Dẩn,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đội Bình,Đội Bình,Tuyên Quang,xã Nhữ Khê,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Ấm,Thượng Ấm,Tuyên Quang,xã Bình Ca,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khâu Tinh,Khâu Tinh,Tuyên Quang,xã Yên Hoa,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hùng Mỹ,Hùng Mỹ,Tuyên Quang,xã Tân Mỹ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thu Tà,Thu Tà,Tuyên Quang,xã Trung Thịnh,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồng Thái,Hồng Thái,Tuyên Quang,xã Hồng Thái,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Tiến,Tân Tiến,Tuyên Quang,xã Tân Tiến,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vĩnh Phúc,Vĩnh Phúc,Tuyên Quang,xã Đồng Yên,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quản Bạ,Quản Bạ,Tuyên Quang,xã Quản Bạ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nấm Dẩn 2,Nấm Dẩn 2,Tuyên Quang,xã Nấm Dẩn,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quảng Nguyên,Quảng Nguyên,Tuyên Quang,xã Quảng Nguyên,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Túng Sán,Túng Sán,Tuyên Quang,xã Tân Tiến,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phù Lưu,Phù Lưu,Tuyên Quang,xã Phù Lưu,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Trịnh,Tân Trịnh,Tuyên Quang,xã Tân Trịnh,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Trào,Tân Trào,Tuyên Quang,xã Tân Trào,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Tương,Thanh Tương,Tuyên Quang,xã Nà Hang,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Phú,Sơn Phú,Tuyên Quang,xã Hồng Thái,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xín Chải,Xín Chải,Tuyên Quang,xã Lao Chải,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Sơn,Phúc Sơn,Tuyên Quang,xã Minh Quang,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lao Chải,Lao Chải,Tuyên Quang,xã Lao Chải,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Nam 1,Tân Nam 1,Tuyên Quang,xã Quang Bình,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Quang,Minh Quang,Tuyên Quang,xã Minh Quang,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Ngò,Bản Ngò,Tuyên Quang,xã Pà Vầy Sủ,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thàng Tín,Thàng Tín,Tuyên Quang,xã Thàng Tín,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Lập 1,Tân Lập 1,Tuyên Quang,xã Tân Quang,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Nhùng,Bản Nhùng,Tuyên Quang,xã Tân Tiến,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nàng Đôn,Nàng Đôn,Tuyên Quang,xã Pờ Ly Ngài,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiến Phố,Chiến Phố,Tuyên Quang,xã Bản Máy,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cốc Rế,Cốc Rế,Tuyên Quang,xã Trung Thịnh,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Thầu 1,Hồ Thầu 1,Tuyên Quang,xã Hồ Thầu,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Ngò PCTT,Bản Ngò PCTT,Tuyên Quang,xã Pà Vầy Sủ,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Hà,Trung Hà,Tuyên Quang,xã Trung Hà,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Khương,Minh Khương,Tuyên Quang,xã Bạch Xa,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Thuận,Yên Thuận,Tuyên Quang,xã Bạch Xa,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đà Vị,Đà Vị,Tuyên Quang,xã Hồng Thái,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tùng Bá 2,Tùng Bá 2,Tuyên Quang,xã Tùng Bá,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Thủy,Thanh Thủy,Tuyên Quang,xã Thanh Thủy,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Đức,Thanh Đức,Tuyên Quang,xã Lao Chải,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Khòa,Nậm Khòa,Tuyên Quang,xã Hồ Thầu,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Péo,Bản Péo,Tuyên Quang,xã Nậm Dịch,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tiên Nguyên,Tiên Nguyên,Tuyên Quang,xã Tiên Nguyên,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình An,Bình An,Tuyên Quang,xã Bình An,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Lập PCTT,Xuân Lập PCTT,Tuyên Quang,xã Lâm Bình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Giáp,Thượng Giáp,Tuyên Quang,xã Thượng Nông,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thị trấn Cốc Pài,Thị trấn Cốc Pài,Tuyên Quang,xã Pà Vầy Sủ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khuôn Hà,Khuôn Hà,Tuyên Quang,xã Thượng Lâm,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Yên,Phúc Yên,Tuyên Quang,xã Lâm Bình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lao Chải PCTT,Lao Chải PCTT,Tuyên Quang,xã Lao Chải,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hoàng Khai,Hoàng Khai,Tuyên Quang,phường An Tường,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Phong,Yên Phong,Tuyên Quang,xã Bắc Mê,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Phú,Yên Phú,Tuyên Quang,xã Bắc Mê,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tùng Bá 1,Tùng Bá 1,Tuyên Quang,xã Tùng Bá,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bạch Ngọc 2,Bạch Ngọc 2,Tuyên Quang,xã Bạch Ngọc,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Phùng,Bản Phùng,Tuyên Quang,xã Bản Máy,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Díu,Bản Díu,Tuyên Quang,xã Xín Mần,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Ngần,Bản Ngần,Tuyên Quang,xã Việt Lâm,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phương Độ,Phương Độ,Tuyên Quang,phường Hà Giang 1,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lạc Nông 1,Lạc Nông 1,Tuyên Quang,xã Bắc Mê,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Du Già 3,Du Già 3,Tuyên Quang,xã Du Già,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đông Hà 2,Đông Hà 2,Tuyên Quang,xã Lùng Tám,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Việt Vinh,Việt Vinh,Tuyên Quang,xã Bắc Quang,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lăng Can 1,Lăng Can 1,Tuyên Quang,xã Lâm Bình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bạch Ngọc 1,Bạch Ngọc 1,Tuyên Quang,xã Bạch Ngọc,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Hoa,Yên Hoa,Tuyên Quang,xã Yên Hoa,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Bồ 2,Cao Bồ 2,Tuyên Quang,xã Cao Bồ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Lập,Xuân Lập,Tuyên Quang,xã Lâm Bình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Minh 1,Xuân Minh 1,Tuyên Quang,xã Thông Nguyên,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Huyện Bắc Mê,Huyện Bắc Mê,Tuyên Quang,xã Bắc Mê,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Bồ,Cao Bồ,Tuyên Quang,xã Cao Bồ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Lâm,Yên Lâm,Tuyên Quang,xã Yên Phú,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Sơn,Thượng Sơn,Tuyên Quang,xã Thượng Sơn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ban,Nậm Ban,Tuyên Quang,xã Tát Ngà,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Ngọc Long PCTT,Ngọc Long PCTT,Tuyên Quang,xã Ngọc Long,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Ngọc,Minh Ngọc,Tuyên Quang,xã Minh Ngọc,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chi cục thủy lợi,Chi cục thủy lợi,Tuyên Quang,phường Hà Giang 1,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Lâm,Thượng Lâm,Tuyên Quang,xã Thượng Lâm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Díu PCTT,Bản Díu PCTT,Tuyên Quang,xã Xín Mần,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Chì,Nà Chì,Tuyên Quang,xã Khuôn Lùng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Sinh Long,Sinh Long,Tuyên Quang,xã Côn Lôn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Du Già,Du Già,Tuyên Quang,xã Du Già,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Sơn 2,Thượng Sơn 2,Tuyên Quang,xã Thượng Sơn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tiên Nguyên 1,Tiên Nguyên 1,Tuyên Quang,xã Tiên Nguyên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Phú Nam 2,Phú Nam 2,Tuyên Quang,xã Đường Hồng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Ngam La 2,Ngam La 2,Tuyên Quang,xã Mậu Duệ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Du Già 2,Du Già 2,Tuyên Quang,xã Du Già,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Sơn 1,Minh Sơn 1,Tuyên Quang,xã Minh Sơn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Minh 1,Yên Minh 1,Tuyên Quang,xã Yên Minh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Bồ 1,Cao Bồ 1,Tuyên Quang,xã Cao Bồ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Đồng Tâm,Đồng Tâm,Tuyên Quang,xã Đồng Tâm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Lũng Hồ 1,Lũng Hồ 1,Tuyên Quang,xã Đường Thượng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Cường,Yên Cường,Tuyên Quang,xã Yên Cường,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Nam,Sơn Nam,Tuyên Quang,xã Sơn Thủy,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mậu Long,Mậu Long,Tuyên Quang,xã Mậu Duệ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ty,Nậm Ty,Tuyên Quang,xã Nậm Dịch,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tiên Nguyên 2,Tiên Nguyên 2,Tuyên Quang,xã Tiên Nguyên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Ngọc Long,Ngọc Long,Tuyên Quang,xã Ngọc Long,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Ngam La 1,Ngam La 1,Tuyên Quang,xã Mậu Duệ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Định,Yên Định,Tuyên Quang,xã Ngọc Đường,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Quảng Ngần,Quảng Ngần,Tuyên Quang,xã Việt Lâm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Sơn 2,Minh Sơn 2,Tuyên Quang,xã Minh Sơn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Sơn 1,Thượng Sơn 1,Tuyên Quang,xã Thượng Sơn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Giáp Trung,Giáp Trung,Tuyên Quang,xã Giáp Trung,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Phú Nam 1,Phú Nam 1,Tuyên Quang,xã Đường Hồng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Việt Lâm,Việt Lâm,Tuyên Quang,xã Việt Lâm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chế Là,Chế Là,Tuyên Quang,xã Nấm Dẩn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thái An,Thái An,Tuyên Quang,xã Lùng Tám,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Linh Hồ,Linh Hồ,Tuyên Quang,xã Linh Hồ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ban 2,Nậm Ban 2,Tuyên Quang,xã Tát Ngà,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mèo Vạc,Mèo Vạc,Tuyên Quang,xã Mèo Vạc,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Dịch,Nậm Dịch,Tuyên Quang,xã Nậm Dịch,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ban 1,Nậm Ban 1,Tuyên Quang,xã Tát Ngà,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Đông Hà 1,Đông Hà 1,Tuyên Quang,xã Lùng Tám,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Thành,Trung Thành,Tuyên Quang,xã Linh Hồ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Chày,Nậm Chày,Lào Cai,xã Nậm Chày,18.8,Mưa vừa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xé PCTT,Nậm Xé PCTT,Lào Cai,xã Nậm Xé,7.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mù Cang Chải,Mù Cang Chải,Lào Cai,xã Mù Cang Chải,7.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hòa Mạc,Hòa Mạc,Lào Cai,xã Văn Bàn,6.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Thịnh,Tân Thịnh,Lào Cai,xã Chấn Thịnh,6.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồng Ca,Hồng Ca,Lào Cai,xã Hưng Khánh,6.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Van PCTT,Tả Van PCTT,Lào Cai,xã Tả Van,5.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mồ Dề 1,Mồ Dề 1,Lào Cai,xã Mù Cang Chải,5.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hòa Mạc PCTT,Hòa Mạc PCTT,Lào Cai,xã Văn Bàn,5.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hưng Khánh 2,Hưng Khánh 2,Lào Cai,xã Hưng Khánh,5.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Việt Cường PCTT,Việt Cường PCTT,Lào Cai,xã Việt Hồng,5.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xé,Nậm Xé,Lào Cai,xã Nậm Xé,5.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kiên Thành,Kiên Thành,Lào Cai,xã Quy Mông,5.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hưng Thịnh,Hưng Thịnh,Lào Cai,xã Lương Thịnh,5.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hưng Khánh 1,Hưng Khánh 1,Lào Cai,xã Hưng Khánh,4.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồng Ca 2,Hồng Ca 2,Lào Cai,xã Hưng Khánh,4.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Y Can,Y Can,Lào Cai,xã Quy Mông,4.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khánh Hòa 2,Khánh Hòa 2,Lào Cai,xã Khánh Hòa,4.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xây 1,Nậm Xây 1,Lào Cai,xã Minh Lương,4.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cổ Phúc,Cổ Phúc,Lào Cai,xã Trấn Yên,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Âu Lâu,Âu Lâu,Lào Cai,phường Âu Lâu,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kiên Lao,Kiên Lao,Lào Cai,xã Quy Mông,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Dương Quỳ,Dương Quỳ,Lào Cai,xã Dương Quỳ,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kim Nọi 1,Kim Nọi 1,Lào Cai,xã Mù Cang Chải,4.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lương Thịnh,Lương Thịnh,Lào Cai,xã Lương Thịnh,4.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+An Phú,An Phú,Lào Cai,xã Mường Lai,4.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Võ Lao,Võ Lao,Lào Cai,xã Võ Lao,4.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hòa Cuông,Hòa Cuông,Lào Cai,xã Trấn Yên,3.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Việt Cường,Việt Cường,Lào Cai,xã Việt Hồng,3.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xây,Nậm Xây,Lào Cai,xã Minh Lương,3.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Bốn,Hồ Bốn,Lào Cai,xã Khao Mang,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kim Sơn PCTT,Kim Sơn PCTT,Lào Cai,xã Bảo Hà,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Thủy,Sơn Thủy,Lào Cai,xã Văn Bàn,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Quán,Minh Quán,Lào Cai,xã Trấn Yên,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Hoa,Mường Hoa,Lào Cai,xã Tả Van,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chế Tạo 1,Chế Tạo 1,Lào Cai,xã Chế Tạo,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mồ Dề 2,Mồ Dề 2,Lào Cai,xã Mù Cang Chải,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đại Lịch,Đại Lịch,Lào Cai,xã Chấn Thịnh,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Bảo,Minh Bảo,Lào Cai,phường Nam Cường,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+P.Yên Ninh,P.Yên Ninh,Lào Cai,phường Yên Bái,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Khoang,Bản Khoang,Lào Cai,xã Ngũ Chỉ Sơn,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Bái 2,Yên Bái 2,Lào Cai,phường Yên Bái,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Tâm 1,Trung Tâm 1,Lào Cai,xã Phúc Lợi,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khánh Hoà 1,Khánh Hoà 1,Lào Cai,xã Khánh Hòa,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Bái,Yên Bái,Lào Cai,phường Yên Bái,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khao Mang,Khao Mang,Lào Cai,xã Khao Mang,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồng Ca 1,Hồng Ca 1,Lào Cai,xã Hưng Khánh,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Đồng,Tân Đồng,Lào Cai,xã Trấn Yên,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Văn Bàn,Văn Bàn,Lào Cai,xã Văn Bàn,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bảo Ái 1,Bảo Ái 1,Lào Cai,xã Bảo Ái,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chi cục thủy lợi,Chi cục thủy lợi,Lào Cai,phường Yên Bái,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Đồng PCTT,Tân Đồng PCTT,Lào Cai,xã Trấn Yên,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Thành,Yên Thành,Lào Cai,xã Yên Thành,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lâm Thượng,Lâm Thượng,Lào Cai,xã Lâm Thượng,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ngọc Chấn,Ngọc Chấn,Lào Cai,xã Cảm Nhân,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đại Sơn 2,Đại Sơn 2,Lào Cai,xã Tân Hợp,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Tiến,Minh Tiến,Lào Cai,xã Mường Lai,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Bình,Yên Bình,Lào Cai,xã Yên Bình,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chế Tạo,Chế Tạo,Lào Cai,xã Chế Tạo,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kim Sơn,Kim Sơn,Lào Cai,xã Bảo Hà,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Thủy PCTT,Sơn Thủy PCTT,Lào Cai,xã Văn Bàn,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Lĩnh 1,Tân Lĩnh 1,Lào Cai,xã Tân Lĩnh,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Suối Quyền,Suối Quyền,Lào Cai,xã Sơn Lương,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bạch Hà,Bạch Hà,Lào Cai,xã Thác Bà,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đào Thịnh,Đào Thịnh,Lào Cai,xã Trấn Yên,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lai,Mường Lai,Lào Cai,xã Mường Lai,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Tâm 2,Trung Tâm 2,Lào Cai,xã Phúc Lợi,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chấn Thịnh,Chấn Thịnh,Lào Cai,xã Chấn Thịnh,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khánh Thiện,Khánh Thiện,Lào Cai,xã Lâm Thượng,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lao Chải 2,Lao Chải 2,Lào Cai,xã Lao Chải,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chấn Thịnh PCTT,Chấn Thịnh PCTT,Lào Cai,xã Chấn Thịnh,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Suối Giàng,Suối Giàng,Lào Cai,xã Văn Chấn,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Đét,Nậm Đét,Lào Cai,xã Bảo Nhai,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Phượng 1,Tân Phượng 1,Lào Cai,xã Lâm Thượng,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Việt Hồng,Việt Hồng,Lào Cai,xã Việt Hồng,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lâm Thượng PCTT,Lâm Thượng PCTT,Lào Cai,xã Lâm Thượng,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Liền,Bản Liền,Lào Cai,xã Bản Liền,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lũng Hà,Lũng Hà,Lào Cai,xã Phúc Lợi,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chế Cu Nha,Chế Cu Nha,Lào Cai,xã Mù Cang Chải,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thủy điện Nậm Phàng,Thủy điện Nậm Phàng,Lào Cai,xã Bản Liền,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Phượng 2,Tân Phượng 2,Lào Cai,xã Lâm Thượng,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nghĩa An,Nghĩa An,Lào Cai,phường Nghĩa Lộ,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mỏ Vàng 1,Mỏ Vàng 1,Lào Cai,xã Mỏ Vàng,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Suối Bu,Suối Bu,Lào Cai,xã Văn Chấn,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Mười 1,Nậm Mười 1,Lào Cai,xã Sơn Lương,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Van,Tả Van,Lào Cai,xã Tả Van,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Túc Đán 2,Túc Đán 2,Lào Cai,xã Trạm Tấu,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Lành 2,Nậm Lành 2,Lào Cai,xã Gia Hội,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+An Lương 2,An Lương 2,Lào Cai,xã Mỏ Vàng,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Hà 2,Thượng Hà 2,Lào Cai,xã Thượng Hà,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sùng Đô,Sùng Đô,Lào Cai,xã Sơn Lương,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Phạ 3,Cao Phạ 3,Lào Cai,xã Tú Lệ,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pá Lau,Pá Lau,Lào Cai,xã Trạm Tấu,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đồng Khê,Đồng Khê,Lào Cai,xã Văn Chấn,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tô Mậu,Tô Mậu,Lào Cai,xã Khánh Hòa,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cam Cọn,Cam Cọn,Lào Cai,xã Bảo Hà,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Hà 1,Thượng Hà 1,Lào Cai,xã Thượng Hà,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pá Hu,Pá Hu,Lào Cai,xã Trạm Tấu,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Công,Bản Công,Lào Cai,xã Hạnh Phúc,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mậu A,Mậu A,Lào Cai,xã Mậu A,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Hợp 2,Tân Hợp 2,Lào Cai,xã Tân Hợp,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mỏ Vàng,Mỏ Vàng,Lào Cai,xã Mỏ Vàng,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thủy điện Tà Thàng,Thủy điện Tà Thàng,Lào Cai,xã Mường Bo,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Gia Phú,Gia Phú,Lào Cai,xã Gia Phú,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn A,Sơn A,Lào Cai,xã Liên Sơn,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Lợi,Phúc Lợi,Lào Cai,xã Phúc Lợi,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phan Thanh,Phan Thanh,Lào Cai,xã Tân Lĩnh,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+An Lương 1,An Lương 1,Lào Cai,xã Mỏ Vàng,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cảm Nhân,Cảm Nhân,Lào Cai,xã Cảm Nhân,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Túc Đán 1,Túc Đán 1,Lào Cai,xã Trạm Tấu,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Khắt,Nậm Khắt,Lào Cai,xã Púng Luông,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Gia Phú 1,Gia Phú 1,Lào Cai,xã Gia Phú,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Sơn,Phúc Sơn,Lào Cai,phường Cầu Thia,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Búng 2,Nậm Búng 2,Lào Cai,xã Gia Hội,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+An Bình,An Bình,Lào Cai,xã Đông Cuông,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Túc Đán,Túc Đán,Lào Cai,xã Trạm Tấu,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Nguyên,Tân Nguyên,Lào Cai,xã Bảo Ái,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tú Lệ 3,Tú Lệ 3,Lào Cai,xã Tú Lệ,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trạm Tấu,Trạm Tấu,Lào Cai,xã Hạnh Phúc,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cốc Lầu,Cốc Lầu,Lào Cai,xã Cốc Lầu,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khau Phạ,Khau Phạ,Lào Cai,xã Púng Luông,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Lúc 1,Nậm Lúc 1,Lào Cai,xã Cốc Lầu,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ô Quý Hồ,Ô Quý Hồ,Lào Cai,phường Sa Pa,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Sơn PCTT,Cao Sơn PCTT,Lào Cai,xã Cao Sơn,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Thịnh,Sơn Thịnh,Lào Cai,xã Văn Chấn,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Lành 1,Nậm Lành 1,Lào Cai,xã Gia Hội,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Suối Giàng PCTT,Suối Giàng PCTT,Lào Cai,xã Văn Chấn,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phình Hồ,Phình Hồ,Lào Cai,xã Phình Hồ,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xà Hồ,Xà Hồ,Lào Cai,xã Hạnh Phúc,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nghĩa Đô PCTT,Nghĩa Đô PCTT,Lào Cai,xã Nghĩa Đô,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Thế,Yên Thế,Lào Cai,xã Lục Yên,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phố Lu,Phố Lu,Lào Cai,xã Bảo Thắng,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thạch Lương,Thạch Lương,Lào Cai,phường Cầu Thia,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Tân,Minh Tân,Lào Cai,xã Thượng Hà,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cốc Mỳ 1,Cốc Mỳ 1,Lào Cai,xã Bát Xát,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Thịnh PCTT,Sơn Thịnh PCTT,Lào Cai,xã Văn Chấn,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Châu Quế Thượng,Châu Quế Thượng,Lào Cai,xã Châu Quế,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Lương,Sơn Lương,Lào Cai,xã Sơn Lương,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Sơn,Cao Sơn,Lào Cai,xã Cao Sơn,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phong Niên,Phong Niên,Lào Cai,xã Phong Hải,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Hà,Thượng Hà,Lào Cai,xã Thượng Hà,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ngũ Chỉ Sơn,Ngũ Chỉ Sơn,Lào Cai,xã Ngũ Chỉ Sơn,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Cái,Bản Cái,Lào Cai,xã Cốc Lầu,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vĩnh Lạc,Vĩnh Lạc,Lào Cai,xã Mường Lai,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bát Xát,Bát Xát,Lào Cai,xã Bát Xát,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Tiến,Tân Tiến,Lào Cai,xã Nghĩa Đô,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vĩnh Yên,Vĩnh Yên,Lào Cai,xã Nghĩa Đô,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bảo Hà 1,Bảo Hà 1,Lào Cai,xã Bảo Hà,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trịnh Tường,Trịnh Tường,Lào Cai,xã Trịnh Tường,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phong Dụ Thượng,Phong Dụ Thượng,Lào Cai,xã Phong Dụ Thượng,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mậu Đông,Mậu Đông,Lào Cai,xã Mậu A,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Sơn,Yên Sơn,Lào Cai,xã Bảo Yên,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Gia Khâu,Tả Gia Khâu,Lào Cai,xã Pha Long,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tú Lệ 2,Tú Lệ 2,Lào Cai,xã Tú Lệ,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+An Lương,An Lương,Lào Cai,xã Mỏ Vàng,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bảo Hà 2,Bảo Hà 2,Lào Cai,xã Bảo Hà,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+A Mú Sung,A Mú Sung,Lào Cai,xã A Mú Sung,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Phời,Tả Phời,Lào Cai,xã Hợp Thành,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phong Dụ Thượng 1,Phong Dụ Thượng 1,Lào Cai,xã Phong Dụ Thượng,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lương Sơn,Lương Sơn,Lào Cai,xã Bảo Yên,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lương Sơn PCTT,Lương Sơn PCTT,Lào Cai,xã Bảo Yên,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Hồ,Bản Hồ,Lào Cai,xã Bản Hồ,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Dế Xu Phình,Dế Xu Phình,Lào Cai,xã Púng Luông,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Đập Mỏ tuyển Đồng Sin Quyền,Hồ Đập Mỏ tuyển Đồng Sin Quyền,Lào Cai,xã Bát Xát,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Làng Cang,Làng Cang,Lào Cai,xã Phong Dụ Hạ,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nghĩa Đô,Nghĩa Đô,Lào Cai,xã Nghĩa Đô,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lâm Giang,Lâm Giang,Lào Cai,xã Lâm Giang,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Gia Hội,Gia Hội,Lào Cai,xã Gia Hội,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+La Pán Tẩn,La Pán Tẩn,Lào Cai,xã Púng Luông,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Chuẩn,Minh Chuẩn,Lào Cai,xã Tân Lĩnh,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Có 1,Nậm Có 1,Lào Cai,xã Nậm Có,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Búng 1,Nậm Búng 1,Lào Cai,xã Gia Hội,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Dương 1,Tân Dương 1,Lào Cai,xã Xuân Hòa,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Thượng PCTT,Xuân Thượng PCTT,Lào Cai,xã Bảo Yên,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Thượng,Xuân Thượng,Lào Cai,xã Bảo Yên,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thủy điện Séo Chông Hô,Thủy điện Séo Chông Hô,Lào Cai,xã Tả Van,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Có,Nậm Có,Lào Cai,xã Nậm Có,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mù Cang Chải PCTT,Mù Cang Chải PCTT,Lào Cai,xã Mù Cang Chải,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xã Bản Mù,Xã Bản Mù,Lào Cai,xã Phình Hồ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Gia Hội PCTT,Gia Hội PCTT,Lào Cai,xã Gia Hội,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lao Chải,Lao Chải,Lào Cai,xã Lao Chải,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lao Chải 1,Lao Chải 1,Lào Cai,xã Lao Chải,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Si Láng,Tà Si Láng,Lào Cai,xã Tà Xi Láng,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Huổi Sản,Huổi Sản,Lào Cai,xã Gia Hội,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khao Mang PCTT,Khao Mang PCTT,Lào Cai,xã Khao Mang,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Phạ 2,Cao Phạ 2,Lào Cai,xã Tú Lệ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Hòa,Xuân Hòa,Lào Cai,xã Xuân Hòa,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Củ Tỷ,Tả Củ Tỷ,Lào Cai,xã Tả Củ Tỷ,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Dương,Tân Dương,Lào Cai,xã Xuân Hòa,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Việt Tiến,Việt Tiến,Lào Cai,xã Phúc Khánh,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cốc Mỳ 2,Cốc Mỳ 2,Lào Cai,xã Trịnh Tường,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khai trường Mỏ tuyển Đồng Sin Quyền,Khai trường Mỏ tuyển Đồng Sin Quyền,Lào Cai,xã Bát Xát,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+A Lù PCTT,A Lù PCTT,Lào Cai,xã Y Tý,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+A Lù,A Lù,Lào Cai,xã Y Tý,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Si Láng PCTT,Tà Si Láng PCTT,Lào Cai,xã Tà Xi Láng,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Hồ 1,Bản Hồ 1,Lào Cai,xã Bản Hồ,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Làng Nhì,Làng Nhì,Lào Cai,xã Phình Hồ,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Có 2,Nậm Có 2,Lào Cai,xã Nậm Có,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Dương 2,Tân Dương 2,Lào Cai,xã Xuân Hòa,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+An Lạc,An Lạc,Lào Cai,xã Khánh Hòa,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ý Tý,Ý Tý,Lào Cai,xã Y Tý,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Mòn,Nậm Mòn,Lào Cai,xã Bắc Hà,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nam Cường,Nam Cường,Lào Cai,phường Cam Đường,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đông An,Đông An,Lào Cai,xã Đông Cuông,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nam Cường PCTT,Nam Cường PCTT,Lào Cai,phường Cam Đường,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thủy điện Ngòi Phát,Thủy điện Ngòi Phát,Lào Cai,xã Bát Xát,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Long Khánh,Long Khánh,Lào Cai,xã Phúc Khánh,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cao Phạ 1,Cao Phạ 1,Lào Cai,xã Tú Lệ,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Long Phúc,Long Phúc,Lào Cai,xã Phúc Khánh,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cam Đường,Cam Đường,Lào Cai,phường Cam Đường,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phong Hải,Phong Hải,Lào Cai,xã Phong Hải,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phong Hải PCTT,Phong Hải PCTT,Lào Cai,xã Phong Hải,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Si Ma Cai 1,Si Ma Cai 1,Lào Cai,xã Si Ma Cai,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+A Mú Sung PCTT,A Mú Sung PCTT,Lào Cai,xã A Mú Sung,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Mế,Bản Mế,Lào Cai,xã Sín Chéng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Mười 2,Nậm Mười 2,Lào Cai,xã Sơn Lương,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cốc Ly,Cốc Ly,Lào Cai,xã Bảo Nhai,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thủy điện Bắc Hà,Thủy điện Bắc Hà,Lào Cai,xã Bảo Nhai,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trịnh Tường 1,Trịnh Tường 1,Lào Cai,xã Trịnh Tường,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lùng Vai,Lùng Vai,Lào Cai,xã Bản Lầu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Van Chư,Tả Van Chư,Lào Cai,xã Lùng Phình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+La Pan Tẩn,La Pan Tẩn,Lào Cai,xã Cao Sơn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Vi,Mường Vi,Lào Cai,xã Bản Xèo,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lùng Cải,Lùng Cải,Lào Cai,xã Tả Củ Tỷ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sín Chéng,Sín Chéng,Lào Cai,xã Sín Chéng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Khương,Mường Khương,Lào Cai,xã Mường Khương,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Xen,Bản Xen,Lào Cai,xã Bản Lầu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hoàng Thu Phố,Hoàng Thu Phố,Lào Cai,xã Bắc Hà,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lùng Phình,Lùng Phình,Lào Cai,xã Lùng Phình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nàn Sán,Nàn Sán,Lào Cai,xã Si Ma Cai,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thủy điện Mường Hum,Thủy điện Mường Hum,Lào Cai,xã Mường Hum,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Lầu,Bản Lầu,Lào Cai,xã Bản Lầu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Cầm,Bản Cầm,Lào Cai,xã Phong Hải,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Chải,Trung Chải,Lào Cai,xã Tả Phìn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lùng Phình PCTT,Lùng Phình PCTT,Lào Cai,xã Lùng Phình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hoàng Liên,Hoàng Liên,Lào Cai,xã Tả Van,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Chảy,Nậm Chảy,Lào Cai,xã Mường Khương,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Chạc,Nậm Chạc,Lào Cai,xã A Mú Sung,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Hum,Mường Hum,Lào Cai,xã Mường Hum,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Lèng Hồ PCTT,Trung Lèng Hồ PCTT,Lào Cai,xã Mường Hum,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Lèng Hồ,Trung Lèng Hồ,Lào Cai,xã Mường Hum,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Long,Xuân Long,Lào Cai,xã Cảm Nhân,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Bảo Nhai 1,Bảo Nhai 1,Lào Cai,xã Bảo Nhai,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Quan Hồ Thẩn,Quan Hồ Thẩn,Lào Cai,xã Si Ma Cai,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Xà Hồ PCTT,Xà Hồ PCTT,Lào Cai,xã Hạnh Phúc,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thịnh Hưng,Thịnh Hưng,Lào Cai,xã Yên Bình,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Ba Khe,Ba Khe,Lào Cai,xã Cát Thịnh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Pha Long,Pha Long,Lào Cai,xã Pha Long,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Liễu Đô,Liễu Đô,Lào Cai,xã Lục Yên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Na Hươm,Hồ Na Hươm,Điện Biên,xã Núa Ngam,7.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Luân 2,Mường Luân 2,Điện Biên,xã Mường Luân,5.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tỏa Tình,Tỏa Tình,Điện Biên,xã Quài Tở,3.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Nhà 3,Mường Nhà 3,Điện Biên,xã Mường Nhà,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phình Giàng 2,Phình Giàng 2,Điện Biên,xã Phình Giàng,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Háng Lìa 3,Háng Lìa 3,Điện Biên,xã Tìa Dình,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Háng Lìa 2,Háng Lìa 2,Điện Biên,xã Tìa Dình,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Háng Lìa 1,Háng Lìa 1,Điện Biên,xã Tìa Dình,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Keo Lôm 2,Keo Lôm 2,Điện Biên,xã Na Son,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phình Giàng 1,Phình Giàng 1,Điện Biên,xã Phình Giàng,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phì Nhừ 4,Phì Nhừ 4,Điện Biên,xã Xa Dung,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Háng Lìa,Háng Lìa,Điện Biên,xã Tìa Dình,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phì Nhừ 5,Phì Nhừ 5,Điện Biên,xã Xa Dung,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Luân Giới,Luân Giới,Điện Biên,xã Mường Luân,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phì Nhừ 3,Phì Nhừ 3,Điện Biên,xã Xa Dung,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Na Son,Na Son,Điện Biên,xã Na Son,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phì Nhừ 2,Phì Nhừ 2,Điện Biên,xã Xa Dung,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Na Son 1,Na Son 1,Điện Biên,xã Na Son,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Tỏa Tình (Tuần Giáo, Điện Biên)","Tỏa Tình (Tuần Giáo, Điện Biên)",Điện Biên,xã Quài Tở,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lói 2,Mường Lói 2,Điện Biên,xã Mường Nhà,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tênh Phông,Tênh Phông,Điện Biên,xã Quài Tở,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Sín Chải (Tủa Chùa, Điện Biên)","Sín Chải (Tủa Chùa, Điện Biên)",Điện Biên,xã Sín Chải,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Na Son 2,Na Son 2,Điện Biên,xã Na Son,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lạn 1,Mường Lạn 1,Điện Biên,xã Mường Lạn,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pú Nhi 3,Pú Nhi 3,Điện Biên,xã Pu Nhi,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xuân Lao,Xuân Lao,Điện Biên,xã Mường Lạn,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"A Pa Chải (Mường Nhé, Điện Biên)","A Pa Chải (Mường Nhé, Điện Biên)",Điện Biên,xã Sín Thầu,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Luân 3,Mường Luân 3,Điện Biên,xã Mường Luân,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sam Mứn 1,Sam Mứn 1,Điện Biên,xã Thanh An,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pú Nhi 2,Pú Nhi 2,Điện Biên,xã Pu Nhi,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Báng,Mường Báng,Điện Biên,xã Tủa Chùa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lạn 2,Mường Lạn 2,Điện Biên,xã Mường Lạn,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quài Tở,Quài Tở,Điện Biên,xã Quài Tở,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Thơm PCTT,Pa Thơm PCTT,Điện Biên,xã Thanh Yên,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Nậm Ngám,Hồ Nậm Ngám,Điện Biên,xã Pu Nhi,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sam Mứn 2,Sam Mứn 2,Điện Biên,xã Thanh An,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sín Thầu,Sín Thầu,Điện Biên,xã Sín Thầu,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Na Ư 1,Na Ư 1,Điện Biên,xã Sam Mứn,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Na Ư 2,Na Ư 2,Điện Biên,xã Sam Mứn,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Búng Lao 2,Búng Lao 2,Điện Biên,xã Búng Lao,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Tấu,Nà Tấu,Điện Biên,xã Nà Tấu,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tây Trang,Tây Trang,Điện Biên,xã Sam Mứn,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Sinh,Chiềng Sinh,Điện Biên,xã Chiềng Sinh,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đoàn Kết 2,Đoàn Kết 2,Điện Biên,xã Mường Nhé,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Sen Thượng (Mường Nhé, Điện Biên)","Sen Thượng (Mường Nhé, Điện Biên)",Điện Biên,xã Sín Thầu,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chung Chải,Chung Chải,Điện Biên,xã Mường Nhé,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Sáy,Nà Sáy,Điện Biên,xã Chiềng Sinh,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Si Pa Phìn,Si Pa Phìn,Điện Biên,xã Si Pa Phìn,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Phăng 1,Mường Phăng 1,Điện Biên,xã Mường Phăng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Búng Lao 1,Búng Lao 1,Điện Biên,xã Búng Lao,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xín Chải,Xín Chải,Điện Biên,xã Sín Chải,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chi cục thủy lợi,Chi cục thủy lợi,Điện Biên,phường Điện Biên Phủ,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hua Thanh (Nậm Khẩu Hú),Hua Thanh (Nậm Khẩu Hú),Điện Biên,xã Thanh Nưa,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Tấu 2,Nà Tấu 2,Điện Biên,xã Nà Tấu,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Thơm,Pa Thơm,Điện Biên,xã Thanh Yên,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xá Tổng,Xá Tổng,Điện Biên,phường Mường Lay,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ẳng Cang 2,Ẳng Cang 2,Điện Biên,xã Mường Ảng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Phăng 2,Mường Phăng 2,Điện Biên,xã Mường Phăng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Phăng 3,Mường Phăng 3,Điện Biên,xã Mường Phăng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Nhé,Mường Nhé,Điện Biên,xã Mường Nhé,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Si Pha Phìn,Si Pha Phìn,Điện Biên,xã Si Pa Phìn,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Ảng,Mường Ảng,Điện Biên,xã Mường Ảng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Na Sang (Mường Chà, Điện Biên)","Na Sang (Mường Chà, Điện Biên)",Điện Biên,xã Na Sang,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nà Khoa (Nậm Pồ, Điện Biên)","Nà Khoa (Nậm Pồ, Điện Biên)",Điện Biên,xã Nà Hỳ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Phìn 1,Tả Phìn 1,Điện Biên,xã Sính Phình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Thu,Trung Thu,Điện Biên,xã Sính Phình,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Mường Toong (Mường Nhé, Điện Biên)","Mường Toong (Mường Nhé, Điện Biên)",Điện Biên,xã Mường Toong,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chà Cang 2,Chà Cang 2,Điện Biên,xã Mường Chà,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Chà PCTT,Mường Chà PCTT,Điện Biên,xã Na Sang,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pú Nhung,Pú Nhung,Điện Biên,xã Pú Nhung,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quài Nưa,Quài Nưa,Điện Biên,xã Tuần Giáo,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Búng Lao 3,Búng Lao 3,Điện Biên,xã Búng Lao,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Tùng 2,Mường Tùng 2,Điện Biên,xã Mường Tùng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Báng PCTT,Mường Báng PCTT,Điện Biên,xã Tủa Chùa,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lay Nưa,Lay Nưa,Điện Biên,phường Mường Lay,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Tấu 1,Nà Tấu 1,Điện Biên,xã Nà Tấu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Huổi Lèng 2,Huổi Lèng 2,Điện Biên,xã Mường Tùng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mùn Chung PCTT,Mùn Chung PCTT,Điện Biên,xã Mường Mùn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ẳng Tở,Ẳng Tở,Điện Biên,xã Búng Lao,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+P. Na Lay,P. Na Lay,Điện Biên,phường Mường Lay,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Ham,Pa Ham,Điện Biên,xã Nậm Nèn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Kè,Nậm Kè,Điện Biên,xã Nậm Kè,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Huổi Lèng 1,Huổi Lèng 1,Điện Biên,xã Mường Tùng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Ta Ma (Tuần Giáo, Điện Biên)","Ta Ma (Tuần Giáo, Điện Biên)",Điện Biên,xã Pú Nhung,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lay Nưa PCTT,Lay Nưa PCTT,Điện Biên,phường Mường Lay,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ẳng Nưa,Ẳng Nưa,Điện Biên,xã Mường Ảng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mùn 2,Mường Mùn 2,Điện Biên,xã Mường Mùn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mươn,Mường Mươn,Điện Biên,xã Mường Pồn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phìn Hồ,Phìn Hồ,Điện Biên,xã Si Pa Phìn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Tần,Pa Tần,Điện Biên,xã Mường Chà,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Quảng Lâm,Quảng Lâm,Điện Biên,xã Quảng Lâm,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ẳng Cang 1,Ẳng Cang 1,Điện Biên,xã Mường Ảng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Chà Tở (Nậm Pồ, Điện Biên)","Chà Tở (Nậm Pồ, Điện Biên)",Điện Biên,xã Chà Tở,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Chà Nưa (Nậm Pồ, Điện Biên)","Chà Nưa (Nậm Pồ, Điện Biên)",Điện Biên,xã Mường Chà,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Phình Sáng 1,Phình Sáng 1,Điện Biên,xã Sáng Nhè,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Phình Sáng 2,Phình Sáng 2,Điện Biên,xã Sáng Nhè,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Pồn 2,Mường Pồn 2,Điện Biên,xã Mường Pồn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Pá Mỳ (Mường Nhé, Điện Biên)","Pá Mỳ (Mường Nhé, Điện Biên)",Điện Biên,xã Nậm Kè,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Phình Sáng (Tuần Giáo, Điện Biên)","Phình Sáng (Tuần Giáo, Điện Biên)",Điện Biên,xã Sáng Nhè,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Tùng,Mường Tùng,Điện Biên,xã Mường Tùng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Chà,Mường Chà,Điện Biên,xã Mường Chà,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Nưa 1,Thanh Nưa 1,Điện Biên,xã Thanh Nưa,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Pồn,Mường Pồn,Điện Biên,xã Mường Pồn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Sông Đà,Sông Đà,Điện Biên,phường Mường Lay,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Hừa Ngài,Hừa Ngài,Điện Biên,xã Pa Ham,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Pú Xi (Tuần Giáo, Điện Biên)","Pú Xi (Tuần Giáo, Điện Biên)",Điện Biên,xã Mường Mùn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Đun,Mường Đun,Điện Biên,xã Sáng Nhè,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mùn 1,Mường Mùn 1,Điện Biên,xã Mường Mùn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mơn,Mường Mơn,Điện Biên,xã Mường Pồn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Pú Nhung 1,Pú Nhung 1,Điện Biên,xã Pú Nhung,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Khăn (Nậm Pồ, Điện Biên)","Nậm Khăn (Nậm Pồ, Điện Biên)",Điện Biên,xã Chà Tở,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Mường Mùn (Tuần Giáo, Điện Biên)","Mường Mùn (Tuần Giáo, Điện Biên)",Điện Biên,xã Mường Mùn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Hỳ,Nà Hỳ,Điện Biên,xã Nà Hỳ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Huổi Só,Huổi Só,Điện Biên,xã Tủa Thàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Thín,Mường Thín,Điện Biên,xã Chiềng Sinh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mùn Chung,Mùn Chung,Điện Biên,xã Tủa Chùa,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Lao Xả Phình,Lao Xả Phình,Điện Biên,xã Sín Chải,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Tấu 3,Nà Tấu 3,Điện Biên,xã Nà Tấu,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ngà,Nậm Ngà,Điện Biên,xã Nà Hỳ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Na Cô Sa (Nậm Pồ, Điện Biên)","Na Cô Sa (Nậm Pồ, Điện Biên)",Điện Biên,xã Quảng Lâm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Pồn 1,Mường Pồn 1,Điện Biên,xã Mường Pồn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Xá Nhè (Tủa Chùa, Điện Biên)","Xá Nhè (Tủa Chùa, Điện Biên)",Điện Biên,xã Sáng Nhè,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Huổi Lèng,Huổi Lèng,Điện Biên,xã Mường Tùng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tủa Thàng,Tủa Thàng,Điện Biên,xã Tủa Thàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Pa Ham (Mường Chà, Điện Biên)","Pa Ham (Mường Chà, Điện Biên)",Điện Biên,xã Pa Ham,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Phúc Than,Phúc Than,Lai Châu,xã Mường Than,8.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Phúc Khoa (Tân Uyên, Lai Châu)","Phúc Khoa (Tân Uyên, Lai Châu)",Lai Châu,xã Mường Khoa,8.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Khao (Mường Tè, Lai Châu)","Nậm Khao (Mường Tè, Lai Châu)",Lai Châu,xã Mường Tè,7.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Dào San 3,Dào San 3,Lai Châu,xã Dào San,5.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sì Lờ Lầu,Sì Lờ Lầu,Lai Châu,xã Sì Lở Lầu,4.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Lang 2,Bản Lang 2,Lai Châu,xã Khổng Lào,3.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phu Nậm Sap,Phu Nậm Sap,Lai Châu,xã Than Uyên,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Cần,Nậm Cần,Lai Châu,xã Tân Uyên,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Kim,Mường Kim,Lai Châu,xã Mường Kim,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thân Thuộc,Thân Thuộc,Lai Châu,xã Tân Uyên,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Khoen On,Khoen On,Lai Châu,xã Khoen On,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vàng Ma Chải,Vàng Ma Chải,Lai Châu,xã Sì Lở Lầu,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Tổng 2,Tà Tổng 2,Lai Châu,xã Tà Tổng,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Thị trấn Tân Uyên (Tân Uyên, Lai Châu)","Thị trấn Tân Uyên (Tân Uyên, Lai Châu)",Lai Châu,xã Tân Uyên,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thèn Sin,Thèn Sin,Lai Châu,xã Sin Suối Hồ,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Tà Hừa (Than Uyên, Lai Châu)","Tà Hừa (Than Uyên, Lai Châu)",Lai Châu,xã Mường Kim,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Hừa,Tà Hừa,Lai Châu,xã Mường Kim,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thu Lũm 2,Thu Lũm 2,Lai Châu,xã Thu Lũm,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Tà Mung (Than Uyên, Lai Châu)","Tà Mung (Than Uyên, Lai Châu)",Lai Châu,xã Mường Kim,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Gia 2,Tà Gia 2,Lai Châu,xã Khoen On,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xe 2,Nậm Xe 2,Lai Châu,xã Sin Suối Hồ,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Thắng,Pa Thắng,Lai Châu,xã Thu Lũm,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Tổng 1,Tà Tổng 1,Lai Châu,xã Tà Tổng,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bum Tở,Bum Tở,Lai Châu,xã Bum Tở,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Ta Gia (Than Uyên, Lai Châu)","Ta Gia (Than Uyên, Lai Châu)",Lai Châu,xã Khoen On,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xe,Nậm Xe,Lai Châu,xã Sin Suối Hồ,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mù Sang,Mù Sang,Lai Châu,xã Dào San,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pắc Ta PCTT,Pắc Ta PCTT,Lai Châu,xã Pắc Ta,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Đồng 2,Trung Đồng 2,Lai Châu,xã Tân Uyên,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Loỏng,Nậm Loỏng,Lai Châu,phường Đoàn Kết,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ka Lăng 2,Ka Lăng 2,Lai Châu,xã Thu Lũm,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ka Lăng,Ka Lăng,Lai Châu,xã Thu Lũm,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Bình 2,Sơn Bình 2,Lai Châu,xã Bình Lư,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Cao Chải (Mường Tè, Lai Châu)","Cao Chải (Mường Tè, Lai Châu)",Lai Châu,xã Tà Tổng,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sơn Bình,Sơn Bình,Lai Châu,xã Bình Lư,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sin Suối Hồ,Sin Suối Hồ,Lai Châu,xã Sin Suối Hồ,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phìn Hồ 3,Phìn Hồ 3,Lai Châu,xã Hồng Thu,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Vệ Sử 2,Pa Vệ Sử 2,Lai Châu,xã Bum Nưa,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xe 1,Nậm Xe 1,Lai Châu,xã Sin Suối Hồ,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ma Ký,Ma Ký,Lai Châu,xã Mù Cả,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Đồng 1,Trung Đồng 1,Lai Châu,xã Tân Uyên,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Mường Mít (Than Uyên, Lai Châu)","Mường Mít (Than Uyên, Lai Châu)",Lai Châu,xã Mường Than,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Khao 2,Nậm Khao 2,Lai Châu,xã Mường Tè,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Vệ Sử 4,Pa Vệ Sử 4,Lai Châu,xã Bum Nưa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mù Cả,Mù Cả,Lai Châu,xã Mù Cả,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Vệ Sử 3,Pa Vệ Sử 3,Lai Châu,xã Bum Nưa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Khoa,Mường Khoa,Lai Châu,xã Mường Khoa,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Ủ 2,Pa Ủ 2,Lai Châu,xã Pa Ủ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pac Ma,Pac Ma,Lai Châu,xã Bum Tở,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pắc Ta,Pắc Ta,Lai Châu,xã Pắc Ta,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Ủ,Pa Ủ,Lai Châu,xã Pa Ủ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Lùng Thàng (Sìn Hồ, Lai Châu)","Lùng Thàng (Sìn Hồ, Lai Châu)",Lai Châu,xã Nậm Tăm,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Lư 2,Bình Lư 2,Lai Châu,xã Bình Lư,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Lư 3,Bình Lư 3,Lai Châu,xã Bình Lư,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Noong Hẻo,Noong Hẻo,Lai Châu,xã Pu Sam Cáp,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Xe 3,Nậm Xe 3,Lai Châu,xã Sin Suối Hồ,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Mù Cả (Mường Tè, Lai Châu)","Mù Cả (Mường Tè, Lai Châu)",Lai Châu,xã Mù Cả,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Nậm Cúm,Pa Nậm Cúm,Lai Châu,xã Phong Thổ,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Tè,Mường Tè,Lai Châu,xã Bum Tở,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Xã Mường Tè (Mường Tè, Lai Châu)","Xã Mường Tè (Mường Tè, Lai Châu)",Lai Châu,xã Bum Tở,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bum Nưa,Bum Nưa,Lai Châu,xã Bum Nưa,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Lư 1,Bình Lư 1,Lai Châu,xã Bình Lư,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pu Sam Cáp,Pu Sam Cáp,Lai Châu,xã Pu Sam Cáp,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Ngà (Mường Tè, Lai Châu)","Nậm Ngà (Mường Tè, Lai Châu)",Lai Châu,xã Tà Tổng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Lản Nhì Thàng (Phong Thổ, Lai Châu)","Lản Nhì Thàng (Phong Thổ, Lai Châu)",Lai Châu,phường Đoàn Kết,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Căn Co 3,Căn Co 3,Lai Châu,xã Nậm Mạ,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Cang,Nà Cang,Lai Châu,xã Than Uyên,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Thầu,Hồ Thầu,Lai Châu,xã Tả Lèng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Khoa 1,Mường Khoa 1,Lai Châu,xã Mường Khoa,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Khun Há (Tam Đường, Lai Châu)","Khun Há (Tam Đường, Lai Châu)",Lai Châu,xã Khun Há,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hoang Thèn,Hoang Thèn,Lai Châu,xã Khổng Lào,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Thầu PCTT,Hồ Thầu PCTT,Lai Châu,xã Tả Lèng,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kan Hồ 1,Kan Hồ 1,Lai Châu,xã Bum Tở,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Bo,Bản Bo,Lai Châu,xã Bản Bo,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nùng Nàng,Nùng Nàng,Lai Châu,phường Tân Phong,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Giang,Bản Giang,Lai Châu,phường Tân Phong,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Kan Hồ 2,Kan Hồ 2,Lai Châu,xã Bum Tở,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Cha,Nậm Cha,Lai Châu,xã Nậm Tăm,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Ngảo,Tả Ngảo,Lai Châu,xã Tủa Sín Chải,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Cha (Sìn Hồ, Lai Châu)","Nậm Cha (Sìn Hồ, Lai Châu)",Lai Châu,xã Nậm Tăm,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mô 2,Mường Mô 2,Lai Châu,xã Mường Mô,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Sỏ 2,Nậm Sỏ 2,Lai Châu,xã Nậm Sỏ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Huổi Cuổng (Mường Tè, Lai Châu)","Huổi Cuổng (Mường Tè, Lai Châu)",Lai Châu,xã Hua Bum,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Làng Mô 2,Làng Mô 2,Lai Châu,xã Tủa Sín Chải,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Phìn,Tả Phìn,Lai Châu,xã Sìn Hồ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Tủa Sín Chải (Sìn Hồ, Lai Châu)","Tủa Sín Chải (Sìn Hồ, Lai Châu)",Lai Châu,xã Tủa Sín Chải,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Tăm,Nà Tăm,Lai Châu,xã Bản Bo,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hua Bum 3,Hua Bum 3,Lai Châu,xã Hua Bum,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Chà (Nậm Nhùn, Lai Châu)","Nậm Chà (Nậm Nhùn, Lai Châu)",Lai Châu,xã Mường Mô,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Hăn 2,Nậm Hăn 2,Lai Châu,xã Nậm Cuổi,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hồng Thu,Hồng Thu,Lai Châu,xã Hồng Thu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vàng Bó,Vàng Bó,Lai Châu,xã Phong Thổ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hua Bum 2,Hua Bum 2,Lai Châu,xã Hua Bum,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xà Dề Phìn,Xà Dề Phìn,Lai Châu,xã Sìn Hồ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Căn Co 2,Căn Co 2,Lai Châu,xã Nậm Mạ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mô 1,Mường Mô 1,Lai Châu,xã Mường Mô,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Mô 3,Mường Mô 3,Lai Châu,xã Mường Mô,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Tả Ngảo (Sìn Hồ, Lai Châu)","Tả Ngảo (Sìn Hồ, Lai Châu)",Lai Châu,xã Tủa Sín Chải,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ma Quai,Ma Quai,Lai Châu,xã Hồng Thu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hua Bum,Hua Bum,Lai Châu,xã Hua Bum,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Cần (Tân Uyên, Lai Châu)","Nậm Cần (Tân Uyên, Lai Châu)",Lai Châu,xã Tân Uyên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Hăn 2 (Sìn Hồ, Lai Châu)","Nậm Hăn 2 (Sìn Hồ, Lai Châu)",Lai Châu,xã Nậm Cuổi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Cuổi 4,Nậm Cuổi 4,Lai Châu,xã Nậm Cuổi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Huổi Luông,Huổi Luông,Lai Châu,xã Phong Thổ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Chăn Nưa (Sìn Hồ, Lai Châu)","Chăn Nưa (Sìn Hồ, Lai Châu)",Lai Châu,xã Lê Lợi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Khổng Lào 1,Khổng Lào 1,Lai Châu,xã Khổng Lào,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Cuổi,Nậm Cuổi,Lai Châu,xã Nậm Cuổi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Dào San 2,Dào San 2,Lai Châu,xã Dào San,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Hàng 2,Nậm Hàng 2,Lai Châu,xã Nậm Hàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Hoang Thèn 1,Hoang Thèn 1,Lai Châu,xã Khổng Lào,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chăn Nưa 1,Chăn Nưa 1,Lai Châu,xã Lê Lợi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Chải,Trung Chải,Lai Châu,xã Pa Tần,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Sỏ (Tân Uyên, Lai Châu)","Nậm Sỏ (Tân Uyên, Lai Châu)",Lai Châu,xã Nậm Sỏ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Pha Mu (Than Uyên, Lai Châu)","Pha Mu (Than Uyên, Lai Châu)",Lai Châu,xã Mường Kim,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Hàng 2 (Nậm Nhùn, Lai Châu)","Nậm Hàng 2 (Nậm Nhùn, Lai Châu)",Lai Châu,xã Nậm Hàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chăn Nưa 2,Chăn Nưa 2,Lai Châu,xã Lê Lợi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Mít,Tà Mít,Lai Châu,xã Nậm Sỏ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Làng Mô 1,Làng Mô 1,Lai Châu,xã Tủa Sín Chải,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Lê Lợi,Lê Lợi,Lai Châu,xã Lê Lợi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Manh,Nậm Manh,Lai Châu,xã Nậm Hàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Hăn 1,Nậm Hăn 1,Lai Châu,xã Nậm Cuổi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tả Lèng,Tả Lèng,Lai Châu,xã Tả Lèng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Cuổi 2,Nậm Cuổi 2,Lai Châu,xã Nậm Cuổi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Bản Lang (Phong Thổ, Lai Châu)","Bản Lang (Phong Thổ, Lai Châu)",Lai Châu,xã Khổng Lào,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Tăm 2,Nậm Tăm 2,Lai Châu,xã Nậm Tăm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Hàng 3,Nậm Hàng 3,Lai Châu,xã Nậm Hàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Khun Há 2 (Tam Đường, Lai Châu)","Khun Há 2 (Tam Đường, Lai Châu)",Lai Châu,xã Khun Há,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ban,Nậm Ban,Lai Châu,xã Pa Tần,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Ban (Sìn Hồ, Lai Châu)","Nậm Ban (Sìn Hồ, Lai Châu)",Lai Châu,xã Pa Tần,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Tần,Pa Tần,Lai Châu,xã Pa Tần,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Khăn - Tà Mít (Tân Uyên, Lai Châu)","Nậm Khăn - Tà Mít (Tân Uyên, Lai Châu)",Lai Châu,xã Nậm Sỏ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Hàng 1 (Nậm Nhùn, Lai Châu)","Nậm Hàng 1 (Nậm Nhùn, Lai Châu)",Lai Châu,xã Nậm Hàng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Pa Tần 2,Pa Tần 2,Lai Châu,xã Pa Tần,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Tăm 3,Nậm Tăm 3,Lai Châu,xã Nậm Tăm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Lóng Phiêng,Lóng Phiêng,Sơn La,xã Lóng Phiêng,18.4,Mưa vừa,25/02/2026 19:00,25/02/2026 18:12:46
+Lóng Sập,Lóng Sập,Sơn La,xã Lóng Sập,13.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng On,Chiềng On,Sơn La,xã Yên Sơn,7.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Tang Phứng (Quỳnh Nhai, Sơn La)","Tang Phứng (Quỳnh Nhai, Sơn La)",Sơn La,xã Mường Giôn,7.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Ớt,Nà Ớt,Sơn La,xã Phiêng Pằn,6.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Ét,Nậm Ét,Sơn La,xã Mường Sại,6.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Khoang,Chiềng Khoang,Sơn La,xã Quỳnh Nhai,6.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tú Nang,Tú Nang,Sơn La,xã Chiềng Hặc,5.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Lao 1,Chiềng Lao 1,Sơn La,xã Chiềng Lao,5.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Km46,Km46,Sơn La,xã Vân Hồ,4.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Khừa,Chiềng Khừa,Sơn La,xã Lóng Sập,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Lao 2,Chiềng Lao 2,Sơn La,xã Chiềng Lao,3.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Sại,Chiềng Sại,Sơn La,xã Chiềng Sại,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Giôn (Mường La, Sơn La)","Nậm Giôn (Mường La, Sơn La)",Sơn La,xã Chiềng Lao,3.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Sinh 1,Chiềng Sinh 1,Sơn La,phường Chiềng Sinh,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phiêng Cằm 1,Phiêng Cằm 1,Sơn La,xã Phiêng Cằm,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Ơn,Chiềng Ơn,Sơn La,xã Quỳnh Nhai,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Khoa,Chiềng Khoa,Sơn La,xã Tô Múa,2.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Ban,Chiềng Ban,Sơn La,xã Chiềng Mai,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Bang 1,Mường Bang 1,Sơn La,xã Mường Bang,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Chung 2,Chiềng Chung 2,Sơn La,xã Mường Chanh,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Xùa 1,Tà Xùa 1,Sơn La,xã Tà Xùa,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Làng Chếu 2,Làng Chếu 2,Sơn La,xã Tà Xùa,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Làng Chếu 4,Làng Chếu 4,Sơn La,xã Tà Xùa,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Thải,Mường Thải,Sơn La,xã Mường Cơi,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Khoong 1,Chiềng Khoong 1,Sơn La,xã Chiềng Khoong,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Công 1,Chiềng Công 1,Sơn La,xã Chiềng Hoa,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sốp Cộp,Sốp Cộp,Sơn La,xã Sốp Cộp,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Păm,Nậm Păm,Sơn La,xã Mường La,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Mai,Chiềng Mai,Sơn La,xã Chiềng Mai,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Xím Vàng,Xím Vàng,Sơn La,xã Xím Vàng,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Song Pe,Song Pe,Sơn La,xã Bắc Yên,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lựm,Mường Lựm,Sơn La,xã Chiềng Hặc,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Đông,Chiềng Đông,Sơn La,xã Yên Châu,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ngọc Chiến 1,Ngọc Chiến 1,Sơn La,xã Ngọc Chiến,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Dong,Chiềng Dong,Sơn La,xã Chiềng Mai,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Sung,Chiềng Sung,Sơn La,xã Chiềng Sung,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Muôn,Chiềng Muôn,Sơn La,xã Mường La,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Huy Tân 1,Huy Tân 1,Sơn La,xã Phù Yên,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Muổi Nọi 1,Muổi Nọi 1,Sơn La,xã Muổi Nọi,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Công,Chiềng Công,Sơn La,xã Chiềng Hoa,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nà Bó,Nà Bó,Sơn La,xã Tà Hộc,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Giàng,Mường Giàng,Sơn La,xã Quỳnh Nhai,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Sại,Mường Sại,Sơn La,xã Quỳnh Nhai,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Xôm,Chiềng Xôm,Sơn La,phường Chiềng An,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Pú Dảnh,Pú Dảnh,Sơn La,xã Ngọc Chiến,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ngọc Chiến 3,Ngọc Chiến 3,Sơn La,xã Ngọc Chiến,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Co Tòng,Co Tòng,Sơn La,xã Co Mạ,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tà Xùa 2,Tà Xùa 2,Sơn La,xã Tà Xùa,1.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Lầu 3,Nậm Lầu 3,Sơn La,xã Nậm Lầu,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Co Mạ,Co Mạ,Sơn La,xã Co Mạ,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Păm (Nậm Păm, Mường La)","Nậm Păm (Nậm Păm, Mường La)",Sơn La,xã Mường La,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Chiềng Lao (Mường La, Sơn La)","Chiềng Lao (Mường La, Sơn La)",Sơn La,xã Chiềng Lao,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Thủy điện Sơn La (Mường La, Sơn La)","Thủy điện Sơn La (Mường La, Sơn La)",Sơn La,xã Mường La,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Cọ,Chiềng Cọ,Sơn La,phường Chiềng Cơi,1.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bon Phặng,Bon Phặng,Sơn La,xã Muổi Nọi,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Bám 1,Mường Bám 1,Sơn La,xã Mường Bám,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tạ Khoa,Tạ Khoa,Sơn La,xã Tạ Khoa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hang Chú,Hang Chú,Sơn La,xã Xím Vàng,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ít Ong,Ít Ong,Sơn La,xã Mường La,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bó Mười,Bó Mười,Sơn La,xã Mường Khiêng,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Khiêng,Mường Khiêng,Sơn La,xã Mường Khiêng,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phỏng Lái 1,Phỏng Lái 1,Sơn La,xã Bình Thuận,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Mường Khiêng 1 (Thuận Châu, Sơn La)","Mường Khiêng 1 (Thuận Châu, Sơn La)",Sơn La,xã Mường Khiêng,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Hoa 2,Chiềng Hoa 2,Sơn La,xã Chiềng Hoa,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Pha,Chiềng Pha,Sơn La,xã Bình Thuận,1.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Lầm,Bản Lầm,Sơn La,xã Muổi Nọi,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Sai 2,Mường Sai 2,Sơn La,xã Chiềng Khương,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nậm Lầu 2,Nậm Lầu 2,Sơn La,xã Nậm Lầu,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Long Hẹ 2,Long Hẹ 2,Sơn La,xã Long Hẹ,0.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Bám 2,Mường Bám 2,Sơn La,xã Mường Bám,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Trai,Mường Trai,Sơn La,xã Mường La,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Bú,Mường Bú,Sơn La,xã Mường Bú,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Ngàm,Chiềng Ngàm,Sơn La,xã Chiềng La,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Bôm,Chiềng Bôm,Sơn La,xã Nậm Lầu,0.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Sại PCTT,Mường Sại PCTT,Sơn La,xã Mường Sại,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hua Nhàn,Hua Nhàn,Sơn La,xã Tạ Khoa,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+"Mường Khiêng 2 (Thuận Châu, Sơn La)","Mường Khiêng 2 (Thuận Châu, Sơn La)",Sơn La,xã Mường Khiêng,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường É,Mường É,Sơn La,xã Mường É,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Púng Tra,Púng Tra,Sơn La,xã Nậm Lầu,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thuận Châu,Thuận Châu,Sơn La,xã Thuận Châu,0.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Bôm PCTT,Chiềng Bôm PCTT,Sơn La,xã Nậm Lầu,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Chùm 1,Mường Chùm 1,Sơn La,xã Mường Bú,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Long Hẹ 1,Long Hẹ 1,Sơn La,xã Long Hẹ,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Giôn,Mường Giôn,Sơn La,xã Mường Giôn,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hua Trai,Hua Trai,Sơn La,xã Chiềng Lao,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phỏng Lái 2,Phỏng Lái 2,Sơn La,xã Bình Thuận,0.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Giôn PCTT,Mường Giôn PCTT,Sơn La,xã Mường Giôn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Chiềng Ơn (Chiềng Ơn, Sơn La)","Chiềng Ơn (Chiềng Ơn, Sơn La)",Sơn La,xã Quỳnh Nhai,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Km22,Km22,Sơn La,xã Vân Hồ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Bó Mười PCTT,Bó Mười PCTT,Sơn La,xã Mường Khiêng,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Cà Nàng (Quỳnh Nhai, Sơn La)","Cà Nàng (Quỳnh Nhai, Sơn La)",Sơn La,xã Mường Chiên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Chiềng Khay (Quỳnh Nhai, Sơn La)","Chiềng Khay (Quỳnh Nhai, Sơn La)",Sơn La,xã Mường Chiên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Lang,Tân Lang,Sơn La,xã Mường Cơi,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Phiêng Khoài 1,Phiêng Khoài 1,Sơn La,xã Phiêng Khoài,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Sam Kha,Sam Kha,Sơn La,xã Púng Bánh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Ngần,Chiềng Ngần,Sơn La,phường Chiềng Sinh,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Pha PCTT,Chiềng Pha PCTT,Sơn La,xã Bình Thuận,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Lập 1,Tân Lập 1,Sơn La,xã Tân Yên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Bám 1 PCTT,Mường Bám 1 PCTT,Sơn La,xã Mường Bám,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Bản Mòn,Hồ Bản Mòn,Sơn La,xã Chiềng Mung,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Xuân,Tân Xuân,Sơn La,xã Xuân Nha,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lèo,Mường Lèo,Sơn La,xã Mường Lèo,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Chiên 3,Mường Chiên 3,Sơn La,xã Mường Chiên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Gia Phù,Gia Phù,Sơn La,xã Gia Phù,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+"Nậm Ét (Quỳnh Nhai, Sơn La)","Nậm Ét (Quỳnh Nhai, Sơn La)",Sơn La,xã Mường Sại,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Pắc Ma,Pắc Ma,Sơn La,xã Mường Giôn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Cà Nàng,Cà Nàng,Sơn La,xã Mường Chiên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Đen,Chiềng Đen,Sơn La,phường Chiềng An,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Lạn,Mường Lạn,Sơn La,xã Mường Lạn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Chăn,Chiềng Chăn,Sơn La,xã Chiềng Sung,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Chiềng Khay,Chiềng Khay,Sơn La,xã Mường Chiên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Chiên 2,Mường Chiên 2,Sơn La,xã Mường Chiên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Suối Hòm,Hồ Suối Hòm,Sơn La,xã Phù Yên,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Hồ Chiềng Khoi,Hồ Chiềng Khoi,Sơn La,xã Yên Châu,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Long Hẹ 1 PCTT,Long Hẹ 1 PCTT,Sơn La,xã Long Hẹ,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Pha Khinh,Pha Khinh,Sơn La,xã Mường Giôn,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Đứa Mòn,Đứa Mòn,Sơn La,xã Mường Lầm,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Sập Xa,Sập Xa,Sơn La,xã Gia Phù,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Mường Trai,Mường Trai,Sơn La,xã Mường La,0.0,Không mưa,25/02/2026 19:00,25/02/2026 18:12:46
+Đôn Phong 3,Đôn Phong 3,Thái Nguyên,xã Phong Quang,6.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đôn Phong 2,Đôn Phong 2,Thái Nguyên,xã Phong Quang,5.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ngọc Phái,Ngọc Phái,Thái Nguyên,xã Chợ Đồn,5.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Long,Bình Long,Thái Nguyên,xã Dân Tiến,4.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phương Viên,Phương Viên,Thái Nguyên,xã Chợ Đồn,4.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đông Viên,Đông Viên,Thái Nguyên,xã Bạch Thông,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lương Bằng,Lương Bằng,Thái Nguyên,xã Nghĩa Tá,4.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cúc Đường,Cúc Đường,Thái Nguyên,xã La Hiên,4.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bằng Lãng,Bằng Lãng,Thái Nguyên,xã Chợ Đồn,3.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bằng Lũng,Bằng Lũng,Thái Nguyên,xã Chợ Đồn,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Dương Phong 2,Dương Phong 2,Thái Nguyên,xã Bạch Thông,3.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Nung,Thượng Nung,Thái Nguyên,xã Thần Sa,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thần Sa,Thần Sa,Thái Nguyên,xã Thần Sa,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Văn,Bình Văn,Thái Nguyên,xã Yên Bình,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Ký Phú,Ký Phú,Thái Nguyên,xã Vạn Phú,3.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Than Khánh Hòa,Than Khánh Hòa,Thái Nguyên,phường Quan Triều,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vũ Muộn,Vũ Muộn,Thái Nguyên,xã Vĩnh Thông,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Hân,Yên Hân,Thái Nguyên,xã Yên Bình,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Côn Minh,Côn Minh,Thái Nguyên,xã Côn Minh,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vũ Chấn,Vũ Chấn,Thái Nguyên,xã Nghinh Tường,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Dương Phong 1,Dương Phong 1,Thái Nguyên,xã Bạch Thông,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lục Bình,Lục Bình,Thái Nguyên,xã Phủ Thông,2.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Mỹ Yên,Mỹ Yên,Thái Nguyên,xã Đại Từ,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hoàng Nông,Hoàng Nông,Thái Nguyên,xã La Bằng,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đồng Quang,Đồng Quang,Thái Nguyên,phường Phan Đình Phùng,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tràng Xá,Tràng Xá,Thái Nguyên,xã Tràng Xá,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thị trấn Quân Chu,Thị trấn Quân Chu,Thái Nguyên,xã Quân Chu,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+La Hiên,La Hiên,Thái Nguyên,xã La Hiên,2.4,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bảo Linh,Bảo Linh,Thái Nguyên,xã Định Hóa,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Liên Minh,Liên Minh,Thái Nguyên,xã Tràng Xá,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Sông Cầu,Sông Cầu,Thái Nguyên,xã Đồng Hỷ,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Cù Vân,Cù Vân,Thái Nguyên,xã An Khánh,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phương Giao,Phương Giao,Thái Nguyên,xã Dân Tiến,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Linh,Tân Linh,Thái Nguyên,xã Phú Lạc,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bản Thi,Bản Thi,Thái Nguyên,xã Yên Thịnh,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đình Cả,Đình Cả,Thái Nguyên,xã Võ Nhai,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hòa Mục,Hòa Mục,Thái Nguyên,xã Tân Kỳ,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nông Thịnh,Nông Thịnh,Thái Nguyên,xã Thanh Thịnh,2.2,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hợp Tiến,Hợp Tiến,Thái Nguyên,xã Trại Cau,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Nghinh Tường,Nghinh Tường,Thái Nguyên,xã Nghinh Tường,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Linh Thông,Linh Thông,Thái Nguyên,xã Lam Vỹ,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Tân Long,Tân Long,Thái Nguyên,xã Quang Sơn,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Thịnh,Yên Thịnh,Thái Nguyên,xã Yên Thịnh,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phấn Mễ,Phấn Mễ,Thái Nguyên,xã Phú Lương,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phủ Thông,Phủ Thông,Thái Nguyên,xã Phủ Thông,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Yên Phong,Yên Phong,Thái Nguyên,xã Yên Phong,2.0,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thượng Đình,Thượng Đình,Thái Nguyên,xã Điềm Thụy,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Lam Vỹ,Lam Vỹ,Thái Nguyên,xã Lam Vỹ,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Minh Tiến,Minh Tiến,Thái Nguyên,xã Đức Lương,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Văn Hán,Văn Hán,Thái Nguyên,xã Văn Hán,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hóa Thượng,Hóa Thượng,Thái Nguyên,xã Đồng Hỷ,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Trung,Bình Trung,Thái Nguyên,xã Nghĩa Tá,1.8,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bộc Nhiêu,Bộc Nhiêu,Thái Nguyên,xã Trung Hội,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hà Châu,Hà Châu,Thái Nguyên,xã Điềm Thụy,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phú Đình,Phú Đình,Thái Nguyên,xã Phú Đình,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Trung Hội,Trung Hội,Thái Nguyên,xã Trung Hội,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Bình Sơn,Bình Sơn,Thái Nguyên,xã Tân Cương,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Vũ Loan 2,Vũ Loan 2,Thái Nguyên,xã Cường Lợi,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Đại Từ,Đại Từ,Thái Nguyên,xã Đại Phúc,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Phổ Yên,Phổ Yên,Thái Nguyên,phường Phổ Yên,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Thanh Thịnh,Thanh Thịnh,Thái Nguyên,xã Thanh Thịnh,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
+Hảo Nghĩa,Hảo Nghĩa,Thái Nguyên,xã Trần Phú,1.6,Mưa nhỏ,25/02/2026 19:00,25/02/2026 18:12:46
