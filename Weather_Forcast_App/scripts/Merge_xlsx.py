@@ -21,9 +21,10 @@ if sys.platform == "win32":
 # ============================================================
 # CẤU HÌNH THƯ MỤC & TÊN FILE
 # ============================================================
-# ĐƯỜNG DẪN TUYỆT ĐỐI THEO YÊU CẦU
-MERGE_DIR_ABS = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge"
-OUTPUT_DIR_ABS = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
+# DYNAMIC PATH: tự tính từ vị trí project root, không hardcode Linux path
+_PROJECT_ROOT = str(Path(__file__).resolve().parents[2])
+MERGE_DIR_ABS = str(Path(_PROJECT_ROOT) / "data" / "data_merge")
+OUTPUT_DIR_ABS = str(Path(_PROJECT_ROOT) / "data" / "data_crawl")
 
 # Tên file output sau khi merge cho nhóm "khác" (không phải vietnam_weather_)
 MERGE_FILENAME = "merged_vrain_data.xlsx"

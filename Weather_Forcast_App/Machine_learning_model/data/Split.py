@@ -96,6 +96,10 @@ def _compute_split_sizes(n: int, cfg: SplitConfig) -> Tuple[int, int, int]:
 def split_dataframe(df: pd.DataFrame, cfg: SplitConfig) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     df = _maybe_sort_time_series(df, cfg)
 
+    # Shuffle if configured (important for cross-sectional data)
+    if cfg.shuffle:
+        df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
     n = len(df)
     n_train, n_val, n_test = _compute_split_sizes(n, cfg)
 
@@ -164,18 +168,19 @@ def run_split_all(
     cfg: SplitConfig,
 ) -> None:
     """
-    Cấu trúc input:
-      cleaned_data/
-        Clean_Data_For_File_Merge/*.csv
-        Clean_Data_For_File_Not_Merge/*.csv
+        Cấu trúc input:
+            cleaned_data/
+                data_merge_clean/*.csv
+                data_not_merge_clean/*.csv
 
     Output:
       Dataset_after_split/
         Dataset_merge/{Train,Validate,Test}/*.csv
         Dataset_not_merge/{Train,Validate,Test}/*.csv
     """
-    merge_in = cleaned_data_root / "Clean_Data_For_File_Merge"
-    not_merge_in = cleaned_data_root / "Clean_Data_For_File_Not_Merge"
+    # In this repo the cleaned subfolders are named 'data_merge_clean' and 'data_not_merge_clean'
+    merge_in = cleaned_data_root / "data_merge_clean"
+    not_merge_in = cleaned_data_root / "data_not_merge_clean"
 
     merge_out = dataset_after_split_root / "Dataset_merge"
     not_merge_out = dataset_after_split_root / "Dataset_not_merge"
@@ -204,11 +209,13 @@ def run_split_all(
               f"train={item['rows_train']}, val={item['rows_validate']}, test={item['rows_test']}")
 
 if __name__ == "__main__":
+    # Dynamic path: tự tính từ vị trí project root
+    _split_project_root = Path(__file__).resolve().parents[3]
     CLEANED_DATA_ROOT = Path(
-        "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean"
+        _split_project_root / "data" / "data_clean"
     )
     OUT_ROOT = Path(
-        "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split"
+        _split_project_root / "Weather_Forcast_App" / "Machine_learning_model" / "Dataset_after_split"
     )
 
     cfg = SplitConfig(train_ratio=0.80, val_ratio=0.10, test_ratio=0.10, shuffle=False)

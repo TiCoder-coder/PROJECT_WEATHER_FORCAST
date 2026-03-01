@@ -19,12 +19,16 @@ from django.views.decorators.http import require_http_methods
 # - Path(__file__).resolve(): đường dẫn tuyệt đối tới file python đang chạy
 # - .parents[1]: đi lên 2 cấp (tuỳ cấu trúc project) để ra "root" của app
 
-# Đường dẫn tuyệt đối mới
-MERGE_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge")
-OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
-CLEANED_ROOT = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_clean")
-CLEANED_MERGE_DIR = CLEANED_ROOT / "data_merge_clean"
-CLEANED_RAW_DIR = CLEANED_ROOT / "data_not_merge_clean"
+# Dynamic path: tự tính từ vị trí project, không hardcode Linux path
+from Weather_Forcast_App.paths import (
+    DATA_MERGE_DIR, DATA_CRAWL_DIR, DATA_CLEAN_ROOT,
+    DATA_CLEAN_MERGE_DIR, DATA_CLEAN_NOT_MERGE_DIR,
+)
+MERGE_DIR = DATA_MERGE_DIR
+OUTPUT_DIR = DATA_CRAWL_DIR
+CLEANED_ROOT = DATA_CLEAN_ROOT
+CLEANED_MERGE_DIR = DATA_CLEAN_MERGE_DIR
+CLEANED_RAW_DIR = DATA_CLEAN_NOT_MERGE_DIR
 
 # ALLOWED_EXTS:
 # - chỉ cho phép clean các file có đuôi trong danh sách (để an toàn)

@@ -48,9 +48,9 @@ def home_view(request):
     # - Có thể bạn chạy app ở nhiều môi trường / cấu trúc project khác nhau
     # - Hoặc trước đó output nằm ở root, sau này chuyển vào Weather_Forcast_App/output
     # Sử dụng thư mục data_crawl tuyệt đối
-    output_dir = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
-    if not output_dir.exists():
-        output_dir = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
+    from Weather_Forcast_App.paths import DATA_CRAWL_DIR
+    output_dir = DATA_CRAWL_DIR
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # ============================================================
     # 2) LẤY TẤT CẢ FILE TRONG THƯ MỤC OUTPUT

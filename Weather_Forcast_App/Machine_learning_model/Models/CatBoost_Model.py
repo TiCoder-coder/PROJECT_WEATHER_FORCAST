@@ -155,6 +155,7 @@ class WeatherCatBoost:
         task_type: str = 'classification',
         loss_function: Optional[str] = None,
         use_gpu: bool = False,
+        params: Optional[Dict[str, Any]] = None,
         **kwargs
     ):
         """
@@ -164,6 +165,9 @@ class WeatherCatBoost:
             task_type: 'classification', 'regression', hoặc 'ranking'
             loss_function: Hàm mất mát. None = auto select
             use_gpu: Sử dụng GPU training
+            params: Dict hyperparameters (ưu tiên hơn kwargs). Hỗ trợ cả
+                    CatBoost-native (iterations, depth) và sklearn-style
+                    (n_estimators, max_depth).
             **kwargs: Các hyperparameters tùy chỉnh
                 - iterations: Số vòng lặp (default=1000)
                 - depth: Độ sâu cây (default=6)
@@ -172,6 +176,30 @@ class WeatherCatBoost:
         """
         if not CATBOOST_AVAILABLE:
             raise ImportError("CatBoost not installed. Run: pip install catboost")
+        
+        # ---- Handle params dict (from Ensemble or direct callers) ----
+        if params and isinstance(params, dict):
+            params = dict(params)  # copy to avoid mutating caller's dict
+            # Extract named args from params dict
+            task_type = params.pop('task_type', task_type)
+            loss_function = params.pop('loss_function', loss_function)
+            # Map sklearn-style param names → CatBoost-native names
+            _PARAM_MAP = {
+                'n_estimators': 'iterations',
+                'max_depth': 'depth',
+                'random_state': 'random_seed',
+                'reg_alpha': 'l2_leaf_reg',  # approximate mapping
+            }
+            for old_key, new_key in _PARAM_MAP.items():
+                if old_key in params and new_key not in params:
+                    params[new_key] = params.pop(old_key)
+                elif old_key in params:
+                    params.pop(old_key)  # remove duplicate
+            # Remove keys not understood by CatBoost
+            for bad_key in ('reg_lambda', 'subsample', 'colsample_bytree',
+                            'n_jobs', 'objective'):
+                params.pop(bad_key, None)
+            kwargs.update(params)
         
         # Validate task type
         try:

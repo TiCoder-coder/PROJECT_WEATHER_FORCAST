@@ -72,11 +72,14 @@ logging.basicConfig(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
+# Dynamic path: tự tính từ vị trí project root
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_DIR = str(_PROJECT_ROOT / "data" / "data_crawl")
+_DB_PATH = str(_PROJECT_ROOT / "vietnam_weather.db")
 
 class SQLiteManager:
-    def __init__(self, db_path="/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/vietnam_weather.db"):
-        self.db_path = db_path
+    def __init__(self, db_path=None):
+        self.db_path = db_path or _DB_PATH
         self.conn = None
         self.cursor = None
 

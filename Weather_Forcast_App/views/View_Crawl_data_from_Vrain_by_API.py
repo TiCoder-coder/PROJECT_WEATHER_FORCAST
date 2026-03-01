@@ -63,6 +63,9 @@ _STATE = {
     "last_size_mb": None,
 }
 
+# Thread Lock để tránh race condition khi đọc/ghi _STATE từ nhiều thread
+_STATE_LOCK = threading.Lock()
+
 # _LOG_LIMIT:
 # - Giới hạn số dòng log lưu trong RAM để tránh phình bộ nhớ.
 # - Nếu vượt giới hạn, chỉ giữ lại _LOG_LIMIT dòng cuối cùng (mới nhất).
@@ -85,9 +88,10 @@ def _push_log(line: str):
     line = (line or "").rstrip("\n")
     if not line:
         return
-    _STATE["logs"].append(line)
-    if len(_STATE["logs"]) > _LOG_LIMIT:
-        _STATE["logs"] = _STATE["logs"][-_LOG_LIMIT:]
+    with _STATE_LOCK:
+        _STATE["logs"].append(line)
+        if len(_STATE["logs"]) > _LOG_LIMIT:
+            _STATE["logs"] = _STATE["logs"][-_LOG_LIMIT:]
 
 
 # ============================================================
@@ -267,16 +271,13 @@ def crawl_vrain_api_start_view(request):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
-    # chặn start nếu đang chạy (tránh chạy song song, ghi logs lẫn nhau, đè output...)
-    if _STATE["is_running"]:
-        return JsonResponse({"ok": False, "message": "Job đang chạy rồi."}, status=409)
+    with _STATE_LOCK:
+        if _STATE["is_running"]:
+            return JsonResponse({"ok": False, "message": "Job đang chạy rồi."}, status=409)
+        _STATE["is_running"] = True
+        _STATE["logs"] = []
+        _STATE["last_returncode"] = None
 
-    # set trạng thái bắt đầu chạy
-    _STATE["is_running"] = True
-    _STATE["logs"] = []              # clear logs cũ
-    _STATE["last_returncode"] = None # reset returncode
-
-    # tạo thread daemon để không block request và không giữ server khi shutdown
     t = threading.Thread(target=_run_script_worker, daemon=True)
     t.start()
 
@@ -307,16 +308,17 @@ def crawl_vrain_api_tail_view(request):
     except:
         since_i = 0
 
-    logs = _STATE["logs"]
-    new_lines = logs[since_i:]
+    with _STATE_LOCK:
+        logs = list(_STATE["logs"])
+        data = {
+            "ok": True,
+            "is_running": _STATE["is_running"],
+            "next_since": len(logs),
+            "lines": logs[since_i:],
+            "last_returncode": _STATE["last_returncode"],
+            "last_crawl_time": _STATE["last_crawl_time"],
+            "last_file": _STATE["last_file"],
+            "last_size_mb": _STATE["last_size_mb"],
+        }
 
-    return JsonResponse({
-        "ok": True,
-        "is_running": _STATE["is_running"],
-        "next_since": len(logs),
-        "lines": new_lines,
-        "last_returncode": _STATE["last_returncode"],
-        "last_crawl_time": _STATE["last_crawl_time"],
-        "last_file": _STATE["last_file"],
-        "last_size_mb": _STATE["last_size_mb"],
-    })
+    return JsonResponse(data)

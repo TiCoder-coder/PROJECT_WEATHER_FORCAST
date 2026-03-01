@@ -149,7 +149,9 @@ province_urls = [
     "https://vrain.vn/52/overview?public_map=windy",
 ]
 
-OUTPUT_DIR = Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
+# Dynamic path: tự tính từ vị trí project root
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+OUTPUT_DIR = _PROJECT_ROOT / "data" / "data_crawl"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

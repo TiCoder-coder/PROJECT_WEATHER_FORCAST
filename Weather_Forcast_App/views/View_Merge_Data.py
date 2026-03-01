@@ -88,11 +88,12 @@ def merge_data_view(request):
         # - __file__ là path file python hiện tại
         # - abspath -> lấy đường dẫn tuyệt đối
         # - dirname 2 lần -> đi lên 2 cấp thư mục
-        # Đường dẫn tuyệt đối mới
-        script_path = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/scripts/Merge_xlsx.py"
+        # Dynamic path: tự tính từ vị trí project, không hardcode
+        from Weather_Forcast_App.paths import SCRIPT_MERGE_XLSX, DATA_CRAWL_DIR, DATA_MERGE_DIR
+        script_path = str(SCRIPT_MERGE_XLSX)
         python_exe = sys.executable
-        output_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl"
-        merge_dir = "/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge"
+        output_dir = str(DATA_CRAWL_DIR)
+        merge_dir = str(DATA_MERGE_DIR)
 
         # ============================================================
         # 3) Snapshot file trước khi merge (để đếm file mới)

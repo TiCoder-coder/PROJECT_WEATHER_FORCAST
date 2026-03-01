@@ -138,6 +138,7 @@ class WeatherRandomForest:
     def __init__(
         self,
         task_type: str = 'classification',
+        params: Optional[Dict[str, Any]] = None,
         **kwargs
     ):
         """
@@ -145,6 +146,8 @@ class WeatherRandomForest:
         
         Args:
             task_type: 'classification' hoặc 'regression'
+            params: Dict hyperparameters (ưu tiên hơn kwargs).
+                    Hỗ trợ cả sklearn-style (n_estimators, max_depth, …).
             **kwargs: Các hyperparameters tùy chỉnh
                 - n_estimators: Số cây (default=100)
                 - max_depth: Độ sâu tối đa (default=None)
@@ -153,6 +156,16 @@ class WeatherRandomForest:
                 - min_samples_leaf: Min samples ở leaf (default=1)
                 - random_state: Seed (default=42)
         """
+        # ---- Handle params dict (from Ensemble or direct callers) ----
+        if params and isinstance(params, dict):
+            params = dict(params)  # copy to avoid mutating caller's dict
+            task_type = params.pop('task_type', task_type)
+            # Remove keys not understood by sklearn RandomForest
+            for bad_key in ('reg_alpha', 'reg_lambda', 'subsample',
+                            'colsample_bytree', 'learning_rate', 'objective'):
+                params.pop(bad_key, None)
+            kwargs.update(params)
+        
         # Validate task type
         try:
             self.task_type = TaskType(task_type.lower())

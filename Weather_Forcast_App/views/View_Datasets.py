@@ -68,14 +68,18 @@ def _base_dir() -> Path:
 
 def _output_dir() -> Path:
     """Trả về thư mục output"""
-    # output/ chứa file crawl mới nhất (raw datasets)
-    return Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_crawl")
+    # Dynamic path: tự tính từ vị trí project, không hardcode
+    from Weather_Forcast_App.paths import DATA_CRAWL_DIR
+    DATA_CRAWL_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_CRAWL_DIR
 
 
 def _merged_dir() -> Path:
     """Trả về thư mục Merge_data"""
-    # Merge_data/ chứa file đã merge (e.g. merged_vrain_data.xlsx)
-    return Path("/media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/data/data_merge")
+    # Dynamic path: tự tính từ vị trí project, không hardcode
+    from Weather_Forcast_App.paths import DATA_MERGE_DIR
+    DATA_MERGE_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_MERGE_DIR
 
 
 def _cleaned_dir() -> Path:
