@@ -96,6 +96,10 @@ def _compute_split_sizes(n: int, cfg: SplitConfig) -> Tuple[int, int, int]:
 def split_dataframe(df: pd.DataFrame, cfg: SplitConfig) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     df = _maybe_sort_time_series(df, cfg)
 
+    # Shuffle if configured (important for cross-sectional data)
+    if cfg.shuffle:
+        df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
     n = len(df)
     n_train, n_val, n_test = _compute_split_sizes(n, cfg)
 

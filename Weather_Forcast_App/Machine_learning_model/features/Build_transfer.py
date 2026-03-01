@@ -550,12 +550,40 @@ class WeatherFeatureBuilder:
         elif not inter_config.get('enabled', True):
             return df_result
         
-        # Tìm các cột thời tiết
-        temp_col = self._find_column(df_result, ['nhiet_do_hien_tai', 'nhiet_do_trung_binh', 'nhiet_do'])
-        humidity_col = self._find_column(df_result, ['do_am_hien_tai', 'do_am_trung_binh', 'do_am'])
-        wind_col = self._find_column(df_result, ['toc_do_gio_hien_tai', 'toc_do_gio_trung_binh', 'toc_do_gio'])
-        pressure_col = self._find_column(df_result, ['ap_suat_hien_tai', 'ap_suat_trung_binh', 'ap_suat'])
-        cloud_col = self._find_column(df_result, ['do_che_phu_may_hien_tai', 'do_che_phu_may'])
+        # Tìm các cột thời tiết (hỗ trợ cả tên tiếng Việt và tiếng Anh)
+        temp_col = self._find_column(df_result, [
+            'nhiet_do_hien_tai', 'nhiet_do_trung_binh', 'nhiet_do',
+            'temperature_current', 'temperature_avg', 'temperature'
+        ])
+        humidity_col = self._find_column(df_result, [
+            'do_am_hien_tai', 'do_am_trung_binh', 'do_am',
+            'humidity_current', 'humidity_avg', 'humidity'
+        ])
+        wind_col = self._find_column(df_result, [
+            'toc_do_gio_hien_tai', 'toc_do_gio_trung_binh', 'toc_do_gio',
+            'wind_speed_current', 'wind_speed_avg', 'wind_speed'
+        ])
+        pressure_col = self._find_column(df_result, [
+            'ap_suat_hien_tai', 'ap_suat_trung_binh', 'ap_suat',
+            'pressure_current', 'pressure_avg', 'pressure'
+        ])
+        cloud_col = self._find_column(df_result, [
+            'do_che_phu_may_hien_tai', 'do_che_phu_may',
+            'cloud_cover_current', 'cloud_cover_avg', 'cloud_cover'
+        ])
+        visibility_col = self._find_column(df_result, [
+            'tam_nhin_hien_tai', 'tam_nhin',
+            'visibility_current', 'visibility_avg', 'visibility'
+        ])
+        thunder_col = self._find_column(df_result, [
+            'thunder_probability', 'xac_suat_sam_set'
+        ])
+        rain_avg_col = self._find_column(df_result, ['rain_avg', 'luong_mua_trung_binh'])
+        rain_max_col = self._find_column(df_result, ['rain_max', 'luong_mua_toi_da'])
+        wind_dir_col = self._find_column(df_result, [
+            'wind_direction_current', 'huong_gio_hien_tai',
+            'wind_direction_avg', 'huong_gio_trung_binh'
+        ])
         
         # Temperature * Humidity interaction
         if inter_config.get('temp_humidity', True) and temp_col and humidity_col:
@@ -577,26 +605,91 @@ class WeatherFeatureBuilder:
         # Ratios
         if inter_config.get('create_ratios', True):
             # Temp range ratio
-            temp_max = self._find_column(df_result, ['nhiet_do_toi_da'])
-            temp_min = self._find_column(df_result, ['nhiet_do_toi_thieu'])
+            temp_max = self._find_column(df_result, ['nhiet_do_toi_da', 'temperature_max'])
+            temp_min = self._find_column(df_result, ['nhiet_do_toi_thieu', 'temperature_min'])
             if temp_max and temp_min:
                 df_result['temp_range'] = df_result[temp_max] - df_result[temp_min]
                 df_result['temp_range_ratio'] = df_result['temp_range'] / (df_result[temp_min] + 273.15)  # Kelvin
                 self.feature_names.extend(['temp_range', 'temp_range_ratio'])
             
             # Humidity range ratio
-            hum_max = self._find_column(df_result, ['do_am_toi_da'])
-            hum_min = self._find_column(df_result, ['do_am_toi_thieu'])
+            hum_max = self._find_column(df_result, ['do_am_toi_da', 'humidity_max'])
+            hum_min = self._find_column(df_result, ['do_am_toi_thieu', 'humidity_min'])
             if hum_max and hum_min:
                 df_result['humidity_range'] = df_result[hum_max] - df_result[hum_min]
                 self.feature_names.append('humidity_range')
+            
+            # Pressure range ratio
+            press_max = self._find_column(df_result, ['ap_suat_toi_da', 'pressure_max'])
+            press_min = self._find_column(df_result, ['ap_suat_toi_thieu', 'pressure_min'])
+            if press_max and press_min:
+                df_result['pressure_range'] = df_result[press_max] - df_result[press_min]
+                self.feature_names.append('pressure_range')
+            
+            # Wind speed range
+            wind_max = self._find_column(df_result, ['toc_do_gio_toi_da', 'wind_speed_max'])
+            wind_min = self._find_column(df_result, ['toc_do_gio_toi_thieu', 'wind_speed_min'])
+            if wind_max and wind_min:
+                df_result['wind_speed_range'] = df_result[wind_max] - df_result[wind_min]
+                self.feature_names.append('wind_speed_range')
         
         # Cloud-rain relationship
         if cloud_col:
             df_result['cloud_rain_potential'] = df_result[cloud_col] / 100  # 0-1 scale
             self.feature_names.append('cloud_rain_potential')
         
-        logger.info("✅ Đã tạo weather interaction features")
+        # --- Additional interactions for cross-sectional data ---
+        # Humidity * Cloud cover (high humidity + high cloud = rain likely)
+        if humidity_col and cloud_col:
+            df_result['humidity_cloud_index'] = df_result[humidity_col] * df_result[cloud_col] / 100
+            self.feature_names.append('humidity_cloud_index')
+        
+        # Thunder probability interactions
+        if thunder_col:
+            if humidity_col:
+                df_result['thunder_humidity'] = df_result[thunder_col] * df_result[humidity_col] / 100
+                self.feature_names.append('thunder_humidity')
+            if cloud_col:
+                df_result['thunder_cloud'] = df_result[thunder_col] * df_result[cloud_col] / 100
+                self.feature_names.append('thunder_cloud')
+        
+        # Visibility interactions (low visibility often correlates with rain)
+        if visibility_col:
+            df_result['inv_visibility'] = 1.0 / (df_result[visibility_col] + 0.1)
+            self.feature_names.append('inv_visibility')
+            if humidity_col:
+                df_result['humidity_inv_vis'] = df_result[humidity_col] * df_result['inv_visibility']
+                self.feature_names.append('humidity_inv_vis')
+        
+        # Wind direction components (sin/cos for circular feature)
+        if wind_dir_col:
+            df_result['wind_dir_sin'] = np.sin(np.radians(df_result[wind_dir_col]))
+            df_result['wind_dir_cos'] = np.cos(np.radians(df_result[wind_dir_col]))
+            self.feature_names.extend(['wind_dir_sin', 'wind_dir_cos'])
+            # Wind vector components (speed * direction)
+            if wind_col:
+                df_result['wind_u'] = df_result[wind_col] * df_result['wind_dir_sin']
+                df_result['wind_v'] = df_result[wind_col] * df_result['wind_dir_cos']
+                self.feature_names.extend(['wind_u', 'wind_v'])
+        
+        # Rain history features (rain_avg and rain_max are strong predictors)
+        if rain_avg_col and rain_max_col:
+            df_result['rain_max_avg_ratio'] = df_result[rain_max_col] / (df_result[rain_avg_col] + 0.01)
+            df_result['rain_max_minus_avg'] = df_result[rain_max_col] - df_result[rain_avg_col]
+            self.feature_names.extend(['rain_max_avg_ratio', 'rain_max_minus_avg'])
+        
+        # Dew point approximation (important for rain prediction)
+        if temp_col and humidity_col:
+            # Magnus formula approximation for dew point
+            a, b = 17.27, 237.7
+            t = df_result[temp_col]
+            rh = df_result[humidity_col]
+            gamma = (a * t / (b + t)) + np.log(rh / 100.0 + 1e-8)
+            df_result['dew_point'] = (b * gamma) / (a - gamma)
+            df_result['dew_point_depression'] = t - df_result['dew_point']
+            self.feature_names.extend(['dew_point', 'dew_point_depression'])
+        
+        logger.info("Interaction features created")
         return df_result
     
     def _calculate_heat_index(self, temp: pd.Series, humidity: pd.Series) -> pd.Series:
@@ -638,7 +731,11 @@ class WeatherFeatureBuilder:
         
         # Lấy config
         diff_config = self.config.get('difference_features', {})
-        if not diff_config.get('enabled', True):
+        if isinstance(diff_config, bool):
+            if not diff_config:
+                return df_result
+            diff_config = {}
+        elif not diff_config.get('enabled', True):
             return df_result
         
         # Xác định columns
@@ -767,7 +864,10 @@ class WeatherFeatureBuilder:
                            Các cột tĩnh không nên tạo lag/rolling/diff vì chỉ tạo noise.
         """
         weather_keywords = ['nhiet_do', 'do_am', 'ap_suat', 'toc_do_gio', 
-                          'luong_mua', 'do_che_phu_may', 'tam_nhin']
+                          'luong_mua', 'do_che_phu_may', 'tam_nhin',
+                          'temperature', 'humidity', 'pressure', 'wind_speed',
+                          'wind_direction', 'rain_', 'cloud_cover', 'visibility',
+                          'thunder']
         
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         weather_cols = [col for col in numeric_cols 

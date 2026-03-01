@@ -59,7 +59,7 @@ import joblib
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
@@ -251,6 +251,112 @@ def _remove_static_derived_features(X: pd.DataFrame) -> Tuple[pd.DataFrame, List
     if remove_cols:
         print(f"  [FEATURE CLEAN] Removed {len(remove_cols)} static-derived features (lat/lon lag/rolling/diff)")
     return X.drop(columns=remove_cols, errors='ignore'), remove_cols
+
+
+def _detect_data_type(df: pd.DataFrame) -> str:
+    """
+    Auto-detect whether data is time-series or cross-sectional.
+    
+    Time-series: many unique timestamps, few stations
+    Cross-sectional: few unique timestamps, many stations/rows
+    
+    Returns: 'time_series' | 'cross_sectional' | 'mixed'
+    """
+    time_cols = [c for c in df.columns if 'time' in c.lower() or 'date' in c.lower() or 'stamp' in c.lower()]
+    if not time_cols:
+        return 'cross_sectional'
+    
+    time_col = time_cols[0]
+    ts = pd.to_datetime(df[time_col], errors='coerce')
+    n_unique_ts = ts.dropna().nunique()
+    n_rows = len(df)
+    
+    # If data has very few timestamps relative to rows, it's cross-sectional
+    ts_ratio = n_unique_ts / max(n_rows, 1)
+    
+    if n_unique_ts <= 5 or ts_ratio < 0.01:
+        return 'cross_sectional'
+    elif ts_ratio > 0.3:
+        return 'time_series'
+    else:
+        return 'mixed'
+
+
+def _remove_constant_features(X: pd.DataFrame, threshold: float = 0.001) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Remove features that are (nearly) constant — they provide no information.
+    
+    Args:
+        X: Feature DataFrame
+        threshold: Minimum ratio of unique values (nunique/nrows) to keep
+    
+    Returns:
+        (X_cleaned, removed_columns)
+    """
+    remove_cols = []
+    n_rows = len(X)
+    for col in X.columns:
+        nunique = X[col].nunique()
+        if nunique <= 1:
+            remove_cols.append(col)
+        elif X[col].dtype in ['float64', 'float32', 'int64', 'int32']:
+            # Check if std is effectively zero
+            col_std = X[col].std()
+            if col_std == 0 or (col_std is not None and np.isnan(col_std)):
+                remove_cols.append(col)
+    
+    if remove_cols:
+        print(f"  [FEATURE CLEAN] Removed {len(remove_cols)} constant/near-constant features: {remove_cols[:10]}...")
+    return X.drop(columns=remove_cols, errors='ignore'), remove_cols
+
+
+def _add_polynomial_features(
+    X: pd.DataFrame, y: pd.Series,
+    top_k: int = 8,
+    degree: int = 2,
+) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Add polynomial interaction features from top correlated columns.
+    Only creates degree-2 interactions (a*b, a^2) for top correlated features.
+    
+    Args:
+        X: Feature DataFrame
+        y: Target series
+        top_k: Number of top correlated features to use
+        degree: Polynomial degree (only 2 supported)
+    
+    Returns:
+        (X_with_poly, new_feature_names)
+    """
+    numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
+    if len(numeric_cols) < 2:
+        return X, []
+    
+    # Find top-k correlated features with target
+    correlations = X[numeric_cols].corrwith(y).abs().dropna().sort_values(ascending=False)
+    top_cols = correlations.head(top_k).index.tolist()
+    
+    new_features = {}
+    new_names = []
+    
+    for i, col_a in enumerate(top_cols):
+        # Squared features
+        fname = f"{col_a}_sq"
+        new_features[fname] = X[col_a] ** 2
+        new_names.append(fname)
+        
+        # Cross-interactions
+        for col_b in top_cols[i+1:]:
+            fname = f"{col_a}_x_{col_b}"
+            new_features[fname] = X[col_a] * X[col_b]
+            new_names.append(fname)
+    
+    if new_features:
+        new_df = pd.DataFrame(new_features, index=X.index)
+        X = pd.concat([X, new_df], axis=1)
+        print(f"  [POLY FEATURES] Added {len(new_names)} polynomial features from top-{top_k} correlated columns")
+    
+    return X, new_names
 
 
 def _select_features_by_importance(
@@ -469,17 +575,61 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     # (5) Build features (Build_transfer.py)
     # --------------------------
+    # --- AUTO-DETECT DATA TYPE: time-series vs cross-sectional ---
+    auto_detect = config.get("auto_detect_data_type", False)
+    detected_data_type = _detect_data_type(df_valid) if auto_detect else "unknown"
+    
+    if detected_data_type == "cross_sectional":
+        print(f"  [DATA TYPE] Detected: CROSS-SECTIONAL data (few timestamps, many rows)")
+        print(f"  [DATA TYPE] Disabling temporal features (lag/rolling/diff) - they are noise for this data type")
+        # Override feature config to disable temporal features
+        if feature_cfg is None:
+            feature_cfg = {}
+        feature_cfg['lag_features'] = False
+        feature_cfg['rolling_features'] = False
+        feature_cfg['difference_features'] = False
+    elif detected_data_type == "time_series":
+        print(f"  [DATA TYPE] Detected: TIME-SERIES data")
+    
     builder = WeatherFeatureBuilder(config=feature_cfg or None)
 
     X_train_raw, y_train = _build_features_for_split(builder, df_train, target_col=target_col, group_by=group_by)
     X_valid_raw, y_valid = _build_features_for_split(builder, df_valid_split, target_col=target_col, group_by=group_by)
     X_test_raw, y_test = _build_features_for_split(builder, df_test, target_col=target_col, group_by=group_by)
 
+    # --- ANTI-UNDERFIT: Remove constant/near-constant features ---
+    X_train_raw, removed_const = _remove_constant_features(X_train_raw)
+    if removed_const:
+        X_valid_raw = X_valid_raw.drop(columns=removed_const, errors='ignore')
+        X_test_raw = X_test_raw.drop(columns=removed_const, errors='ignore')
+
     # --- ANTI-UNDERFIT: Loại bỏ features noise từ cột static (lat/lon lag/rolling/diff) ---
     X_train_raw, removed_static = _remove_static_derived_features(X_train_raw)
     if removed_static:
         X_valid_raw = X_valid_raw.drop(columns=removed_static, errors='ignore')
         X_test_raw = X_test_raw.drop(columns=removed_static, errors='ignore')
+
+    # --- ANTI-UNDERFIT: Add polynomial/interaction features from top correlated columns ---
+    poly_cfg = config.get("polynomial_features", {})
+    if poly_cfg.get("enabled", False):
+        poly_top_k = poly_cfg.get("top_k_corr", 8)
+        poly_degree = poly_cfg.get("degree", 2)
+        X_train_raw, poly_names = _add_polynomial_features(
+            X_train_raw, y_train, top_k=poly_top_k, degree=poly_degree
+        )
+        if poly_names:
+            # Add the same polynomial features to valid/test using the SAME column pairs
+            for fname in poly_names:
+                if '_sq' in fname:
+                    base_col = fname.replace('_sq', '')
+                    if base_col in X_valid_raw.columns:
+                        X_valid_raw[fname] = X_valid_raw[base_col] ** 2
+                        X_test_raw[fname] = X_test_raw[base_col] ** 2
+                elif '_x_' in fname:
+                    parts = fname.split('_x_')
+                    if len(parts) == 2 and parts[0] in X_valid_raw.columns and parts[1] in X_valid_raw.columns:
+                        X_valid_raw[fname] = X_valid_raw[parts[0]] * X_valid_raw[parts[1]]
+                        X_test_raw[fname] = X_test_raw[parts[0]] * X_test_raw[parts[1]]
 
     # --- ANTI-UNDERFIT: Feature selection bằng importance (giảm noise) ---
     enable_feature_selection = config.get("feature_selection", {}).get("enabled", True)
@@ -496,6 +646,8 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         X_valid_raw = X_valid_raw[[c for c in selected_features if c in X_valid_raw.columns]]
         X_test_raw = X_test_raw[[c for c in selected_features if c in X_test_raw.columns]]
 
+    print(f"  [FEATURES] Final feature count: {len(X_train_raw.columns)} (train shape: {X_train_raw.shape})")
+
     # feature list: list các feature mới + toàn bộ cột output (sau build + selection)
     created_feature_names = builder.get_feature_names()
     all_feature_columns = X_train_raw.columns.tolist()
@@ -509,8 +661,11 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "generated_at": _now_tag(),
         "group_by": group_by,
         "removed_static_features": removed_static,
+        "removed_constant_features": removed_const,
+        "detected_data_type": detected_data_type,
         "feature_selection_enabled": enable_feature_selection,
-        "note": "all_feature_columns là danh sách cột X sau build + feature selection (để predict align đúng cột)."
+        "polynomial_features_added": poly_cfg.get("enabled", False),
+        "note": "all_feature_columns is the list of X columns after build + feature selection (for prediction alignment)."
     })
 
     # --------------------------
@@ -654,15 +809,30 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
 
 
     # --- Overfit/Underfit & Accuracy Diagnostics ---
-    def detect_overfit_underfit(metrics_dict, tolerance=0.05):
+    def detect_overfit_underfit(metrics_dict, tolerance=0.10):
         """
         Detect overfit/underfit based on train/valid metrics.
-        For regression: use RMSE or MAE. For classification: use Rain_Accuracy if present.
+        Uses R² gap as primary indicator (more reliable for regression).
+        Falls back to RMSE relative difference if R² not available.
+        tolerance=0.10 means R² gap > 0.10 is overfit.
         Returns: (status, details)
         """
         train = metrics_dict.get("train", {})
         valid = metrics_dict.get("valid", {})
-        # Prefer RMSE, fallback to MAE
+
+        # Primary: use R² gap (most meaningful for regression)
+        r2_train = train.get("R2")
+        r2_valid = valid.get("R2")
+        if r2_train is not None and r2_valid is not None:
+            r2_gap = r2_train - r2_valid
+            if r2_gap > tolerance:
+                return ("overfit", f"Train R²({r2_train:.3f}) - Valid R²({r2_valid:.3f}) = {r2_gap:.3f} > {tolerance}")
+            elif r2_gap < -tolerance:
+                return ("underfit", f"Valid R²({r2_valid:.3f}) > Train R²({r2_train:.3f}) by {-r2_gap:.3f} (unusual)")
+            else:
+                return ("good", f"Train/Valid R² gap is small ({r2_gap:.3f}), generalization OK")
+
+        # Fallback: use RMSE
         metric_name = None
         for m in ["RMSE", "MAE", "Rain_Accuracy"]:
             if m in train and m in valid:
@@ -672,7 +842,6 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
             return ("unknown", "Insufficient metrics for overfit/underfit detection.")
         train_score = train[metric_name]
         valid_score = valid[metric_name]
-        # For accuracy, higher is better; for errors, lower is better
         if metric_name == "Rain_Accuracy":
             diff = train_score - valid_score
             if diff > tolerance:
@@ -713,8 +882,11 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "overfit_status": overfit_status,
         "overfit_details": overfit_details,
         "applied_log_target": applied_log_target,
+        "detected_data_type": detected_data_type,
         "n_features_after_selection": len(all_feature_columns),
         "n_static_features_removed": len(removed_static),
+        "n_constant_features_removed": len(removed_const),
+        "polynomial_features_added": poly_cfg.get("enabled", False),
         "target_zero_ratio": float(zero_ratio),
     }
 
@@ -763,7 +935,10 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
             "n_created_features": int(len(created_feature_names)),
             "n_total_feature_columns": int(len(all_feature_columns)),
             "n_static_features_removed": int(len(removed_static)),
+            "n_constant_features_removed": int(len(removed_const)),
             "feature_selection_enabled": enable_feature_selection,
+            "detected_data_type": detected_data_type,
+            "polynomial_features_added": poly_cfg.get("enabled", False),
         },
         "target_transform": {
             "log1p_applied": applied_log_target,

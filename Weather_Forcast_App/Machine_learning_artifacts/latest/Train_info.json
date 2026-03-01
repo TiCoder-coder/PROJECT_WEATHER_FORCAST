@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-02-25 19:44:06",
+  "trained_at": "2026-03-01 09:42:12",
   "project_root": "D:\\PROJECT_WEATHER_FORCAST",
   "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
   "input": {
@@ -14,11 +14,11 @@
     "note": "schema_validation_skipped"
   },
   "split_config": {
-    "train_ratio": 0.8,
-    "val_ratio": 0.1,
-    "test_ratio": 0.1,
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
     "shuffle": true,
-    "sort_by_time_if_possible": true,
+    "sort_by_time_if_possible": false,
     "time_col_candidates": [
       "timestamp"
     ]
@@ -31,20 +31,23 @@
   "target_column": "rain_total",
   "group_by": null,
   "feature_info": {
-    "n_created_features": 320,
-    "n_total_feature_columns": 150,
+    "n_created_features": 40,
+    "n_total_feature_columns": 97,
     "n_static_features_removed": 0,
-    "feature_selection_enabled": true
+    "n_constant_features_removed": 20,
+    "feature_selection_enabled": false,
+    "detected_data_type": "cross_sectional",
+    "polynomial_features_added": true
   },
   "target_transform": {
     "log1p_applied": true,
-    "target_zero_ratio": 0.8531611148878314
+    "target_zero_ratio": 0.8092833559914546
   },
   "transform": {
     "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-02-25T19:43:45.791265",
+      "fitted_at": "2026-03-01T09:41:43.331782",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -52,7 +55,7 @@
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 150,
+      "n_features": 97,
       "config": {
         "missing_strategy": "median",
         "scaler_type": "standard",
@@ -68,36 +71,49 @@
         {
           "type": "xgboost",
           "params": {
-            "n_estimators": 800,
-            "learning_rate": 0.02,
-            "max_depth": 16,
-            "reg_alpha": 0,
-            "reg_lambda": 0
+            "n_estimators": 1500,
+            "learning_rate": 0.05,
+            "max_depth": 8,
+            "min_child_weight": 5,
+            "subsample": 0.8,
+            "colsample_bytree": 0.7,
+            "reg_alpha": 0.1,
+            "reg_lambda": 1.0,
+            "gamma": 0.1
           }
         },
         {
           "type": "random_forest",
           "params": {
-            "n_estimators": 800,
-            "max_depth": 18
+            "n_estimators": 1000,
+            "max_depth": null,
+            "min_samples_split": 5,
+            "min_samples_leaf": 3,
+            "max_features": "sqrt"
           }
         },
         {
           "type": "lightgbm",
           "params": {
-            "n_estimators": 800,
-            "learning_rate": 0.02,
-            "max_depth": 16,
-            "reg_alpha": 0,
-            "reg_lambda": 0
+            "n_estimators": 1500,
+            "learning_rate": 0.05,
+            "max_depth": 10,
+            "num_leaves": 31,
+            "min_child_samples": 20,
+            "subsample": 0.8,
+            "colsample_bytree": 0.7,
+            "reg_alpha": 0.1,
+            "reg_lambda": 1.0
           }
         },
         {
           "type": "catboost",
           "params": {
-            "iterations": 200,
-            "learning_rate": 0.02,
-            "depth": 8
+            "iterations": 1500,
+            "learning_rate": 0.05,
+            "depth": 8,
+            "l2_leaf_reg": 3.0,
+            "min_data_in_leaf": 10
           }
         }
       ],
