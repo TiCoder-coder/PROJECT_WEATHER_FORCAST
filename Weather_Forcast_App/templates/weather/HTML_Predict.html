@@ -1,0 +1,535 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dự báo thời tiết – Weather Hub</title>
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Predict.css' %}?v=20260303">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body class="page">
+    <div class="layout">
+        <!-- ═══════════ SIDEBAR ═══════════ -->
+        <aside class="sidebar">
+            <div class="sidebar__logo">
+                <div class="sidebar__logo-circle">WF</div>
+                <div class="sidebar__logo-text">
+                    <span class="sidebar__logo-title">Dự báo thời tiết</span>
+                    <span class="sidebar__logo-sub">Prediction / Inference</span>
+                </div>
+            </div>
+            {% include 'weather/Sidebar_nav.html' %}
+        </aside>
+
+        <!-- ═══════════ MAIN ═══════════ -->
+        <main class="main">
+            <!-- ── Hero Banner ── -->
+            <header class="hero">
+                <div class="hero__content">
+                    <div class="hero__badge">
+                        <span class="hero__badge-dot"></span>
+                        AI-Powered Prediction
+                    </div>
+                    <h1 class="hero__title">
+                        <span class="hero__icon">🔮</span>
+                        DỰ BÁO THỜI TIẾT
+                    </h1>
+                    <p class="hero__desc">
+                        Sử dụng model Machine Learning đã huấn luyện để dự báo lượng mưa chính xác.
+                        Hỗ trợ nhiều phương thức: chọn dataset, upload file, hoặc nhập thủ công.
+                    </p>
+                </div>
+
+                {% if active_job %}
+                <div class="run-panel" id="runPanel">
+                    <div class="run-panel__row">
+                        <span class="run-panel__spinner"></span>
+                        <div>
+                            <div class="run-panel__title">Đang dự báo...</div>
+                            <div class="run-panel__desc">Job ID: {{ active_job.job_id }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </header>
+
+            <!-- ═══════ HƯỚNG DẪN SỬ DỤNG ═══════ -->
+            <section class="card card--guide" id="sectionGuide">
+                <div class="card__header card__header--toggle" id="guideHeaderToggle">
+                    <h2 class="card__title">📖 Hướng dẫn sử dụng</h2>
+                    <button type="button" class="pill small" id="btnToggleGuide">Thu gọn</button>
+                </div>
+                <div class="guide-body" id="guideBody">
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <div class="guide-step__number">1</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">Kiểm tra Model</h3>
+                                <p class="guide-step__desc">
+                                    Đảm bảo đã có model được huấn luyện (hiển thị ở mục <strong>"Model hiện tại"</strong>).
+                                    Nếu chưa có, hãy vào trang <a href="{% url 'weather:train' %}">Huấn luyện ML</a> để train model trước.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step__number">2</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">Chọn phương thức dự báo</h3>
+                                <p class="guide-step__desc">Có 3 cách để chạy dự báo:</p>
+                                <ul class="guide-step__list">
+                                    <li><strong>📦 Từ dataset có sẵn:</strong> Chọn thư mục &rarr; chọn file &rarr; bấm "Dự báo"</li>
+                                    <li><strong>📤 Upload file:</strong> Kéo thả hoặc chọn file CSV/Excel từ máy tính</li>
+                                    <li><strong>✏️ Nhập thủ công:</strong> Nhập trực tiếp thông số thời tiết để dự báo 1 điểm</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step__number">3</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">Xem kết quả</h3>
+                                <p class="guide-step__desc">
+                                    Kết quả hiển thị bảng preview với cột <code>y_pred</code> là giá trị dự báo.
+                                    File kết quả đầy đủ lưu tại <code>WeatherForcast/predictions.csv</code>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="guide-tips">
+                        <h4 class="guide-tips__title">💡 Mẹo sử dụng</h4>
+                        <ul class="guide-tips__list">
+                            <li>Dùng nút <strong>"🔮 Dùng"</strong> ở bảng datasets phía dưới để chọn nhanh dataset</li>
+                            <li>Đặt <strong>số dòng tối đa = 0</strong> để dự báo toàn bộ dữ liệu</li>
+                            <li>Khi nhập thủ công, hệ thống tự tính trung bình từ min/max</li>
+                            <li>Giá trị <strong>y_pred &gt; 0.5</strong> được phân loại là "Mưa"</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ MODEL INFO ═══════ -->
+            <section class="card card--model-info" id="sectionModelInfo">
+                <div class="card__header">
+                    <h2 class="card__title">🤖 Model hiện tại</h2>
+                </div>
+                <div class="model-info-grid">
+                    {% if model_info.loaded %}
+                    <div class="info-chip info-chip--ok">
+                        <span class="info-chip__icon">✅</span>
+                        <div>
+                            <div class="info-chip__label">Trạng thái</div>
+                            <div class="info-chip__value">Sẵn sàng</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">🧠</span>
+                        <div>
+                            <div class="info-chip__label">Loại model</div>
+                            <div class="info-chip__value">{{ model_info.model_type|upper }}</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">🎯</span>
+                        <div>
+                            <div class="info-chip__label">Target</div>
+                            <div class="info-chip__value">{{ model_info.target_column }}</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">📐</span>
+                        <div>
+                            <div class="info-chip__label">Features</div>
+                            <div class="info-chip__value">{{ model_info.n_features }}</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">📊</span>
+                        <div>
+                            <div class="info-chip__label">Test R²</div>
+                            <div class="info-chip__value">{{ model_info.test_r2|floatformat:4 }}</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">📏</span>
+                        <div>
+                            <div class="info-chip__label">Test RMSE</div>
+                            <div class="info-chip__value">{{ model_info.test_rmse|floatformat:4 }}</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">💾</span>
+                        <div>
+                            <div class="info-chip__label">Kích thước</div>
+                            <div class="info-chip__value">{{ model_info.model_size_mb }} MB</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
+                        <span class="info-chip__icon">🕒</span>
+                        <div>
+                            <div class="info-chip__label">Trained lúc</div>
+                            <div class="info-chip__value">{{ model_info.trained_at }}</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="info-chip info-chip--warn" style="grid-column: 1 / -1;">
+                        <span class="info-chip__icon">⚠️</span>
+                        <div>
+                            <div class="info-chip__label">Trạng thái</div>
+                            <div class="info-chip__value">Chưa có model — Vui lòng <a href="{% url 'weather:train' %}" style="color:#a78bfa;">huấn luyện model</a> trước khi dự báo</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- ═══════ TABS: Chọn phương thức dự báo ═══════ -->
+            <section class="card card--predict" id="sectionPredict">
+                <h2 class="card__title">⚡ Chạy dự báo</h2>
+
+                <div class="predict-tabs">
+                    <button type="button" class="predict-tab predict-tab--active" data-tab="dataset">
+                        <span class="predict-tab__icon">📦</span>
+                        <span class="predict-tab__text">
+                            <span class="predict-tab__label">Từ dataset</span>
+                            <span class="predict-tab__sub">Chọn file có sẵn</span>
+                        </span>
+                    </button>
+                    <button type="button" class="predict-tab" data-tab="upload">
+                        <span class="predict-tab__icon">📤</span>
+                        <span class="predict-tab__text">
+                            <span class="predict-tab__label">Upload file</span>
+                            <span class="predict-tab__sub">CSV / Excel</span>
+                        </span>
+                    </button>
+                    <button type="button" class="predict-tab" data-tab="manual">
+                        <span class="predict-tab__icon">✏️</span>
+                        <span class="predict-tab__text">
+                            <span class="predict-tab__label">Nhập thủ công</span>
+                            <span class="predict-tab__sub">Dự báo từng điểm</span>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- TAB: Dataset có sẵn -->
+                <div class="predict-panel predict-panel--active" data-panel="dataset">
+                    <form id="datasetForm" class="form">
+                        {% csrf_token %}
+                        <div class="form__grid">
+                            <div class="form__group">
+                                <label class="form__label">📂 Thư mục dữ liệu</label>
+                                <select id="folderKey" name="folder_key" class="form__select">
+                                    <option value="">-- Chọn thư mục --</option>
+                                    <option value="data_crawl">Data Crawl (raw)</option>
+                                    <option value="data_merge">Data Merge</option>
+                                    <option value="cleaned_merge">Cleaned Merge ✨</option>
+                                    <option value="cleaned_not_merge">Cleaned Not Merge</option>
+                                </select>
+                            </div>
+                            <div class="form__group">
+                                <label class="form__label">📄 File dữ liệu</label>
+                                <select id="fileName" name="filename" class="form__select">
+                                    <option value="">-- Chọn thư mục trước --</option>
+                                </select>
+                            </div>
+                            <div class="form__group">
+                                <label class="form__label">🔢 Số dòng tối đa (0 = tất cả)</label>
+                                <input type="number" id="nrowsDataset" name="nrows" class="form__input"
+                                       value="0" min="0" step="100" placeholder="0 = tất cả">
+                            </div>
+                        </div>
+                        <div class="form__actions">
+                            <button type="submit" class="btn btn--primary btn--lg" id="btnRunDataset">
+                                🔮 Dự báo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB: Upload -->
+                <div class="predict-panel" data-panel="upload">
+                    <form id="uploadForm" class="form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form__grid">
+                            <div class="form__group form__group--full">
+                                <label class="form__label">📤 Chọn file CSV / Excel</label>
+                                <div class="upload-zone" id="uploadZone">
+                                    <input type="file" id="fileInput" name="file"
+                                           accept=".csv,.xlsx,.xls" class="upload-zone__input">
+                                    <div class="upload-zone__content">
+                                        <span class="upload-zone__icon">📁</span>
+                                        <span class="upload-zone__text">Kéo thả file vào đây hoặc <strong>click để chọn</strong></span>
+                                        <span class="upload-zone__hint">Hỗ trợ: .csv, .xlsx, .xls</span>
+                                    </div>
+                                    <div class="upload-zone__selected" id="selectedFile" style="display:none;"></div>
+                                </div>
+                            </div>
+                            <div class="form__group">
+                                <label class="form__label">🔢 Số dòng tối đa (0 = tất cả)</label>
+                                <input type="number" id="nrowsUpload" name="nrows" class="form__input"
+                                       value="0" min="0" step="100">
+                            </div>
+                        </div>
+                        <div class="form__actions">
+                            <button type="submit" class="btn btn--primary btn--lg" id="btnRunUpload">
+                                🔮 Dự báo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB: Nhập thủ công -->
+                <div class="predict-panel" data-panel="manual">
+                    <div class="manual-intro">
+                        <p class="card__desc">Nhập thông số thời tiết để dự báo lượng mưa cho 1 điểm dữ liệu.</p>
+                    </div>
+                    <form id="manualForm" class="form">
+                        {% csrf_token %}
+
+                        <!-- Group: Vị trí -->
+                        <div class="form-section">
+                            <h3 class="form-section__title">📍 Thông tin vị trí</h3>
+                            <div class="form__grid form__grid--manual">
+                                <div class="form__group">
+                                    <label class="form__label">Tên trạm</label>
+                                    <input type="text" name="station_name" class="form__input" value="Thủ công" placeholder="VD: Sóc Sơn">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Tỉnh/TP</label>
+                                    <input type="text" name="province" class="form__input" value="Hà Nội">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Quận/Huyện</label>
+                                    <input type="text" name="district" class="form__input" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group: Nhiệt độ -->
+                        <div class="form-section">
+                            <h3 class="form-section__title">🌡️ Nhiệt độ (°C)</h3>
+                            <div class="form__grid form__grid--manual">
+                                <div class="form__group">
+                                    <label class="form__label">Hiện tại</label>
+                                    <input type="number" name="temperature_current" class="form__input" value="25" step="0.1">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Cao nhất</label>
+                                    <input type="number" name="temperature_max" class="form__input" value="30" step="0.1">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Thấp nhất</label>
+                                    <input type="number" name="temperature_min" class="form__input" value="20" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group: Độ ẩm -->
+                        <div class="form-section">
+                            <h3 class="form-section__title">💧 Độ ẩm (%)</h3>
+                            <div class="form__grid form__grid--manual">
+                                <div class="form__group">
+                                    <label class="form__label">Hiện tại</label>
+                                    <input type="number" name="humidity_current" class="form__input" value="75" step="1" min="0" max="100">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Cao nhất</label>
+                                    <input type="number" name="humidity_max" class="form__input" value="90" step="1">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Thấp nhất</label>
+                                    <input type="number" name="humidity_min" class="form__input" value="60" step="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group: Khí quyển & Gió -->
+                        <div class="form-section">
+                            <h3 class="form-section__title">🌀 Khí quyển & Gió</h3>
+                            <div class="form__grid form__grid--manual">
+                                <div class="form__group">
+                                    <label class="form__label">🔵 Áp suất (hPa)</label>
+                                    <input type="number" name="pressure_current" class="form__input" value="1013" step="0.1">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">💨 Tốc độ gió (m/s)</label>
+                                    <input type="number" name="wind_speed_current" class="form__input" value="3" step="0.1" min="0">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">🧭 Hướng gió (°)</label>
+                                    <input type="number" name="wind_direction_current" class="form__input" value="180" step="1" min="0" max="360">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group: Khác -->
+                        <div class="form-section">
+                            <h3 class="form-section__title">☁️ Thông số khác</h3>
+                            <div class="form__grid form__grid--manual">
+                                <div class="form__group">
+                                    <label class="form__label">Mây bao phủ (%)</label>
+                                    <input type="number" name="cloud_cover_current" class="form__input" value="50" step="1" min="0" max="100">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Tầm nhìn (km)</label>
+                                    <input type="number" name="visibility_current" class="form__input" value="10" step="0.1" min="0">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Xác suất sấm sét</label>
+                                    <input type="number" name="thunder_probability" class="form__input" value="0" step="0.01" min="0" max="1">
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">Lượng mưa hiện tại</label>
+                                    <input type="number" name="rain_current" class="form__input" value="0" step="0.1" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form__actions">
+                            <button type="submit" class="btn btn--primary btn--lg" id="btnRunManual">
+                                🔮 Dự báo ngay
+                            </button>
+                            <button type="reset" class="btn btn--ghost" id="btnResetManual">
+                                🔄 Reset
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Kết quả manual -->
+                    <div class="manual-result" id="manualResult" style="display:none;">
+                        <h3 class="manual-result__title">📊 Kết quả dự báo</h3>
+                        <div class="manual-result__body" id="manualResultBody"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ LOGS / PROGRESS ═══════ -->
+            <section class="card card--log" id="sectionLogs" style="display:none;">
+                <div class="card__header">
+                    <h2 class="card__title">📋 Nhật ký dự báo</h2>
+                    <span class="predict-status" id="predictStatus">⏳ Đang chờ...</span>
+                </div>
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-bar">
+                        <div class="progress-bar__fill" id="progressFill" style="width:0%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="progressPercent">0%</span>
+                        <span id="progressStep">Khởi tạo</span>
+                    </div>
+                </div>
+                <div class="log-output" id="logOutput">
+                    <pre id="logPre"></pre>
+                </div>
+            </section>
+
+            <!-- ═══════ KẾT QUẢ PREVIEW ═══════ -->
+            <section class="card" id="sectionResults" style="display:none;">
+                <div class="card__header">
+                    <h2 class="card__title">📊 Kết quả dự báo</h2>
+                    <div class="card__header-actions">
+                        <span class="stats-badge" id="statsBadge"></span>
+                    </div>
+                </div>
+                <div class="stats-grid" id="statsGrid"></div>
+                <div class="result-table-wrap">
+                    <table class="result-table" id="resultTable">
+                        <thead id="resultThead"></thead>
+                        <tbody id="resultTbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ═══════ KẾT QUẢ GẦN NHẤT ═══════ -->
+            {% if recent_preds %}
+            <section class="card" id="sectionRecentPreds">
+                <div class="card__header">
+                    <h2 class="card__title">🕒 Kết quả dự báo gần nhất</h2>
+                    <button type="button" class="pill small" id="btnToggleRecent">Thu gọn</button>
+                </div>
+                <div class="recent-body" id="recentBody">
+                    <div class="result-table-wrap">
+                        <table class="result-table">
+                            <thead>
+                                <tr>
+                                    <th>Trạm</th>
+                                    <th>Tỉnh/TP</th>
+                                    <th>Quận/Huyện</th>
+                                    <th>Mưa thực tế</th>
+                                    <th>Trạng thái</th>
+                                    <th>Dự báo (y_pred)</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in recent_preds %}
+                                <tr>
+                                    <td>{{ p.station_name }}</td>
+                                    <td>{{ p.province }}</td>
+                                    <td>{{ p.district }}</td>
+                                    <td>{{ p.rain_total }}</td>
+                                    <td>
+                                        <span class="badge {% if p.status == 'Không mưa' %}badge--ok{% else %}badge--rain{% endif %}">
+                                            {{ p.status }}
+                                        </span>
+                                    </td>
+                                    <td class="td-pred">{{ p.y_pred }}</td>
+                                    <td>{{ p.timestamp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- ═══════ DATASET BROWSER ═══════ -->
+            <section class="card" id="sectionDatasets">
+                <div class="card__header">
+                    <h2 class="card__title">📦 Datasets có sẵn</h2>
+                    <button type="button" class="pill small" id="btnRefreshDatasets">🔄 Refresh</button>
+                </div>
+                <div class="dataset-table-wrap">
+                    <table class="dataset-table" id="datasetTable">
+                        <thead>
+                            <tr>
+                                <th>Thư mục</th>
+                                <th>Tên file</th>
+                                <th>Kích thước</th>
+                                <th>Cập nhật</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ds in datasets %}
+                            <tr data-folder="{{ ds.folder_key }}" data-file="{{ ds.filename }}">
+                                <td><span class="badge badge--folder">{{ ds.folder_key }}</span></td>
+                                <td class="td-filename" title="{{ ds.filename }}">{{ ds.filename }}</td>
+                                <td>{{ ds.size_mb }} MB</td>
+                                <td>{{ ds.mtime }}</td>
+                                <td>
+                                    <button type="button" class="pill small btn-use-dataset"
+                                            data-folder="{{ ds.folder_key }}"
+                                            data-file="{{ ds.filename }}">
+                                        🔮 Dùng
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="td-empty">Chưa có dataset nào.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    {{ datasets|json_script:"datasets-data" }}
+    <meta name="active-job-id" content="{% if active_job %}{{ active_job.job_id }}{% endif %}">
+    <script src="{% static 'weather/js/JS_Predict.js' %}?v=20260303"></script>
+</body>
+</html>

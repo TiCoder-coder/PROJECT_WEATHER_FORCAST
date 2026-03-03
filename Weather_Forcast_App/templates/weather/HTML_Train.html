@@ -1,0 +1,440 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Huấn luyện mô hình ML – Weather Hub</title>
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Train.css' %}?v=20260303">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body class="page">
+    <div class="layout">
+        <!-- ═══════════ SIDEBAR ═══════════ -->
+        <aside class="sidebar">
+            <div class="sidebar__logo">
+                <div class="sidebar__logo-circle">WF</div>
+                <div class="sidebar__logo-text">
+                    <span class="sidebar__logo-title">Dự báo thời tiết</span>
+                    <span class="sidebar__logo-sub">Huấn luyện mô hình ML</span>
+                </div>
+            </div>
+            {% include 'weather/Sidebar_nav.html' %}
+        </aside>
+
+        <!-- ═══════════ MAIN ═══════════ -->
+        <main class="main">
+            <!-- ── Hero Banner ── -->
+            <header class="hero">
+                <div class="hero__content">
+                    <div class="hero__badge">
+                        <span class="hero__badge-dot"></span>
+                        Machine Learning Training
+                    </div>
+                    <h1 class="hero__title">
+                        <span class="hero__icon">🧠</span>
+                        HUẤN LUYỆN MÔ HÌNH ML
+                    </h1>
+                    <p class="hero__desc">
+                        Chọn dataset, cấu hình model và bắt đầu training. Kết quả sẽ được lưu vào
+                        <code>Machine_learning_artifacts/latest/</code>
+                    </p>
+                </div>
+
+                {% if active_job %}
+                <div class="run-panel" id="runPanel">
+                    <div class="run-panel__row">
+                        <span class="run-panel__spinner"></span>
+                        <div>
+                            <div class="run-panel__title">Đang huấn luyện...</div>
+                            <div class="run-panel__desc">Job ID: {{ active_job.job_id }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </header>
+
+            <!-- ═══════ HƯỚNG DẪN SỬ DỤNG ═══════ -->
+            <section class="card card--guide" id="sectionGuide">
+                <div class="card__header card__header--toggle" id="guideHeaderToggle">
+                    <h2 class="card__title">📖 Hướng dẫn sử dụng</h2>
+                    <button type="button" class="pill small" id="btnToggleGuide">Thu gọn</button>
+                </div>
+                <div class="guide-body" id="guideBody">
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <div class="guide-step__number">1</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">Chọn Dataset</h3>
+                                <p class="guide-step__desc">
+                                    Chọn <strong>thư mục dữ liệu</strong> và <strong>file</strong> từ danh sách dropdown.
+                                    Hoặc cuộn xuống bảng "Datasets có sẵn" và bấm nút <strong>"✅ Dùng"</strong> để chọn nhanh.
+                                    Nên sử dụng data đã clean (<code>Cleaned Merge</code>) để có kết quả tốt nhất.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step__number">2</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">Cấu hình Model</h3>
+                                <p class="guide-step__desc">Có 2 chế độ cấu hình:</p>
+                                <ul class="guide-step__list">
+                                    <li><strong>⚡ Cấu hình nhanh:</strong> Chọn loại model (XGBoost, Random Forest, LightGBM, CatBoost hoặc Ensemble), điều chỉnh tỷ lệ test/validation</li>
+                                    <li><strong>🔧 Cấu hình nâng cao:</strong> Chỉnh trực tiếp file JSON config, kiểm soát toàn bộ tham số</li>
+                                </ul>
+                                <p class="guide-step__desc" style="margin-top:6px;">
+                                    Tick <strong>"Sử dụng config mặc định"</strong> để dùng config từ file <code>train_config.json</code>.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step__number">3</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">Huấn luyện & Xem kết quả</h3>
+                                <p class="guide-step__desc">
+                                    Bấm <strong>"🚀 Bắt đầu huấn luyện"</strong>. Theo dõi tiến trình qua thanh progress bar và nhật ký chi tiết.
+                                    Khi hoàn tất, kết quả metrics (R², RMSE, MAE) sẽ hiển thị ở mục "Kết quả huấn luyện gần nhất".
+                                    Model được lưu tại <code>Machine_learning_artifacts/latest/</code>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="guide-tips">
+                        <h4 class="guide-tips__title">💡 Mẹo sử dụng</h4>
+                        <ul class="guide-tips__list">
+                            <li><strong>Ensemble (Voting)</strong> thường cho kết quả tốt nhất - kết hợp nhiều model</li>
+                            <li>Target column mặc định là <strong>rain_total</strong> - thay đổi nếu cần dự báo biến khác</li>
+                            <li>Tỷ lệ <strong>Test size = 0.15</strong> và <strong>Valid size = 0.15</strong> là cấu hình khuyến nghị</li>
+                            <li>Kiểm tra <strong>Overfit Status</strong> trong Diagnostics — trạng thái "GOOD" là lý tưởng</li>
+                            <li>Rain Detection Accuracy cho biết độ chính xác phân loại mưa/không mưa</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ ARTIFACTS (kết quả gần nhất) ═══════ -->
+            {% if artifacts.metrics %}
+            <section class="card card--artifacts" id="sectionArtifacts">
+                <div class="card__header">
+                    <h2 class="card__title">📊 Kết quả huấn luyện gần nhất</h2>
+                    <button type="button" class="pill small" id="btnToggleArtifacts">Thu gọn</button>
+                </div>
+                <div class="artifacts-body" id="artifactsBody">
+                    <div class="metrics-grid">
+                        <!-- Train metrics -->
+                        <div class="metric-card metric-card--train">
+                            <div class="metric-card__label">TRAIN</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value metric-value--good">
+                                        {{ artifacts.metrics.train.R2|floatformat:4 }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.train.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.train.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if artifacts.metrics.train.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value metric-value--accent">
+                                        {{ artifacts.metrics.train.Rain_Detection_Accuracy|floatformat:4 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Valid metrics -->
+                        <div class="metric-card metric-card--valid">
+                            <div class="metric-card__label">VALIDATION</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.R2|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if artifacts.metrics.valid.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.Rain_Detection_Accuracy|floatformat:4 }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Test metrics -->
+                        <div class="metric-card metric-card--test">
+                            <div class="metric-card__label">TEST</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value metric-value--good">
+                                        {{ artifacts.metrics.test.R2|floatformat:4 }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.test.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.test.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if artifacts.metrics.test.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value metric-value--accent">
+                                        {{ artifacts.metrics.test.Rain_Detection_Accuracy|floatformat:4 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Diagnostics -->
+                        {% if artifacts.metrics.diagnostics %}
+                        <div class="metric-card metric-card--diag">
+                            <div class="metric-card__label">DIAGNOSTICS</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">Trạng thái</span>
+                                    <span class="metric-value metric-badge
+                                        {% if artifacts.metrics.diagnostics.overfit_status == 'good' %}metric-badge--good
+                                        {% elif artifacts.metrics.diagnostics.overfit_status == 'overfit' %}metric-badge--warn
+                                        {% else %}metric-badge--bad{% endif %}">
+                                        {{ artifacts.metrics.diagnostics.overfit_status|upper }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Data type</span>
+                                    <span class="metric-value">{{ artifacts.metrics.diagnostics.detected_data_type }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Features</span>
+                                    <span class="metric-value">{{ artifacts.metrics.diagnostics.n_features_after_selection }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Zero ratio</span>
+                                    <span class="metric-value">{{ artifacts.metrics.diagnostics.target_zero_ratio|floatformat:2 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Thông tin thêm -->
+                    <div class="artifacts-meta">
+                        <span class="artifacts-meta__item">
+                            🕒 Trained: {{ artifacts.metrics.generated_at }}
+                        </span>
+                        <span class="artifacts-meta__item">
+                            🤖 Model: {{ artifacts.metrics.model_type|upper }}
+                        </span>
+                        {% if artifacts.model_exists %}
+                        <span class="artifacts-meta__item">
+                            💾 Model size: {{ artifacts.model_size_mb }} MB
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- ═══════ CẤU HÌNH TRAINING ═══════ -->
+            <section class="card" id="sectionConfig">
+                <h2 class="card__title">⚙️ Cấu hình huấn luyện</h2>
+                <p class="card__desc">Chọn dataset, loại model và tham số. Hoặc sử dụng config mặc định.</p>
+
+                <form id="trainForm" class="form">
+                    {% csrf_token %}
+
+                    <!-- Tabs: Quick / Advanced -->
+                    <div class="config-tabs">
+                        <button type="button" class="config-tab config-tab--active" data-tab="quick">
+                            ⚡ Cấu hình nhanh
+                        </button>
+                        <button type="button" class="config-tab" data-tab="advanced">
+                            🔧 Cấu hình nâng cao
+                        </button>
+                    </div>
+
+                    <!-- TAB: Quick Config -->
+                    <div class="config-panel config-panel--active" data-panel="quick">
+                        <div class="form__grid">
+                            <!-- Dataset Source -->
+                            <div class="form__group">
+                                <label class="form__label">📂 Thư mục dữ liệu</label>
+                                <select id="folderKey" name="folder_key" class="form__select">
+                                    <option value="">-- Chọn thư mục --</option>
+                                    <option value="data_crawl">Data Crawl (raw)</option>
+                                    <option value="data_merge">Data Merge</option>
+                                    <option value="cleaned_merge">Cleaned Merge ✨</option>
+                                    <option value="cleaned_not_merge">Cleaned Not Merge</option>
+                                </select>
+                            </div>
+
+                            <!-- Dataset File -->
+                            <div class="form__group">
+                                <label class="form__label">📄 File dữ liệu</label>
+                                <select id="fileName" name="filename" class="form__select">
+                                    <option value="">-- Chọn thư mục trước --</option>
+                                </select>
+                            </div>
+
+                            <!-- Model Type -->
+                            <div class="form__group">
+                                <label class="form__label">🤖 Loại model</label>
+                                <select id="modelType" name="model_type" class="form__select">
+                                    {% for mt in model_types %}
+                                    <option value="{{ mt.value }}"
+                                        {% if mt.value == "ensemble" %}selected{% endif %}>
+                                        {{ mt.label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Target Column -->
+                            <div class="form__group">
+                                <label class="form__label">🎯 Cột mục tiêu (target)</label>
+                                <input type="text" id="targetColumn" name="target_column"
+                                       class="form__input" value="rain_total"
+                                       placeholder="VD: rain_total, Tổng lượng mưa">
+                            </div>
+
+                            <!-- Split ratios -->
+                            <div class="form__group">
+                                <label class="form__label">📐 Test size</label>
+                                <input type="number" id="testSize" name="test_size"
+                                       class="form__input" value="0.15" step="0.05" min="0.05" max="0.4">
+                            </div>
+
+                            <div class="form__group">
+                                <label class="form__label">📐 Validation size</label>
+                                <input type="number" id="validSize" name="valid_size"
+                                       class="form__input" value="0.15" step="0.05" min="0.05" max="0.4">
+                            </div>
+                        </div>
+
+                        <!-- Use default config checkbox -->
+                        <div class="form__group form__group--check">
+                            <label class="form__check-label">
+                                <input type="checkbox" id="useDefaultConfig" name="use_default_config">
+                                <span>Sử dụng config mặc định (từ <code>train_config.json</code>)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- TAB: Advanced Config -->
+                    <div class="config-panel" data-panel="advanced">
+                        <div class="form__group">
+                            <label class="form__label">📝 Config JSON (chỉnh trực tiếp)</label>
+                            <textarea id="configJson" name="config_json" class="form__textarea"
+                                rows="20" spellcheck="false">{{ default_config }}</textarea>
+                        </div>
+                        <p class="form__hint">
+                            Chỉnh sửa config JSON ở trên. Khi gửi, config này sẽ ghi đè cấu hình nhanh.
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form__actions">
+                        <button type="submit" id="btnStartTrain" class="btn btn--primary btn--lg">
+                            🚀 Bắt đầu huấn luyện
+                        </button>
+                        <button type="button" id="btnResetForm" class="btn btn--ghost">
+                            🔄 Reset form
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ═══════ LOGS / PROGRESS ═══════ -->
+            <section class="card card--log" id="sectionLogs" style="display:none;">
+                <div class="card__header">
+                    <h2 class="card__title">📋 Nhật ký huấn luyện</h2>
+                    <span class="train-status" id="trainStatus">⏳ Đang chờ...</span>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-bar">
+                        <div class="progress-bar__fill" id="progressFill" style="width:0%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="progressPercent">0%</span>
+                        <span id="progressStep">Khởi tạo</span>
+                    </div>
+                </div>
+
+                <!-- Log output -->
+                <div class="log-output" id="logOutput">
+                    <pre id="logPre"></pre>
+                </div>
+            </section>
+
+            <!-- ═══════ DATASET BROWSER ═══════ -->
+            <section class="card" id="sectionDatasets">
+                <div class="card__header">
+                    <h2 class="card__title">📦 Datasets có sẵn</h2>
+                    <button type="button" class="pill small" id="btnRefreshDatasets">🔄 Refresh</button>
+                </div>
+                <div class="dataset-table-wrap">
+                    <table class="dataset-table" id="datasetTable">
+                        <thead>
+                            <tr>
+                                <th>Thư mục</th>
+                                <th>Tên file</th>
+                                <th>Kích thước</th>
+                                <th>Cập nhật</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ds in datasets %}
+                            <tr data-folder="{{ ds.folder_key }}" data-file="{{ ds.filename }}">
+                                <td>
+                                    <span class="badge badge--folder">{{ ds.folder_key }}</span>
+                                </td>
+                                <td class="td-filename" title="{{ ds.filename }}">{{ ds.filename }}</td>
+                                <td>{{ ds.size_mb }} MB</td>
+                                <td>{{ ds.mtime }}</td>
+                                <td>
+                                    <button type="button" class="pill small btn-use-dataset"
+                                            data-folder="{{ ds.folder_key }}"
+                                            data-file="{{ ds.filename }}">
+                                        ✅ Dùng
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="td-empty">Chưa có dataset nào. Hãy crawl hoặc merge dữ liệu trước.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    {{ datasets|json_script:"datasets-data" }}
+    <meta name="active-job-id" content="{% if active_job %}{{ active_job.job_id }}{% endif %}">
+    <script src="{% static 'weather/js/JS_Train.js' %}?v=20260303"></script>
+</body>
+</html>

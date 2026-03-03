@@ -3,40 +3,22 @@ from bson import ObjectId
 from Weather_Forcast_App.db_connection import get_database, create_index_safe
 
 # ============================================================
-# KẾT NỐI DATABASE + LẤY COLLECTION
+# KẾT NỐI DATABASE + LẤY COLLECTION (LAZY INIT)
 # ============================================================
 
-# get_database(): hàm (bạn tự định nghĩa) để lấy object Database của MongoDB.
-# Thường nó sẽ:
-# - đọc cấu hình (URI, DB_NAME) từ env/settings
-# - tạo MongoClient
-# - trả về db = client[DB_NAME]
-db = get_database()
+# Lazy init: chỉ kết nối MongoDB khi thực sự cần (tránh crash lúc import)
+_login_collection = None
 
-# "logins" là tên collection trong MongoDB.
-# Collection này thường dùng để lưu thông tin tài khoản đăng nhập:
-# ví dụ: userName, email, password_hash, roles, createdAt, ...
-login_collection = db["logins"]
 
-# ============================================================
-# TẠO INDEX (CHỈ MỤC) AN TOÀN
-# ============================================================
-
-# create_index_safe(collection, keys, unique=True/False):
-# - Đây là helper bạn tự viết để tạo index mà không làm crash app nếu index đã tồn tại
-# - Tránh lỗi khi server chạy nhiều lần, hoặc deploy nhiều lần
-# - keys là list các cặp (fieldName, direction)
-# - unique=True nghĩa là MongoDB sẽ đảm bảo giá trị của field đó KHÔNG bị trùng
-#
-# Index userName:
-# - Tối ưu truy vấn find_one({"userName": ...})
-# - unique=True: chặn 2 user cùng userName
-create_index_safe(login_collection, [("userName", ASCENDING)], unique=True)
-
-# Index email:
-# - Tối ưu truy vấn find_one({"email": ...}) và truy vấn login bằng email
-# - unique=True: chặn 2 user cùng email
-create_index_safe(login_collection, [("email", ASCENDING)], unique=True)
+def _get_login_collection():
+    """Lazy getter cho login collection — chỉ kết nối MongoDB lần đầu gọi."""
+    global _login_collection
+    if _login_collection is None:
+        db = get_database()
+        _login_collection = db["logins"]
+        create_index_safe(_login_collection, [("userName", ASCENDING)], unique=True)
+        create_index_safe(_login_collection, [("email", ASCENDING)], unique=True)
+    return _login_collection
 
 # ============================================================
 # REPOSITORY LAYER (DATA ACCESS LAYER)
@@ -64,7 +46,7 @@ class LoginRepository:
         #
         # Lưu ý:
         # - do có unique index userName/email, nếu trùng sẽ ném lỗi DuplicateKeyError
-        return login_collection.insert_one(data, session=session)
+        return _get_login_collection().insert_one(data, session=session)
 
     @staticmethod
     def find_all():
@@ -75,7 +57,7 @@ class LoginRepository:
         # Lưu ý:
         # - Nếu collection lớn, find_all() sẽ nặng (RAM/time)
         # - Thường nên phân trang (skip/limit) trong thực tế
-        return list(login_collection.find())
+        return list(_get_login_collection().find())
 
     @staticmethod
     def find_by_id(user_id):
@@ -92,14 +74,14 @@ class LoginRepository:
         #
         # Lưu ý quan trọng:
         # - Nếu user_id không đúng format ObjectId, ObjectId(...) sẽ raise Exception
-        return login_collection.find_one({"_id": ObjectId(str(user_id))})
+        return _get_login_collection().find_one({"_id": ObjectId(str(user_id))})
 
     @staticmethod
     def find_by_username(userName: str):
         # Tìm 1 document theo userName
         # - Có index userName nên truy vấn nhanh
         # - Trả về document dict hoặc None nếu không tìm thấy
-        return login_collection.find_one({"userName": userName})
+        return _get_login_collection().find_one({"userName": userName})
 
     @staticmethod
     def find_by_username_or_email(identifier: str):
@@ -110,7 +92,7 @@ class LoginRepository:
         # MongoDB sẽ trả về document đầu tiên match (find_one)
         # - Nếu identifier trùng cả userName và email ở 2 user khác nhau thì unique index giúp tránh trường hợp này
         # - Có index ở cả userName và email nên query thường ổn
-        return login_collection.find_one({"$or": [{"userName": identifier}, {"email": identifier}]})
+        return _get_login_collection().find_one({"$or": [{"userName": identifier}, {"email": identifier}]})
 
     @staticmethod
     def update_by_id(user_id, update_data: dict, session=None):
@@ -125,7 +107,7 @@ class LoginRepository:
         # Trả về UpdateResult:
         # - matched_count: số doc match filter
         # - modified_count: số doc thực sự bị sửa
-        return login_collection.update_one({"_id": ObjectId(str(user_id))}, {"$set": update_data}, session=session)
+        return _get_login_collection().update_one({"_id": ObjectId(str(user_id))}, {"$set": update_data}, session=session)
 
     @staticmethod
     def delete_by_id(user_id, session=None):
@@ -135,4 +117,4 @@ class LoginRepository:
         #
         # session:
         # - nếu xoá trong transaction thì truyền session vào
-        return login_collection.delete_one({"_id": ObjectId(str(user_id))}, session=session)
+        return _get_login_collection().delete_one({"_id": ObjectId(str(user_id))}, session=session)

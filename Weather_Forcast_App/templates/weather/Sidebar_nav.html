@@ -55,6 +55,24 @@
     </span>
   </a>
 
+  <a href="{% url 'weather:train' %}"
+     class="sidebar__nav-item{% if current == 'train' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🧠</span>
+    <span class="nav-content">
+      <span class="nav-text">Huấn luyện ML</span>
+      <span class="nav-sub">Train model</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:predict' %}"
+     class="sidebar__nav-item{% if current == 'predict' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🔮</span>
+    <span class="nav-content">
+      <span class="nav-text">Dự báo</span>
+      <span class="nav-sub">Prediction</span>
+    </span>
+  </a>
+
 </nav>
 {% endwith %}
 

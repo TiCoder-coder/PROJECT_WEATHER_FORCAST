@@ -59,6 +59,28 @@ from .views.View_Clear import (
 )
 
 # ============================================================
+# MACHINE LEARNING TRAINING VIEWS
+# ============================================================
+from .views.View_Train import (
+    train_view,
+    train_start_view,
+    train_tail_view,
+    train_configs_view,
+    train_artifacts_view,
+)
+
+# ============================================================
+# MACHINE LEARNING PREDICTION / INFERENCE VIEWS
+# ============================================================
+from .views.View_Predict import (
+    predict_view,
+    predict_run_view,
+    predict_tail_view,
+    predict_manual_view,
+    predict_model_info_view,
+)
+
+# ============================================================
 # AUTHENTICATION VIEWS (ĐĂNG NHẬP, ĐĂNG KÝ, QUẢN LÝ TÀI KHOẢN)
 # ============================================================
 from .views.View_login import (
@@ -199,6 +221,54 @@ urlpatterns = [
     #   - Endpoint JSON cho frontend polling
     #   - Backend trả các dòng log mới nhất
     path("datasets/clean/tail/", clean_data_tail_view, name="clean_tail"),
+    
+    
+    # ============================================================
+    # 6B. MACHINE LEARNING - HUẤN LUYỆN MODEL
+    # ============================================================
+    # 6B.1) MAIN VIEW (Trang cấu hình & bấm Train)
+    # Method: GET
+    path("train/", train_view, name="train"),
+    
+    # 6B.2) START TRAINING (Khởi chạy training job)
+    # Method: POST (JSON body)
+    path("train/start/", train_start_view, name="train_start"),
+    
+    # 6B.3) LOG REALTIME KHI TRAINING
+    # Method: GET (polling)
+    path("train/tail/", train_tail_view, name="train_tail"),
+    
+    # 6B.4) DANH SÁCH DATASETS & CONFIG
+    # Method: GET
+    path("train/configs/", train_configs_view, name="train_configs"),
+    
+    # 6B.5) XEM ARTIFACTS (KẾT QUẢ TRAINING)
+    # Method: GET
+    path("train/artifacts/", train_artifacts_view, name="train_artifacts"),
+    
+    
+    # ============================================================
+    # 6C. MACHINE LEARNING - DỰ BÁO (PREDICTION / INFERENCE)
+    # ============================================================
+    # 6C.1) MAIN VIEW (Trang chính dự báo)
+    # Method: GET
+    path("predict/", predict_view, name="predict"),
+    
+    # 6C.2) CHẠY DỰ BÁO (từ dataset hoặc file upload)
+    # Method: POST (FormData)
+    path("predict/run/", predict_run_view, name="predict_run"),
+    
+    # 6C.3) LOG REALTIME KHI DỰ BÁO
+    # Method: GET (polling)
+    path("predict/tail/", predict_tail_view, name="predict_tail"),
+    
+    # 6C.4) DỰ BÁO THỦ CÔNG (nhập tay)
+    # Method: POST (JSON body)
+    path("predict/manual/", predict_manual_view, name="predict_manual"),
+    
+    # 6C.5) THÔNG TIN MODEL
+    # Method: GET
+    path("predict/model-info/", predict_model_info_view, name="predict_model_info"),
     
     
     # ============================================================

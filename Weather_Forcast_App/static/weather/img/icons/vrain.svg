@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#1a1a2e"/>
+  <path d="M16 30c0-8.8 7.2-16 16-16s16 7.2 16 16" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M12 32h40" stroke="#00d4aa" stroke-width="2" opacity=".4"/>
+  <line x1="24" y1="36" x2="22" y2="44" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="36" x2="30" y2="46" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+  <line x1="40" y1="36" x2="38" y2="42" stroke="#00d4aa" stroke-width="2" stroke-linecap="round"/>
+  <line x1="28" y1="38" x2="26" y2="48" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+  <line x1="36" y1="38" x2="34" y2="50" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+  <text x="32" y="58" text-anchor="middle" fill="#a0a0c0" font-size="7" font-family="sans-serif">VRAIN</text>
+</svg>

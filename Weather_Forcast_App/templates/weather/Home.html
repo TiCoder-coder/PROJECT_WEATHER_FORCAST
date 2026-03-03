@@ -168,11 +168,18 @@
                 <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">
                     📊 Xử lí dữ liệu
                 </a>
+                <a class="btn secondary" href="{% url 'weather:train' %}" style="border-color:rgba(168,85,247,0.4); background:rgba(168,85,247,0.12);">
+                    🧠 Huấn luyện Model
+                </a>
+                <a class="btn secondary" href="{% url 'weather:predict' %}" style="border-color:rgba(124,58,237,0.4); background:rgba(124,58,237,0.12);">
+                    🔮 Dự báo thời tiết
+                </a>
 
                 <button type="button" class="btn secondary btn-help" id="btnOpenHelpModal">
                     ❓ Hướng dẫn sử dụng
                 </button>
 
+                <span id="chosenCrawlMethod" style="display:none"></span>
             </div>
 
             <div class="hero-meta">
@@ -237,6 +244,12 @@
 
     <section id="datasets" class="section datasets">
         <h2>Các lần thu thập dữ liệu gần đây</h2>
+        <div style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" class="btn secondary" id="btnQuickCrawl">
+                🚀 Thu thập nhanh
+            </button>
+            <button type="button" class="btn secondary" id="scroll-to-datasets" style="display:none;"></button>
+        </div>
 
         <div class="dataset-grid">
             <div class="dataset-card">

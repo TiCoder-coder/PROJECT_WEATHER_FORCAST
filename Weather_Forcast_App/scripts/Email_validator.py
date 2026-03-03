@@ -17,12 +17,19 @@ from pymongo import ASCENDING, DESCENDING
 from decouple import config
 from Weather_Forcast_App.db_connection import get_database, create_index_safe
 
-db = get_database()
+# Lazy init: chỉ kết nối MongoDB khi thực sự cần (tránh crash lúc import)
+_email_verification_otps = None
 
-email_verification_otps = db["email_verification_otps"]
 
-create_index_safe(email_verification_otps, "expiresAt", expireAfterSeconds=0)
-create_index_safe(email_verification_otps, [("email", ASCENDING), ("createdAt", DESCENDING)])
+def _get_email_verification_otps():
+    """Lazy getter cho email_verification_otps collection."""
+    global _email_verification_otps
+    if _email_verification_otps is None:
+        db = get_database()
+        _email_verification_otps = db["email_verification_otps"]
+        create_index_safe(_email_verification_otps, "expiresAt", expireAfterSeconds=0)
+        create_index_safe(_email_verification_otps, [("email", ASCENDING), ("createdAt", DESCENDING)])
+    return _email_verification_otps
 
 EMAIL_OTP_EXPIRE_SECONDS = int(config("PASSWORD_RESET_OTP_EXPIRE_SECONDS", default=600))
 EMAIL_OTP_MAX_ATTEMPTS = int(config("PASSWORD_RESET_OTP_MAX_ATTEMPTS", default=5))
@@ -248,7 +255,7 @@ class EmailValidator:
         if not validation['valid']:
             raise EmailValidationError(', '.join(validation['errors']))
         
-        email_verification_otps.update_many(
+        _get_email_verification_otps().update_many(
             {"email": email, "used": False}, 
             {"$set": {"used": True}}
         )
@@ -259,7 +266,7 @@ class EmailValidator:
         now = datetime.now(timezone.utc)
         expires_at = now + timedelta(seconds=EMAIL_OTP_EXPIRE_SECONDS)
         
-        email_verification_otps.insert_one({
+        _get_email_verification_otps().insert_one({
             "email": email,
             "otpHash": EmailValidator._hash_otp(otp, salt),
             "salt": salt,
@@ -303,7 +310,7 @@ class EmailValidator:
         
         now = datetime.now(timezone.utc)
         
-        rec = email_verification_otps.find({
+        rec = _get_email_verification_otps().find({
             "email": email, 
             "used": False, 
             "expiresAt": {"$gt": now}
@@ -319,14 +326,14 @@ class EmailValidator:
         
         expected = EmailValidator._hash_otp(otp, rec["salt"])
         if expected != rec["otpHash"]:
-            email_verification_otps.update_one(
+            _get_email_verification_otps().update_one(
                 {"_id": rec["_id"]}, 
                 {"$inc": {"attempts": 1}}
             )
             remaining = EMAIL_OTP_MAX_ATTEMPTS - rec["attempts"] - 1
             raise EmailValidationError(f"Mã OTP không đúng. Còn {remaining} lần thử.")
         
-        email_verification_otps.update_one(
+        _get_email_verification_otps().update_one(
             {"_id": rec["_id"]}, 
             {"$set": {"verifiedAt": now, "used": True}}
         )
@@ -349,7 +356,7 @@ class EmailValidator:
         now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=within_seconds)
         
-        rec = email_verification_otps.find_one({
+        rec = _get_email_verification_otps().find_one({
             "email": email,
             "verifiedAt": {"$exists": True, "$gte": cutoff}
         })

@@ -15,10 +15,22 @@ ACCESS_TOKEN_EXPIRE_HOURS = int(config("ACCESS_TOKEN_EXPIRE_HOURS", default=3))
 REFRESH_TOKEN_EXPIRE_DAYS = int(config("REFRESH_TOKEN_EXPIRE_DAYS", default=7))
 CHECK_ACCESS_REVOKE = config("CHECK_ACCESS_REVOKE", default="true").lower() == "true"
 
-db = get_database()
-revoked_tokens = db["revoked_tokens"]
-create_index_safe(revoked_tokens, "jti", unique=True)
-create_index_safe(revoked_tokens, "expiresAt", expireAfterSeconds=0)
+# Lazy init: chỉ kết nối MongoDB khi thực sự cần (tránh crash lúc import)
+_db = None
+_revoked_tokens = None
+_db_initialized = False
+
+
+def _get_revoked_tokens():
+    """Lazy getter cho revoked_tokens collection — chỉ kết nối MongoDB lần đầu gọi."""
+    global _db, _revoked_tokens, _db_initialized
+    if not _db_initialized:
+        _db = get_database()
+        _revoked_tokens = _db["revoked_tokens"]
+        create_index_safe(_revoked_tokens, "jti", unique=True)
+        create_index_safe(_revoked_tokens, "expiresAt", expireAfterSeconds=0)
+        _db_initialized = True
+    return _revoked_tokens
 
 
 def _now_utc() -> datetime:
@@ -30,7 +42,7 @@ def _to_ts(dt: datetime) -> int:
 def is_token_revoked_jti(jti: str) -> bool:
     if not jti:
         return False
-    return revoked_tokens.find_one({"jti": jti}, {"_id": 1}) is not None
+    return _get_revoked_tokens().find_one({"jti": jti}, {"_id": 1}) is not None
 
 def revoke_jti(jti: str, expires_at: datetime, token_type: str = "unknown") -> None:
     """
@@ -39,7 +51,7 @@ def revoke_jti(jti: str, expires_at: datetime, token_type: str = "unknown") -> N
     """
     if not jti:
         return
-    revoked_tokens.update_one(
+    _get_revoked_tokens().update_one(
         {"jti": jti},
         {
             "$setOnInsert": {

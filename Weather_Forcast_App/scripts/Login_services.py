@@ -37,13 +37,34 @@ RESET_OTP_RESEND_MIN_SECONDS = int(config("RESET_OTP_RESEND_MIN_SECONDS", defaul
 RESET_OTP_MAX_PER_HOUR = int(config("RESET_OTP_MAX_PER_HOUR", default=5))
 
 signer = TimestampSigner(key=config("SECRET_KEY"))
-db = get_database()
 
-managers = db["logins"]
-password_reset_otps = db["password_reset_otps"]
+# Lazy init: chỉ kết nối MongoDB khi thực sự cần (tránh crash lúc import)
+_db = None
+_managers = None
+_password_reset_otps = None
+_db_initialized = False
 
-create_index_safe(password_reset_otps, "expiresAt", expireAfterSeconds=0)
-create_index_safe(password_reset_otps, [("email", ASCENDING), ("createdAt", DESCENDING)])
+
+def _init_db():
+    """Lazy DB init — chỉ kết nối MongoDB lần đầu gọi."""
+    global _db, _managers, _password_reset_otps, _db_initialized
+    if not _db_initialized:
+        _db = get_database()
+        _managers = _db["logins"]
+        _password_reset_otps = _db["password_reset_otps"]
+        create_index_safe(_password_reset_otps, "expiresAt", expireAfterSeconds=0)
+        create_index_safe(_password_reset_otps, [("email", ASCENDING), ("createdAt", DESCENDING)])
+        _db_initialized = True
+
+
+def _get_managers():
+    _init_db()
+    return _managers
+
+
+def _get_password_reset_otps():
+    _init_db()
+    return _password_reset_otps
 
 def _apply_pepper(raw_password: str) -> str:
     return raw_password + PASSWORD_PEPPER if PASSWORD_PEPPER else raw_password
@@ -361,11 +382,11 @@ class ManagerService:
 
         now = datetime.now(timezone.utc)
 
-        user = managers.find_one({"email": email, "is_active": True})
+        user = _get_managers().find_one({"email": email, "is_active": True})
         if not user:
             return {"success": False, "email_exists": False, "message": "Email chưa được đăng ký trong hệ thống."}
 
-        recent = password_reset_otps.find_one(
+        recent = _get_password_reset_otps().find_one(
             {"email": email, "createdAt": {"$gte": now - timedelta(seconds=RESET_OTP_RESEND_MIN_SECONDS)}},
             sort=[("createdAt", DESCENDING)]
         )
@@ -374,7 +395,7 @@ class ManagerService:
             remain = max(1, RESET_OTP_RESEND_MIN_SECONDS - waited)
             return {"success": False, "email_exists": True, "message": f"Bạn gửi OTP quá nhanh. Vui lòng thử lại sau {remain} giây."}
 
-        count_1h = password_reset_otps.count_documents(
+        count_1h = _get_password_reset_otps().count_documents(
             {"email": email, "createdAt": {"$gte": now - timedelta(hours=1)}}
         )
         if count_1h >= RESET_OTP_MAX_PER_HOUR:
@@ -396,12 +417,12 @@ class ManagerService:
 
         inserted_id = None
         with transaction() as session:
-            password_reset_otps.update_many(
+            _get_password_reset_otps().update_many(
                 {"email": email, "used": False},
                 {"$set": {"used": True}},
                 session=session
             )
-            res = password_reset_otps.insert_one(otp_doc, session=session)
+            res = _get_password_reset_otps().insert_one(otp_doc, session=session)
             inserted_id = res.inserted_id
 
         user_name = user.get("name", user.get("userName", ""))
@@ -414,7 +435,7 @@ class ManagerService:
                 expire_minutes=settings.PASSWORD_RESET_OTP_EXPIRE_SECONDS // 60
             )
         except Exception:
-            password_reset_otps.update_one(
+            _get_password_reset_otps().update_one(
                 {"_id": inserted_id},
                 {"$set": {"used": True, "usedAt": datetime.now(timezone.utc)}}
             )
@@ -433,7 +454,7 @@ class ManagerService:
 
         now = datetime.now(timezone.utc)
 
-        rec = password_reset_otps.find({"email": email, "used": False, "expiresAt": {"$gt": now}})\
+        rec = _get_password_reset_otps().find({"email": email, "used": False, "expiresAt": {"$gt": now}})\
                                 .sort("createdAt", -1)\
                                 .limit(1)
         rec = next(rec, None)
@@ -445,10 +466,10 @@ class ManagerService:
 
         expected = ManagerService._hash_otp(otp, rec["salt"])
         if expected != rec["otpHash"]:
-            password_reset_otps.update_one({"_id": rec["_id"]}, {"$inc": {"attempts": 1}})
+            _get_password_reset_otps().update_one({"_id": rec["_id"]}, {"$inc": {"attempts": 1}})
             raise ValueError("OTP không đúng.")
 
-        password_reset_otps.update_one({"_id": rec["_id"]}, {"$set": {"verifiedAt": now}})
+        _get_password_reset_otps().update_one({"_id": rec["_id"]}, {"$set": {"verifiedAt": now}})
 
     @staticmethod
     def reset_password_with_otp(email: str, otp: str, new_password: str) -> None:
@@ -462,7 +483,7 @@ class ManagerService:
         hashed = make_password(_apply_pepper(new_password))
 
         with transaction() as session:
-            rec = password_reset_otps.find_one(
+            rec = _get_password_reset_otps().find_one(
                 {"email": email, "used": False, "expiresAt": {"$gt": now}},
                 sort=[("createdAt", DESCENDING)],
                 session=session
@@ -475,24 +496,24 @@ class ManagerService:
 
             expected = ManagerService._hash_otp(otp, rec["salt"])
             if expected != rec["otpHash"]:
-                password_reset_otps.update_one(
+                _get_password_reset_otps().update_one(
                     {"_id": rec["_id"]},
                     {"$inc": {"attempts": 1}},
                     session=session
                 )
                 raise ValueError("OTP không đúng.")
 
-            user = managers.find_one({"email": email, "is_active": True}, session=session)
+            user = _get_managers().find_one({"email": email, "is_active": True}, session=session)
             if not user:
                 raise ValueError("Không tìm thấy tài khoản.")
 
-            managers.update_one(
+            _get_managers().update_one(
                 {"_id": user["_id"]},
                 {"$set": {"password": hashed, "updatedAt": now}},
                 session=session
             )
 
-            password_reset_otps.update_many(
+            _get_password_reset_otps().update_many(
                 {"email": email, "used": False},
                 {"$set": {"used": True, "usedAt": now}},
                 session=session

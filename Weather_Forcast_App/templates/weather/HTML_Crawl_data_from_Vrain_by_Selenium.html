@@ -52,6 +52,16 @@
 
         <div class="summary">
           <div class="summary__item">
+            <span class="summary__label">Trạng thái</span>
+            <span class="summary__value" id="statusValue">✅ Sẵn sàng</span>
+          </div>
+
+          <div class="summary__item">
+            <span class="summary__label">Lần crawl gần nhất</span>
+            <span class="summary__value" id="lastCrawlTime">{% if last_crawl_time %}{{ last_crawl_time }}{% else %}–{% endif %}</span>
+          </div>
+
+          <div class="summary__item">
             <span class="summary__label">Tệp đầu ra</span>
             <span class="summary__value">
               {% if last_file %}{{ last_file }}{% else %}Chưa có tệp{% endif %}

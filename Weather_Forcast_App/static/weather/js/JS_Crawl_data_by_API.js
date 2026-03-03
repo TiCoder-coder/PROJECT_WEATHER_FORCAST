@@ -166,10 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // (Cố gắng cập nhật size file CSV mới nhất lên UI)
       // - sizeEl: element id="lastFileSize"
-      // - Lưu ý: đoạn này có tham chiếu d.csv_size_mb nhưng d chưa được khai báo ở đây
-      //   (Bạn yêu cầu không đổi logic nên chỉ ghi chú để bạn tự nhận ra khi debug)
       const sizeEl = document.getElementById("lastFileSize");
-      if (sizeEl && d.csv_size_mb != null) sizeEl.textContent = `${d.csv_size_mb} MB`;
+      if (sizeEl && first.csv_size_mb != null) sizeEl.textContent = `${first.csv_size_mb} MB`;
 
       // Render logs lần đầu
       setLog(first.logs);
