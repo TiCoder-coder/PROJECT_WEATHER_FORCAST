@@ -617,3 +617,51 @@ body::after{
   color: #061017 !important;
   border-color: rgba(255,255,255,.10) !important;
 }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR LAYOUT OVERRIDES FOR PREVIEW PAGE
+   ═══════════════════════════════════════════ */
+body.page {
+  font-family: var(--font-main, 'Inter', 'Segoe UI', system-ui, sans-serif);
+  background: radial-gradient(ellipse at top left, #0b1628 0%, #020617 55%, #0a0f1e 100%);
+  color: #e5e7eb;
+  min-height: 100vh;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.preview-main {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100vh;
+  position: relative;
+  padding: 0;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, rgba(2,6,23,0.96), rgba(11,17,32,0.92));
+  border-right: 1px solid rgba(148,163,184,0.22);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.preview-main .weather-fx {
+  left: 0;
+  right: 0;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .preview-main { max-height: none; }
+}

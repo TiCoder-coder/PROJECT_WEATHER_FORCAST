@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xem: {{ filename }}</title>
     <link rel="stylesheet" href="{% static 'weather/css/Dataset_preview.css' %}?v=9991199987778899888887988878907_01">
+    <link rel="stylesheet" href="{% static 'weather/css/_sidebar.css' %}?v=20260304">
     
     {% if file_type == 'json' %}
     <script>
@@ -45,7 +46,22 @@
     </script>
     {% endif %}
 </head>
-<body>
+<body class="page">
+    <div class="layout">
+        <!-- ═══════════ SIDEBAR ═══════════ -->
+        <aside class="sidebar">
+            <div class="sidebar__logo">
+                <div class="sidebar__logo-circle">WF</div>
+                <div class="sidebar__logo-text">
+                    <span class="sidebar__logo-title">Dự báo thời tiết</span>
+                    <span class="sidebar__logo-sub">Xem dữ liệu</span>
+                </div>
+            </div>
+            {% include 'weather/Sidebar_nav.html' %}
+        </aside>
+
+        <!-- ═══════════ MAIN ═══════════ -->
+        <main class="main preview-main">
     <div class="weather-fx" aria-hidden="true">
         <div class="fx fx-wind"></div>
         <div class="fx fx-clouds"></div>
@@ -254,5 +270,8 @@
   setTimeout(loop, 1500 + Math.random() * 1500);
 })();
 </script>
+
+        </main>
+    </div><!-- /layout -->
 
 </html>

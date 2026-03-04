@@ -2133,3 +2133,53 @@ body.home-page::after{
     left: 22%;
   }
 }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR LAYOUT OVERRIDES FOR DATASETS PAGE
+   ═══════════════════════════════════════════ */
+body.page.home-page {
+  min-height: 100vh;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.datasets-main {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100vh;
+  position: relative;
+  padding: 0;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, rgba(2,6,23,0.96), rgba(11,17,32,0.92));
+  border-right: 1px solid rgba(148,163,184,0.22);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Weather fx layers inside sidebar layout */
+.datasets-main .wx-layer {
+  position: fixed;
+  left: 260px;
+  right: 0;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .datasets-main { max-height: none; }
+  .datasets-main .wx-layer {
+    left: 0;
+  }
+}

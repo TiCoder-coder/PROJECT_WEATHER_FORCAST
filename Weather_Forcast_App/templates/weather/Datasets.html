@@ -6,10 +6,27 @@
   <title>Dữ liệu</title>
   <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
   <link rel="stylesheet" href="{% static 'weather/css/Datasets.css' %}?v=9199999998888899988888908_01">
+  <link rel="stylesheet" href="{% static 'weather/css/_sidebar.css' %}?v=20260304">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
-<body class="home-page">
+<body class="page home-page">
+
+  <div class="layout">
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-circle">WF</div>
+        <div class="sidebar__logo-text">
+          <span class="sidebar__logo-title">Dự báo thời tiết</span>
+          <span class="sidebar__logo-sub">Quản lý dữ liệu</span>
+        </div>
+      </div>
+      {% include 'weather/Sidebar_nav.html' %}
+    </aside>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <main class="main datasets-main">
 
   <div class="hubToolbar">
     <div class="hubBrand">
@@ -1075,6 +1092,9 @@
   <div class="wx-lightning-2" aria-hidden="true"></div>
   <div class="wx-thunder-flash" aria-hidden="true"></div>
   <div class="wx-lightning-particle" aria-hidden="true"></div>
+
+    </main>
+  </div><!-- /layout -->
 
 </body>
 </html>
