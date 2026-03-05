@@ -36,6 +36,12 @@ ARTIFACT_DIR = (
 if str(ROOT) not in sys.path:
 	sys.path.insert(0, str(ROOT))
 
+# ── Django setup (bắt buộc trước khi import bất kỳ model dùng Django ORM) ──
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WeatherForcast.settings")
+import django
+django.setup()
+
 from Weather_Forcast_App.Machine_learning_model.features.Build_transfer import (
 	WeatherFeatureBuilder,
 )
@@ -49,6 +55,46 @@ logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 # Tạo logger riêng cho file này.
 logger = logging.getLogger(__name__)
+
+
+def _drop_known_bad_rows(df: pd.DataFrame) -> pd.DataFrame:
+	# Kiểm tra file debug_top50_errors.csv (sinh bởi scripts/run_diagnostics.py)
+	# Nếu tồn tại → lọc bỏ các dòng dữ liệu sai khỏi df trước khi forecast.
+	# Nếu không tồn tại → trả về df nguyên vẹn.
+
+	diagnostics_path = ROOT / "debug_top50_errors.csv"
+	if not diagnostics_path.exists():
+		return df
+
+	try:
+		bad_df = pd.read_csv(diagnostics_path)
+	except Exception as e:
+		logger.warning("Could not read %s: %s", diagnostics_path, e)
+		return df
+
+	# Bỏ các cột diagnostic được thêm bởi run_diagnostics.py
+	for col in ("y_true", "y_pred", "abs_err"):
+		if col in bad_df.columns:
+			bad_df = bad_df.drop(columns=[col])
+
+	common_cols = [c for c in bad_df.columns if c in df.columns]
+	if not common_cols:
+		return df
+
+	# So khớp dòng theo fingerprint
+	bad_keys = set(
+		bad_df[common_cols].astype(str).apply("|".join, axis=1)
+	)
+	mask = df[common_cols].astype(str).apply("|".join, axis=1).isin(bad_keys)
+	n_dropped = int(mask.sum())
+
+	if n_dropped > 0:
+		logger.warning(
+			"Removed %d known bad rows from input data (source: debug_top50_errors.csv)",
+			n_dropped,
+		)
+
+	return df[~mask].reset_index(drop=True)
 
 
 def load_train_info(path: Path) -> Dict[str, Any]:
@@ -332,7 +378,6 @@ class ForecastRunner:
 		self,
 		input_path: Path,
 		output_path: Path,
-		nrows: int | None = None,
 	) -> None:
 		# Hàm khởi tạo lớp ForecastRunner
 		#
@@ -341,14 +386,9 @@ class ForecastRunner:
 		#
 		# output_path:
 		# - nơi lưu file dự đoán đầu ra
-		#
-		# nrows:
-		# - nếu truyền vào số dương thì chỉ đọc N dòng đầu
-		# - tiện để test nhanh với dữ liệu lớn
 
 		self.input_path = input_path
 		self.output_path = output_path
-		self.nrows = nrows
 
 		# Đọc thông tin train từ artifact
 		self.info = load_train_info(ARTIFACT_DIR / "Train_info.json")
@@ -356,29 +396,42 @@ class ForecastRunner:
 		# Lấy tên cột target đã dùng khi train, nếu không có thì mặc định "rain_total"
 		self.target_column = self.info.get("target_column", "rain_total")
 
-		# Khởi tạo feature builder để tái tạo feature giống lúc train
-		self.feature_builder = WeatherFeatureBuilder()
+		# Đọc feature config từ Feature_list.json để khởi tạo builder
+		# đúng như lúc train (ví dụ: tắt lag/rolling nếu data là cross-sectional)
+		try:
+			_feat_meta = json.loads(
+				(ARTIFACT_DIR / "Feature_list.json").read_text(encoding="utf-8")
+			)
+			_detected_type = _feat_meta.get("detected_data_type", "unknown")
+			_feature_cfg: Dict[str, Any] | None = None
+			if _detected_type == "cross_sectional":
+				_feature_cfg = {
+					"lag_features": False,
+					"rolling_features": False,
+					"difference_features": False,
+				}
+			self.feature_builder = WeatherFeatureBuilder(config=_feature_cfg)
+		except Exception:
+			# Nếu không đọc được Feature_list.json thì dùng default config
+			self.feature_builder = WeatherFeatureBuilder()
+
+		# Đọc cờ log1p: nếu train có apply log1p target thì khi predict
+		# phải inverse (expm1) kết quả về scale gốc
+		self.applied_log_target: bool = bool(
+			self.info.get("target_transform", {}).get("log1p_applied", False)
+		)
 
 	def _load_data(self) -> pd.DataFrame:
-		# Đọc file CSV đầu vào thành DataFrame
-		#
-		# Có hỗ trợ:
-		# - đọc toàn bộ file
-		# - hoặc chỉ đọc nrows dòng đầu để test nhanh
+		# Đọc toàn bộ file CSV đầu vào thành DataFrame
+		# Sau đó lọc bỏ các dòng dữ liệu sai (nếu debug_top50_errors.csv tồn tại)
 
 		# Kiểm tra file đầu vào có tồn tại không
 		if not self.input_path.exists():
 			raise FileNotFoundError(f"Input data not found: {self.input_path}")
 
-		# Tạo dict kwargs để truyền động vào pd.read_csv
-		kwargs = {}
-
-		# Nếu nrows hợp lệ (>0) thì chỉ đọc từng đó dòng
-		if self.nrows and self.nrows > 0:
-			kwargs["nrows"] = self.nrows
-
-		# Đọc CSV
-		return pd.read_csv(self.input_path, **kwargs)
+		df = pd.read_csv(self.input_path)
+		df = _drop_known_bad_rows(df)
+		return df
 
 	def _load_model_and_pipeline(self) -> tuple[Any, Any]:
 		# Load model và transform pipeline từ thư mục artifact
@@ -396,11 +449,15 @@ class ForecastRunner:
 		if not model_path.exists() or not pipeline_path.exists():
 			raise FileNotFoundError("Model or pipeline pickle missing")
 
-		# Load model
+		# Load model (dùng joblib — Django đã được setup ở đầu file)
 		model = joblib.load(model_path)
 
-		# Load pipeline rồi chuẩn hóa qua _ensure_pipeline để chắc chắn có transform
-		pipeline = _ensure_pipeline(joblib.load(pipeline_path))
+		# Load pipeline — dùng WeatherTransformPipeline.load() vì .save() lưu dict
+		# (joblib.load trả về dict thô, không có .transform)
+		from Weather_Forcast_App.Machine_learning_model.features.Transformers import (
+			WeatherTransformPipeline,
+		)
+		pipeline = WeatherTransformPipeline.load(pipeline_path)
 		return model, pipeline
 
 	def _build_features(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -428,7 +485,8 @@ class ForecastRunner:
 		# Nếu thư mục cha chưa tồn tại thì sẽ tự tạo
 
 		self.output_path.parent.mkdir(parents=True, exist_ok=True)
-		df.to_csv(self.output_path, index=False)
+		# utf-8-sig: nhất quán với Cleardata.py để Excel mở không bị lỗi tiếng Việt
+		df.to_csv(self.output_path, index=False, encoding="utf-8-sig")
 		logger.info(f"Saved forecast to {self.output_path}")
 
 	def run(self) -> None:
@@ -478,11 +536,17 @@ class ForecastRunner:
 		if isinstance(X_transformed, np.ndarray) or not hasattr(X_transformed, "columns"):
 			# Cố gắng tìm tên cột từ pipeline trước
 			columns = getattr(pipeline, "feature_names", None) or getattr(pipeline, "feature_names_in_", None)
-
-			# Nếu pipeline không có tên cột thì dùng:
-			# 1. model_feature_names
-			# 2. expected_features
 			columns = columns or model_feature_names or expected_features
+
+			# Guard: số cột phải khớp với số chiều của ndarray
+			_arr = np.array(X_transformed)
+			if _arr.ndim == 2 and _arr.shape[1] != len(columns):
+				logger.warning(
+					"Column count mismatch after transform: array has %d cols but expected %d. "
+					"Falling back to positional column names.",
+					_arr.shape[1], len(columns),
+				)
+				columns = [f"f_{i}" for i in range(_arr.shape[1])]
 
 			# Chuyển ndarray -> DataFrame
 			X_transformed = pd.DataFrame(X_transformed, columns=columns)
@@ -520,6 +584,12 @@ class ForecastRunner:
 
 		# Đảm bảo preds thành numpy array 1 chiều
 		preds = np.array(preds).reshape(-1)
+
+		# [BUG FIX] Inverse log1p nếu lúc train có apply log1p target
+		# Model học trên log1p(y) nên output cũng ở log-scale → phải expm1 về scale gốc
+		if self.applied_log_target:
+			logger.info("Applying expm1 inverse transform (log1p was used during training)")
+			preds = np.expm1(preds).clip(min=0)
 
 		# Tạo output bằng cách copy input gốc rồi thêm cột dự đoán
 		df_out = df_in.copy()
@@ -566,14 +636,6 @@ def parse_args() -> argparse.Namespace:
 		help="Where to save predictions",
 	)
 
-	# Tham số giới hạn số dòng đầu vào
-	parser.add_argument(
-		"--nrows",
-		type=int,
-		default=0,
-		help="Read only the first N rows (0 = all)",
-	)
-
 	# Trả về namespace chứa toàn bộ argument đã parse
 	return parser.parse_args()
 
@@ -583,18 +645,14 @@ def main() -> None:
 	#
 	# Nhiệm vụ:
 	# 1. đọc argument
-	# 2. chuẩn hóa nrows
-	# 3. tạo ForecastRunner
-	# 4. chạy
-	# 5. log thời gian hoàn thành
+	# 2. tạo ForecastRunner
+	# 3. chạy
+	# 4. log thời gian hoàn thành
 
 	args = parse_args()
 
-	# Nếu nrows là số dương thì giữ lại, còn không thì đổi thành None
-	nrows = args.nrows if args.nrows and args.nrows > 0 else None
-
 	# Tạo runner
-	runner = ForecastRunner(args.input, args.output, nrows=nrows)
+	runner = ForecastRunner(args.input, args.output)
 
 	# Ghi nhận thời gian bắt đầu
 	start = time.time()

@@ -111,6 +111,9 @@ def _load_model_info() -> Dict[str, Any]:
             info["trained_at"] = ti.get("trained_at", "")
             info["model_type"] = ti.get("model", {}).get("type", "")
             info["target_column"] = ti.get("target_column", "rain_total")
+            info["predict_threshold"] = (
+                ti.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
+            )
         except Exception:
             pass
 
@@ -128,7 +131,10 @@ def _load_model_info() -> Dict[str, Any]:
             m = json.loads(metrics_path.read_text(encoding="utf-8"))
             info["test_r2"] = m.get("test", {}).get("R2")
             info["test_rmse"] = m.get("test", {}).get("RMSE")
+            info["test_rain_acc"] = m.get("test", {}).get("Rain_Detection_Accuracy")
             info["diagnostics"] = m.get("diagnostics", {})
+            info["diag_status"] = m.get("diagnostics", {}).get("overfit_status", "")
+            info["diag_details"] = m.get("diagnostics", {}).get("overfit_details", "")
         except Exception:
             pass
 

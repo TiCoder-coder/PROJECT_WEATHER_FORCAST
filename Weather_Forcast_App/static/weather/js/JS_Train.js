@@ -160,10 +160,12 @@ document.addEventListener('DOMContentLoaded', () => {
         body = {
           folder_key: $folderKey?.value || '',
           filename: $fileName?.value || '',
-          model_type: $modelType?.value || 'xgboost',
+          model_type: $modelType?.value || 'two_stage',
           target_column: $targetColumn?.value || 'rain_total',
           test_size: parseFloat($testSize?.value || 0.15),
           valid_size: parseFloat($validSize?.value || 0.15),
+          sort_by_time: document.getElementById('sortByTime')?.checked ?? true,
+          feature_selection_enabled: document.getElementById('featureSelectionEnabled')?.checked ?? true,
           use_default_config: $useDefault?.checked || false,
         };
       }
@@ -288,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $btnReset.addEventListener('click', () => {
       if ($folderKey) $folderKey.value = '';
       if ($fileName) $fileName.innerHTML = '<option value="">-- Chọn thư mục trước --</option>';
-      if ($modelType) $modelType.value = 'ensemble';
+      if ($modelType) $modelType.value = 'two_stage';
       if ($targetColumn) $targetColumn.value = 'rain_total';
       if ($testSize) $testSize.value = '0.15';
       if ($validSize) $validSize.value = '0.15';
@@ -355,4 +357,117 @@ document.addEventListener('DOMContentLoaded', () => {
     showLogs();
     startPolling();
   }
+
+  // ═══════════════════════════════════════════════
+  // Optuna Tune logic
+  // ═══════════════════════════════════════════════
+  const $btnStartTune = document.getElementById('btnStartTune');
+  const $tuneProgressWrap = document.getElementById('tuneProgressWrap');
+  const $tuneProgressFill = document.getElementById('tuneProgressFill');
+  const $tuneProgressPercent = document.getElementById('tuneProgressPercent');
+  const $tuneProgressStep = document.getElementById('tuneProgressStep');
+  const $tuneLogPre = document.getElementById('tuneLogPre');
+  let tuneJobId = null;
+  let tunePollTimer = null;
+  let tuneLogAfter = 0;
+
+  if ($btnStartTune) {
+    $btnStartTune.addEventListener('click', async () => {
+      const trials = parseInt(document.getElementById('tuneTrials')?.value || 100, 10);
+      const metric = document.getElementById('tuneMetric')?.value || 'rain_acc';
+      const autoApply = document.getElementById('tuneAutoApply')?.checked ?? true;
+
+      $btnStartTune.disabled = true;
+      $btnStartTune.textContent = '⏳ Đang khởi chạy...';
+
+      if ($tuneProgressWrap) $tuneProgressWrap.style.display = '';
+      if ($tuneLogPre) $tuneLogPre.textContent = '';
+      if ($tuneProgressFill) $tuneProgressFill.style.width = '0%';
+      if ($tuneProgressPercent) $tuneProgressPercent.textContent = '0%';
+      if ($tuneProgressStep) $tuneProgressStep.textContent = 'Khởi tạo';
+
+      try {
+        const resp = await fetch('/train/tune/start/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ trials, metric, auto_apply: autoApply }),
+        });
+        const data = await resp.json();
+
+        if (!data.ok) {
+          alert('❌ ' + (data.error || 'Lỗi không xác định'));
+          $btnStartTune.disabled = false;
+          $btnStartTune.textContent = '🔬 Bắt đầu tối ưu';
+          return;
+        }
+
+        tuneJobId = data.job_id;
+        tuneLogAfter = 0;
+        if (tunePollTimer) clearInterval(tunePollTimer);
+        tunePollTimer = setInterval(pollTuneLogs, 1500);
+        pollTuneLogs();
+      } catch (err) {
+        alert('❌ Network error: ' + err.message);
+        $btnStartTune.disabled = false;
+        $btnStartTune.textContent = '🔬 Bắt đầu tối ưu';
+      }
+    });
+  }
+
+  async function pollTuneLogs() {
+    if (!tuneJobId) return;
+    try {
+      const resp = await fetch(`/train/tune/tail/?job_id=${tuneJobId}&after=${tuneLogAfter}`);
+      const data = await resp.json();
+      if (!data.ok) return;
+
+      if (data.logs && data.logs.length > 0) {
+        data.logs.forEach(line => { if ($tuneLogPre) $tuneLogPre.textContent += line + '\n'; });
+        tuneLogAfter = data.total;
+        const logOutput = $tuneLogPre?.parentElement;
+        if (logOutput) logOutput.scrollTop = logOutput.scrollHeight;
+      }
+
+      if ($tuneProgressFill) $tuneProgressFill.style.width = data.progress + '%';
+      if ($tuneProgressPercent) $tuneProgressPercent.textContent = data.progress + '%';
+      if ($tuneProgressStep) $tuneProgressStep.textContent = data.step || '';
+
+      if (data.status === 'done') {
+        clearInterval(tunePollTimer);
+        if ($btnStartTune) {
+          $btnStartTune.disabled = false;
+          $btnStartTune.textContent = '🔬 Bắt đầu tối ưu';
+        }
+        setTimeout(() => location.reload(), 2500);
+      } else if (data.status === 'error') {
+        clearInterval(tunePollTimer);
+        if ($btnStartTune) {
+          $btnStartTune.disabled = false;
+          $btnStartTune.textContent = '🔬 Bắt đầu tối ưu';
+        }
+      }
+    } catch (err) {
+      console.error('Tune poll error:', err);
+    }
+  }
+
+  // Toggle best params card
+  document.getElementById('btnToggleBestParams')?.addEventListener('click', function () {
+    const body = document.getElementById('bestParamsBody');
+    if (body) {
+      const hidden = body.style.display === 'none';
+      body.style.display = hidden ? '' : 'none';
+      this.textContent = hidden ? 'Thu gọn' : 'Mở rộng';
+    }
+  });
+
+  // Toggle tune section
+  document.getElementById('btnToggleTune')?.addEventListener('click', function () {
+    const body = document.getElementById('tuneBody');
+    if (body) {
+      const hidden = body.style.display === 'none';
+      body.style.display = hidden ? '' : 'none';
+      this.textContent = hidden ? 'Thu gọn' : 'Mở rộng';
+    }
+  });
 });

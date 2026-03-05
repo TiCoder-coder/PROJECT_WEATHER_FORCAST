@@ -214,8 +214,13 @@ class WeatherRandomForest:
         X: Union[pd.DataFrame, np.ndarray],
         y: Union[pd.Series, np.ndarray],
         validation_split: float = 0.2,
-        scale_features: bool = True,
-        verbose: bool = True
+        scale_features: bool = False,  # False: WeatherTransformPipeline already scaled
+        verbose: bool = True,
+        # Accept X_val/y_val/val_size from train.py (same interface as XGBoost/LightGBM)
+        X_val: Optional[Union[pd.DataFrame, np.ndarray]] = None,
+        y_val: Optional[Union[pd.Series, np.ndarray]] = None,
+        val_size: float = 0.2,
+        sample_weight: Optional[np.ndarray] = None,
     ) -> TrainingResult:
         """
         Huấn luyện model.
@@ -241,34 +246,54 @@ class WeatherRandomForest:
             # Convert to numpy
             X_array, feature_names = self._prepare_features(X)
             y_array = self._prepare_target(y)
-            
+
             self.feature_names = feature_names
-            
-            # Split data
-            X_train, X_val, y_train, y_val = train_test_split(
-                X_array, y_array, 
-                test_size=validation_split, 
-                random_state=self.params['random_state']
-            )
-            
-            # Scale features
+
+            # Split data: prefer externally-provided val set (time-series safe)
+            if X_val is not None and y_val is not None:
+                X_train_arr, _ = self._prepare_features(X_val)
+                y_val_arr = self._prepare_target(y_val)
+                X_train = X_array
+                y_train = y_array
+                X_val_eval = X_train_arr
+                y_val_eval = y_val_arr
+            elif 0.0 < float(val_size) < 1.0:
+                X_train, X_val_eval, y_train, y_val_eval = train_test_split(
+                    X_array, y_array,
+                    test_size=float(val_size),
+                    random_state=self.params['random_state']
+                )
+            elif 0.0 < float(validation_split) < 1.0:
+                X_train, X_val_eval, y_train, y_val_eval = train_test_split(
+                    X_array, y_array,
+                    test_size=float(validation_split),
+                    random_state=self.params['random_state']
+                )
+            else:
+                X_train, y_train = X_array, y_array
+                X_val_eval, y_val_eval = X_array, y_array
+
+            # Scale features only if WeatherTransformPipeline has NOT already done it
             if scale_features:
                 X_train = self.scaler.fit_transform(X_train)
-                X_val = self.scaler.transform(X_val)
-            
+                X_val_eval = self.scaler.transform(X_val_eval)
+
             # Train model
             if verbose:
                 print(f"🌲 Training Random Forest ({self.task_type.value})...")
                 print(f"   📊 Training samples: {len(X_train)}")
-                print(f"   📊 Validation samples: {len(X_val)}")
+                print(f"   📊 Validation samples: {len(X_val_eval)}")
                 print(f"   📊 Features: {X_train.shape[1]}")
                 print(f"   🌳 Trees: {self.params['n_estimators']}")
-            
-            self.model.fit(X_train, y_train)
-            
+
+            fit_kwargs = {}
+            if sample_weight is not None:
+                fit_kwargs["sample_weight"] = sample_weight
+            self.model.fit(X_train, y_train, **fit_kwargs)
+
             # Evaluate
-            y_pred = self.model.predict(X_val)
-            metrics = self._calculate_metrics(y_val, y_pred)
+            y_pred = self.model.predict(X_val_eval)
+            metrics = self._calculate_metrics(y_val_eval, y_pred)
             
             # Feature importance
             feature_importances = dict(zip(
@@ -467,8 +492,9 @@ class WeatherRandomForest:
         
         X_array, _ = self._prepare_features(X)
         
-        # Scale if scaler was fitted
-        if hasattr(self.scaler, 'mean_'):
+        # Scale only if the internal scaler was explicitly fitted (scale_features=True during train)
+        # When WeatherTransformPipeline is used upstream, scale_features=False so scaler is never fitted
+        if hasattr(self.scaler, 'mean_') and self.scaler.mean_ is not None:
             X_array = self.scaler.transform(X_array)
         
         # Predict

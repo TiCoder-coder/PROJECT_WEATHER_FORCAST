@@ -1,0 +1,15 @@
+{
+  "common": {
+    "loading": "Đang tải...",
+    "saving": "Đang lưu...",
+    "error": "Lỗi",
+    "retry": "Thử lại",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "ok": "OK",
+    "close": "Đóng",
+    "seeAll": "Xem tất cả",
+    "seeMore": "Xem thêm"
+  }
+}

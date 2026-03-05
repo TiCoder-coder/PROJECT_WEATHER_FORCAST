@@ -79,7 +79,7 @@
                                 <h3 class="guide-step__title">Cấu hình Model</h3>
                                 <p class="guide-step__desc">Có 2 chế độ cấu hình:</p>
                                 <ul class="guide-step__list">
-                                    <li><strong>⚡ Cấu hình nhanh:</strong> Chọn loại model (XGBoost, Random Forest, LightGBM, CatBoost hoặc Ensemble), điều chỉnh tỷ lệ test/validation</li>
+                                    <li><strong>⚡ Cấu hình nhanh:</strong> Chọn loại model (Two-Stage, XGBoost, LightGBM, CatBoost hoặc Ensemble), điều chỉnh tỷ lệ test/validation</li>
                                     <li><strong>🔧 Cấu hình nâng cao:</strong> Chỉnh trực tiếp file JSON config, kiểm soát toàn bộ tham số</li>
                                 </ul>
                                 <p class="guide-step__desc" style="margin-top:6px;">
@@ -102,7 +102,7 @@
                     <div class="guide-tips">
                         <h4 class="guide-tips__title">💡 Mẹo sử dụng</h4>
                         <ul class="guide-tips__list">
-                            <li><strong>Ensemble (Voting)</strong> thường cho kết quả tốt nhất - kết hợp nhiều model</li>
+                            <li><strong>⭐ Two-Stage (Khuyến nghị)</strong> tối ưu cho dữ liệu mưa không cân bằng — phân loại mưa trước, rồi hồi quy lượng mưa</li>
                             <li>Target column mặc định là <strong>rain_total</strong> - thay đổi nếu cần dự báo biến khác</li>
                             <li>Tỷ lệ <strong>Test size = 0.15</strong> và <strong>Valid size = 0.15</strong> là cấu hình khuyến nghị</li>
                             <li>Kiểm tra <strong>Overfit Status</strong> trong Diagnostics — trạng thái "GOOD" là lý tưởng</li>
@@ -230,6 +230,14 @@
                                     <span class="metric-name">Zero ratio</span>
                                     <span class="metric-value">{{ artifacts.metrics.diagnostics.target_zero_ratio|floatformat:2 }}</span>
                                 </div>
+                                {% if artifacts.metrics.diagnostics.overfit_details %}
+                                <div class="metric-item" style="grid-column: 1 / -1;">
+                                    <span class="metric-name">Chi tiết</span>
+                                    <span class="metric-value" style="font-size:0.8rem; color:#94a3b8;">
+                                        {{ artifacts.metrics.diagnostics.overfit_details }}
+                                    </span>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         {% endif %}
@@ -252,6 +260,87 @@
                 </div>
             </section>
             {% endif %}
+
+            <!-- ═══════ BEST PARAMS (Optuna) ═══════ -->
+            {% if best_params %}
+            <section class="card card--artifacts" id="sectionBestParams">
+                <div class="card__header">
+                    <h2 class="card__title">🏆 Best Params (Optuna)</h2>
+                    <button type="button" class="pill small" id="btnToggleBestParams">Thu gọn</button>
+                </div>
+                <div id="bestParamsBody">
+                    <div class="artifacts-meta" style="margin-bottom:8px;">
+                        <span class="artifacts-meta__item">🎯 Metric: {{ best_params.optimized_metric|upper }}</span>
+                        <span class="artifacts-meta__item">
+                            🏅 Best value:
+                            <strong style="color:#34d399;">{{ best_params.best_value|floatformat:6 }}</strong>
+                        </span>
+                        <span class="artifacts-meta__item">🔁 Trials: {{ best_params.n_trials }}</span>
+                        <span class="artifacts-meta__item">⏱️ Thời gian: {{ best_params.elapsed_seconds|floatformat:1 }}s</span>
+                    </div>
+                    <div class="metrics-grid">
+                        {% for key, val in best_params.best_params.items %}
+                        <div class="metric-item" style="padding:4px 8px; background:rgba(255,255,255,0.04); border-radius:6px;">
+                            <span class="metric-name" style="font-size:0.75rem;">{{ key }}</span>
+                            <span class="metric-value" style="font-size:0.85rem; color:#a78bfa;">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- ═══════ TỐI ƯU SIÊU THAM SỐ (Optuna) ═══════ -->
+            <section class="card" id="sectionTune">
+                <div class="card__header">
+                    <h2 class="card__title">🔬 Tối ưu siêu tham số (Optuna)</h2>
+                    <button type="button" class="pill small" id="btnToggleTune">Thu gọn</button>
+                </div>
+                <div id="tuneBody">
+                    <p class="card__desc">Chạy Optuna để tìm hyperparameters tốt nhất cho model Two-Stage. Kết quả sẽ tự động ghi vào <code>best_params_twostage.json</code>.</p>
+                    <div class="form__grid" style="margin-bottom:12px;">
+                        <div class="form__group">
+                            <label class="form__label">🔁 Số trials</label>
+                            <input type="number" id="tuneTrials" class="form__input" value="100" min="5" max="500" step="5">
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label">🎯 Metric tối ưu</label>
+                            <select id="tuneMetric" class="form__select">
+                                <option value="rain_acc" selected>Rain Accuracy (Khuyến nghị)</option>
+                                <option value="rmse">RMSE</option>
+                                <option value="mae">MAE</option>
+                                <option value="r2">R²</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form__group form__group--check" style="margin-bottom:12px;">
+                        <label class="form__check-label">
+                            <input type="checkbox" id="tuneAutoApply" checked>
+                            <span>Tự động áp dụng best params vào <code>train_config.json</code> sau khi tối ưu</span>
+                        </label>
+                    </div>
+                    <div class="form__actions" style="margin-bottom:12px;">
+                        <button type="button" id="btnStartTune" class="btn btn--primary">
+                            🔬 Bắt đầu tối ưu
+                        </button>
+                    </div>
+                    <!-- Tune progress -->
+                    <div id="tuneProgressWrap" style="display:none;">
+                        <div class="progress-wrap" style="margin-bottom:8px;">
+                            <div class="progress-bar">
+                                <div class="progress-bar__fill" id="tuneProgressFill" style="width:0%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="tuneProgressPercent">0%</span>
+                                <span id="tuneProgressStep">Khởi tạo</span>
+                            </div>
+                        </div>
+                        <div class="log-output" style="max-height:200px; overflow-y:auto;">
+                            <pre id="tuneLogPre" style="font-size:0.75rem;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- ═══════ CẤU HÌNH TRAINING ═══════ -->
             <section class="card" id="sectionConfig">
@@ -300,7 +389,7 @@
                                 <select id="modelType" name="model_type" class="form__select">
                                     {% for mt in model_types %}
                                     <option value="{{ mt.value }}"
-                                        {% if mt.value == "ensemble" %}selected{% endif %}>
+                                        {% if mt.value == "two_stage" %}selected{% endif %}>
                                         {{ mt.label }}
                                     </option>
                                     {% endfor %}
@@ -329,6 +418,19 @@
                             </div>
                         </div>
 
+                        <!-- Options checkboxes -->
+                        <div class="form__group form__group--check">
+                            <label class="form__check-label">
+                                <input type="checkbox" id="sortByTime" name="sort_by_time" checked>
+                                <span>Sắp xếp theo thời gian (<code>sort_by_time</code>) — khuyến nghị cho dữ liệu chuỗi thời gian</span>
+                            </label>
+                        </div>
+                        <div class="form__group form__group--check">
+                            <label class="form__check-label">
+                                <input type="checkbox" id="featureSelectionEnabled" name="feature_selection_enabled" checked>
+                                <span>Bật chọn lọc đặc trưng (<code>feature_selection</code>, max 50 features)</span>
+                            </label>
+                        </div>
                         <!-- Use default config checkbox -->
                         <div class="form__group form__group--check">
                             <label class="form__check-label">
@@ -435,6 +537,6 @@
 
     {{ datasets|json_script:"datasets-data" }}
     <meta name="active-job-id" content="{% if active_job %}{{ active_job.job_id }}{% endif %}">
-    <script src="{% static 'weather/js/JS_Train.js' %}?v=20260303"></script>
+    <script src="{% static 'weather/js/JS_Train.js' %}?v=20260305"></script>
 </body>
 </html>

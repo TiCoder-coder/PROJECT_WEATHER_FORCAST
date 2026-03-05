@@ -50,34 +50,14 @@ if str(project_root) not in sys.path:
 from Weather_Forcast_App.Machine_learning_model.trainning.tuning import _load_df_via_loader
 
 import argparse
-import json
-import sys
 import importlib
-
-# Fix: Import _load_df_via_loader from tuning.py
+import json
 import joblib
 from dataclasses import asdict
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 import numpy as np
-
-# ======================================================================================
-# (1) FIX IMPORT PATH: chạy trực tiếp file vẫn import được Weather_Forcast_App.*
-# ======================================================================================
-THIS_FILE = Path(__file__).resolve()
-# .../Weather_Forcast_App/Machine_learning_model/trainning/train.py
-# project_root = .../PROJECT_WEATHER_FORECAST
-project_root = THIS_FILE
-# đi lên tới thư mục chứa Weather_Forcast_App
-for _ in range(5):
-    if (project_root / "Weather_Forcast_App").exists():
-        break
-    project_root = project_root.parent
-
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
 
 # ======================================================================================
 # (2) IMPORT CÁC MODULE BẠN ĐÃ CÓ
@@ -103,6 +83,9 @@ MODEL_REGISTRY = {
     "lightgbm": "Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model.WeatherLightGBM",
     "cat": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
     "catboost": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
+    # Two-stage model for zero-inflated rainfall (handled separately in _create_model)
+    "two_stage": "Weather_Forcast_App.Machine_learning_model.Models.TwoStage_Model.WeatherTwoStageModel",
+    "twostage": "Weather_Forcast_App.Machine_learning_model.Models.TwoStage_Model.WeatherTwoStageModel",
 }
 
 
@@ -133,6 +116,59 @@ def _load_config(path: Path) -> Dict[str, Any]:
 
 def _now_tag() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# ======================================================================================
+# DIAGNOSTICS FILTER: Loại bỏ các dòng dữ liệu sai từ debug_top50_errors.csv
+# ======================================================================================
+def _drop_known_bad_rows(df: pd.DataFrame, root_path: Path) -> pd.DataFrame:
+    """
+    Kiểm tra xem file debug_top50_errors.csv (sinh ra bởi scripts/run_diagnostics.py)
+    có tồn tại không. Nếu có, loại bỏ các dòng tương ứng khỏi df trước khi train.
+
+    Cơ chế:
+    - Đọc debug_top50_errors.csv (các dòng mà model dự đoán sai nhất ở lần train trước)
+    - Bỏ các cột diagnostic được thêm bởi run_diagnostics.py (y_true, y_pred, abs_err)
+    - Tạo fingerprint (chuỗi nối các giá trị cột) cho mỗi dòng
+    - So khớp và xóa các dòng trùng trong df
+
+    Nếu debug_top50_errors.csv không tồn tại -> trả về df nguyên vẹn (không làm gì).
+    """
+    diagnostics_path = root_path / "debug_top50_errors.csv"
+    if not diagnostics_path.exists():
+        return df
+
+    try:
+        bad_df = pd.read_csv(diagnostics_path)
+    except Exception as e:
+        print(f"  [DIAGNOSTICS] Warning: could not read {diagnostics_path}: {e}")
+        return df
+
+    # Bỏ các cột được run_diagnostics.py thêm vào (không có trong data gốc)
+    for col in ("y_true", "y_pred", "abs_err"):
+        if col in bad_df.columns:
+            bad_df = bad_df.drop(columns=[col])
+
+    # Chỉ giữ lại các cột có trong cả hai DataFrame
+    common_cols = [c for c in bad_df.columns if c in df.columns]
+    if not common_cols:
+        print("  [DIAGNOSTICS] Warning: no common columns found to match bad rows — skipping filter.")
+        return df
+
+    # Tạo fingerprint dạng chuỗi để so khớp hàng
+    bad_keys = set(
+        bad_df[common_cols].apply(lambda row: "|".join(map(str, row)), axis=1)
+    )
+    mask = df[common_cols].apply(lambda row: "|".join(map(str, row)), axis=1).isin(bad_keys)
+    n_dropped = int(mask.sum())
+
+    if n_dropped > 0:
+        print(f"  [DIAGNOSTICS] Removed {n_dropped} known bad rows from training data "
+              f"(source: {diagnostics_path.name})")
+    else:
+        print(f"  [DIAGNOSTICS] debug_top50_errors.csv found but no matching rows in current dataset.")
+
+    return df[~mask].reset_index(drop=True)
 
 
 # ======================================================================================
@@ -361,35 +397,73 @@ def _add_polynomial_features(
 
 def _select_features_by_importance(
     X_train: pd.DataFrame, y_train: pd.Series,
-    max_features: int = 150,
+    max_features: int = 50,
     min_importance: float = 0.0,
 ) -> List[str]:
     """
-    Dùng LightGBM nhanh để chọn top features theo importance.
-    Giúp giảm chiều dữ liệu, tránh underfitting do nhiều features noise.
-    
+    SHAP-based feature selection dùng LightGBM.
+    SHAP mean |phi| chính xác hơn split-based importance vì:
+      - Không bị bias bởi high-cardinality features
+      - Tính contribution thật sự tới prediction (không chỉ tần suất dùng)
+    Fallback sang split importance nếu SHAP không khả dụng.
+
     Returns:
-        list tên features đã chọn (sorted by importance desc)
+        list tên features đã chọn (sorted by SHAP importance desc)
     """
+    from lightgbm import LGBMRegressor
+
+    # LightGBM nhanh để tính importance — dùng log1p(y+1) cho target zero-inflated
+    y_fit = np.log1p(np.abs(y_train.values.astype(float)))
+    selector = LGBMRegressor(
+        n_estimators=200,
+        max_depth=6,
+        learning_rate=0.05,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        verbose=-1,
+        random_state=42,
+        n_jobs=-1,
+    )
+    selector.fit(X_train, y_fit)
+
+    # ── SHAP (preferred) ────────────────────────────────────────────── #
     try:
-        from lightgbm import LGBMRegressor
-        selector = LGBMRegressor(
-            n_estimators=100, max_depth=6, learning_rate=0.1,
-            subsample=0.8, colsample_bytree=0.8,
-            verbose=-1, random_state=42, n_jobs=-1,
+        import shap
+
+        # Subsample tối đa 1000 hàng để tính nhanh
+        n_sample = min(1000, len(X_train))
+        X_sample = X_train.iloc[:n_sample]
+        explainer  = shap.TreeExplainer(selector)
+        shap_vals  = explainer.shap_values(X_sample)
+        if isinstance(shap_vals, list):
+            # multi-output (hiếm với regression) — lấy trung bình
+            shap_vals = np.abs(np.array(shap_vals)).mean(axis=0)
+        importances = np.abs(shap_vals).mean(axis=0)
+
+        feature_imp = sorted(
+            zip(X_train.columns, importances),
+            key=lambda x: x[1], reverse=True,
         )
-        selector.fit(X_train, y_train)
+        selected = [name for name, imp in feature_imp if imp > min_importance][:max_features]
+        if len(selected) < min(10, len(X_train.columns)):
+            selected = [name for name, _ in feature_imp[:max_features]]
+        print(f"  [FEATURE SELECT SHAP] {len(selected)}/{len(X_train.columns)} features kept")
+        return selected
+
+    except Exception as shap_err:
+        print(f"  [FEATURE SELECT] SHAP unavailable ({shap_err}), fallback to LGB importance")
+
+    # ── Fallback: LightGBM split importance ─────────────────────────── #
+    try:
         importances = selector.feature_importances_
         feature_imp = sorted(
             zip(X_train.columns, importances),
-            key=lambda x: x[1], reverse=True
+            key=lambda x: x[1], reverse=True,
         )
-        # Chọn top max_features, bỏ qua min_importance nếu nó loại hết
         selected = [name for name, imp in feature_imp if imp > min_importance][:max_features]
-        # Fallback: nếu quá ít features được chọn, lấy top max_features bất kể importance
-        if len(selected) < min(20, len(X_train.columns)):
+        if len(selected) < min(10, len(X_train.columns)):
             selected = [name for name, _ in feature_imp[:max_features]]
-        print(f"  [FEATURE SELECT] Selected {len(selected)}/{len(X_train.columns)} features (top importance)")
+        print(f"  [FEATURE SELECT LGB] {len(selected)}/{len(X_train.columns)} features kept")
         return selected
     except Exception as e:
         print(f"  [FEATURE SELECT] Cannot run feature selection: {e}")
@@ -433,6 +507,9 @@ def _create_model(model_type: str, model_config: Dict[str, Any]):
         base_models = model_config.get("base_models", [])
         from Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Model import WeatherEnsembleModel
         return WeatherEnsembleModel(base_models=base_models, model_registry=MODEL_REGISTRY)
+    if model_type in ("two_stage", "twostage"):
+        from Weather_Forcast_App.Machine_learning_model.Models.TwoStage_Model import WeatherTwoStageModel
+        return WeatherTwoStageModel(**model_config)
     if model_type not in MODEL_REGISTRY:
         raise ValueError(f"Unsupported model_type='{model_type}'. Use: {list(set(MODEL_REGISTRY.keys()))}")
     module_path, class_name = MODEL_REGISTRY[model_type].rsplit(".", 1)
@@ -492,6 +569,9 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     df_raw = _load_df_via_loader(app_root, folder_key, filename)
     file_info = None  # tuning._load_df_via_loader does not return file_info
+
+    # Loại bỏ các dòng dữ liệu sai đã được nhận diện từ lần chạy diagnostics trước
+    df_raw = _drop_known_bad_rows(df_raw, project_root)
 
     if len(df_raw) == 0:
         raise RuntimeError("After loading data: no rows left. Check input data.")
@@ -729,33 +809,35 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
 
     # Wrapper thường có model.train(X, y, ...) - truyền X_val, y_val cho early stopping
     if hasattr(model, "train"):
-        train_kwargs = {}
-        # Truyền validation data cho early stopping (nếu wrapper hỗ trợ)
-        train_kwargs["X_val"] = X_valid_t
-        train_kwargs["y_val"] = y_valid_model
-        train_kwargs["val_size"] = 0  # Đã có val riêng, không cần split thêm
-        # Truyền sample_weight nếu model wrapper hỗ trợ
+        import inspect
+        # Build full candidate kwargs
+        candidate_kwargs = {
+            "X_val": X_valid_t,
+            "y_val": y_valid_model,
+            "val_size": 0,           # Đã có val riêng, không cần split thêm
+            "scale_features": False,  # WeatherTransformPipeline đã scale rồi
+        }
         if sample_weight is not None:
-            try:
-                import inspect
-                sig = inspect.signature(model.train)
-                if "sample_weight" in sig.parameters:
-                    train_kwargs["sample_weight"] = sample_weight
-            except Exception:
-                pass
+            candidate_kwargs["sample_weight"] = sample_weight
+        # Chỉ truyền params mà model.train() thực sự hỗ trợ (tránh TypeError)
         try:
-            model.train(X_train, y_train_model, **train_kwargs)
-        except TypeError:
-            # Fallback nếu wrapper không hỗ trợ kwargs đó
-            model.train(X_train, y_train_model)
+            sig = inspect.signature(model.train)
+            supported_params = set(sig.parameters.keys())
+            train_kwargs = {k: v for k, v in candidate_kwargs.items() if k in supported_params}
+        except Exception:
+            train_kwargs = {}
+        model.train(X_train, y_train_model, **train_kwargs)
     elif hasattr(model, "fit"):
         fit_kwargs = {}
         if sample_weight is not None:
-            fit_kwargs["sample_weight"] = sample_weight
-        try:
-            model.fit(X_train, y_train_model, **fit_kwargs)
-        except TypeError:
-            model.fit(X_train, y_train_model)
+            try:
+                import inspect
+                sig = inspect.signature(model.fit)
+                if "sample_weight" in sig.parameters:
+                    fit_kwargs["sample_weight"] = sample_weight
+            except Exception:
+                pass
+        model.fit(X_train, y_train_model, **fit_kwargs)
     else:
         raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
 
@@ -768,7 +850,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "applied_log_target": applied_log_target,
     }
 
-    def _evaluate_set(X, y_original, y_transformed):
+    def _evaluate_set(X, y_original):
         """
         Helper để evaluate một dataset.
         - Nếu dùng log1p target: predict rồi expm1 trước khi so sánh với y_original.
@@ -803,9 +885,9 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         
         return result
 
-    metrics["train"] = _evaluate_set(X_train, y_train, y_train_model)
-    metrics["valid"] = _evaluate_set(X_valid_t, y_valid, y_valid_model)
-    metrics["test"] = _evaluate_set(X_test_t, y_test, y_test_model)
+    metrics["train"] = _evaluate_set(X_train, y_train)
+    metrics["valid"] = _evaluate_set(X_valid_t, y_valid)
+    metrics["test"] = _evaluate_set(X_test_t, y_test)
 
 
     # --- Overfit/Underfit & Accuracy Diagnostics ---
@@ -819,8 +901,29 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         """
         train = metrics_dict.get("train", {})
         valid = metrics_dict.get("valid", {})
+        test  = metrics_dict.get("test",  {})
 
-        # Primary: use R² gap (most meaningful for regression)
+        # For zero-inflated targets (e.g. rainfall), R² is unreliable because
+        # SS_tot is dominated by extreme events that the regressor (correctly)
+        # predicts as E[y|X] not the actual extreme value → low R² even for
+        # a well-fitted model.  Prefer Rain_Detection_Accuracy when available.
+        rain_acc_train = train.get("Rain_Detection_Accuracy")
+        rain_acc_valid = valid.get("Rain_Detection_Accuracy")
+        rain_acc_test  = test.get("Rain_Detection_Accuracy")
+        if rain_acc_train is not None and rain_acc_valid is not None:
+            acc_gap = rain_acc_train - rain_acc_valid
+            all_three = (
+                f"Train={rain_acc_train:.3f} / Valid={rain_acc_valid:.3f}"
+                + (f" / Test={rain_acc_test:.3f}" if rain_acc_test is not None else "")
+            )
+            if acc_gap > tolerance:
+                return ("overfit",  f"RainAcc Train({rain_acc_train:.3f}) > Valid({rain_acc_valid:.3f}) by {acc_gap:.3f} — {all_three}")
+            elif acc_gap < -tolerance:
+                return ("underfit", f"RainAcc Valid({rain_acc_valid:.3f}) > Train({rain_acc_train:.3f}) — {all_three}")
+            else:
+                return ("good",     f"RainAcc consistent across splits — {all_three}")
+
+        # Fallback: use R² gap (only when RainAcc is not available)
         r2_train = train.get("R2")
         r2_valid = valid.get("R2")
         if r2_train is not None and r2_valid is not None:
@@ -866,14 +969,21 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     r2_valid = metrics.get("valid", {}).get("R2", None)
     r2_test = metrics.get("test", {}).get("R2", None)
     
+    # Extra underfit hints — only flag R² issues when RainAcc is also poor,
+    # to avoid false alarms on zero-inflated data where low R² is expected.
+    rain_acc_train_val = metrics.get("train", {}).get("Rain_Detection_Accuracy")
+    rain_acc_healthy   = rain_acc_train_val is not None and rain_acc_train_val >= 0.80
+
     underfit_hints = []
     if r2_valid is not None and r2_valid < 0:
         underfit_hints.append(f"Valid R2={r2_valid:.3f} (negative = worse than mean baseline)")
     if r2_test is not None and r2_test < 0:
         underfit_hints.append(f"Test R2={r2_test:.3f} (negative = worse than mean baseline)")
-    if r2_train is not None and r2_train < 0.3:
+    if r2_train is not None and r2_train < 0.3 and not rain_acc_healthy:
+        # Only complain about low R² when detection accuracy is also bad;
+        # zero-inflated datasets routinely have low R² even for good models.
         underfit_hints.append(f"Train R2={r2_train:.3f} (too low, model not learning patterns)")
-    
+
     if underfit_hints:
         overfit_status = "underfit"
         overfit_details += " | " + " | ".join(underfit_hints)

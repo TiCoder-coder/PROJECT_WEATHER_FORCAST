@@ -132,9 +132,21 @@ class WeatherEnsembleModel:
             # Try sklearn-style: Class(**cfg)
             return model_class(**cfg)
 
-    def _fit_model(self, model: Any, X, y) -> None:
+    def _fit_model(self, model: Any, X, y, X_val=None, y_val=None) -> None:
         if hasattr(model, "train"):
-            model.train(X, y)
+            import inspect
+            # Build candidate kwargs — always tell wrapper not to double-scale
+            candidate_kwargs: Dict[str, Any] = {"scale_features": False}
+            if X_val is not None and y_val is not None:
+                candidate_kwargs.update({"X_val": X_val, "y_val": y_val, "val_size": 0})
+            # Filter to only params the model's train() actually accepts
+            try:
+                sig = inspect.signature(model.train)
+                supported = set(sig.parameters.keys())
+                train_kwargs = {k: v for k, v in candidate_kwargs.items() if k in supported}
+            except Exception:
+                train_kwargs = {}
+            model.train(X, y, **train_kwargs)
             return
         if hasattr(model, "fit"):
             model.fit(X, y)
@@ -169,9 +181,16 @@ class WeatherEnsembleModel:
     # -------------------------
     # Public API
     # -------------------------
-    def train(self, X, y) -> None:
+    def train(self, X, y, X_val=None, y_val=None, val_size: float = 0.0, scale_features: bool = False, **kwargs) -> None:
         X = self._drop_datetime(X)
         y_arr = np.asarray(y).reshape(-1)
+
+        # Prepare val arrays if provided
+        X_val_arr = None
+        y_val_arr = None
+        if X_val is not None and y_val is not None:
+            X_val_arr = self._drop_datetime(X_val)
+            y_val_arr = np.asarray(y_val).reshape(-1)
 
         self.models = []
         self.model_metrics = {}
@@ -184,11 +203,14 @@ class WeatherEnsembleModel:
 
             try:
                 model = self._create_model(mtype, mparams)
-                self._fit_model(model, X, y_arr)
+                # Pass X_val/y_val from config OR from train() caller
+                X_v = m_cfg.get("X_val", X_val_arr)
+                y_v = m_cfg.get("y_val", y_val_arr)
+                self._fit_model(model, X, y_arr, X_val=X_v, y_val=y_v)
 
-                # Evaluate (ưu tiên val nếu có)
-                X_eval = m_cfg.get("X_val", None)
-                y_eval = m_cfg.get("y_val", None)
+                # Evaluate (ưu tiên val đã có; fallback về X_val_arr từ train(); cuối cùng dùng train set)
+                X_eval = m_cfg.get("X_val", X_val_arr)
+                y_eval = m_cfg.get("y_val", y_val_arr)
                 if X_eval is None or y_eval is None:
                     X_eval, y_eval = X, y_arr
                 else:

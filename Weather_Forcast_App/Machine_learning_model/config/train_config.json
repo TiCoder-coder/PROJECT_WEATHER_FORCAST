@@ -6,24 +6,50 @@
   "skip_schema_validation": true,
   "target_column": "rain_total",
   "features": {
-      "input_columns": [
-        "latitude", "longitude", "timestamp", "data_quality", "data_time",
-        "temperature_current", "temperature_max", "temperature_min", "temperature_avg",
-        "humidity_current", "humidity_max", "humidity_min", "humidity_avg",
-        "pressure_current", "pressure_max", "pressure_min", "pressure_avg",
-        "wind_speed_current", "wind_speed_max", "wind_speed_min", "wind_speed_avg",
-        "wind_direction_current", "wind_direction_avg",
-        "rain_current", "rain_max", "rain_min", "rain_avg",
-        "cloud_cover_current", "cloud_cover_max", "cloud_cover_min", "cloud_cover_avg",
-        "visibility_current", "visibility_max", "visibility_min", "visibility_avg",
-        "thunder_probability"
-      ],
-      "lag_features": false,
-      "rolling_features": false,
-      "difference_features": false,
-      "time_features": true,
-      "location_features": true,
-      "interaction_features": true
+    "input_columns": [
+      "latitude",
+      "longitude",
+      "timestamp",
+      "data_quality",
+      "data_time",
+      "temperature_current",
+      "temperature_max",
+      "temperature_min",
+      "temperature_avg",
+      "humidity_current",
+      "humidity_max",
+      "humidity_min",
+      "humidity_avg",
+      "pressure_current",
+      "pressure_max",
+      "pressure_min",
+      "pressure_avg",
+      "wind_speed_current",
+      "wind_speed_max",
+      "wind_speed_min",
+      "wind_speed_avg",
+      "wind_direction_current",
+      "wind_direction_avg",
+      "rain_current",
+      "rain_max",
+      "rain_min",
+      "rain_avg",
+      "cloud_cover_current",
+      "cloud_cover_max",
+      "cloud_cover_min",
+      "cloud_cover_avg",
+      "visibility_current",
+      "visibility_max",
+      "visibility_min",
+      "visibility_avg",
+      "thunder_probability"
+    ],
+    "lag_features": false,
+    "rolling_features": false,
+    "difference_features": false,
+    "time_features": true,
+    "location_features": true,
+    "interaction_features": true
   },
   "auto_detect_data_type": true,
   "polynomial_features": {
@@ -32,70 +58,32 @@
     "top_k_corr": 8
   },
   "feature_selection": {
-    "enabled": false
+    "enabled": true,
+    "max_features": 50
   },
   "model": {
-    "type": "ensemble",
+    "type": "two_stage",
     "params": {
-      "base_models": [
-        {
-          "type": "xgboost",
-          "params": {
-            "n_estimators": 1500,
-            "learning_rate": 0.05,
-            "max_depth": 8,
-            "min_child_weight": 5,
-            "subsample": 0.8,
-            "colsample_bytree": 0.7,
-            "reg_alpha": 0.1,
-            "reg_lambda": 1.0,
-            "gamma": 0.1
-          }
-        },
-        {
-          "type": "random_forest",
-          "params": {
-            "n_estimators": 1000,
-            "max_depth": null,
-            "min_samples_split": 5,
-            "min_samples_leaf": 3,
-            "max_features": "sqrt"
-          }
-        },
-        {
-          "type": "lightgbm",
-          "params": {
-            "n_estimators": 1500,
-            "learning_rate": 0.05,
-            "max_depth": 10,
-            "num_leaves": 31,
-            "min_child_samples": 20,
-            "subsample": 0.8,
-            "colsample_bytree": 0.7,
-            "reg_alpha": 0.1,
-            "reg_lambda": 1.0
-          }
-        },
-        {
-          "type": "catboost",
-          "params": {
-            "iterations": 1500,
-            "learning_rate": 0.05,
-            "depth": 8,
-            "l2_leaf_reg": 3.0,
-            "min_data_in_leaf": 10
-          }
-        }
-      ],
-      "ensemble_type": "voting",
-      "voting": "soft"
+      "n_estimators": 300,
+      "learning_rate": 0.10866318080918577,
+      "max_depth": 7,
+      "num_leaves": 38,
+      "min_child_samples": 40,
+      "subsample": 0.857116102762388,
+      "colsample_bytree": 0.721646561343565,
+      "reg_alpha": 0.6400899653736896,
+      "reg_lambda": 7.947957719016305,
+      "tweedie_variance_power": 1.0916812719218079,
+      "rain_threshold": 0.21996921961756769,
+      "predict_threshold": 0.448935197363175,
+      "random_state": 42
     }
   },
   "split": {
     "test_size": 0.15,
     "valid_size": 0.15,
-    "shuffle": true,
-    "sort_by_time": false
+    "shuffle": false,
+    "sort_by_time": true
   },
   "cv_folds": 5,
   "random_state": 42,

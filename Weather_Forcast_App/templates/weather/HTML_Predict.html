@@ -101,7 +101,7 @@
                             <li>Dùng nút <strong>"🔮 Dùng"</strong> ở bảng datasets phía dưới để chọn nhanh dataset</li>
                             <li>Đặt <strong>số dòng tối đa = 0</strong> để dự báo toàn bộ dữ liệu</li>
                             <li>Khi nhập thủ công, hệ thống tự tính trung bình từ min/max</li>
-                            <li>Giá trị <strong>y_pred &gt; 0.5</strong> được phân loại là "Mưa"</li>
+                            <li>Ngưỡng phân loại mưa (<strong>predict_threshold</strong>) được tối ưu bằng Optuna — xem "Predict Threshold" trong thông tin model</li>
                         </ul>
                     </div>
                 </div>
@@ -156,6 +156,33 @@
                             <div class="info-chip__value">{{ model_info.test_rmse|floatformat:4 }}</div>
                         </div>
                     </div>
+                    {% if model_info.test_rain_acc %}
+                    <div class="info-chip">
+                        <span class="info-chip__icon">🌧️</span>
+                        <div>
+                            <div class="info-chip__label">Rain Acc</div>
+                            <div class="info-chip__value">{{ model_info.test_rain_acc|floatformat:4 }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if model_info.predict_threshold %}
+                    <div class="info-chip">
+                        <span class="info-chip__icon">🎚️</span>
+                        <div>
+                            <div class="info-chip__label">Predict Threshold</div>
+                            <div class="info-chip__value">{{ model_info.predict_threshold }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if model_info.diag_status %}
+                    <div class="info-chip">
+                        <span class="info-chip__icon">🔍</span>
+                        <div>
+                            <div class="info-chip__label">Overfit Status</div>
+                            <div class="info-chip__value">{{ model_info.diag_status|upper }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="info-chip">
                         <span class="info-chip__icon">💾</span>
                         <div>

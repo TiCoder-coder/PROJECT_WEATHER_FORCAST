@@ -67,6 +67,8 @@ from .views.View_Train import (
     train_tail_view,
     train_configs_view,
     train_artifacts_view,
+    train_tune_start_view,
+    train_tune_tail_view,
 )
 
 # ============================================================
@@ -245,6 +247,14 @@ urlpatterns = [
     # 6B.5) XEM ARTIFACTS (KẾT QUẢ TRAINING)
     # Method: GET
     path("train/artifacts/", train_artifacts_view, name="train_artifacts"),
+
+    # 6B.6) TỐI ƯU SIÊU THAM SỐ (Optuna)
+    # Method: POST – khởi chạy tune job
+    path("train/tune/start/", train_tune_start_view, name="train_tune_start"),
+
+    # 6B.7) POLLING TUNE JOB
+    # Method: GET – theo dõi tiến trình tune
+    path("train/tune/tail/", train_tune_tail_view, name="train_tune_tail"),
     
     
     # ============================================================

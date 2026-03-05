@@ -275,7 +275,12 @@ class WeatherCatBoost:
         cat_features: Optional[List[Union[int, str]]] = None,
         validation_split: float = 0.2,
         plot: bool = False,
-        verbose: bool = True
+        verbose: bool = True,
+        # Accept X_val/y_val/val_size from train.py (same interface as XGBoost/LightGBM)
+        X_val: Optional[Union[pd.DataFrame, np.ndarray]] = None,
+        y_val: Optional[Union[pd.Series, np.ndarray]] = None,
+        val_size: float = 0.2,
+        sample_weight=None,  # accepted but unused (CatBoost handles via Pool)
     ) -> TrainingResult:
         """
         Huấn luyện model.
@@ -314,13 +319,24 @@ class WeatherCatBoost:
                 self.cat_features = self._resolve_cat_features(cat_features, feature_names)
             else:
                 self.cat_features = self._detect_cat_features(X_prepared)
-            
-            # Split data
-            X_train, X_val, y_train, y_val = train_test_split(
-                X_prepared, y_prepared,
-                test_size=validation_split,
-                random_state=self.params['random_seed']
-            )
+
+            # Split data: prefer externally-provided val set (time-series safe)
+            if X_val is not None and y_val is not None:
+                X_train = X_prepared
+                y_train = y_prepared
+                X_val_prep, _ = self._prepare_features(X_val)
+                y_val_prep = self._prepare_target(y_val)
+            else:
+                eff_split = float(val_size) if 0.0 < float(val_size) < 1.0 else float(validation_split)
+                if 0.0 < eff_split < 1.0:
+                    X_train, X_val_prep, y_train, y_val_prep = train_test_split(
+                        X_prepared, y_prepared,
+                        test_size=eff_split,
+                        random_state=self.params['random_seed']
+                    )
+                else:
+                    X_train, y_train = X_prepared, y_prepared
+                    X_val_prep, y_val_prep = X_prepared, y_prepared
             
             # Create CatBoost Pools
             train_pool = Pool(
@@ -329,10 +345,10 @@ class WeatherCatBoost:
                 cat_features=self.cat_features if self.cat_features else None,
                 feature_names=feature_names
             )
-            
+
             val_pool = Pool(
-                X_val,
-                y_val,
+                X_val_prep,
+                y_val_prep,
                 cat_features=self.cat_features if self.cat_features else None,
                 feature_names=feature_names
             )
@@ -362,7 +378,7 @@ class WeatherCatBoost:
                 )
             
             # Evaluate
-            y_pred = self.model.predict(X_val)
+            y_pred = self.model.predict(X_val_prep)
             
             # Handle classification predictions
             if self.task_type == TaskType.CLASSIFICATION:
