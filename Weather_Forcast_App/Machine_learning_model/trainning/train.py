@@ -753,7 +753,20 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     # --------------------------
     # Rainfall data thường là zero-inflated (rất nhiều giá trị 0 hoặc gần 0).
     # Log1p giúp model học tốt hơn vì nén phạm vi giá trị lớn.
+    # NOTE: Khi dùng two_stage model với Tweedie loss, KHÔNG dùng log1p
+    #       vì Tweedie đã xử lý zero-inflation natively. Log1p + Tweedie
+    #       conflict → target bị double-transform, hỏng variance function.
+    #       Tuy nhiên nếu reg_params override objective sang non-Tweedie
+    #       (e.g. huber, regression), thì log1p vẫn OK.
     use_log_target = config.get("transform_target", {}).get("log1p", True)
+    target_is_rain = any(kw in target_col.lower() for kw in ['mua', 'rain', 'precipitation'])
+    model_type_check = model_cfg.get("type", "").lower().strip()
+    
+    # Force-disable log1p for two_stage model ONLY when using Tweedie loss
+    reg_objective = model_cfg.get("params", {}).get("reg_params", {}).get("objective", "tweedie")
+    if model_type_check in ("two_stage", "twostage") and use_log_target and reg_objective == "tweedie":
+        print(f"  [TARGET TRANSFORM] Skipping log1p for two_stage model with Tweedie loss (handles zero-inflation natively)")
+        use_log_target = False
     target_is_rain = any(kw in target_col.lower() for kw in ['mua', 'rain', 'precipitation'])
     
     # Chỉ tự động bật log1p nếu target liên quan đến mưa VÀ có nhiều giá trị 0
@@ -799,13 +812,21 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     model = _create_model(model_type=model_type, model_config=model_params)
 
     # --- ANTI-UNDERFIT: Tạo sample_weight cho zero-inflated target ---
-    # Upweight non-zero samples để model chú ý hơn vào rain events
+    # Progressive weighting: focus extra weight on heavy rain only
     sample_weight = None
-    if applied_log_target and zero_ratio > 0.5:
-        # Non-zero samples nhận weight cao hơn tỉ lệ nghịch với tần suất
+    if zero_ratio > 0.5:
         weight_ratio = min(zero_ratio / (1 - zero_ratio + 1e-8), 10.0)  # cap tại 10x
+        # Base: non-zero gets weight_ratio, zero gets 1.0
         sample_weight = np.where(y_train > 0, weight_ratio, 1.0)
-        print(f"  [SAMPLE WEIGHT] Applied sample_weight: non-zero={weight_ratio:.2f}x, zero=1.0x")
+        # Targeted boost: only heavy rain gets extra weight
+        intensity_boost = np.ones_like(y_train, dtype=np.float64)
+        intensity_boost = np.where(y_train > 7.5,  2.0, intensity_boost)  # Mưa to:  2.0x
+        intensity_boost = np.where(y_train > 25.0, 3.0, intensity_boost)  # Mưa rất to: 3.0x
+        sample_weight = sample_weight * intensity_boost
+        n_heavy    = int((y_train > 7.5).sum())
+        n_extreme  = int((y_train > 25.0).sum())
+        print(f"  [SAMPLE WEIGHT] Targeted weighting: zero=1.0x, rain={weight_ratio:.2f}x, "
+              f"heavy={weight_ratio*2:.2f}x({n_heavy}), extreme={weight_ratio*3:.2f}x({n_extreme})")
 
     # Wrapper thường có model.train(X, y, ...) - truyền X_val, y_val cho early stopping
     if hasattr(model, "train"):
@@ -1080,6 +1101,11 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
 # CLI
 # ======================================================================================
 def main():
+    import os
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WeatherForcast.settings")
+    import django
+    django.setup()
+
     parser = argparse.ArgumentParser(description="Weather Forecast - Training Orchestrator")
     parser.add_argument("--config", type=str, required=True, help="Path to train config (.json/.yml)")
     args = parser.parse_args()

@@ -1,0 +1,61 @@
+{
+  "data": {
+    "folder_key": "cleaned_merge",
+    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv"
+  },
+  "target_column": "rain_total",
+  "group_by": null,
+  "skip_schema_validation": true,
+  "auto_detect_data_type": true,
+  "split": {
+    "test_size": 0.15,
+    "valid_size": 0.15,
+    "shuffle": true,
+    "sort_by_time": false
+  },
+  "features": {
+    "lag_features": false,
+    "rolling_features": false,
+    "difference_features": false
+  },
+  "feature_selection": {
+    "enabled": true,
+    "max_features": 200
+  },
+  "polynomial_features": {
+    "enabled": true,
+    "top_k_corr": 10,
+    "degree": 2
+  },
+  "transform_target": {
+    "log1p": true
+  },
+  "transform": {
+    "missing_strategy": "median",
+    "scaler_type": "robust",
+    "encoding_type": "label",
+    "handle_outliers": true,
+    "outlier_method": "iqr"
+  },
+  "model": {
+    "type": "two_stage",
+    "params": {
+      "n_estimators": 1033,
+      "learning_rate": 0.059374076741317505,
+      "max_depth": 7,
+      "num_leaves": 114,
+      "min_child_samples": 24,
+      "subsample": 0.5021351431629033,
+      "colsample_bytree": 0.8058783050152126,
+      "reg_alpha": 0.39016174320797264,
+      "reg_lambda": 5.150971620741646,
+      "rain_threshold": 0.24004420410443056,
+      "predict_threshold": 0.3776762899857409,
+      "reg_params": {
+        "objective": "fair"
+      },
+      "tweedie_variance_power": 1.5,
+      "random_state": 42
+    }
+  }
+}

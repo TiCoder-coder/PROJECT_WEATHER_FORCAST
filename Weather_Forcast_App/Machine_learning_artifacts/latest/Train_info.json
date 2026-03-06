@@ -1,7 +1,7 @@
 {
-  "trained_at": "2026-03-05 12:52:15",
-  "project_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST",
-  "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model",
+  "trained_at": "2026-03-06 18:11:13",
+  "project_root": "D:\\PROJECT_WEATHER_FORCAST",
+  "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
     "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv",
@@ -17,37 +17,37 @@
     "train_ratio": 0.7,
     "val_ratio": 0.15,
     "test_ratio": 0.15,
-    "shuffle": false,
-    "sort_by_time_if_possible": true,
+    "shuffle": true,
+    "sort_by_time_if_possible": false,
     "time_col_candidates": [
       "timestamp"
     ]
   },
   "split_saved_paths": {
-    "train": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_train.csv",
-    "valid": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_valid.csv",
-    "test": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_test.csv"
+    "train": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_train.csv",
+    "valid": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_valid.csv",
+    "test": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_test.csv"
   },
   "target_column": "rain_total",
   "group_by": null,
   "feature_info": {
     "n_created_features": 40,
-    "n_total_feature_columns": 50,
+    "n_total_feature_columns": 117,
     "n_static_features_removed": 0,
-    "n_constant_features_removed": 20,
+    "n_constant_features_removed": 19,
     "feature_selection_enabled": true,
     "detected_data_type": "cross_sectional",
     "polynomial_features_added": true
   },
   "target_transform": {
     "log1p_applied": true,
-    "target_zero_ratio": 0.9231219512195122
+    "target_zero_ratio": 0.8070243902439025
   },
   "transform": {
-    "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Transform_pipeline.pkl",
+    "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-05T12:52:14.934039",
+      "fitted_at": "2026-03-06T18:11:12.515174",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -55,10 +55,10 @@
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 50,
+      "n_features": 117,
       "config": {
         "missing_strategy": "median",
-        "scaler_type": "standard",
+        "scaler_type": "robust",
         "encoding_type": "label",
         "handle_outliers": true
       }
@@ -67,25 +67,34 @@
   "model": {
     "type": "two_stage",
     "params": {
-      "n_estimators": 300,
-      "learning_rate": 0.10866318080918577,
+      "n_estimators": 1156,
+      "learning_rate": 0.12144770862519673,
       "max_depth": 7,
-      "num_leaves": 38,
-      "min_child_samples": 40,
-      "subsample": 0.857116102762388,
-      "colsample_bytree": 0.721646561343565,
-      "reg_alpha": 0.6400899653736896,
-      "reg_lambda": 7.947957719016305,
-      "tweedie_variance_power": 1.0916812719218079,
-      "rain_threshold": 0.21996921961756769,
-      "predict_threshold": 0.448935197363175,
+      "num_leaves": 85,
+      "subsample": 0.6091710114249269,
+      "colsample_bytree": 0.8376152437286016,
+      "reg_alpha": 0.05334052363098962,
+      "reg_lambda": 0.48764005951695333,
+      "rain_threshold": 0.3619956234728133,
+      "predict_threshold": 0.5101754851914044,
+      "clf_params": {
+        "min_child_samples": 30,
+        "reg_alpha": 0.18241152260103172,
+        "reg_lambda": 0.32786171131318537
+      },
+      "reg_params": {
+        "objective": "huber",
+        "alpha": 3.0,
+        "min_child_samples": 15
+      },
+      "tweedie_variance_power": 1.5,
       "random_state": 42
     },
-    "model_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Model.pkl"
+    "model_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Model.pkl"
   },
   "artifacts": {
-    "feature_list": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Feature_list.json",
-    "metrics": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Metrics.json"
+    "feature_list": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Feature_list.json",
+    "metrics": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Metrics.json"
   },
   "note": "Artifacts saved to Weather_Forcast_App/Machine_learning_artifacts/latest"
 }
