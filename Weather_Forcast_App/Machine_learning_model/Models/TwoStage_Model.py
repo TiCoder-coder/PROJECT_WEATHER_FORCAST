@@ -252,7 +252,7 @@ class WeatherTwoStageModel:
         zero_ratio = 1.0 - n_rain / max(n_train, 1)
 
         if verbose:
-            print(f"🌧️  Two-Stage Model — Training")
+            print(f"[RAIN] Two-Stage Model - Training")
             print(f"   Train: {n_train} samples  ({n_rain} rain={1-zero_ratio:.1%}, {n_train-n_rain} dry={zero_ratio:.1%})")
             print(f"   Valid: {len(X_val_arr)} samples")
             print(f"   Features: {X_arr.shape[1]}")
@@ -263,7 +263,7 @@ class WeatherTwoStageModel:
         y_bin_val   = (y_val_arr > self.rain_threshold).astype(np.int32)
 
         if verbose:
-            print(f"\n── Stage 1: Classifier (rain vs no-rain, balanced weights)")
+            print(f"\n-- Stage 1: Classifier (rain vs no-rain, balanced weights)")
 
         callbacks_clf = self._fit_callbacks(early_stop=50)
         self.clf = LGBMClassifier(**self._get_clf_params())
@@ -290,7 +290,7 @@ class WeatherTwoStageModel:
 
         # ── 4. Stage 2: Tweedie Regressor ─────────────────────────── #
         if verbose:
-            print(f"\n── Stage 2: Tweedie Regressor (power={self.tweedie_variance_power})")
+            print(f"\n-- Stage 2: Tweedie Regressor (power={self.tweedie_variance_power})")
 
         callbacks_reg = self._fit_callbacks(early_stop=50)
         self.reg = LGBMRegressor(**self._get_reg_params())
@@ -321,8 +321,8 @@ class WeatherTwoStageModel:
         self.train_metrics_ = metrics
 
         if verbose:
-            print(f"\n── Combined Validation Results:")
-            print(f"   R²:                    {metrics['R2']:.4f}")
+            print(f"\n-- Combined Validation Results:")
+            print(f"   R2:                    {metrics['R2']:.4f}")
             print(f"   MAE:                   {metrics['MAE']:.4f}")
             print(f"   RMSE:                  {metrics['RMSE']:.4f}")
             print(f"   Rain Detection Acc:    {metrics['Rain_Detection_Accuracy']:.4f}")

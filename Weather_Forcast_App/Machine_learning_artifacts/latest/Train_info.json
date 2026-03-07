@@ -1,15 +1,15 @@
 {
-  "trained_at": "2026-03-06 18:11:13",
+  "trained_at": "2026-03-07 23:41:36",
   "project_root": "D:\\PROJECT_WEATHER_FORCAST",
   "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv",
+    "filename": "merged_vrain_data_cleaned_20260307_223506.clean_final.csv",
     "file_info": "None"
   },
   "schema_report": {
-    "rows_before": 7322,
-    "rows_after": 7322,
+    "rows_before": 13431,
+    "rows_after": 13431,
     "rows_dropped": 0,
     "note": "schema_validation_skipped"
   },
@@ -17,8 +17,8 @@
     "train_ratio": 0.7,
     "val_ratio": 0.15,
     "test_ratio": 0.15,
-    "shuffle": true,
-    "sort_by_time_if_possible": false,
+    "shuffle": false,
+    "sort_by_time_if_possible": true,
     "time_col_candidates": [
       "timestamp"
     ]
@@ -32,22 +32,22 @@
   "group_by": null,
   "feature_info": {
     "n_created_features": 40,
-    "n_total_feature_columns": 117,
+    "n_total_feature_columns": 50,
     "n_static_features_removed": 0,
-    "n_constant_features_removed": 19,
+    "n_constant_features_removed": 6,
     "feature_selection_enabled": true,
     "detected_data_type": "cross_sectional",
     "polynomial_features_added": true
   },
   "target_transform": {
-    "log1p_applied": true,
-    "target_zero_ratio": 0.8070243902439025
+    "log1p_applied": false,
+    "target_zero_ratio": 0.8240612700776513
   },
   "transform": {
     "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-06T18:11:12.515174",
+      "fitted_at": "2026-03-07T23:41:34.600406",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -55,10 +55,10 @@
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 117,
+      "n_features": 50,
       "config": {
         "missing_strategy": "median",
-        "scaler_type": "robust",
+        "scaler_type": "standard",
         "encoding_type": "label",
         "handle_outliers": true
       }
@@ -67,27 +67,18 @@
   "model": {
     "type": "two_stage",
     "params": {
-      "n_estimators": 1156,
-      "learning_rate": 0.12144770862519673,
+      "n_estimators": 300,
+      "learning_rate": 0.10866318080918577,
       "max_depth": 7,
-      "num_leaves": 85,
-      "subsample": 0.6091710114249269,
-      "colsample_bytree": 0.8376152437286016,
-      "reg_alpha": 0.05334052363098962,
-      "reg_lambda": 0.48764005951695333,
-      "rain_threshold": 0.3619956234728133,
-      "predict_threshold": 0.5101754851914044,
-      "clf_params": {
-        "min_child_samples": 30,
-        "reg_alpha": 0.18241152260103172,
-        "reg_lambda": 0.32786171131318537
-      },
-      "reg_params": {
-        "objective": "huber",
-        "alpha": 3.0,
-        "min_child_samples": 15
-      },
-      "tweedie_variance_power": 1.5,
+      "num_leaves": 38,
+      "min_child_samples": 40,
+      "subsample": 0.857116102762388,
+      "colsample_bytree": 0.721646561343565,
+      "reg_alpha": 0.6400899653736896,
+      "reg_lambda": 7.947957719016305,
+      "tweedie_variance_power": 1.0916812719218079,
+      "rain_threshold": 0.21996921961756769,
+      "predict_threshold": 0.448935197363175,
       "random_state": 42
     },
     "model_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Model.pkl"

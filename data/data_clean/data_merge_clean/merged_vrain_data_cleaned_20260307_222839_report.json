@@ -1,0 +1,25 @@
+{
+    "comparison": {
+        "rows_before": 7356,
+        "rows_after": 7356,
+        "columns_before": 43,
+        "columns_after": 43,
+        "missing_before": 210684,
+        "missing_after": 0
+    },
+    "cleaning_log": {
+        "negative_fixed": {},
+        "datatype_standardized": {
+            "timestamp": "→ datetime",
+            "data_time": "→ datetime"
+        }
+    },
+    "sample_data": [
+        {
+            "station_id": "Bạch Ngọc 1",
+            "station_name": "Bạch Ngọc 1",
+            "province": "Hà Giang",
+            "district": "Châu Thành",
+            "latitude": 14.988812177985947,
+            "longitude": 106.49841943793912,
+            "timestamp": 

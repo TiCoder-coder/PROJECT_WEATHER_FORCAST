@@ -632,7 +632,7 @@ def parse_args() -> argparse.Namespace:
 		"-o",
 		"--output",
 		type=Path,
-		default=ROOT / "forecast_results.csv",
+		default=ROOT / "data" / "data_forecast" / "forecast_results.csv",
 		help="Where to save predictions",
 	)
 

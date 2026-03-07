@@ -425,12 +425,25 @@ def perform_cleaning(data_df, filename, file_type="merged"):
     #   + cleaning_log: log các bước đã làm (negative_fixed, dtype conversions,...)
     #   + sample_data: 5 dòng đầu để frontend preview nhanh
     report_path = output_path.replace(".csv", "_report.json")
+
+    def _json_default(obj):
+        """Handle non-serializable types (Timestamp, NaT, etc.)."""
+        if isinstance(obj, pd.Timestamp):
+            return obj.isoformat() if not pd.isna(obj) else None
+        if isinstance(obj, (np.integer,)):
+            return int(obj)
+        if isinstance(obj, (np.floating,)):
+            return None if np.isnan(obj) else float(obj)
+        if isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+        return str(obj)
+
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump({
             "comparison": comparison,
             "cleaning_log": cleaning_log,
             "sample_data": data_df.head(5).to_dict(orient="records") if len(data_df) > 0 else []
-        }, f, ensure_ascii=False, indent=4)
+        }, f, ensure_ascii=False, indent=4, default=_json_default)
 
     # Return kết quả cho view:
     # - output_file: tên file cleaned để frontend download/hiển thị

@@ -111,7 +111,7 @@ class Command(BaseCommand):
             with open(info["artifacts"]["metrics"], encoding="utf-8") as f:
                 metrics = json.load(f)
 
-            self.stdout.write("\n── Metrics ──────────────────────────────────────")
+            self.stdout.write("\n-- Metrics --")
             for split in ("train", "valid", "test"):
                 m = metrics.get(split, {})
                 if m:
@@ -122,12 +122,12 @@ class Command(BaseCommand):
                     mae_str  = f"{mae:.4f}"  if isinstance(mae,     float) else str(mae)
                     acc_str  = f"{rain_acc:.4f}" if isinstance(rain_acc, float) else str(rain_acc)
                     self.stdout.write(
-                        f"  {split:5s}  R²={r2_str}  MAE={mae_str}  RainAcc={acc_str}"
+                        f"  {split:5s}  R2={r2_str}  MAE={mae_str}  RainAcc={acc_str}"
                     )
 
             diag = metrics.get("diagnostics", {})
             if diag:
-                self.stdout.write(f"\n── Diagnostics ──────────────────────────────────")
+                self.stdout.write(f"\n-- Diagnostics --")
                 self.stdout.write(f"  Overfit status : {diag.get('overfit_status', 'N/A')}")
                 self.stdout.write(f"  Details        : {diag.get('overfit_details', 'N/A')}")
         except Exception as e:
