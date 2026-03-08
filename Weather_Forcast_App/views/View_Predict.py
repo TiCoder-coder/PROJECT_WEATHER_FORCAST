@@ -19,7 +19,7 @@ import sys
 import io
 import csv
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -161,7 +161,7 @@ def _load_recent_predictions() -> List[Dict[str, Any]]:
                 "district": str(row.get("district", "")),
                 "rain_total": row.get("rain_total", ""),
                 "status": str(row.get("status", "")),
-                "timestamp": str(row.get("timestamp", "")),
+                "timestamp": str(row.get("forecast_for", row.get("timestamp", ""))),
                 "y_pred": round(float(row.get("y_pred", 0)), 4) if pd.notna(row.get("y_pred")) else "",
             })
         return rows
@@ -227,6 +227,11 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
         _push(job_id, f"📐 Features: {len(predictor.feature_columns)}")
         _set_progress(job_id, 40, "Đang dự báo...")
 
+        # Lấy forecast_horizon từ model
+        forecast_horizon = predictor.train_info.get("forecast_horizon", 0)
+        if forecast_horizon > 0:
+            _push(job_id, f"🔮 Forecast mode: dự báo trước {forecast_horizon} bước")
+
         # Chạy prediction
         result = predictor.predict(df)
         predictions = result["predictions"]
@@ -239,6 +244,16 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
 
         # Gắn y_pred vào DataFrame gốc
         df["y_pred"] = predictions
+
+        # Cập nhật timestamp → thời điểm dự báo (tương lai nếu có forecast_horizon)
+        now = datetime.now()
+        if forecast_horizon > 0:
+            forecast_dt = now + timedelta(hours=forecast_horizon)
+            forecast_str = forecast_dt.strftime("%Y-%m-%d %H:%M:%S")
+            df["forecast_for"] = forecast_str
+            _push(job_id, f"🔮 Dự báo cho: {forecast_str} (hiện tại + {forecast_horizon}h)")
+        else:
+            df["forecast_for"] = now.strftime("%Y-%m-%d %H:%M:%S")
 
         # Lưu file kết quả
         output_dir = ML_MODEL_ROOT / "WeatherForcast"
@@ -266,7 +281,7 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
         preview_rows = []
         preview_df = df.head(20)
         cols_to_show = []
-        for c in ["station_name", "province", "district", "timestamp", "rain_total", "status", "y_pred"]:
+        for c in ["station_name", "province", "district", "forecast_for", "rain_total", "status", "y_pred"]:
             if c in preview_df.columns:
                 cols_to_show.append(c)
         if not cols_to_show:
@@ -295,6 +310,7 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
                 "min": round(float(np.min(pred_arr)), 4),
                 "max": round(float(np.max(pred_arr)), 4),
                 "prediction_time": round(pred_time, 2),
+                "forecast_horizon_hours": forecast_horizon,
             }
 
     except Exception as e:
@@ -501,6 +517,15 @@ def predict_manual_view(request):
 
         result = predictor.predict(df)
         predictions = result["predictions"]
+        forecast_horizon = result.get("forecast_horizon", 0)
+
+        # Tính thời điểm dự báo (tương lai)
+        now = datetime.now()
+        forecast_dt = now + timedelta(hours=forecast_horizon) if forecast_horizon > 0 else now
+        forecast_str = forecast_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        # Lấy predict_threshold từ model config
+        predict_threshold = predictor.train_info.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
 
         # Build response
         response_rows = []
@@ -510,7 +535,8 @@ def predict_manual_view(request):
                 "station_name": str(row.get("station_name", "Thủ công")),
                 "province": str(row.get("province", "")),
                 "y_pred": round(pred_val, 4),
-                "rain_status": "Mưa" if pred_val > 0.5 else "Không mưa",
+                "rain_status": "Mưa" if pred_val > predict_threshold else "Không mưa",
+                "forecast_for": forecast_str,
             }
             response_rows.append(r)
 
@@ -519,6 +545,12 @@ def predict_manual_view(request):
         return JsonResponse({
             "ok": True,
             "predictions": response_rows,
+            "forecast_info": {
+                "forecast_horizon_hours": forecast_horizon,
+                "data_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+                "forecast_for": forecast_str,
+                "description": f"Dự báo lượng mưa sau {forecast_horizon} giờ tới" if forecast_horizon > 0 else "Dự báo tại thời điểm hiện tại",
+            },
             "stats": {
                 "n_samples": len(response_rows),
                 "mean": round(float(np.mean(pred_arr)), 4),
@@ -542,3 +574,197 @@ def predict_model_info_view(request):
     """API: trả về thông tin model hiện tại."""
     info = _load_model_info()
     return JsonResponse({"ok": True, "model_info": info})
+
+
+# ────────────────────────────────────────────────────────────────
+# FORECAST NOW: Crawl dữ liệu mới → Predict ngay lập tức
+# ────────────────────────────────────────────────────────────────
+
+def _forecast_now_worker(job_id: str) -> None:
+    """Crawl fresh data từ API → chạy prediction ngay."""
+    old_stdout = sys.stdout
+    try:
+        _push(job_id, "🌐 Bắt đầu thu thập dữ liệu thời tiết mới nhất...")
+        _set_progress(job_id, 5, "Khởi tạo crawler")
+
+        sys.stdout = _LogCapture(job_id)
+
+        # Import crawler & locations
+        from Weather_Forcast_App.scripts.Crawl_data_by_API import (
+            VietnamWeatherDataCrawler,
+            vietnam_locations,
+        )
+
+        crawler = VietnamWeatherDataCrawler()
+        locations = vietnam_locations
+
+        _push(job_id, f"📍 Tổng số trạm: {len(locations)}")
+        _set_progress(job_id, 10, "Đang crawl dữ liệu...")
+
+        # Crawl với delay nhỏ hơn để nhanh hơn
+        weather_data = crawler.crawl_all_locations(locations, delay=0.5)
+
+        if not weather_data:
+            _push(job_id, "❌ Không crawl được dữ liệu nào!")
+            _set_progress(job_id, 100, "Lỗi")
+            with _LOCK:
+                _JOBS[job_id]["status"] = "error"
+                _JOBS[job_id]["result"] = "Không crawl được dữ liệu"
+            return
+
+        _push(job_id, f"✅ Crawl xong: {len(weather_data)} trạm")
+        _set_progress(job_id, 50, "Chuẩn bị dữ liệu")
+
+        # Tạo DataFrame từ dữ liệu vừa crawl
+        df = pd.DataFrame(weather_data)
+
+        # Load predictor
+        from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
+        predictor = WeatherPredictor.from_artifacts(str(ML_ARTIFACTS_LATEST))
+
+        forecast_horizon = predictor.train_info.get("forecast_horizon", 0)
+        now = datetime.now()
+
+        # GIỮ NGUYÊN timestamp = thời điểm hiện tại cho feature builder
+        # (model train với features tại t → predict target tại t + forecast_horizon)
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        df["timestamp"] = now_str
+
+        _push(job_id, f"📊 DataFrame: {len(df)} dòng, {len(df.columns)} cột")
+        _push(job_id, f"🕒 Dữ liệu thời tiết tại: {now_str}")
+        _set_progress(job_id, 60, "Load model")
+
+        _push(job_id, f"🤖 Model: {type(predictor.model).__name__}")
+        _push(job_id, f"🎯 Target: {predictor.target_column}")
+        _set_progress(job_id, 70, "Đang dự báo...")
+
+        # Chạy prediction (features tại thời điểm hiện tại → dự báo tương lai)
+        result = predictor.predict(df)
+        predictions = result["predictions"]
+        pred_time = result["prediction_time"]
+
+        sys.stdout = old_stdout
+
+        # Sau khi predict xong, cập nhật timestamp → thời điểm dự báo (tương lai)
+        forecast_dt = now + timedelta(hours=forecast_horizon) if forecast_horizon > 0 else now
+        forecast_str = forecast_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        _push(job_id, f"✅ Dự báo xong! {len(predictions)} kết quả trong {pred_time:.2f}s")
+        if forecast_horizon > 0:
+            _push(job_id, f"🔮 Kết quả dự báo cho: {forecast_str} (hiện tại + {forecast_horizon}h)")
+        _set_progress(job_id, 85, "Lưu kết quả")
+
+        # Gắn y_pred vào DataFrame
+        df["y_pred"] = predictions
+        df["timestamp"] = forecast_str  # Hiển thị thời điểm tương lai trong output
+        df["forecast_for"] = forecast_str  # Thời điểm dự báo
+        df["data_collected_at"] = now_str  # Thời điểm thu thập dữ liệu
+
+        # Thêm cột status dựa trên y_pred (dự báo)
+        predict_threshold = predictor.train_info.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
+        df["status"] = np.where(np.array(predictions) > predict_threshold, "Mưa", "Không mưa")
+
+        # Lưu file kết quả
+        output_dir = ML_MODEL_ROOT / "WeatherForcast"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / "predictions.csv"
+        df.to_csv(output_path, index=False)
+        _push(job_id, f"💾 Đã lưu: {output_path.name}")
+
+        # Tính statistics
+        pred_arr = np.array(predictions, dtype=float)
+        _push(job_id, f"📊 Mean prediction: {np.mean(pred_arr):.4f}")
+        _push(job_id, f"📊 Std prediction: {np.std(pred_arr):.4f}")
+        _push(job_id, f"📊 Min: {np.min(pred_arr):.4f}, Max: {np.max(pred_arr):.4f}")
+
+        # Preview rows
+        preview_rows = []
+        preview_df = df.head(20)
+        cols_to_show = []
+        for c in ["station_name", "province", "district", "forecast_for", "data_collected_at", "status", "y_pred"]:
+            if c in preview_df.columns:
+                cols_to_show.append(c)
+        if not cols_to_show:
+            cols_to_show = list(preview_df.columns[:7])
+
+        for _, row in preview_df.iterrows():
+            r = {}
+            for c in cols_to_show:
+                val = row[c]
+                if isinstance(val, float):
+                    r[c] = round(val, 4) if pd.notna(val) else ""
+                else:
+                    r[c] = str(val) if pd.notna(val) else ""
+            preview_rows.append(r)
+
+        _set_progress(job_id, 100, "Hoàn tất")
+        with _LOCK:
+            _JOBS[job_id]["status"] = "done"
+            _JOBS[job_id]["result"] = "success"
+            _JOBS[job_id]["preview"] = preview_rows
+            _JOBS[job_id]["preview_columns"] = cols_to_show
+            _JOBS[job_id]["stats"] = {
+                "n_samples": len(predictions),
+                "mean": round(float(np.mean(pred_arr)), 4),
+                "std": round(float(np.std(pred_arr)), 4),
+                "min": round(float(np.min(pred_arr)), 4),
+                "max": round(float(np.max(pred_arr)), 4),
+                "prediction_time": round(pred_time, 2),
+                "forecast_horizon_hours": forecast_horizon,
+                "data_collected_at": now_str,
+                "forecast_for": forecast_str,
+            }
+
+    except Exception as e:
+        _push(job_id, f"❌ Lỗi: {str(e)}")
+        _push(job_id, traceback.format_exc())
+        _set_progress(job_id, 100, "Lỗi")
+        with _LOCK:
+            _JOBS[job_id]["status"] = "error"
+            _JOBS[job_id]["result"] = str(e)
+    finally:
+        sys.stdout = old_stdout
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def predict_forecast_now_view(request):
+    """Crawl dữ liệu mới nhất từ API → chạy prediction ngay lập tức."""
+
+    # Kiểm tra job đang chạy
+    with _LOCK:
+        for jid, jdata in _JOBS.items():
+            if jdata.get("status") == "running":
+                return JsonResponse({
+                    "ok": False,
+                    "error": f"Đang có job chạy (ID: {jid}). Vui lòng chờ."
+                }, status=409)
+
+    # Kiểm tra model
+    model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
+    if not model_path.exists():
+        return JsonResponse({
+            "ok": False,
+            "error": "Chưa có model đã train. Vui lòng huấn luyện trước."
+        }, status=400)
+
+    # Tạo job
+    job_id = str(uuid.uuid4())[:8]
+    with _LOCK:
+        _JOBS[job_id] = {
+            "status": "running",
+            "logs": [],
+            "progress": 0,
+            "step": "Khởi tạo",
+            "started_at": _now(),
+            "file_path": "(crawl mới)",
+            "result": None,
+            "preview": [],
+            "preview_columns": [],
+            "stats": {},
+        }
+
+    t = threading.Thread(target=_forecast_now_worker, args=(job_id,), daemon=True)
+    t.start()
+
+    return JsonResponse({"ok": True, "job_id": job_id})

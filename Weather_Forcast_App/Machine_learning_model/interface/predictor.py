@@ -206,10 +206,14 @@ class WeatherPredictor:
 
         elapsed = (datetime.now() - start).total_seconds()
 
+        # Lấy forecast_horizon từ train_info (nếu model được train ở chế độ forecast)
+        forecast_horizon = self.train_info.get("forecast_horizon", 0)
+
         return {
             "predictions": np.array(preds),
             "prediction_time": elapsed,
             "n_samples": len(df),
+            "forecast_horizon": forecast_horizon,
         }
 
     def get_info(self) -> Dict[str, Any]:
@@ -220,6 +224,7 @@ class WeatherPredictor:
             "n_features": len(self.feature_columns),
             "has_pipeline": self.pipeline is not None,
             "has_feature_builder": self.feature_builder is not None,
+            "forecast_horizon": self.train_info.get("forecast_horizon", 0),
         }
         if self.pipeline is not None and hasattr(self.pipeline, "get_pipeline_info"):
             info["pipeline_info"] = self.pipeline.get_pipeline_info()

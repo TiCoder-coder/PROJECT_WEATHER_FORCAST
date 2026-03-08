@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const $btnRunUpload  = document.getElementById('btnRunUpload');
   const $btnRunManual  = document.getElementById('btnRunManual');
   const $btnResetManual = document.getElementById('btnResetManual');
+  const $btnForecastNow = document.getElementById('btnForecastNow');
   const $btnRefresh    = document.getElementById('btnRefreshDatasets');
   const $btnToggleRecent = document.getElementById('btnToggleRecent');
 
@@ -206,16 +207,27 @@ document.addEventListener('DOMContentLoaded', () => {
   // Generic prediction submit
   // ═══════════════════════════════════════════════
   async function submitPrediction(formData, submitBtn) {
+    return submitPredictionToUrl('/predict/run/', formData, submitBtn);
+  }
+
+  async function submitPredictionToUrl(url, formDataOrBody, submitBtn, isJson = false) {
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = '⏳ Đang khởi chạy...';
     }
 
     try {
-      const resp = await fetch('/predict/run/', {
+      const headers = { 'X-CSRFToken': CSRF };
+      let body = formDataOrBody;
+      if (isJson) {
+        headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(formDataOrBody);
+      }
+
+      const resp = await fetch(url, {
         method: 'POST',
-        headers: { 'X-CSRFToken': CSRF },
-        body: formData,
+        headers,
+        body,
       });
 
       const data = await resp.json();
@@ -244,6 +256,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetAllButtons() {
     resetButton($btnRunDataset);
     resetButton($btnRunUpload);
+    if ($btnForecastNow) {
+      $btnForecastNow.disabled = false;
+      $btnForecastNow.textContent = '⚡ Dự báo ngay';
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // Forecast Now button
+  // ═══════════════════════════════════════════════
+  if ($btnForecastNow) {
+    $btnForecastNow.addEventListener('click', async () => {
+      await submitPredictionToUrl('/predict/forecast-now/', {}, $btnForecastNow, true);
+    });
   }
 
   // ═══════════════════════════════════════════════

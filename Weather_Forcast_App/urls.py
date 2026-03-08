@@ -80,6 +80,7 @@ from .views.View_Predict import (
     predict_tail_view,
     predict_manual_view,
     predict_model_info_view,
+    predict_forecast_now_view,
 )
 
 # ============================================================
@@ -279,6 +280,10 @@ urlpatterns = [
     # 6C.5) THÔNG TIN MODEL
     # Method: GET
     path("predict/model-info/", predict_model_info_view, name="predict_model_info"),
+    
+    # 6C.6) DỰ BÁO NGAY (Crawl mới + Predict)
+    # Method: POST
+    path("predict/forecast-now/", predict_forecast_now_view, name="predict_forecast_now"),
     
     
     # ============================================================

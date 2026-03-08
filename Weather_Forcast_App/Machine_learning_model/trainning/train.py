@@ -475,10 +475,13 @@ def _build_features_for_split(
     df: pd.DataFrame,
     target_col: str,
     group_by: Optional[str] = None,
+    forecast_horizon: int = 0,
+    leaked_columns: Optional[List[str]] = None,
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Build features từ raw df.
     - Giữ target y riêng.
+    - Nếu forecast_horizon > 0: shift target lên (predict tương lai)
     - Trả về: X_df, y_series
     """
     if target_col not in df.columns:
@@ -487,9 +490,28 @@ def _build_features_for_split(
     # Build features (builder tự sort/time/lag/rolling/...)
     df_feat = builder.build_all_features(df, target_column=target_col, group_by=group_by)
 
+    # Shift target để dự báo tương lai:
+    # shift(-N) nghĩa là: dòng t sẽ có target = rain_total tại t+N
+    # => model học: features hiện tại → rain tương lai
+    if forecast_horizon > 0:
+        if group_by and group_by in df_feat.columns:
+            df_feat[target_col] = df_feat.groupby(group_by)[target_col].shift(-forecast_horizon)
+        else:
+            df_feat[target_col] = df_feat[target_col].shift(-forecast_horizon)
+        # Drop rows cuối cùng (không có target tương lai)
+        df_feat = df_feat.dropna(subset=[target_col])
+        print(f"  [FORECAST] Shifted target by -{forecast_horizon} rows. Remaining: {len(df_feat)} rows")
+
     # tách y ra khỏi X
     y = df_feat[target_col].copy()
     X = df_feat.drop(columns=[target_col])
+
+    # Loại bỏ cột bị "rò rỉ" (leaked) — cùng thời điểm với target
+    if leaked_columns:
+        cols_to_drop = [c for c in leaked_columns if c in X.columns]
+        if cols_to_drop:
+            X = X.drop(columns=cols_to_drop)
+            print(f"  [FORECAST] Removed {len(cols_to_drop)} leaked columns: {cols_to_drop[:5]}...")
 
     return X, y
 
@@ -503,6 +525,13 @@ def _create_model(model_type: str, model_config: Dict[str, Any]):
     Sử dụng dynamic import để giảm số dòng code.
     """
     model_type = (model_type or "").lower().strip()
+
+    # Ensure Django apps are loaded before importing Django-based models
+    import os
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WeatherForcast.settings")
+    import django
+    django.setup()
+
     if model_type == "ensemble":
         base_models = model_config.get("base_models", [])
         from Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Model import WeatherEnsembleModel
@@ -673,9 +702,29 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     
     builder = WeatherFeatureBuilder(config=feature_cfg or None)
 
-    X_train_raw, y_train = _build_features_for_split(builder, df_train, target_col=target_col, group_by=group_by)
-    X_valid_raw, y_valid = _build_features_for_split(builder, df_valid_split, target_col=target_col, group_by=group_by)
-    X_test_raw, y_test = _build_features_for_split(builder, df_test, target_col=target_col, group_by=group_by)
+    # --- FORECAST HORIZON: shift target để dự báo tương lai ---
+    forecast_horizon = int(config.get("forecast_horizon", 0))
+    leaked_columns: List[str] = []
+    if forecast_horizon > 0:
+        print(f"  [FORECAST] forecast_horizon = {forecast_horizon} rows")
+        print(f"  [FORECAST] Model se du bao rain_total sau {forecast_horizon} buoc thoi gian")
+        # Các cột rain cùng thời điểm → rò rỉ thông tin từ tương lai nếu dùng để predict tương lai
+        leaked_columns = config.get("leaked_columns", [
+            "rain_current", "rain_avg", "rain_max", "rain_min",
+        ])
+
+    X_train_raw, y_train = _build_features_for_split(
+        builder, df_train, target_col=target_col, group_by=group_by,
+        forecast_horizon=forecast_horizon, leaked_columns=leaked_columns,
+    )
+    X_valid_raw, y_valid = _build_features_for_split(
+        builder, df_valid_split, target_col=target_col, group_by=group_by,
+        forecast_horizon=forecast_horizon, leaked_columns=leaked_columns,
+    )
+    X_test_raw, y_test = _build_features_for_split(
+        builder, df_test, target_col=target_col, group_by=group_by,
+        forecast_horizon=forecast_horizon, leaked_columns=leaked_columns,
+    )
 
     # --- ANTI-UNDERFIT: Remove constant/near-constant features ---
     X_train_raw, removed_const = _remove_constant_features(X_train_raw)
@@ -738,6 +787,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "created_features": created_feature_names,
         "all_feature_columns": all_feature_columns,
         "target_column": target_col,
+        "forecast_horizon": forecast_horizon,
         "generated_at": _now_tag(),
         "group_by": group_by,
         "removed_static_features": removed_static,
@@ -1046,6 +1096,8 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "split_saved_paths": split_paths,
         "target_column": target_col,
         "group_by": group_by,
+        "forecast_horizon": forecast_horizon,
+        "leaked_columns_removed": leaked_columns if forecast_horizon > 0 else [],
         "feature_info": {
             "n_created_features": int(len(created_feature_names)),
             "n_total_feature_columns": int(len(all_feature_columns)),

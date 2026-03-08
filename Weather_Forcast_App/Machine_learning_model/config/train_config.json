@@ -1,10 +1,14 @@
 {
   "data": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv"
+    "filename": "cleaned_merge_historical_hourly_20260308_165309.csv"
   },
   "skip_schema_validation": true,
   "target_column": "rain_total",
+  "forecast_horizon": 24,
+  "leaked_columns": [
+    "rain_current", "rain_avg", "rain_max", "rain_min"
+  ],
   "features": {
     "input_columns": [
       "latitude",
@@ -44,16 +48,16 @@
       "visibility_avg",
       "thunder_probability"
     ],
-    "lag_features": false,
+    "lag_features": true,
     "rolling_features": false,
     "difference_features": false,
     "time_features": true,
     "location_features": true,
-    "interaction_features": true
+    "interaction_features": false
   },
   "auto_detect_data_type": true,
   "polynomial_features": {
-    "enabled": true,
+    "enabled": false,
     "degree": 2,
     "top_k_corr": 8
   },
