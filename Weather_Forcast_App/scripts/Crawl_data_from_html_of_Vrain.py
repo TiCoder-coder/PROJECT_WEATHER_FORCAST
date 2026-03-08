@@ -68,10 +68,13 @@ import csv
 import time
 from pathlib import Path
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+VN_TZ = ZoneInfo("Asia/Bangkok")
 
 # === CẤU HÌNH SELENIUM ===
 options = webdriver.ChromeOptions()
@@ -94,12 +97,12 @@ hour_match = re.search(r"Tính từ\s*(\d{1,2})h", all_text)
 if date_match and hour_match:
     date_from_main = date_match.group(1)
     hour_from_main = hour_match.group(1)
-    current_year = datetime.now().strftime("%Y")
+    current_year = datetime.now(VN_TZ).strftime("%Y")
     unified_datetime_info = f"{date_from_main}/{current_year} {hour_from_main}:00"
     print(f"  Đã lấy ngày và giờ cập nhật từ trang chủ: {unified_datetime_info}")
 elif date_match:
     date_from_main = date_match.group(1)
-    current_year = datetime.now().strftime("%Y")
+    current_year = datetime.now(VN_TZ).strftime("%Y")
     unified_datetime_info = f"{date_from_main}/{current_year}"
     print(
         f"  Đã lấy ngày cập nhật từ trang chủ (không có giờ): {unified_datetime_info}"
@@ -107,9 +110,9 @@ elif date_match:
 else:
     unified_datetime_info = "N/A"
     print("  Cảnh báo: Không tìm thấy ngày cập nhật. Sử dụng ngày và giờ hiện tại.")
-    unified_datetime_info = datetime.now().strftime("%d/%m/%Y %H:%M")
+    unified_datetime_info = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
 
-current_crawl_datetime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+current_crawl_datetime = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M:%S")
 
 # Danh sách các URL tỉnh thành
 province_urls = [
@@ -154,7 +157,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = _PROJECT_ROOT / "data" / "data_crawl"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+timestamp = datetime.now(VN_TZ).strftime("%Y%m%d_%H%M%S")
 csv_path = OUTPUT_DIR / f"Bao_cao_{timestamp}.csv"
 
 with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
@@ -272,3 +275,4 @@ except Exception as e:
 print("\n" + "=" * 50)
 print(f"Hoàn thành! Thời gian crawl: {current_crawl_datetime}")
 print(f"Dữ liệu đã được lưu vào: {csv_path}")
+VN_TZ = ZoneInfo("Asia/Bangkok")
