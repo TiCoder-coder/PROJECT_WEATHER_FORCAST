@@ -807,6 +807,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         sample_weight = np.where(y_train > 0, weight_ratio, 1.0)
         print(f"  [SAMPLE WEIGHT] Applied sample_weight: non-zero={weight_ratio:.2f}x, zero=1.0x")
 
+    _train_start = datetime.now()
     # Wrapper thường có model.train(X, y, ...) - truyền X_val, y_val cho early stopping
     if hasattr(model, "train"):
         import inspect
@@ -841,6 +842,9 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     else:
         raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
 
+    _training_time_sec = round((datetime.now() - _train_start).total_seconds(), 2)
+    print(f"  [TRAIN] Completed in {_training_time_sec}s")
+
     # --------------------------
     # (8) Evaluate metrics - Sử dụng module metrics.py
     # --------------------------
@@ -848,6 +852,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
         "generated_at": _now_tag(),
         "model_type": model_type,
         "applied_log_target": applied_log_target,
+        "training_time_seconds": _training_time_sec,
     }
 
     def _evaluate_set(X, y_original):
@@ -868,7 +873,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
             y_pred = y_pred_raw
         
         y_actual = np.array(y_original)
-        result = calculate_all_metrics(y_actual, y_pred, n_features=X.shape[1])
+        result = calculate_all_metrics(y_actual, y_pred, n_features=X.shape[1], include_weather_metrics=True)
         
         # Thêm metrics riêng cho non-zero values (quan trọng cho rain prediction)
         non_zero_mask = y_actual > 0

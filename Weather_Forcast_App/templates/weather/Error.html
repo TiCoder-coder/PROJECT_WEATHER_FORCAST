@@ -1,5 +1,6 @@
+{% load i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <title>{{ error_title }}</title>
@@ -67,11 +68,11 @@
         <p>{{ error_message }}</p>
         {% if error_detail %}
         <div class="error-detail">
-            <strong>Chi tiết lỗi:</strong><br>
+            <strong>{% t "error.detail_label" %}:</strong><br>
             {{ error_detail }}
         </div>
         {% endif %}
-        <a href="{{ back_url }}" class="back-btn">📋 Quay lại danh sách</a>
+        <a href="{{ back_url }}" class="back-btn">📋 {% t "error.back_list" %}</a>
     </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,8 +53,8 @@
             <div class="sidebar__logo">
                 <div class="sidebar__logo-circle">WF</div>
                 <div class="sidebar__logo-text">
-                    <span class="sidebar__logo-title">Dự báo thời tiết</span>
-                    <span class="sidebar__logo-sub">Xem dữ liệu</span>
+                    <span class="sidebar__logo-title">{% t "app.title" %}</span>
+                    <span class="sidebar__logo-sub">{% t "dataset_preview.sidebar_sub" %}</span>
                 </div>
             </div>
             {% include 'weather/Sidebar_nav.html' %}
@@ -78,17 +78,17 @@
             </div>
 
             <div class="file-actions">
-                <a href="{{ referer_url }}" class="back-btn">📋 QUAY LẠI</a>
+                <a href="{{ referer_url }}" class="back-btn">📋 {% t "dataset_preview.back" %}</a>
             </div>
         </div>
 
         
         <div class="file-info">
-            <strong>📁 Thư mục:</strong> {{ folder }}<br>
-            <strong>📏 Kích thước:</strong> {{ file_size_kb|floatformat:2 }} KB<br>
+            <strong>📁 {% t "dataset_preview.folder_label" %}:</strong> {{ folder }}<br>
+            <strong>📐 {% t "dataset_preview.size_label" %}:</strong> {{ file_size_kb|floatformat:2 }} KB<br>
             {% if is_table %}
-                <strong>📊 Tổng số dòng:</strong> <span id="totalRows">{{ total_rows }}</span><br>
-                <strong>👁️ Đang hiển thị:</strong> <span id="showingRows">{{ showing_rows }}</span> dòng đầu
+                <strong>📊 {% t "dataset_preview.total_rows_label" %}:</strong> <span id="totalRows">{{ total_rows }}</span><br>
+                <strong>👁️ {% t "dataset_preview.showing_label" %}:</strong> <span id="showingRows">{{ showing_rows }}</span> {% t "dataset_preview.rows_suffix" %}
             {% endif %}
         </div>
         
@@ -120,7 +120,7 @@
         {% endif %}
         
         <div class="action-buttons">
-            <a href="{{ referer_url }}" class="back-btn">📋 Quay lại danh sách</a>
+            <a href="{{ referer_url }}" class="back-btn">📋 {% t "dataset_preview.back" %}</a>
             <a href="{{ download_url }}" class="back-btn" style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white;">
                 ⬇️ Tải toàn bộ file
             </a>
@@ -130,8 +130,8 @@
     {% if is_table %}
     <script>
         let currentPage = 1;
-        const rowsPerPage = {{ rows_per_page }};
-        let totalRows = {{ total_rows }};
+        const rowsPerPage = parseInt("{{ rows_per_page }}", 10);
+        let totalRows = parseInt("{{ total_rows }}", 10);
         let totalPages = Math.ceil(totalRows / rowsPerPage);
         
         function createPagination() {
@@ -248,30 +248,31 @@
         });
     </script>
     {% endif %}
-</body>
-<script>
-(function(){
-  const layer = document.querySelector('.fx-lightning');
-  if (!layer) return;
 
-  function flashOnce(){
-    layer.classList.add('flash');
-    setTimeout(() => layer.classList.remove('flash'), 200);
-  }
+    <script>
+    (function(){
+      const layer = document.querySelector('.fx-lightning');
+      if (!layer) return;
 
-  function loop(){
-    const next = 2500 + Math.random() * 7000;
-    setTimeout(() => {
-      flashOnce();
-      if (Math.random() < 0.25) setTimeout(flashOnce, 180);
-      loop();
-    }, next);
-  }
-  setTimeout(loop, 1500 + Math.random() * 1500);
-})();
-</script>
+      function flashOnce(){
+        layer.classList.add('flash');
+        setTimeout(() => layer.classList.remove('flash'), 200);
+      }
+
+      function loop(){
+        const next = 2500 + Math.random() * 7000;
+        setTimeout(() => {
+          flashOnce();
+          if (Math.random() < 0.25) setTimeout(flashOnce, 180);
+          loop();
+        }, next);
+      }
+      setTimeout(loop, 1500 + Math.random() * 1500);
+    })();
+    </script>
 
         </main>
     </div><!-- /layout -->
 
+</body>
 </html>

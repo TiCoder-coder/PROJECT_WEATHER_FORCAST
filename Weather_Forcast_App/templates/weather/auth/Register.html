@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký - VN Weather Hub</title>
+    <title>{% t "auth.register.page_title" %}</title>
     <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=1002993">
     <style>
         .auth-messages {
@@ -120,8 +120,8 @@
                         </div>
                     </div>
                 </div>
-                <h1 class="auth-title">Đăng ký tài khoản</h1>
-                <p class="auth-subtitle">Tạo tài khoản mới để sử dụng đầy đủ tính năng</p>
+                <h1 class="auth-title">{% t "auth.register.title" %}</h1>
+                <p class="auth-subtitle">{% t "auth.register.subtitle" %}</p>
             </div>
 
             {% if messages %}
@@ -146,7 +146,7 @@
                     <div class="form-group animated-input" style="margin-bottom: 0;">
                         <label for="first_name" class="form-label">
                             <span class="label-icon">📝</span>
-                            Họ <span style="color: #ef4444;">*</span>
+                            {% t "auth.register.first_name_label" %} <span style="color: #ef4444;">*</span>
                         </label>
                         <div class="input-wrapper">
                             <input
@@ -154,7 +154,7 @@
                                 id="first_name"
                                 name="first_name"
                                 class="form-input"
-                                placeholder="Họ"
+                                placeholder="{% t 'auth.register.first_name_placeholder' %}"
                                 value="{{ form_data.first_name|default:'' }}"
                                 required
                             >
@@ -165,7 +165,7 @@
                     <div class="form-group animated-input" style="margin-bottom: 0;">
                         <label for="last_name" class="form-label">
                             <span class="label-icon">📝</span>
-                            Tên <span style="color: #ef4444;">*</span>
+                            {% t "auth.register.last_name_label" %} <span style="color: #ef4444;">*</span>
                         </label>
                         <div class="input-wrapper">
                             <input
@@ -173,7 +173,7 @@
                                 id="last_name"
                                 name="last_name"
                                 class="form-input"
-                                placeholder="Tên"
+                                placeholder="{% t 'auth.register.last_name_placeholder' %}"
                                 value="{{ form_data.last_name|default:'' }}"
                                 required
                             >
@@ -185,7 +185,7 @@
                 <div class="form-group animated-input">
                     <label for="username" class="form-label">
                         <span class="label-icon">👤</span>
-                        Tên đăng nhập <span style="color: #ef4444;">*</span>
+                        {% t "auth.register.username_label" %} <span style="color: #ef4444;">*</span>
                     </label>
                     <div class="input-wrapper">
                         <input
@@ -193,7 +193,7 @@
                             id="username"
                             name="username"
                             class="form-input"
-                            placeholder="Nhập tên đăng nhập (3-30 ký tự)"
+                            placeholder="{% t 'auth.register.username_placeholder' %}"
                             value="{{ form_data.username|default:'' }}"
                             required
                             autofocus
@@ -204,14 +204,14 @@
                         <span class="input-border"></span>
                     </div>
                     <span class="form-hint" style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: block;">
-                        Chỉ chứa chữ cái, số và dấu gạch dưới (_)
+                        {% t "auth.register.username_hint" %}
                     </span>
                 </div>
 
                 <div class="form-group animated-input">
                     <label for="email" class="form-label">
                         <span class="label-icon">📧</span>
-                        Email <span style="color: #ef4444;">*</span>
+                        {% t "auth.register.email_label" %} <span style="color: #ef4444;">*</span>
                     </label>
                     <div class="input-wrapper">
                         <input
@@ -228,14 +228,14 @@
                     </div>
                     <div class="email-hint">
                         <span class="hint-icon">💡</span>
-                        <span>Sử dụng email thật (Gmail, Yahoo, Outlook...) để nhận mã xác thực. Không dùng ký tự có dấu.</span>
+                        <span>{% t "auth.register.email_hint" %}</span>
                     </div>
                 </div>
 
                 <div class="form-group animated-input">
                     <label for="password" class="form-label">
                         <span class="label-icon">🔒</span>
-                        Mật khẩu <span style="color: #ef4444;">*</span>
+                        {% t "auth.register.password_label" %} <span style="color: #ef4444;">*</span>
                     </label>
                     <div class="input-wrapper">
                         <input
@@ -243,7 +243,7 @@
                             id="password"
                             name="password"
                             class="form-input"
-                            placeholder="Tối thiểu 8 ký tự"
+                            placeholder="{% t 'auth.register.password_placeholder' %}"
                             required
                             minlength="8"
                         >
@@ -269,7 +269,7 @@
                 <div class="form-group animated-input">
                     <label for="confirm_password" class="form-label">
                         <span class="label-icon">🔒</span>
-                        Xác nhận mật khẩu <span style="color: #ef4444;">*</span>
+                        {% t "auth.register.confirm_password_label" %} <span style="color: #ef4444;">*</span>
                     </label>
                     <div class="input-wrapper">
                         <input
@@ -277,7 +277,7 @@
                             id="confirm_password"
                             name="confirm_password"
                             class="form-input"
-                            placeholder="Nhập lại mật khẩu"
+                            placeholder="{% t 'auth.register.confirm_password_placeholder' %}"
                             required
                         >
                         <span class="input-border"></span>
@@ -286,7 +286,7 @@
 
                 <button type="submit" class="btn btn-primary btn-full btn-glow">
                     <span class="btn-ripple"></span>
-                    <span class="btn-text">Đăng ký</span>
+                    <span class="btn-text">{% t "auth.register.submit" %}</span>
                     <span class="btn-icon">✓</span>
                 </button>
             </form>
@@ -294,9 +294,9 @@
             <div class="auth-footer">
                 <div class="auth-divider-line"></div>
                 <div class="auth-links">
-                    <span style="color: #94a3b8; font-size: 13px;">Đã có tài khoản?</span>
+                    <span style="color: #94a3b8; font-size: 13px;">{% t "auth.register.has_account" %}</span>
                     <a href="{% url 'weather:login' %}" class="auth-link hover-slide">
-                        <span class="link-text">Đăng nhập ngay</span>
+                        <span class="link-text">{% t "auth.register.login_link" %}</span>
                         <span class="link-icon">→</span>
                     </a>
                 </div>
@@ -306,7 +306,7 @@
         <div class="auth-extra">
             <a href="{% url 'weather:home' %}" class="back-home glass-button">
                 <span class="home-icon">🏠</span>
-                <span class="home-text">Về trang chủ</span>
+                <span class="home-text">{% t "auth.register.back_home" %}</span>
             </a>
         </div>
     </div>

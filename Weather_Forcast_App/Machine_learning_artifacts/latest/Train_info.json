@@ -1,15 +1,15 @@
 {
-  "trained_at": "2026-03-05 12:52:15",
+  "trained_at": "2026-03-08 14:01:57",
   "project_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST",
   "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv",
+    "filename": "cleaned_merge_merged_vrain_data_20260308_140105.csv",
     "file_info": "None"
   },
   "schema_report": {
-    "rows_before": 7322,
-    "rows_after": 7322,
+    "rows_before": 12152,
+    "rows_after": 12152,
     "rows_dropped": 0,
     "note": "schema_validation_skipped"
   },
@@ -34,20 +34,20 @@
     "n_created_features": 40,
     "n_total_feature_columns": 50,
     "n_static_features_removed": 0,
-    "n_constant_features_removed": 20,
+    "n_constant_features_removed": 22,
     "feature_selection_enabled": true,
-    "detected_data_type": "cross_sectional",
+    "detected_data_type": "mixed",
     "polynomial_features_added": true
   },
   "target_transform": {
     "log1p_applied": true,
-    "target_zero_ratio": 0.9231219512195122
+    "target_zero_ratio": 0.690924053609217
   },
   "transform": {
     "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-05T12:52:14.934039",
+      "fitted_at": "2026-03-08T14:01:57.023771",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",

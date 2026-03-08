@@ -179,6 +179,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware", # Gắn user vào request
     "django.contrib.messages.middleware.MessageMiddleware",   # Message framework
     "django.middleware.clickjacking.XFrameOptionsMiddleware",  # Chặn clickjacking (X-Frame-Options)
+    "Weather_Forcast_App.i18n.middleware.LangMiddleware",  # i18n: sets request.lang / request.t
 ]
 
 # ============================================================
@@ -211,6 +212,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",  # request object
                 "django.contrib.auth.context_processors.auth", # user object
                 "django.contrib.messages.context_processors.messages", # messages
+                "Weather_Forcast_App.i18n.context_processor.i18n_context",  # i18n: t(), lang
             ],
         },
     },

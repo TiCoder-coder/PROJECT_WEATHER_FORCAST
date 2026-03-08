@@ -1,1355 +1,1860 @@
----
+<div align="center">
 
-# 🌦️ Weather_Forcast_App — Weather Data Pipeline & Dashboard
+# 🌦️ VN Weather Hub — End-to-End Weather Intelligence Platform
 
-<b>Django</b> app để <b>crawl</b> dữ liệu thời tiết → <b>gộp (merge)</b> → <b>làm sạch (clean)</b> → <b>xem trước / tải về</b> dataset (CSV/Excel/JSON/TXT) với giao diện “glass + weather effects”.
+**Full-stack Django application** for **weather data collection** → **processing** → **machine learning** → **forecasting** with beautiful glassmorphism UI and multilingual support.
 
 <br/>
 
-<img alt="Python" src="https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white">
-<img alt="Django" src="https://img.shields.io/badge/Django-3.x-092E20?logo=django&logoColor=white">
-<img alt="Pandas" src="https://img.shields.io/badge/Pandas-data-150458?logo=pandas&logoColor=white">
+<img alt="Python" src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white">
+<img alt="Django" src="https://img.shields.io/badge/Django-5.1+-092E20?logo=django&logoColor=white">
+<img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-7.0+-47A248?logo=mongodb&logoColor=white">
+<img alt="Pandas" src="https://img.shields.io/badge/Pandas-2.2+-150458?logo=pandas&logoColor=white">
+<img alt="Scikit-learn" src="https://img.shields.io/badge/Scikit--learn-1.8+-F7931E?logo=scikit-learn&logoColor=white">
+<img alt="XGBoost" src="https://img.shields.io/badge/XGBoost-3.2+-FF6600?logo=xgboost&logoColor=white">
+<img alt="LightGBM" src="https://img.shields.io/badge/LightGBM-4.6+-02569B?logo=lightgbm&logoColor=white">
+<img alt="CatBoost" src="https://img.shields.io/badge/CatBoost-1.2+-FFCC00?logo=catboost&logoColor=black">
 <img alt="UI" src="https://img.shields.io/badge/UI-Glassmorphism-7C3AED">
-<img alt="Datasets" src="https://img.shields.io/badge/Datasets-Preview%20%26%20Download-0EA5E9">
+<img alt="i18n" src="https://img.shields.io/badge/i18n-VI%20%7C%20EN-22C55E">
 
 <br/>
-<sub>🔗 Merge workflow • 🧹 Clean wizard • 📄 Dataset preview • 🌧️ Weather effects • 📦 Download</sub>
+<sub>🌐 Multi-source crawling • 🔗 Smart merging • 🧹 Data cleaning • 🧠 ML training • 🔮 Forecasting • 📊 Dashboard • 🎨 Modern UI • 🌍 Bilingual</sub>
 
 </div>
 
 ---
-![Picture](https://nub.news/api/image/681000/article.png)
+
+<div align="center">
+  
+![VN Weather Hub Dashboard](https://nub.news/api/image/681000/article.png)
+
+*Enterprise-grade weather data pipeline with modern glassmorphism interface*
+
+</div>
+
 ---
 
-## 📌 Mục lục
-<details open>
-<summary><b>📚 Mục lục</b></summary>
+## 📌 Table of Contents
 
-- [1. Tổng quan](#1-tổng-quan)
-- [2. Các luồng dữ liệu trong project](#2-các-luồng-dữ-liệu-trong-project)
-- [3. Tính năng nổi bật](#3-tính-năng-nổi-bật)
-- [4. Cấu trúc thư mục dữ liệu](#4-cấu-trúc-thư-mục-dữ-liệu)
-- [5. Giao diện chính](#5-giao-diện-chính)
-- [6. Routes / Endpoints](#6-routes--endpoints)
-- [7. Mapping “folder key” (rất quan trọng)](#7-mapping-folder-key-rất-quan-trọng)
-- [8. Dataset Preview (CSV/Excel/JSON/TXT)](#8-dataset-preview-csvexceljsontxt)
-- [9. Clean Wizard](#9-clean-wizard)
-- [10. Merge result modal](#10-merge-result-modal)
-- [11. Cài đặt & chạy](#11-cài-đặt--chạy)
-- [12. Lỗi thường gặp & cách xử lý](#12-lỗi-thường-gặp--cách-xử-lý)
-- [13. Roadmap](#13-roadmap)
-- [14. Ghi chú nguồn dữ liệu](#14-ghi-chú-nguồn-dữ-liệu)
+<details open>
+<summary><b>📚 Navigation</b></summary>
+
+- [🎯 Overview](#-overview)
+- [✨ Key Features](#-key-features)
+- [🧠 Machine Learning Pipeline](#-machine-learning-pipeline)
+- [🌍 Internationalization (i18n)](#-internationalization-i18n)
+- [🎨 UI/UX Features](#-uiux-features)
+- [🔐 Authentication System](#-authentication-system)
+- [📊 Data Pipeline](#-data-pipeline)
+- [🗂️ Project Structure](#️-project-structure)
+- [🚀 Installation & Setup](#-installation--setup)
+- [📖 User Guide](#-user-guide)
+- [🔧 Configuration](#-configuration)
+- [🐛 Troubleshooting](#-troubleshooting)
+- [🗺️ Roadmap](#️-roadmap)
+- [👥 Team](#-team)
 
 </details>
 
 ---
 
-## 1. 🌤️ Tổng quan
+## 🎯 Overview
 
-**Weather_Forcast_App** là một hệ thống **Django** tập trung vào **pipeline dữ liệu thời tiết end-to-end**  
-*(thu thập → lưu trữ → xử lý → hiển thị)* và **dashboard web** giúp người dùng thao tác dữ liệu trực quan mà không cần mở file thủ công.
+**VN Weather Hub** is a comprehensive **Django-based weather intelligence platform** that provides end-to-end data pipeline capabilities—from multi-source data collection to advanced machine learning forecasting. Built with modern web technologies, it features a stunning glassmorphism UI, bilingual support (Vietnamese/English), and enterprise-grade security.
 
-### 🎯 Mục tiêu chính
+### 🎯 Core Objectives
 
-- 🧪 **Xử lý dữ liệu**
-  - Crawl / Merge / Clean theo luồng rõ ràng
-  - Có log
-  - Có phân loại thư mục theo từng nhóm dữ liệu
-- 🖥️ **Trải nghiệm người dùng**
-  - Xem trước (preview) dataset trực tiếp trên web
-  - Tải file nhanh theo từng nhóm (download)
-
----
-
-## 🧱 Kiến trúc tổng thể (Multi-layer)
-
-Hệ thống được chia thành **3 layer chính** (dễ mở rộng / dễ bảo trì):
-
-### 🎨 1) Presentation Layer (UI / Templates / Static)
-
-- Giao diện người dùng Django Template:
-  - 🏠 `Home.html` — Trang tổng quan
-  - 📚 `Datasets.html` — Danh sách dataset theo nhóm
-  - 👀 `dataset_preview.html` — Xem trước nội dung file (table/text)
-- CSS/JS trong `static/weather/...` để:
-  - ✅ UI đẹp, responsive
-  - ⚡ Hiệu ứng thời tiết (mây, mưa, sấm…)
-  - 🧭 Modal/Overlay cho **Merge** & **Clean Wizard**
+- 🌐 **Multi-Source Data Collection**: Crawl weather data from OpenWeather API, Vrain API, Selenium scraping, and HTML parsing
+- 🔗 **Intelligent Data Integration**: Merge heterogeneous datasets with conflict resolution and schema validation
+- 🧹 **Advanced Data Cleaning**: Automated cleaning wizard with customizable pipelines
+- 🧠 **Machine Learning**: Train and deploy forecasting models (RandomForest, XGBoost, LightGBM, CatBoost, Two-Stage Ensemble)
+- 🔮 **Weather Forecasting**: Generate multi-day weather predictions with confidence intervals
+- 📊 **Interactive Dashboard**: Real-time metrics, visualization, and dataset management
+- 🎨 **Modern UX**: Glassmorphism design with weather-themed animations
+- 🌍 **Multilingual**: Full Vietnamese and English localization
 
 ---
 
-### 🧩 2) Application Layer (Views / Routing)
+## ✨ Key Features
 
-- Các view trong `Weather_Forcast_App/views/...` đóng vai trò **controller**:
-  - 🏠 `Home.py` — Điều hướng và hiển thị tổng quan
-  - 📦 `View_Datasets.py` — List dataset theo thư mục + Preview/Download
-  - 🔗 `View_Merge_Data.py` — API/Endpoint gộp dữ liệu (merge)
-  - 🧼 `View_Clear.py` — API/Endpoint làm sạch dữ liệu (clean)
-  - 🌧️ Các view crawl: Selenium / API / HTML parsing từ **Vrain** & **OpenWeather**
-- `urls.py` định nghĩa route:
-  - 👀 Xem file: `dataset_view`
-  - ⬇️ Tải file: `dataset_download`
-  - 🔗 Merge: `merge_data`
-  - 🧼 Clean wizard: `clean_list`, `clean_data`, `clean_tail`...
+### 📊 Data Management
 
----
+| Feature | Description |
+|---------|-------------|
+| 🌐 **Multi-source crawling** | OpenWeather API, Vrain API/Selenium/HTML parser |
+| 🔗 **Smart merging** | Automatic schema alignment, conflict resolution, duplicate removal |
+| 🧹 **Cleaning wizard** | Step-by-step guided cleaning with preview and validation |
+| 👁️ **Dataset preview** | In-browser CSV/Excel/JSON/TXT preview with pagination |
+| ⬇️ **Export** | Download in multiple formats (CSV, XLSX, JSON, TXT) |
+| 📈 **Statistics** | Real-time metrics, file counts, dataset sizes |
 
-### ⚙️ 3) Data/Processing Layer (Scripts + Storage)
+### 🧠 Machine Learning
 
-- Các script xử lý trong `Weather_Forcast_App/scripts/...` là “engine” chạy thật:
-  - 🌐 Crawl data (API / Selenium / HTML)
-  - 🔗 Merge nhiều file → 1 dataset chung
-  - 🧼 Clean data: chuẩn hóa, xử lý thiếu, bỏ trùng, format...
-- Dữ liệu đầu ra/đầu vào được quản lý theo **thư mục chuẩn** (theo nhóm raw/merged/cleaned)
+| Feature | Description |
+|---------|-------------|
+| 🏗️ **Model training** | Support for 5 algorithms: RandomForest, XGBoost, LightGBM, CatBoost, Two-Stage |
+| 🔮 **Forecasting** | Multi-day weather prediction with rain detection |
+| 📊 **Evaluation** | Comprehensive metrics: MAE, RMSE, MAPE, R², Rain Accuracy |
+| 🎛️ **Hyperparameter tuning** | Grid search, random search, Optuna integration |
+| 💾 **Model versioning** | Automatic artifact management and versioning |
+| 📓 **Notebook pipeline** | Jupyter notebook for entire ML workflow (31 cells) |
 
----
+### 🌍 Internationalization
 
-## 🗃️ Hệ dữ liệu & định dạng file
+| Feature | Description |
+|---------|-------------|
+| 🇻🇳 **Vietnamese** | Full Vietnamese localization (default) |
+| 🇬🇧 **English** | Complete English translation |
+| 🔄 **Live switching** | Toggle language without page reload |
+| 🎨 **Context-aware** | Dynamic translations with template tags |
+| 📝 **250+ strings** | Comprehensive coverage of all UI elements |
 
-Project dùng **nhiều loại storage** (tùy mục đích):
+### 🔐 Security & Authentication
 
-### ✅ 1) Database (SQL / SQLite)
+| Feature | Description |
+|---------|-------------|
+| 🔑 **Login** | Username or email login with JWT tokens |
+| 📝 **Registration** | Email OTP verification before account creation |
+| 🔄 **Password reset** | Secure OTP-based password recovery |
+| 🛡️ **Account lockout** | Auto-lock after 5 failed attempts (5 min) |
+| 📧 **Email validation** | MX record check, disposable email blocking |
+| 🔐 **Password security** | Pepper + hash, strength validation |
+| 👤 **Profile** | User profile management and settings |
 
-- 🗄️ `db.sqlite3` — DB mặc định của Django (dev)
-- 🧊 `vietnam_weather.db` — DB riêng cho dữ liệu thời tiết (tuỳ bạn dùng cho lưu record/summary)
+### 🎨 UI/UX Excellence
 
-### ✅ 2) File-based datasets (CSV / XLSX / JSON / TXT)
-
-- 📄 **CSV** — nhẹ, dễ xử lý, phù hợp Pandas/ML
-- 📊 **XLSX** — phù hợp báo cáo, nhiều sheet, dễ đọc cho người dùng
-- 🧾 **JSON/TXT** — phục vụ preview/log/định dạng khác
-
----
-
-## 🧭 Những tính năng người dùng có thể làm trên web
-
-### 👁️ Duyệt dataset theo nhóm thư mục
-
-- 📦 `output/` — dữ liệu thô (raw) sau crawl *(chưa merge)*
-- 🔗 `Merge_data/` — dữ liệu đã gộp *(merged)*
-- 🧼 `cleaned_data/` — dữ liệu đã làm sạch *(cleaned)*
-  - 🧩 `Clean_Data_For_File_Merge/` — clean từ dữ liệu **đã merge**
-  - 📦 `Clean_Data_For_File_Not_Merge/` — clean từ dữ liệu **raw/output**
-
-### 🔍 Preview trực tiếp trên web
-
-- 📊 CSV/XLSX: hiển thị dạng bảng + phân trang/pagination
-- 🧾 JSON/TXT: hiển thị dạng text/preformatted
-- ✅ Mở nhanh “xem ngay” mà không cần download
-
-### ⬇️ Download file
-
-- Tải trực tiếp dataset theo từng nhóm (raw/merged/cleaned)
-
-### 🔗 Merge data (raw → merged)
-
-- Bấm nút **Merge** → hệ thống gộp dữ liệu → lưu vào `Merge_data/`
-- ✅ Có thể hiển thị file mới nhất + cho **Xem/Tải ngay** sau khi merge (modal)
-
-### 🧼 Clean data (2 nhánh)
-
-- 🧩 Clean từ file đã merge → output vào `Clean_Data_For_File_Merge/`
-- 📦 Clean từ file chưa merge → output vào `Clean_Data_For_File_Not_Merge/`
-- ✅ Có wizard: chọn nguồn → chọn file → xem tiến trình → xem/tải kết quả
+| Feature | Description |
+|---------|-------------|
+| 🪟 **Glassmorphism** | Modern frosted glass design with blur effects |
+| 🌧️ **Weather animations** | Rain, wind, lightning, mist, aurora effects |
+| 🎭 **Responsive** | Mobile-first design, works on all devices |
+| 🎨 **Theme effects** | Dynamic gradient backgrounds, neon accents |
+| ⚡ **Performance** | Optimized animations with reduced-motion support |
+| 🎯 **Accessibility** | ARIA labels, keyboard navigation, screen reader support |
 
 ---
 
-## 2. Các luồng dữ liệu trong project
+## 🧠 Machine Learning Pipeline
 
-```
-flowchart LR
-  A[Crawl modules\n(API / HTML / Selenium)] --> B[output/\nRaw datasets]
-  B -->|Merge| C[Merge_data/\nMerged datasets]
-  C -->|Clean (merge source)| D[cleaned_data/Clean_Data_For_File_Merge/\nCleaned merged]
-  B -->|Clean (output source)| E[cleaned_data/Clean_Data_For_File_Not_Merge/\nCleaned raw]
-  C --> F[Datasets page]
-  D --> F
-  E --> F
-  F --> G[Dataset Preview\n/view/...]
-  F --> H[Download\n/download/...]
+### 📋 Complete ML Workflow (6 Phases)
+
+The platform includes a comprehensive Jupyter notebook (`tremblingProcess.ipynb`) that orchestrates the entire ML pipeline:
+
+```mermaid
+graph TD
+    A[Phase 1: Data Crawl] -->|Raw CSV| B[Phase 2: Merge]
+    B -->|Merged CSV| C[Phase 3: Clean]
+    C -->|Cleaned CSV| D[Phase 4: Train Model]
+    D -->|Model Artifacts| E[Phase 5: Forecast]
+    E -->|Predictions| F[Phase 6: Diagnostics]
+    
+    D -->|Feature_list.json| G[ML Artifacts]
+    D -->|Metrics.json| G
+    D -->|Train_info.json| G
+    D -->|Model.pkl| G
 ```
 
----
+### 🔄 Phase Details
 
-## 3. Tính năng nổi bật
+#### Phase 1: Data Collection
+- Run crawling scripts (API/Selenium/HTML)
+- Output: Raw CSV files in `data/data_crawl/`
+- Sources: OpenWeather, Vrain (multiple methods)
 
-### 📁 Duyệt dataset theo nhóm
-- **DỮ LIỆU ĐÃ GỘP**: đọc từ thư mục `Merge_data/`
-- **DỮ LIỆU THÔ (OUTPUT)**: đọc từ thư mục `output/`
-- **DỮ LIỆU ĐÃ LÀM SẠCH**: đọc từ `cleaned_data/…` (gồm 2 nhánh)
+#### Phase 2: Data Merging
+- Execute `scripts/merge_csv.py`
+- Align schemas, resolve conflicts
+- Output: Merged file in `data/data_merge/`
 
-### 👀 Xem trước (Preview)
-- CSV/Excel → render bảng, hỗ trợ **pagination / tải thêm**
-- JSON → **syntax highlight**
-- TXT → hiển thị text trong khung scroll
+#### Phase 3: Data Cleaning (4 steps)
+1. ~~Column renaming~~ → **SKIPPED** (handled by Cleardata)
+2. Run `Cleardata.py` (main cleaning)
+3. ~~Additional cleaning~~ → **SKIPPED** (duplicate)
+4. Clean NaN datetime with `clean_datetime_nan.py`
 
-### ⬇️ Tải về (Download)
-- Download theo đúng folder key + filename, có kiểm tra an toàn (chỉ cho phép file trong thư mục hợp lệ)
+#### Phase 4: Model Training
+- Update `train_config.json` with latest dataset
+- Run `manage.py train_model`
+- Generates 4 artifacts:
+  - `Feature_list.json` — Feature schema for predictions
+  - `Metrics.json` — Model performance metrics
+  - `Train_info.json` — Training configuration metadata
+  - `Model.pkl` — Serialized trained model
 
-### 🔗 Merge
-- Nút **🔗 GỘP DỮ LIỆU** (ở section “Dữ liệu thô”)
-- Backend chạy merge, trả JSON (success/message + thông tin file mới)
-- Frontend có thể mở **Merge Result Modal** để người dùng:
-  - xem tên file mới, dung lượng, thời gian
-  - bấm **👀 XEM / ⬇️ TẢI**
-  - bấm **✕** để đóng và quay lại
+#### Phase 5: Weather Forecasting
+- Execute `WeatherForcast.py`
+- Output: `data/data_forecast/forecast_results.csv` (13,431 rows)
+- Includes rain detection and confidence scores
 
-### 🧹 Clean Wizard (UI 3 bước)
-1) Chọn nguồn:
-   - `merge` (làm sạch từ file đã merge)
-   - `output` (làm sạch từ file thô)
-2) Chọn file (có search)
-3) Theo dõi tiến trình + log + report và nút xem/tải kết quả
+#### Phase 6: Diagnostics
+- Run `scripts/run_diagnostics.py`
+- Generate health check reports
+- Validate data quality
 
-### 🌧️ Weather UI Effects
-- Background layers: mây / gió / mưa / sấm chớp (CSS + JS random flash)
+### 🎯 Supported Machine Learning Models
 
----
+| Model | Technology | Use Case | Performance |
+|-------|-----------|----------|-------------|
+| **RandomForest** | Scikit-learn | Baseline, feature importance | R² = 0.68 |
+| **XGBoost** | XGBoost 3.2 | High performance, gradient boosting | R² = 0.72 |
+| **LightGBM** | LightGBM 4.6 | Fast training, large datasets | R² = 0.71 |
+| **CatBoost** | CatBoost 1.2 | Categorical feature handling | R² = 0.70 |
+| **Two-Stage** | Custom ensemble | Rain detection + value regression | R² = 0.70, Acc = 93.7% |
 
-## 🔐 Hệ thống Xác thực (Authentication System)
+### 📊 Model Evaluation Metrics
 
-Hệ thống xác thực bảo mật đầy đủ với **đăng nhập**, **đăng ký** và **quên mật khẩu** qua OTP email.
-
-### 📋 Tổng quan tính năng
-
-| Tính năng            | Mô tả                                           |
-|----------------------|-------------------------------------------------|
-| 🔑 **Đăng nhập**     | Hỗ trợ đăng nhập bằng username HOẶC email       |
-| 📝 **Đăng ký**       | Xác thực email qua OTP trước khi tạo tài khoản  |
-| 🔄 **Quên mật khẩu** | Reset password qua OTP gửi đến email            |          
-| 🛡️ **Bảo mật**       | Mật khẩu mạnh, khóa tài khoản khi sai nhiều lần |
-| 📧 **Email**         | Hỗ trợ Gmail SMTP, Resend API, Console mode     |
-
----
-
-### 🔑 Đăng nhập (Login)
-
-**Route:** `/login/`
-
-#### Luồng hoạt động:
-```
-Người dùng nhập username/email + password
-        ↓
-Kiểm tra tài khoản tồn tại (find by username OR email)
-        ↓
-Kiểm tra tài khoản có bị khóa không
-        ↓
-Kiểm tra tài khoản có active không
-        ↓
-Xác thực mật khẩu (với pepper + hash)
-        ↓
-Tạo JWT token + Lưu session
-        ↓
-✅ Chuyển về trang Home
-```
-
-#### Tính năng bảo mật:
-| Tính năng               | Chi tiết                                                        |
-|-------------------------|-----------------------------------------------------------------|
-| **Đăng nhập linh hoạt** | Có thể dùng username hoặc email                                 |
-| **Pepper password**     | Thêm chuỗi bí mật trước khi hash                                |
-| **Khóa tài khoản**      | Sau **5 lần** sai → khóa **5 phút**                             |
-| **Đếm lần sai**         | Hiển thị số lần thử còn lại                                     |
-| **JWT Token**           | Tạo token với role và manager_id                                |
-
-#### Cấu trúc session sau đăng nhập:
-```python
-request.session["access_token"] = jwt_token
-request.session["profile"] = {
-    "_id": "...",
-    "name": "Võ Anh Nhật",
-    "userName": "nhat123",
-    "email": "nhat@gmail.com",
-    "role": "Staff",
-    "last_login": "2026-01-22T10:00:00"
+```json
+{
+  "model": "two_stage",
+  "metrics": {
+    "r2_score": 0.70,
+    "mae": 2.84,
+    "rmse": 3.61,
+    "mape": 12.5,
+    "rain_detection_accuracy": 0.937
+  },
+  "training_time": "2.3s",
+  "dataset_size": 13431,
+  "features_count": 42
 }
 ```
 
----
+### 🗂️ ML Artifacts Structure
 
-### 📝 Đăng ký (Register)
-
-**Route:** `/register/` → `/verify-email-register/`
-
-#### Luồng hoạt động (2 bước):
 ```
-📋 BƯỚC 1: Nhập thông tin
-├── Họ + Tên
-├── Username (3-30 ký tự, chữ/số/underscore)
-├── Email
-├── Mật khẩu + Xác nhận mật khẩu
-        ↓
-🔍 Validation:
-├── Kiểm tra email hợp lệ (cú pháp + MX records)
-├── Kiểm tra email không phải disposable (tempmail, mailinator...)
-├── Kiểm tra username chưa tồn tại
-├── Kiểm tra email chưa đăng ký
-├── Kiểm tra độ mạnh mật khẩu
-        ↓
-📧 Gửi OTP 5 số đến email
-        ↓
-💾 Lưu thông tin đăng ký vào session (chưa tạo account)
-        ↓
-
-📧 BƯỚC 2: Xác thực OTP
-├── Nhập mã OTP từ email
-├── Có thể gửi lại OTP
-├── Có thể hủy đăng ký
-        ↓
-✅ Xác thực OTP thành công
-        ↓
-👤 Tạo tài khoản trong database
-        ↓
-🔑 Tự động đăng nhập
-        ↓
-🏠 Chuyển về trang Home
+Machine_learning_artifacts/
+├── latest/                      # Current production model
+│   ├── Feature_list.json        # Feature schema (42 features)
+│   ├── Metrics.json             # Performance metrics
+│   ├── Train_info.json          # Training metadata
+│   └── Model.pkl                # Trained model (serialized)
+└── old_model/                   # Previous version backup
+    ├── Feature_list.json
+    ├── Metrics.json
+    └── Train_info.json
 ```
 
-#### Yêu cầu mật khẩu mạnh:
-```
-✅ Tối thiểu 8 ký tự
-✅ Có ít nhất 1 chữ thường (a-z)
-✅ Có ít nhất 1 chữ IN HOA (A-Z)
-✅ Có ít nhất 1 chữ số (0-9)
-✅ Có ít nhất 1 ký tự đặc biệt (!@#$%^&*()-_+=)
-```
+### 🔧 Training Configuration
 
-#### Validation Email:
-| Kiểm tra       | Mô tả                                       |
-|----------------|---------------------------------------------|
-| **Cú pháp**    | Đúng định dạng email@domain.com             |
-| **Unicode**    | Không chấp nhận ký tự có dấu                |
-| **MX Records** | Kiểm tra domain có thể nhận email           |
-| **Disposable** | Chặn tempmail, guerrillamail, mailinator... |
-| **Trusted**    | Bỏ qua MX check cho gmail.com, yahoo.com... |
+**File:** `config/train_config.json`
 
-#### Templates liên quan:
-- `Register.html` — Form đăng ký
-- `Verify_email_register.html` — Nhập OTP xác thực
-
----
-
-### 🔄 Quên mật khẩu (Forgot Password)
-
-**Route:** `/forgot-password/` → `/verify-otp/` → `/reset-password-otp/`
-
-#### Luồng hoạt động (3 bước):
-```
-📧 BƯỚC 1: Nhập email
-├── Nhập email đã đăng ký
-        ↓
-🔍 Kiểm tra email tồn tại trong hệ thống
-        ↓
-📧 Gửi OTP 5 số đến email
-        ↓
-
-🔢 BƯỚC 2: Xác thực OTP
-├── Nhập mã OTP (5 số)
-├── Tối đa 5 lần thử sai
-├── Có thể gửi lại OTP
-        ↓
-
-🔐 BƯỚC 3: Đặt mật khẩu mới
-├── Nhập mật khẩu mới (phải đủ mạnh)
-├── Xác nhận mật khẩu
-        ↓
-✅ Cập nhật mật khẩu thành công
-        ↓
-🔑 Chuyển về trang đăng nhập
+```json
+{
+  "data": {
+    "filename": "merged_vrain_data_cleaned_20260307_223506.clean_final.csv",
+    "target_column": "rain_total",
+    "date_column": "datetime"
+  },
+  "model": {
+    "type": "two_stage",
+    "params": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "learning_rate": 0.1
+    }
+  },
+  "split": {
+    "train_ratio": 0.7,
+    "valid_ratio": 0.15,
+    "test_ratio": 0.15,
+    "shuffle": false
+  }
+}
 ```
 
-#### Bảo mật OTP:
-| Tính năng      | Chi tiết                                                         |
-|----------------|------------------------------------------------------------------|
-| **Mã OTP**     | 5 số, tạo bằng `secrets.randbelow()` (an toàn hơn `random`)      |
-| **Hash OTP**   | Lưu hash SHA-256 (otp + salt + secret_key), không lưu plain text |
-| **Thời hạn**   | Hết hạn sau **10 phút** (TTL index tự động xóa)                  |
-| **Số lần thử** | Tối đa **5 lần** sai, sau đó phải yêu cầu OTP mới                |
-| **OTP cũ**     | Tự động vô hiệu hóa OTP cũ khi tạo mới                           |
+### 🚀 Training a Model
 
-#### Templates liên quan:
-- `Forgot_password.html` — Nhập email
-- `Verify_otp.html` — Nhập OTP
-- `Reset_password_otp.html` — Đặt mật khẩu mới
+#### Via Django Management Command
+```bash
+python manage.py train_model
+```
+
+#### Via Direct Script
+```bash
+python Weather_Forcast_App/Machine_learning_model/trainning/train.py \
+  --config Weather_Forcast_App/Machine_learning_model/config/train_config.json
+```
+
+#### Via Jupyter Notebook
+```bash
+jupyter notebook Weather_Forcast_App/Evaluate_accuracy/tremblingProcess.ipynb
+```
+
+### 🔮 Making Predictions
+
+#### Via Web Interface
+1. Navigate to **🔮 Weather Forecast** page
+2. Select date range and location
+3. View predictions with confidence intervals
+
+#### Via Python Script
+```python
+from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
+
+predictor = WeatherPredictor()
+predictions = predictor.predict(date='2026-03-10', city='Ho Chi Minh City')
+print(f"Predicted rain: {predictions['rain_total']} mm")
+```
 
 ---
 
-### 📧 Hệ thống Email OTP
+## 🌍 Internationalization (i18n)
 
-#### Cấu hình gửi email (thứ tự ưu tiên):
+### 🔄 Language Support
+
+VN Weather Hub provides comprehensive bilingual support with seamless language switching.
+
+#### Supported Languages
+- 🇻🇳 **Tiếng Việt** (Vietnamese) — Default
+- 🇬🇧 **English** — Full translation
+
+#### Features
+- ✅ **250+ translated strings** covering all UI elements
+- ✅ **Live switching** without page reload
+- ✅ **Context-aware** translations via custom template tags
+- ✅ **URL persistence** — language preference saved in URL
+- ✅ **Session storage** — remembers user language choice
+
+### 📂 Translation Files
+
 ```
-1️⃣ Gmail SMTP (khuyến nghị - ổn định nhất)
-    ↓ nếu không có config
-2️⃣ Resend API (nếu có RESEND_API_KEY)
-    ↓ nếu không có config
-3️⃣ Console Mode (in OTP ra terminal - development)
+Weather_Forcast_App/i18n/
+├── locales/
+│   ├── vi.json                  # Vietnamese translations
+│   └── en.json                  # English translations
+├── context_processor.py         # Django context processor
+├── middleware.py                # Language detection middleware
+└── hooks.ts / index.ts          # Frontend i18n utilities
 ```
 
-#### Cấu hình trong `.env`:
+### 🔧 Usage in Templates
+
+```html
+{% load i18n_tags %}
+
+<!-- Simple translation -->
+<h1>{% t "home.hero_title" %}</h1>
+
+<!-- With variables -->
+<p>{% t "datasets.file_count" count=total_files %}</p>
+
+<!-- Language switcher -->
+{% if lang == 'vi' %}
+  <a href="{% lang_url 'en' %}">Switch to English</a>
+{% else %}
+  <a href="{% lang_url 'vi' %}">Chuyển sang Tiếng Việt</a>
+{% endif %}
+```
+
+### 📝 Translation Keys (Examples)
+
+#### Homepage (`home.*`)
+```json
+{
+  "home.hero_title": "Vietnam Weather Data in Real Time",
+  "home.hero_desc": "Collect, process, and forecast weather data with machine learning",
+  "home.btn_crawl": "Start Data Collection",
+  "home.btn_datasets": "Browse Datasets",
+  "home.btn_train": "Train Model",
+  "home.btn_predict": "Weather Forecast"
+}
+```
+
+#### Datasets Page (`datasets.*`)
+```json
+{
+  "datasets.tab_recent": "Recent Raw Data",
+  "datasets.tab_merged": "Merged Data",
+  "datasets.tab_cleaned": "Cleaned Data",
+  "datasets.tab_process": "Process Data",
+  "datasets.stat_total_files": "Total Files",
+  "datasets.stat_total_size": "Total Size"
+}
+```
+
+#### Authentication (`auth.*`)
+```json
+{
+  "auth.login_title": "Login to Your Account",
+  "auth.register_title": "Create New Account",
+  "auth.forgot_password": "Forgot Password?",
+  "auth.email_verification": "Email Verification Required",
+  "auth.otp_sent": "OTP code sent to your email"
+}
+```
+
+### 🌐 Adding New Translations
+
+1. **Add key to JSON files:**
+```json
+// locales/vi.json
+{
+  "feature.new_key": "Nội dung tiếng Việt"
+}
+
+// locales/en.json
+{
+  "feature.new_key": "English content"
+}
+```
+
+2. **Use in template:**
+```html
+{% load i18n_tags %}
+<p>{% t "feature.new_key" %}</p>
+```
+
+3. **Restart Django server** to reload translations
+
+---
+
+## 🎨 UI/UX Features
+
+### 🪟 Glassmorphism Design System
+
+The platform uses a modern glassmorphism design language inspired by Apple's design philosophy:
+
+#### Visual Elements
+- **Frosted glass cards** with backdrop-filter blur
+- **Semi-transparent backgrounds** with gradient overlays
+- **Neon accent colors** for CTAs and highlights
+- **Soft shadows** with multiple layers
+- **Smooth transitions** on all interactive elements
+
+#### Color Palette
+```css
+/* Primary Colors */
+--cyan: #22d3ee;           /* Accent cyan */
+--blue: #3b82f6;           /* Primary blue */
+--purple: #a78bfa;         /* Secondary purple */
+--green: #22c55e;          /* Success green */
+
+/* Background Gradients */
+--bg0: #020617;            /* Deep dark blue-black */
+--bg1: #0f172a;            /* Dark slate */
+--card: rgba(15,23,42,0.7);/* Glass card background */
+
+/* Text Colors */
+--text: #e5e7eb;           /* Main text (light gray) */
+--muted: #94a3b8;          /* Muted text (slate) */
+```
+
+### 🌧️ Weather-Themed Animations
+
+#### Background Effects (CSS-based)
+- **Rain effect** — Vertical rain streaks with shimmer animation
+- **Wind blow** — Horizontal gradient sweep
+- **Mist/Fog** — Floating radial gradients
+- **Aurora shimmer** — Large-scale color rotation
+- **Lightning flash** — Periodic brightness pulses
+- **Wave ripple** — Horizontal sine-wave patterns
+
+#### Interactive Animations
+- **Button hover effects** — Scale + glow + lift transforms
+- **Card entrance** — Fade-in with slide-up
+- **Logo pulse** — Breathing animation with color cycle
+- **Floating orbs** — Particle system drifting across viewport
+
+#### Accessibility
+```css
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### 📱 Responsive Design
+
+| Breakpoint | Device | Adjustments |
+|-----------|--------|-------------|
+| `>1200px` | Desktop | Full 3-column grid, side-by-side panels |
+| `768px-1200px` | Tablet | 2-column grid, collapsible sidebar |
+| `<768px` | Mobile | Single column, stacked layout, bottom nav |
+
+### ✨ Enhanced Button System
+
+#### Primary Button (Main Actions)
+```css
+.btn.primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
+  border: 1.5px solid rgba(34,211,238,0.28);
+  box-shadow: 
+    0 16px 48px rgba(34,211,238,0.32),
+    0 8px 24px rgba(52,211,153,0.22),
+    0 0 20px rgba(34,211,238,0.12) inset;
+}
+
+.btn.primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 22px 56px rgba(34,211,238,0.4),
+    0 14px 32px rgba(52,211,153,0.28),
+    0 0 28px rgba(34,211,238,0.2);
+}
+```
+
+#### Features
+- **Gradient backgrounds** with smooth color transitions
+- **Multi-layer shadows** for depth perception
+- **Scale transforms** on hover (1.02x)
+- **Lift effect** with translateY(-3px)
+- **Pulse animation** on primary CTAs
+
+---
+
+## 🔐 Authentication System
+
+### 📋 Features Overview
+
+| Feature | Description |
+|---------|-------------|
+| 🔑 **Login** | Username or email login with JWT tokens |
+| 📝 **Registration** | Two-step process with email OTP verification |
+| 🔄 **Password Reset** | Three-step OTP-based recovery |
+| 🛡️ **Account Lockout** | Auto-lock after 5 failed attempts (5 minutes) |
+| 📧 **Email Security** | MX record validation, disposable email blocking |
+| 🔐 **Password Strength** | Min 8 chars, uppercase, lowercase, number, special char |
+| 👤 **Profile Management** | Update name, email, view activity |
+
+### 🔑 Login Flow
+
+```
+User Input (username/email + password)
+        ↓
+Find account in MongoDB (username OR email)
+        ↓
+Check account locked? → Yes: Show lockout message
+        ↓ No
+Check account active? → No: Show activation message
+        ↓ Yes
+Verify password (hash + pepper)
+        ↓
+Create JWT token (role, manager_id)
+        ↓
+Save to session + Set cookie
+        ↓
+Redirect to Home page ✅
+```
+
+#### Security Features
+- **Pepper-enhanced hashing:** `hash(password + PEPPER_SECRET)`
+- **Failed attempt tracking:** Counter increments on wrong password
+- **Auto-lockout:** 5 attempts → lock for 5 minutes
+- **JWT tokens:** Stateless authentication with expiry
+- **Session management:** Secure session storage
+
+### 📝 Registration Flow (2 Steps)
+
+#### Step 1: Register Form
+```
+Input: First/Last Name, Username, Email, Password
+        ↓
+Validation:
+├── Email format + MX records check
+├── Block disposable emails (tempmail, guerrilla, etc.)
+├── Username unique check
+├── Email not already registered
+├── Password strength validation
+        ↓
+Generate 5-digit OTP
+        ↓
+Send OTP email (Gmail SMTP / Resend API)
+        ↓
+Save registration data to session (temporary)
+        ↓
+Redirect to OTP verification page
+```
+
+#### Step 2: OTP Verification
+```
+Input: 5-digit OTP code
+        ↓
+Verify OTP hash (SHA-256 + salt)
+        ↓
+Check expiry (10 minutes TTL)
+        ↓
+Check attempts (max 5)
+        ↓
+Create account in MongoDB
+        ↓
+Auto-login with JWT
+        ↓
+Redirect to Home ✅
+```
+
+#### Password Requirements
+```
+✅ Minimum 8 characters
+✅ At least 1 lowercase letter (a-z)
+✅ At least 1 uppercase letter (A-Z)
+✅ At least 1 digit (0-9)
+✅ At least 1 special character (!@#$%^&*()-_+=)
+```
+
+#### Email Validation
+| Check | Description |
+|-------|-------------|
+| **Syntax** | RFC 5322 format validation |
+| **Unicode** | Reject non-ASCII characters |
+| **MX Records** | Verify domain can receive email |
+| **Disposable** | Block tempmail, mailinator, guerrillamail, etc. |
+| **Trusted Domains** | Skip MX check for gmail.com, yahoo.com, outlook.com |
+
+### 🔄 Password Reset Flow (3 Steps)
+
+#### Step 1: Request Reset
+```
+Input: Email address
+        ↓
+Check email exists in database
+        ↓
+Generate 5-digit OTP
+        ↓
+Send OTP email
+        ↓
+Redirect to OTP verification
+```
+
+#### Step 2: Verify OTP
+```
+Input: 5-digit OTP
+        ↓
+Verify OTP hash + expiry + attempts
+        ↓
+Mark OTP as verified
+        ↓
+Redirect to password reset form
+```
+
+#### Step 3: Set New Password
+```
+Input: New password + Confirm password
+        ↓
+Validate password strength
+        ↓
+Check passwords match
+        ↓
+Update password in database (hash + pepper)
+        ↓
+Invalidate all existing OTPs
+        ↓
+Redirect to Login ✅
+```
+
+### 📧 Email OTP System
+
+#### OTP Security
+| Feature | Implementation |
+|---------|----------------|
+| **Generation** | `secrets.randbelow(100000)` (cryptographically secure) |
+| **Storage** | SHA-256 hash(otp + salt + secret_key), never plain text |
+| **Expiry** | 10 minutes TTL (MongoDB TTL index auto-delete) |
+| **Attempts** | Max 5 attempts, then request new OTP |
+| **Invalidation** | Old OTPs invalidated when new one generated |
+
+#### Email Providers (Priority Order)
+1. **Gmail SMTP** (recommended) — Most reliable
+2. **Resend API** — If RESEND_API_KEY configured
+3. **Console Mode** — Development fallback (prints to terminal)
+
+#### Gmail SMTP Configuration
 ```env
-SECRET_KEY=django-insecure-4$t0@wnk+#qu19m66%a90(d10z69tr$-ei@u_pf_%#m5it@=t+
-MONGO_URI=mongodb://localhost:27110/Login?directConnection=true
-DB_HOST=mongodb+srv://voanhnhat1612:<Nhat@16122006>@cluster0.9xeejj9.mongodb.net/
-DB_NAME=Login
-
-DB_USER=Ti-coder
-DB_PASSWORD=Nhat@16122006
-DB_PORT=27017
-DB_ADMIN_EMAIL=voanhnhat1612@gmail.com
-DB_AUTH_SOURCE=admin
-
-DB_AUTH_MECHANISM=SCRAM_SHA-1
-MAX_FAILED_ATTEMPS=5
-LOCKOUT_SECOND=600
-RESET_TOKEN_SALT=manager-reset-salt
-RESET_TOKEN_EXPIRY_SECONDS=3600
-SECRET_KEY=O4qvkC2lzeVn70eOD7qajoMHbZhsV3MPYL2WI8bDhG19pFp1g17_VPQw54bJ0kIzSX9uP49-4mZGXrplf_I6Rg
-PASSWORD_PEPPER=yPTp0tlNjhhCmktx_FInwo0bLcu2aquaT3BLVMJaQqw
-JWT_SECRET=MHGtW9YsZcP1O04ScNbiOTVMPS-DCS_NKeenFBzaWXzR2Fk7_3xxnT2vubAMIuXNVybtBsCYifEYHxVW6fRnEQ
-JWT_ALGORITHM=HS256
-JWT_ACCESS_TTL=900
-JWT_REFRESH_TTL=604800
-
-USER_NAME_ADMIN=VoAnhNhat
-ADMIN_PASSWORD=Nhat@16122006
-ADMIN_EMAIL=voanhnhat@zoo.com
-
-ACCESS_TOKEN_EXPIRE_HOURS=3
-REFRESH_TOKEN_EXPIRE_DAYS=1
-JWT_ISSUER=weather_api
-JWT_AUDIENCE=weather_web
-
-# Gmail SMTP - Gui email truc tiep vao Gmail
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
-EMAIL_HOST_USER=vohuynhanhtuan0512@gmail.com
-EMAIL_HOST_PASSWORD=hsvoefxqomrtrnms
+EMAIL_HOST_USER=your_email@gmail.com
+EMAIL_HOST_PASSWORD=your_16_char_app_password
 EMAIL_USE_TLS=True
-DEFAULT_FROM_EMAIL=VN Weather Hub <vohuynhanhtuan0512@gmail.com>
-
-PASSWORD_RESET_OTP_EXPIRE_SECONDS=600
-PASSWORD_RESET_OTP_MAX_ATTEMPTS=5
-
-# Resend API
-RESEND_API_KEY=re_hTC5WBm1_4dy31Hk5FEontVHBfMADFEBY
-RESEND_FROM_EMAIL=onboarding@resend.dev
+DEFAULT_FROM_EMAIL=VN Weather Hub <your_email@gmail.com>
 ```
 
-#### Hướng dẫn lấy Gmail App Password:
-1. Vào [Google Account](https://myaccount.google.com/)
-2. **Security** → **2-Step Verification** (bật nếu chưa có)
-3. **Security** → **App passwords**
-4. Tạo app password cho "Mail" + "Windows Computer"
-5. Copy mã 16 ký tự vào `EMAIL_HOST_PASSWORD`
+**How to get Gmail App Password:**
+1. Go to [Google Account](https://myaccount.google.com/)
+2. Enable **2-Step Verification** (Security section)
+3. Generate **App Password** for Mail app
+4. Copy 16-character password to `EMAIL_HOST_PASSWORD`
 
-### 👤 Hồ sơ cá nhân (Profile)
+### 👤 Profile Management
 
 **Route:** `/profile/`
 
-#### Tính năng:
-- Xem thông tin tài khoản (tên, email, username, role)
-- Cập nhật họ tên
-- Cập nhật email (kiểm tra trùng lặp)
-- Xem thời gian đăng ký và đăng nhập cuối
-
----
-
-### 🔒 Bảo mật hệ thống
-
-#### Password Security:
-```python
-# Pepper: thêm chuỗi bí mật trước khi hash
-hashed = make_password(password + PASSWORD_PEPPER)
-
-# Kiểm tra mật khẩu
-check_password(input + PASSWORD_PEPPER, hashed)
-```
-
-#### JWT Token:
-```python
-token = create_access_token({
-    "manager_id": "abc123",
-    "role": "Staff"
-})
-```
-
-#### Khóa tài khoản:
-```python
-if failed_attempts >= 5:
-    lock_until = now + 5 phút
-    # Tài khoản tạm khóa
-```
-
----
+#### Features
+- View account details (name, username, email, role)
+- Update first/last name
+- Update email (with uniqueness check)
+- View registration date and last login
+- See account role (Staff/Manager/Admin)
 
 ### 🗄️ MongoDB Collections
 
 #### Collection: `logins`
 ```javascript
 {
-    "_id": ObjectId("..."),
-    "name": "Võ Anh Nhật",
-    "userName": "nhat123",
-    "email": "nhat@gmail.com",
-    "password": "pbkdf2_sha256$...",  // Hashed with pepper
-    "role": "Staff",                   // Staff | Manager | Admin
-    "is_active": true,
-    "failed_attempts": 0,
-    "lock_until": null,
-    "last_login": ISODate("..."),
-    "createdAt": ISODate("..."),
-    "updatedAt": ISODate("...")
+  "_id": ObjectId("..."),
+  "name": "Võ Anh Nhật",
+  "userName": "nhat123",
+  "email": "nhat@gmail.com",
+  "password": "pbkdf2_sha256$...",  // Hashed with pepper
+  "role": "Staff",                   // Staff | Manager | Admin
+  "is_active": true,
+  "failed_attempts": 0,
+  "lock_until": null,
+  "last_login": ISODate("2026-03-08T10:30:00Z"),
+  "createdAt": ISODate("2026-01-15T08:00:00Z"),
+  "updatedAt": ISODate("2026-03-08T10:30:00Z")
 }
 ```
 
 #### Collection: `email_verification_otps`
 ```javascript
 {
-    "_id": ObjectId("..."),
-    "email": "nhat@gmail.com",
-    "otpHash": "sha256...",           // Không lưu plain OTP
-    "salt": "random_hex",
-    "attempts": 0,
-    "used": false,
-    "createdAt": ISODate("..."),
-    "expiresAt": ISODate("..."),      // TTL index tự động xóa
-    "verifiedAt": ISODate("...")      // Khi xác thực thành công
+  "_id": ObjectId("..."),
+  "email": "nhat@gmail.com",
+  "otpHash": "sha256_hash_string",  // Never stores plain OTP
+  "salt": "random_hex_salt",
+  "attempts": 0,
+  "used": false,
+  "createdAt": ISODate("2026-03-08T10:00:00Z"),
+  "expiresAt": ISODate("2026-03-08T10:10:00Z"),  // TTL: 10 min
+  "verifiedAt": null                              // Set when verified
 }
 ```
 
 #### Collection: `password_reset_otps`
 ```javascript
 {
-    "_id": ObjectId("..."),
-    "email": "nhat@gmail.com",
-    "otpHash": "sha256...",
-    "salt": "random_hex",
-    "attempts": 0,
-    "used": false,
-    "createdAt": ISODate("..."),
-    "expiresAt": ISODate("..."),      // TTL index tự động xóa
-    "verifiedAt": ISODate("...")
+  "_id": ObjectId("..."),
+  "email": "nhat@gmail.com",
+  "otpHash": "sha256_hash_string",
+  "salt": "random_hex_salt",
+  "attempts": 0,
+  "used": false,
+  "createdAt": ISODate("2026-03-08T10:00:00Z"),
+  "expiresAt": ISODate("2026-03-08T10:10:00Z"),
+  "verifiedAt": null
 }
 ```
 
 ---
 
-### 📁 Cấu trúc chính của project
+## 📊 Data Pipeline
+
+### 🗂️ Directory Structure
 
 ```
-├── 📁 Weather_Forcast_App
-│   ├── 📁 Enums
-│   │   ├── 🐍 Enums.py
-│   │   └── 🐍 __init__.py
-│   ├── 📁 Machine_learning_artifacts
-│   │   └── 📁 latest
-│   │       ├── ⚙️ Feature_list.json         // Danh sách các cột feature model dùng. Đảm bảo input predict đúng schema, tránh lỗi thiếu/sai thứ tự cột. Là “hợp đồng” giữa features/ và models/
-│   │       ├── ⚙️ Metrics.json              // Chỉ số đánh giá lần train gần nhất. Dùng show web, báo cáo, so sánh model
-│   │       ├── 📄 Model.pkl                 // Model đã train (pickle/joblib). App chỉ cần load file này để predict, không cần train lại
-│   │       └── ⚙️ Train_info.json           // Thông tin cấu hình train: dataset, thời gian, split, thuật toán, hyperparams
-│   ├── 📁 Machine_learning_model
-│   │   ├── 📁 config
-│   │   │   └── ⚙️ default.yaml              // File cấu hình trung tâm: path dataset, target, horizon, model type, params, split rules
-│   │   ├── 📁 data
-│   │   │   ├── 🐍 Loader.py                 // Load dataset (csv/xlsx) vào DataFrame, xử lý datetime, sort, missing cơ bản
-│   │   │   ├── 🐍 Schema.py                 // Định nghĩa “luật dữ liệu”: cột bắt buộc, kiểu dữ liệu, giá trị hợp lệ. Sai báo lỗi rõ
-│   │   │   └── 🐍 Split.py                  // Chia train/valid/test. Time series: split theo thời gian, không random
-│   │   ├── 📁 evaluation
-│   │   │   ├── 🐍 metrics.py                // Định nghĩa các metric: MAE, RMSE, MAPE, R2… Dùng chung cho mọi model
-│   │   │   └── 🐍 report.py                 // Xuất báo cáo: bảng so sánh model, lưu biểu đồ, file report csv/json
-│   │   ├── 📁 features
-│   │   │   ├── 🐍 Build_transfer.py         // Xây features từ raw data: lag, rolling, time features, location features
-│   │   │   └── 🐍 Transformers.py           // Module transformer: scaler, encoder, missing, pipeline transform cho train & predict
-│   │   ├── 📁 interface
-│   │   │   └── 🐍 predictor.py              // Cổng dự báo: load Model.pkl, Feature_list.json, nhận input, build features, predict
-│   │   ├── 📁 Models
-│   │   │   ├── 🐍 Base_model.py             // Interface chuẩn cho mọi model: fit, predict, save, load, get_params
-│   │   │   ├── 🐍 CatBoost.py
-│   │   │   ├── 🐍 LightGBM_Model.py
-│   │   │   ├── 🐍 Random_Forest_Model.py
-│   │   │   └── 🐍 XGBoost_Model.py
-│   │   ├── 📁 trainning
-│   │   │   ├── 🐍 train.py                  // Tổng chỉ huy train: đọc config, load data, validate, split, build features, train, evaluate, save artifacts
-│   │   │   └── 🐍 tuning.py                 // Hyperparameter tuning: grid search, random search, optuna. Output: params tốt nhất
-│   │   └── ⚙️ .gitkeep
-│   ├── 📁 Merge_data
-│   │   ├── 📄 merged_files_log.txt
-│   │   └── 📄 merged_vrain_data.xlsx
-│   ├── 📁 Models
-│   │   ├── 🐍 Login.py
-│   │   └── 🐍 __init__.py
-│   ├── 📁 Repositories
-│   │   ├── 🐍 Login_repositories.py
-│   │   └── 🐍 __init__.py
-│   ├── 📁 Seriallizer
-│   │   └── 📁 Login
-│   │       ├── 🐍 Base_login.py
-│   │       ├── 🐍 Create_login.py
-│   │       ├── 🐍 Update_login.py
-│   │       └── 🐍 __init__.py
-│   ├── 📁 TEST
-│   │   └── ⚙️ .gitkeep
-│   ├── 📁 cleaned_data
-│   │   ├── 📁 Clean_Data_For_File_Merge
-│   │   │   └── 📄 cleaned_merge_merged_vrain_data_20260124_192207.csv
-│   │   └── 📁 Clean_Data_For_File_Not_Merge
-│   │       ├── 📄 cleaned_output_Bao_cao_20260124_191737_20260124_192237.csv
-│   │       ├── 📄 cleaned_output_Bao_cao_20260124_191946_20260124_192226.csv
-│   │       └── 📄 cleaned_output_Bao_cao_20260124_191959_20260124_192219.csv
-│   ├── 📁 logs
-│   │   └── ⚙️ .gitkeep
-│   ├── 📁 management
-│   │   ├── 📁 commands
-│   │   │   ├── 🐍 __init__.py
-│   │   │   └── 🐍 insert_first_data.py
-│   │   └── 🐍 __init__.py
-│   ├── 📁 middleware
-│   │   ├── 🐍 Auth.py
-│   │   ├── 🐍 Authentication.py
-│   │   ├── 🐍 Jwt_handler.py
-│   │   └── 🐍 __init__.py
-│   ├── 📁 migrations
-│   │   └── 🐍 __init__.py
-│   ├── 📁 output
-│   │   ├── 📄 Bao_cao_20260124_191737.xlsx
-│   │   ├── 📄 Bao_cao_20260124_191946.xlsx
-│   │   └── 📄 Bao_cao_20260124_191959.csv
-│   ├── 📁 runtime
-│   │   └── 📁 logs
-│   │       └── ⚙️ .gitkeep
-│   ├── 📁 scripts
-│   │   ├── 🐍 Cleardata.py
-│   │   ├── 🐍 Crawl_data_by_API.py
-│   │   ├── 🐍 Crawl_data_from_Vrain_by_API.py
-│   │   ├── 🐍 Crawl_data_from_Vrain_by_Selenium.py
-│   │   ├── 🐍 Crawl_data_from_html_of_Vrain.py
-│   │   ├── 🐍 Email_validator.py
-│   │   ├── 🐍 Login_services.py
-│   │   ├── 🐍 Merge_xlsx.py
-│   │   ├── 🐍 __init__.py
-│   │   └── 🐍 email_templates.py
-│   ├── 📁 static
-│   │   └── 📁 weather
-│   │       ├── 📁 css
-│   │       ├── 📁 img
-│   │       └── 📁 js
-│   ├── 📁 templates
-│   │   └── 📁 weather
-│   │       ├── 📁 auth
-│   │       ├── 🌐 Dataset_preview.html
-│   │       ├── 🌐 Datasets.html
-│   │       ├── 🌐 Error.html
-│   │       ├── 🌐 HTML_Crawl_data_by_API.html
-│   │       ├── 🌐 HTML_Crawl_data_from_Vrain_by_API.html
-│   │       ├── 🌐 HTML_Crawl_data_from_Vrain_by_Selenium.html
-│   │       ├── 🌐 HTML_Crawl_data_from_html_of_Vrain.html
-│   │       ├── 🌐 Home.html
-│   │       └── 🌐 Sidebar_nav.html
-│   ├── 📁 views
-│   │   ├── 🐍 Home.py
-│   │   ├── 🐍 View_Clear.py
-│   │   ├── 🐍 View_Crawl_data_by_API.py
-│   │   ├── 🐍 View_Crawl_data_from_Vrain_by_API.py
-│   │   ├── 🐍 View_Crawl_data_from_Vrain_by_Selenium.py
-│   │   ├── 🐍 View_Crawl_data_from_html_of_Vrain.py
-│   │   ├── 🐍 View_Datasets.py
-│   │   ├── 🐍 View_Merge_Data.py
-│   │   ├── 🐍 View_login.py
-│   │   └── 🐍 __init__.py
-│   ├── 🐍 __init__.py
-│   ├── 🐍 admin.py
-│   ├── 🐍 apps.py
-│   ├── 🐍 db_connection.py
-│   ├── 🐍 models.py
-│   └── 🐍 urls.py
-├── 📁 WeatherForcast
-│   ├── 🐍 __init__.py
-│   ├── 🐍 asgi.py
-│   ├── 🐍 settings.py
-│   ├── 🐍 urls.py
-│   └── 🐍 wsgi.py
+data/
+├── data_crawl/              # Raw data from crawlers (12 files)
+│   ├── Bao_cao_20260307_160220.xlsx
+│   ├── Bao_cao_20260307_160230.csv
+│   └── ...
+├── data_merge/              # Merged datasets (2 files + log)
+│   ├── merged_vrain_data.xlsx
+│   ├── merged_files_log.txt
+│   └── ...
+├── data_clean/              # Cleaned datasets
+│   ├── data_merge_clean/   # Cleaned from merged data (21 files)
+│   │   ├── cleaned_merge_merged_vrain_data_20260307.csv
+│   │   └── ...
+│   └── data_not_merge_clean/  # Cleaned from raw data
+│       ├── cleaned_output_Bao_cao_20260307.csv
+│       └── ...
+└── data_forecast/           # Forecast results (NEW)
+    └── forecast_results.csv  # 13,431 predictions
 ```
 
----
-#### 📝 Lưu ý thực tế đã tối ưu và refactor:
-- Đã chuẩn hóa toàn bộ đường dẫn artifacts ML về `Machine_learning_artifacts/latest` (không còn hardcode rải rác, chỉ dùng 1 nơi duy nhất cho export/load model, pipeline, metrics, train_info).
-- Các module ML (train.py, LightGBM_Model.py, predictor.py) đã tách biệt, mỗi file 1 nhiệm vụ rõ ràng, gọi lẫn nhau qua interface chuẩn, không còn code thừa, không có file rác.
-- Nếu muốn mở rộng/thay đổi cấu trúc thư mục, chỉ cần sửa 1 nơi (config hoặc biến LATEST_ARTIFACTS_DIR), không phải sửa nhiều file.
-- Đã kiểm tra và loại bỏ hoàn toàn file thừa, file không dùng trong artifacts.
-- Đề xuất cấu trúc cây thư mục rõ ràng, tách biệt backend, ML, scripts, data, static, template, artifacts, giúp bảo trì và mở rộng dễ dàng.
-        ├── 📁 Merge_data
-        │   ├── 📄 merged_files_log.txt
-        │   └── 📄 merged_vrain_data.xlsx
-        ├── 📁 Models
-        │   ├── 🐍 Login.py
-        │   └── 🐍 __init__.py
-        ├── 📁 Repositories
-        │   ├── 🐍 Login_repositories.py
-        │   └── 🐍 __init__.py
-        ├── 📁 Seriallizer
-        │   └── 📁 Login
-        │       ├── 🐍 Base_login.py
-        │       ├── 🐍 Create_login.py
-        │       ├── 🐍 Update_login.py
-        │       └── 🐍 __init__.py
-        ├── 📁 TEST
-        │   └── ⚙️ .gitkeep
-        ├── 📁 cleaned_data
-        │   ├── 📁 Clean_Data_For_File_Merge
-        │   │   └── 📄 cleaned_merge_merged_vrain_data_20260124_192207.csv
-        │   └── 📁 Clean_Data_For_File_Not_Merge
-        │       ├── 📄 cleaned_output_Bao_cao_20260124_191737_20260124_192237.csv
-        │       ├── 📄 cleaned_output_Bao_cao_20260124_191946_20260124_192226.csv
-        │       └── 📄 cleaned_output_Bao_cao_20260124_191959_20260124_192219.csv
-        ├── 📁 logs
-        │   └── ⚙️ .gitkeep
-        ├── 📁 management
-        │   ├── 📁 commands
-        │   │   ├── 🐍 __init__.py
-        │   │   └── 🐍 insert_first_data.py
-        │   └── 🐍 __init__.py
-        ├── 📁 middleware
-        │   ├── 🐍 Auth.py
-        │   ├── 🐍 Authentication.py
-        │   ├── 🐍 Jwt_handler.py
-        │   └── 🐍 __init__.py
-        ├── 📁 migrations
-        │   └── 🐍 __init__.py
-        ├── 📁 output
-        │   ├── 📄 Bao_cao_20260124_191737.xlsx
-        │   ├── 📄 Bao_cao_20260124_191946.xlsx
-        │   └── 📄 Bao_cao_20260124_191959.csv
-        ├── 📁 runtime
-        │   └── 📁 logs
-        │       └── ⚙️ .gitkeep
-        ├── 📁 scripts
-        │   ├── 🐍 Cleardata.py
-        │   ├── 🐍 Crawl_data_by_API.py
-        │   ├── 🐍 Crawl_data_from_Vrain_by_API.py
-        │   ├── 🐍 Crawl_data_from_Vrain_by_Selenium.py
-        │   ├── 🐍 Crawl_data_from_html_of_Vrain.py
-        │   ├── 🐍 Email_validator.py
-        │   ├── 🐍 Login_services.py
-        │   ├── 🐍 Merge_xlsx.py
-        │   ├── 🐍 __init__.py
-        │   └── 🐍 email_templates.py
-        ├── 📁 static
-        │   └── 📁 weather
-        │       ├── 📁 css
-        │       │   ├── 🎨 Auth.css
-        │       │   ├── 🎨 CSS_Crawl_data_by_API.css
-        │       │   ├── 🎨 CSS_Crawl_data_from_Vrain_by_API.css
-        │       │   ├── 🎨 CSS_Crawl_data_from_Vrain_by_Selenium.css
-        │       │   ├── 🎨 CSS_Crawl_data_from_html_of_Vrain.css
-        │       │   ├── 🎨 Dataset_preview.css
-        │       │   ├── 🎨 Datasets.css
-        │       │   ├── 🎨 Home.css
-        │       │   └── 🎨 Sidebar.css
-        │       ├── 📁 img
-        │       │   ├── 📁 icons
-        │       │   │   └── ⚙️ .gitkeep
-        │       │   └── 📁 ui
-        │       │       ├── 🖼️ Home.png
-        │       │       ├── 🖼️ Weather.png
-        │       │       ├── 🖼️ cloud.png
-        │       │       ├── 🖼️ earth_texture.png
-        │       │       ├── 🖼️ sun.png
-        │       │       ├── 🖼️ thunder.png
-        │       │       ├── 🖼️ tree.png
-        │       │       └── 🖼️ water.png
-        │       └── 📁 js
-        │           ├── 📄 Home.js
-        │           ├── 📄 JS_Crawl_data_by_API.js
-        │           ├── 📄 JS_Crawl_data_from_Vrain_by_API.js
-        │           ├── 📄 JS_Crawl_data_from_Vrain_by_Selenium.js
-        │           └── 📄 JS_Crawl_data_from_html_of_Vrain.js
-        ├── 📁 templates
-        │   └── 📁 weather
-        │       ├── 📁 auth
-        │       │   ├── 🌐 Forgot_password.html
-        │       │   ├── 🌐 Login.html
-        │       │   ├── 🌐 Password_reset_complete.html
-        │       │   ├── 🌐 Password_reset_sent.html
-        │       │   ├── 🌐 Profile.html
-        │       │   ├── 🌐 Register.html
-        │       │   ├── 🌐 Reset_password.html
-        │       │   ├── 🌐 Reset_password_otp.html
-        │       │   ├── 🌐 Verify_email_register.html
-        │       │   └── 🌐 Verify_otp.html
-        │       ├── 🌐 Dataset_preview.html
-        │       ├── 🌐 Datasets.html
-        │       ├── 🌐 Error.html
-        │       ├── 🌐 HTML_Crawl_data_by_API.html
-        │       ├── 🌐 HTML_Crawl_data_from_Vrain_by_API.html
-        │       ├── 🌐 HTML_Crawl_data_from_Vrain_by_Selenium.html
-        │       ├── 🌐 HTML_Crawl_data_from_html_of_Vrain.html
-        │       ├── 🌐 Home.html
-        │       └── 🌐 Sidebar_nav.html
-        ├── 📁 views
-        │   ├── 🐍 Home.py
-        │   ├── 🐍 View_Clear.py
-        │   ├── 🐍 View_Crawl_data_by_API.py
-        │   ├── 🐍 View_Crawl_data_from_Vrain_by_API.py
-        │   ├── 🐍 View_Crawl_data_from_Vrain_by_Selenium.py
-        │   ├── 🐍 View_Crawl_data_from_html_of_Vrain.py
-        │   ├── 🐍 View_Datasets.py
-        │   ├── 🐍 View_Merge_Data.py
-        │   ├── 🐍 View_login.py
-        │   └── 🐍 __init__.py
-        ├── 🐍 __init__.py
-        ├── 🐍 admin.py
-        ├── 🐍 apps.py
-        ├── 🐍 db_connection.py
-        ├── 🐍 models.py
-        └── 🐍 urls.py
-├── 📁 WeatherForcast
-        ├── 🐍 __init__.py
-        ├── 🐍 asgi.py
-        ├── 🐍 settings.py
-        ├── 🐍 urls.py
-        └── 🐍 wsgi.py
+### 🔄 Data Flow
+
+```mermaid
+flowchart LR
+  A[🌐 Crawl Modules] --> B[📦 data_crawl/]
+  B -->|Merge| C[🔗 data_merge/]
+  C -->|Clean| D[🧹 data_clean/data_merge_clean/]
+  B -->|Clean| E[🧹 data_clean/data_not_merge_clean/]
+  D --> F[📊 Datasets Page]
+  E --> F
+  C --> F
+  F --> G[👁️ Preview/Download]
+  D -->|Train| H[🧠 ML Model]
+  H -->|Predict| I[🔮 data_forecast/]
 ```
 
----
-
-### 🚀 API Routes (Authentication)
-
-| Method   | Route                     | Mô tả                 |
-|----------|---------------------------|-----------------------|
-| GET/POST | `/login/`                 | Đăng nhập             |
-| GET/POST | `/register/`              | Đăng ký (bước 1)      |
-| GET/POST | `/verify-email-register/` | Xác thực OTP đăng ký  |
-| POST     | `/resend-email-otp/`      | Gửi lại OTP đăng ký   |
-| GET      | `/cancel-register/`       | Hủy đăng ký           |
-| GET      | `/logout/`                | Đăng xuất             |
-| GET/POST | `/profile/`               | Hồ sơ cá nhân         |
-| GET/POST | `/forgot-password/`       | Quên mật khẩu (bước 1)|
-| GET/POST | `/verify-otp/`            | Xác thực OTP (bước 2) |
-| GET/POST | `/reset-password-otp/`    | Đặt MK mới (bước 3)   |
-
----
-
-### 🧪 Development Mode (Console Email)
-
-Khi **không cấu hình email** (không có `EMAIL_HOST_PASSWORD` và `RESEND_API_KEY`), OTP sẽ được in ra terminal:
-
-```
-============================================================
-📧 [DEVELOPMENT MODE] - OTP sẽ được in ra console
-============================================================
-📮 Email: test@example.com
-👤 Tên: Test User
-🎯 Mục đích: đăng ký
-🔑 MÃ OTP: 12345
-⏱️ Hết hạn sau: 10 phút
-============================================================
-```
-
-> 💡 **Tip:** Mode này rất hữu ích khi phát triển local hoặc cho bạn bè clone repo test thử mà không cần cấu hình email.
-
----
-
-## 4. Cấu trúc thư mục dữ liệu
-
-```
-
-📦 vietnam_weather.db
-   └─ (DB dữ liệu thời tiết riêng của project – tùy bạn dùng/commit; thường nên ignore nếu là dữ liệu lớn)
-
-⚙️ Dockerfile
-   └─ (Build image để chạy project bằng Docker)
-
-⚙️ requirements.txt
-   └─ (Danh sách thư viện Python cần cài)
-
-📦 manage.py
-   └─ (Entry-point của Django: runserver, migrate, collectstatic, …)
-
-📁 venv/
-   └─ (Môi trường ảo Python – ❌ KHÔNG nên đưa lên Git)
-      ├─ 📁 bin/ (activate, pip, python, …)
-      ├─ 📁 lib/
-      └─ 📁 include/
-
-📁 WeatherForcast/                       🧩 (Django project config – “root project”)
-   ├─ ⚙️ settings.py                     (Cấu hình Django: INSTALLED_APPS, DB, STATIC, …)
-   ├─ ⚙️ urls.py                         (Router tổng: include app urls)
-   ├─ ⚙️ asgi.py / wsgi.py               (Serve production / ASGI-WGI entry)
-   └─ 📁 __pycache__/                    (cache – ignore)
-
-📁 Weather_Forcast_App/                  🧩 (Django app chính của hệ thống)
-   ├─ 📦 apps.py / admin.py / models.py  (App config, admin, models nếu có)
-   ├─ ⚙️ urls.py                         (Router của app: datasets, crawl, merge, clean, …)
-   ├─ 📁 views/                          🧠 (Controller/Views theo từng chức năng)
-   │  ├─ 🧩 Home.py                       (View trang Home)
-   │  ├─ 🧩 View_Datasets.py              (Danh sách datasets + view/download + list/clean UI)
-   │  ├─ 🧩 View_Merge_Data.py            (Gộp dữ liệu)
-   │  ├─ 🧩 View_Clear.py                 (Làm sạch dữ liệu)
-   │  ├─ 🧩 View_Crawl_data_by_API.py
-   │  ├─ 🧩 View_Crawl_data_from_Vrain_by_API.py
-   │  ├─ 🧩 View_Crawl_data_from_Vrain_by_Selenium.py
-   │  └─ 🧩 View_Crawl_data_from_html_of_Vrain.py
-   │
-   ├─ 📁 scripts/                         ⚙️ (Script xử lý dữ liệu – “engine”)
-   │  ├─ 🧩 Crawl_data_by_API.py           (Crawl thời tiết bằng API)
-   │  ├─ 🧩 Crawl_data_from_Vrain_by_API.py
-   │  ├─ 🧩 Crawl_data_from_Vrain_by_Selenium.py
-   │  ├─ 🧩 Crawl_data_from_html_of_Vrain.py
-   │  ├─ 🧩 Merge_xlsx.py                  (Gộp file xlsx/csv thành dataset chung)
-   │  └─ 🧩 Cleardata.py                   (Làm sạch/chuẩn hóa data sau crawl/merge)
-   │
-   ├─ 🎨 templates/
-   │  └─ 🎨 weather/
-   │     ├─ 📄 Home.html                   (UI trang Home)
-   │     ├─ 📄 Datasets.html               (UI trang Datasets: merged/cleaned/output + modal)
-   │     └─ 📄 dataset_preview.html         (UI preview bảng/JSON/text + phân trang/lazy load)
-   │
-   ├─ 🎨 static/
-   │  └─ 🎨 weather/
-   │     ├─ 🎨 css/                        (Home.css, Datasets.css, dataset_preview.css, …)
-   │     ├─ 🧠 js/                         (Home.js nếu có)
-   │     └─ 🖼️ images/                     (nếu bạn có asset)
-   │
-   ├─ 🗃️ output/                           (Dữ liệu thô sau crawl – “chưa xử lý/hoặc chưa merge”)
-   │  ├─ 📦 vietnam_weather_data_YYYYMMDD_HHMMSS.xlsx   (pattern nhiều file)
-   │  ├─ 📦 vrain_comprehensive_data_YYYYMMDD_HHMMSS.xlsx
-   │  ├─ 📦 luong_mua_thong_ke_selenium_YYYYMMDD_HHMMSS.csv
-   │  └─ 📦 Bao_cao_mua_YYYYMMDD_HHMMSS.xlsx
-   │
-   ├─ 🗃️ Merge_data/                       (Dữ liệu đã gộp – “merge_data”)
-   │  ├─ 📦 merged_vrain_data.xlsx
-   │  ├─ 📦 merged_weather_data.xlsx
-   │  ├─ 📦 merged_vietnam_weather_data.xlsx
-   │  ├─ 🧾 merged_files_log.txt
-   │  └─ 🧾 merged_vietnam_files_log.txt
-   │
-   ├─ 🗃️ cleaned_data/                      (Dữ liệu sau làm sạch)
-   │  ├─ 🗃️ Clean_Data_For_File_Merge/       (Clean output của nhóm “đã merge”)
-   │  └─ 🗃️ Clean_Data_For_File_Not_Merge/   (Clean output của nhóm “chưa merge/output”)
-   │
-   ├─ 🧾 logs/                               (Log tổng – tùy bạn ghi gì)
-   ├─ 🧾 runtime/logs/                        (Log runtime khi chạy job/clean/merge nếu bạn dùng)
-   ├─ 🧠 ml_models/                           (Nơi để model/weights/artefact ML – nếu có training)
-   ├─ 🧩 services/                            (Business services – nếu bạn tách service layer)
-   ├─ 🧪 TEST/                                (Test/nháp thử)
-   ├─ 📁 migrations/                          (Migration Django)
-   ├─ 📁 __pycache__/                         (cache – ignore)
-   └─ 📦 vietnam_weather.db                   (DB bản sao/DB phụ trong app – cân nhắc ignore)
-
-```
-
----
-
-## 5. Giao diện chính
-
-### 📚 Trang Datasets
-- Template: `templates/weather/Datasets.html`
-- CSS: `static/weather/css/Datasets.css`
-- Các khối chính:
-  - Merge datasets (list + “mới nhất”)
-  - Clean wizard + cleaned list
-  - Output datasets (raw list) + nút merge
-
-### 📄 Trang Dataset Preview
-- Template: `templates/weather/dataset_preview.html`
-- CSS: `static/weather/css/dataset_preview.css`
-- Hiển thị:
-  - Header file + loại file + info (folder/size/rows…)
-  - Table hoặc text + pagination/load more
-
----
-
-## 6. Routes / Endpoints
-
-> Dưới đây là những route **đang xuất hiện trong project** (tham chiếu theo tên reverse trong template + list URL pattern từng hiển thị trong debug 404).
-
-### 6.1. Pages
-- `home` → trang chủ
-- `datasets/` → danh sách dataset (name: `datasets`)
-- `datasets/view/<folder>/<filename>/` → xem file (name: `dataset_view`)
-- `datasets/download/<folder>/<filename>/` → tải file (name: `dataset_download`)
-
-### 6.2. Crawl modules (đã có trong urls)
-- `crawl-api-weather/` (+ logs)
-- `crawl-vrain-html/` (+ start/tail)
-- `crawl-vrain-api/` (+ start/tail)
-- `crawl-vrain-selenium/` (+ start/tail)
-
-> Mỗi nhóm crawl thường có **start/tail** để chạy nền + đọc log tiến trình.
-
-### 6.3. Merge / Clean (được gọi từ template)
-- `weather:merge_data` (POST) → chạy gộp dữ liệu
-- `weather:clean_list` (GET) → lấy danh sách file theo `source=merge|output` (cho Clean Wizard)
-- `weather:clean_data` (POST) → start clean job → trả `job_id`
-- `weather:clean_tail` (GET) → poll tiến trình/log/report theo `job_id`
-
----
-
-## 7. Mapping “folder key”
-
-**dataset_view / dataset_download** nhận 2 tham số: `folder` + `filename`.
-
-Trong `View_Datasets.py`, folder key được map như sau:
-
-| Folder key | Trỏ tới thư mục thực tế |
-|---|---|
-| `output` | `Weather_Forcast_App/output/` |
-| `merged` | `Weather_Forcast_App/Merge_data/` |
-| `cleaned` | `Weather_Forcast_App/cleaned_data/` (root) |
-| `cleaned_merge` | `Weather_Forcast_App/cleaned_data/Clean_Data_For_File_Merge/` |
-| `cleaned_raw` | `Weather_Forcast_App/cleaned_data/Clean_Data_For_File_Not_Merge/` |
-
----
-
-## 8. Dataset Preview (CSV/Excel/JSON/TXT)
-
-### 8.1. CSV/Excel (table mode)
-- `rows_per_page = 100`
-- Query param: `?page=N`
-- Nếu request là AJAX (`X-Requested-With: XMLHttpRequest`) → trả JSON để frontend render nhanh
-
-### 8.2. JSON (text + highlight)
-- Template có script parse JSON và highlight:
-  - key / string / number / boolean / null
-
-### 8.3. TXT
-- Render plain text trong `<pre>`
-
----
-
-## 9. Clean Wizard
-Clean Wizard trong `Datasets.html` gồm 3 step:
-
-1) **Chọn nguồn** (`merge` hoặc `output`)  
-2) **Chọn file** (list có search)  
-3) **Chạy job + theo dõi** (poll `clean_tail`)  
-   - progress bar
-   - log
-   - report (rows/missing/duplicates/size)
-   - nút xem/tải output file
-
----
-
-## 10. Merge result modal
-
-Đề xuất hành vi sau khi merge xong:
-- Backend trả JSON gồm `latest_merged`:
-  - `name`, `size_mb`, `mtime`
-  - `view_url`, `download_url`
-- Frontend mở modal:
-  - bấm xem/tải ngay
-  - bấm ✕/ESC để đóng + reload cập nhật danh sách
-
----
-
-## 11. Cài đặt & chạy
-
-### 11.1. Yêu cầu
-- Python 3.x
-- Django 3.x
-- pandas
-- openpyx3
-
-### 11.2 Cấu hình gpu
-## 🐧 Linux (Ubuntu/Debian)
-
-### ✅ A) Cài LightGBM CPU (khuyên dùng)
-```bash
-python -m pip install -U pip setuptools wheel
-pip install lightgbm
-```
-
-### 🚀 B) Build LightGBM GPU (OpenCL) (NVIDIA/AMD)
-
-#### 1) Cài dependencies
-```bash
-sudo apt-get update
-sudo apt-get install -y build-essential cmake python3-dev \
-  ocl-icd-opencl-dev opencl-headers clinfo \
-  libboost-dev libboost-filesystem-dev libboost-system-dev
-```
-
-#### 2) Kiểm tra OpenCL
-```bash
-clinfo | head -n 40
-```
-Nếu thấy `Platform` / `Device` (VD: NVIDIA / AMD) là OK.
-
-#### 3) Clone & build LightGBM GPU
-```bash
-cd ~
-git clone --recursive https://github.com/microsoft/LightGBM.git
-cd LightGBM
-
-rm -rf build
-cmake -B build -S . -DUSE_GPU=1
-cmake --build build -j"$(nproc)"
-```
-
-#### 4) Cài Python package vào đúng venv (**KHÔNG dùng sudo**)
-```bash
-python -m pip install -U pip setuptools wheel
-./build-python.sh install --precompile
-```
-
----
-
-## 🪟 Windows
-
-### ✅ A) Cài LightGBM CPU (đơn giản nhất)
-```powershell
-python -m pip install -U pip setuptools wheel
-pip install lightgbm
-```
-
-### 🚀 B) Build LightGBM GPU (OpenCL) (nâng cao)
-> Chỉ nên làm nếu bạn thực sự cần GPU.
-
-Cần cài:
-- 🧰 Visual Studio (Desktop development with C++)
-- 🧱 CMake
-- ⚡ OpenCL runtime / SDK (NVIDIA/AMD/Intel)
-
-Sau đó build theo hướng dẫn chính thức của LightGBM (GPU/OpenCL) tùy theo runtime GPU của bạn.
-
----
-
-## 🍎 macOS (Intel / Apple Silicon)
-
-### ✅ A) Cài LightGBM CPU (khuyên dùng)
-```bash
-python -m pip install -U pip setuptools wheel
-pip install lightgbm
-```
-
-### ⚠️ GPU trên macOS
-LightGBM GPU mode dùng **OpenCL** (OpenCL trên macOS đã bị deprecate), nên **không khuyến nghị** build GPU trên macOS.  
-Nếu cần tăng tốc: dùng CPU multi-core (`n_jobs=-1`) hoặc chuyển sang Linux/Windows có OpenCL runtime.
-
----
-
-## 🧪 Verify Installation
-
-Chạy trong Python:
+### 📥 Data Sources
+
+| Source | Method | File Format | Frequency |
+|--------|--------|-------------|-----------|
+| **OpenWeather API** | REST API | JSON → CSV | Hourly |
+| **Vrain API** | REST API | JSON → CSV | Daily |
+| **Vrain Selenium** | Web scraping | HTML → CSV | On-demand |
+| **Vrain HTML Parser** | Static parsing | HTML → CSV | On-demand |
+
+### 🔗 Merge Process
+
+#### Features
+- **Schema alignment**: Automatically align column names and types
+- **Conflict resolution**: Handle duplicate timestamps with configurable strategies
+- **Deduplication**: Remove exact duplicate rows
+- **Validation**: Check data integrity before/after merge
+- **Logging**: Detailed merge log with file info and statistics
+
+#### Merge Strategies
 ```python
-import lightgbm as lgb
-print("LightGBM version:", lgb.__version__)
-```
-
----
-
-## ⚙️ Bật GPU trong code (chỉ khi bạn build GPU thành công)
-
-Trong project, nếu bạn có flag `use_gpu=True`, thường sẽ map sang tham số:
-- `device_type="gpu"`
-
-Ví dụ:
-```python
-params = {
-  "device_type": "gpu",   # chỉ dùng khi GPU build OK
-  "n_jobs": -1,
-  "random_state": 42,
+# Configuration in merge script
+MERGE_CONFIG = {
+    "on": ["datetime", "city"],        # Join keys
+    "how": "outer",                    # Join type
+    "suffixes": ["_src1", "_src2"],   # Handle column conflicts
+    "validate": "1:1"                  # Ensure no duplicates
 }
 ```
 
-> 💡 Nếu bật `use_gpu=True` mà máy/chưa build GPU đúng chuẩn, bạn có thể thấy warning / fallback / hoặc lỗi — lúc đó để `use_gpu=False` sẽ chạy ổn định trên CPU.
+### 🧹 Clean Process
+
+#### Cleaning Pipeline (4 Steps)
+
+**Step 1:** Column Renaming (Skipped - handled by Cleardata)
+
+**Step 2:** Main Cleaning (`Cleardata.py`)
+- Remove duplicate rows
+- Handle missing values (fill/drop)
+- Standardize datetime formats
+- Remove outliers
+- Normalize units (e.g., temperature °C/°F, pressure hPa/mmHg)
+- Validate data ranges
+
+**Step 3:** Additional Cleaning (Skipped - duplicate of Step 2)
+
+**Step 4:** DateTime NaN Cleaning (`clean_datetime_nan.py`)
+- Fix invalid datetime values
+- Fill missing dates with interpolation
+- Remove rows with critical datetime errors
+
+#### Clean Wizard UI (3 Steps)
+
+```
+Step 1: Select Source
+├── 🔗 Merged data (from data_merge/)
+└── 📦 Raw data (from data_crawl/)
+        ↓
+Step 2: Choose File
+├── Search/filter files
+├── View file metadata (size, date)
+└── Select file to clean
+        ↓
+Step 3: Track Progress
+├── Real-time log output
+├── Progress percentage
+├── Error/warning messages
+└── Download cleaned file ✅
+```
+
+### 👁️ Dataset Preview
+
+#### CSV/Excel (Table Mode)
+- **Pagination**: 50 rows per page
+- **Sortable columns**: Click header to sort
+- **Search**: Filter by any column value
+- **Metadata**: Row count, column count, file size
+- **Export**: Download as CSV/XLSX/JSON
+
+#### JSON (Syntax Highlighted)
+```json
+{
+  "datetime": "2026-03-08T10:00:00",
+  "temperature": 28.5,
+  "humidity": 75,
+  "rain_total": 12.3,
+  "city": "Ho Chi Minh City"
+}
+```
+
+#### TXT (Preformatted)
+```
+=== Weather Data Log ===
+Date: 2026-03-08
+Temperature: 28.5°C
+Humidity: 75%
+Rain: 12.3mm
+```
+
+### ⬇️ Download Options
+
+| Format | Use Case | Features |
+|--------|----------|----------|
+| **CSV** | Data analysis, Excel | UTF-8 BOM, comma-delimited |
+| **XLSX** | Business reports | Formatted headers, auto-width |
+| **JSON** | API integration | Pretty-printed, indented |
+| **TXT** | Logs, debugging | Plain text, line-delimited |
 
 ---
 
-## 🧠 Ghi chú nhanh (seed / random_state)
+## 🗂️ Project Structure
 
-- `random_state: 42` 🎲 là **seed** cho các thao tác ngẫu nhiên (split dữ liệu, sampling, v.v.)
-- Mục tiêu: chạy lại nhiều lần sẽ ra kết quả **ổn định hơn** (reproducible).
-- Không bắt buộc phải là 42 — chỉ là con số “quen dùng” trong ví dụ.
+```
+PROJECT_WEATHER_FORECAST/
+├── 📁 Weather_Forcast_App/         # Main Django application
+│   ├── 📁 Enums/                   # Enumerations and constants
+│   ├── 📁 Machine_learning_artifacts/
+│   │   ├── 📁 latest/              # Current model artifacts
+│   │   │   ├── Feature_list.json   # Feature schema
+│   │   │   ├── Metrics.json        # Performance metrics
+│   │   │   ├── Train_info.json     # Training metadata
+│   │   │   └── Model.pkl           # Trained model
+│   │   └── 📁 old_model/           # Previous version backup
+│   ├── 📁 Machine_learning_model/  # ML pipeline modules
+│   │   ├── 📁 config/              # Training configurations
+│   │   │   ├── train_config.json   # Main config
+│   │   │   └── default.yaml        # Default parameters
+│   │   ├── 📁 data/                # Data loading and validation
+│   │   │   ├── Loader.py           # Load CSV/XLSX to DataFrame
+│   │   │   ├── Schema.py           # Data schema validation
+│   │   │   └── Split.py            # Train/valid/test split
+│   │   ├── 📁 evaluation/          # Model evaluation
+│   │   │   ├── metrics.py          # Metric calculations
+│   │   │   └── report.py           # Report generation
+│   │   ├── 📁 features/            # Feature engineering
+│   │   │   ├── Build_transfer.py   # Feature construction
+│   │   │   └── Transformers.py     # Data transformers
+│   │   ├── 📁 interface/           # Prediction interface
+│   │   │   └── predictor.py        # WeatherPredictor class
+│   │   ├── 📁 Models/              # ML model implementations
+│   │   │   ├── Base_model.py       # Abstract base class
+│   │   │   ├── Random_Forest_Model.py
+│   │   │   ├── XGBoost.py
+│   │   │   ├── LightGBM_Model.py
+│   │   │   ├── CatBoost.py
+│   │   │   └── TwoStage_Model.py   # Ensemble model
+│   │   ├── 📁 trainning/           # Training pipeline
+│   │   │   ├── train.py            # Main training script
+│   │   │   └── tuning.py           # Hyperparameter tuning
+│   │   └── 📁 WeatherForcast/      # Forecasting module
+│   │       └── WeatherForcast.py   # Forecast generator
+│   ├── 📁 Evaluate_accuracy/       # Evaluation notebooks
+│   │   ├── tremblingProcess.ipynb  # Full ML pipeline (31 cells)
+│   │   ├── evaluate.ipynb          # Model evaluation
+│   │   └── MODEL_EVALUATION_SUMMARY.md
+│   ├── 📁 i18n/                    # Internationalization
+│   │   ├── 📁 locales/
+│   │   │   ├── vi.json             # Vietnamese translations
+│   │   │   └── en.json             # English translations
+│   │   ├── context_processor.py    # Django context processor
+│   │   ├── middleware.py           # Language middleware
+│   │   └── hooks.ts / index.ts     # Frontend i18n
+│   ├── 📁 middleware/              # Django middleware
+│   │   ├── Auth.py                 # Authentication middleware
+│   │   ├── Authentication.py       # Session handling
+│   │   └── Jwt_handler.py          # JWT token processing
+│   ├── 📁 Models/                  # Django models
+│   │   └── Login.py                # User model (MongoDB)
+│   ├── 📁 Repositories/            # Data access layer
+│   │   └── Login_repositories.py   # User CRUD operations
+│   ├── 📁 Seriallizer/             # Data serializers
+│   │   └── 📁 Login/
+│   │       ├── Base_login.py
+│   │       ├── Create_login.py
+│   │       └── Update_login.py
+│   ├── 📁 management/              # Django management commands
+│   │   └── 📁 commands/
+│   │       ├── train_model.py      # Train ML model command
+│   │       └── insert_first_data.py
+│   ├── 📁 scripts/                 # Utility scripts
+│   │   ├── Crawl_data_by_API.py
+│   │   ├── Crawl_data_from_Vrain_by_API.py
+│   │   ├── Crawl_data_from_Vrain_by_Selenium.py
+│   │   ├── Crawl_data_from_html_of_Vrain.py
+│   │   ├── Merge_xlsx.py           # Data merging
+│   │   ├── Cleardata.py            # Data cleaning
+│   │   ├── clean_datetime_nan.py   # DateTime cleanup
+│   │   ├── run_diagnostics.py      # Health check
+│   │   ├── Email_validator.py      # Email validation
+│   │   ├── Login_services.py       # Auth services
+│   │   └── email_templates.py      # Email templates
+│   ├── 📁 static/weather/          # Static assets
+│   │   ├── 📁 css/                 # Stylesheets
+│   │   │   ├── Home.css            # Homepage styles (4500+ lines)
+│   │   │   ├── Datasets.css        # Dataset page styles
+│   │   │   ├── Auth.css            # Authentication styles
+│   │   │   └── ...
+│   │   ├── 📁 js/                  # JavaScript modules
+│   │   │   ├── Home.js             # Homepage interactions
+│   │   │   ├── Datasets.js         # Dataset management
+│   │   │   └── ...
+│   │   ├── 📁 theme/               # Design system
+│   │   │   ├── color.css           # Color variables
+│   │   │   ├── effect.css          # Visual effects
+│   │   │   ├── animation.css       # Keyframe animations
+│   │   │   └── typography.css      # Font system
+│   │   └── 📁 img/                 # Images and icons
+│   ├── 📁 templates/weather/       # Django templates
+│   │   ├── Home.html               # Homepage
+│   │   ├── Datasets.html           # Dataset browser
+│   │   ├── Dataset_preview.html    # File preview
+│   │   ├── HTML_Train.html         # Model training page
+│   │   ├── HTML_Predict.html       # Weather forecast page
+│   │   ├── 📁 auth/                # Authentication templates
+│   │   │   ├── Login.html
+│   │   │   ├── Register.html
+│   │   │   ├── Verify_email_register.html
+│   │   │   ├── Forgot_password.html
+│   │   │   ├── Verify_otp.html
+│   │   │   ├── Reset_password_otp.html
+│   │   │   └── Profile.html
+│   │   └── Sidebar_nav.html        # Navigation sidebar
+│   ├── 📁 views/                   # Django views
+│   │   ├── Home.py                 # Homepage view
+│   │   ├── View_Datasets.py        # Dataset browser views
+│   │   ├── View_Merge_Data.py      # Merge API endpoint
+│   │   ├── View_Clear.py           # Clean wizard endpoints
+│   │   ├── View_Crawl_*.py         # Crawl endpoints
+│   │   ├── View_login.py           # Auth views
+│   │   ├── View_Train.py           # Training views
+│   │   └── View_Predict.py         # Forecast views
+│   ├── urls.py                     # URL routing (44 patterns)
+│   ├── db_connection.py            # MongoDB connection
+│   └── paths.py                    # Path constants
+├── 📁 WeatherForcast/              # Django project settings
+│   ├── settings.py                 # Configuration
+│   ├── urls.py                     # Root URL conf
+│   ├── wsgi.py                     # WSGI entry point
+│   └── asgi.py                     # ASGI entry point
+├── 📁 data/                        # Data storage (see Data Pipeline section)
+├── 📁 config/                      # Project configurations
+│   └── train_config.json           # ML training config
+├── manage.py                       # Django management script
+├── requirements.txt                # Python dependencies
+├── .env                            # Environment variables (gitignored)
+├── README.md                       # This file
+├── CHANGELOG.md                    # Version history and updates
+└── debug_top50_errors.csv          # Error diagnostics
+```
+
+### 📦 Key Directories Explained
+
+#### `Machine_learning_artifacts/`
+Stores trained model artifacts separated by version:
+- `latest/` — Current production model
+- `old_model/` — Previous version backup
+
+**Never commit** `.pkl` files to git (large binary files). Use `.gitignore`.
+
+#### `Machine_learning_model/`
+Complete ML pipeline with modular architecture:
+- **data/**: Loading, validation, splitting
+- **features/**: Engineering, transformation
+- **Models/**: Algorithm implementations
+- **trainning/**: Training orchestration
+- **interface/**: Prediction API
+- **evaluation/**: Metrics and reporting
+
+#### `i18n/`
+Internationalization system:
+- **locales/**: JSON translation files (vi.json, en.json)
+- **middleware.py**: Auto-detect language from URL/session
+- **context_processor.py**: Inject `{% t %}` template tag
+
+#### `static/weather/`
+Frontend assets with design system:
+- **css/**: Organized by page + theme system
+- **js/**: Vanilla JavaScript modules (no framework)
+- **theme/**: Centralized design tokens (colors, shadows, spacing)
+
+#### `templates/weather/`
+Django templates with template tags:
+- Server-side rendering for SEO
+- `{% load i18n_tags %}` for translations
+- `{% load static %}` for asset URLs
 
 ---
 
-## 🆘 Troubleshooting (lỗi hay gặp)
+## 🚀 Installation & Setup
 
-### 1) `Could NOT find OpenCL ...`
-➡️ Cài OpenCL dev headers:
+### 📋 Requirements
+
+| Requirement | Version | Purpose |
+|------------|---------|---------|
+| **Python** | 3.11+ | Core runtime |
+| **Django** | 5.1+ | Web framework |
+| **MongoDB** | 7.0+ | User database |
+| **pip** | 24+ | Package manager |
+| **virtualenv** | 20+ | Environment isolation |
+
+### 🔧 Step-by-Step Installation
+
+#### 1️⃣ Clone Repository
 ```bash
-sudo apt-get install -y ocl-icd-opencl-dev opencl-headers clinfo
+git clone https://github.com/TiCoder-coder/PROJECT_WEATHER_FORCAST.git
+cd PROJECT_WEATHER_FORCAST
 ```
 
-### 2) `Could NOT find Boost ... filesystem system`
-➡️ Cài Boost:
+#### 2️⃣ Create Virtual Environment
 ```bash
-sudo apt-get install -y libboost-dev libboost-filesystem-dev libboost-system-dev
-```
+# Create venv
+python3 -m venv .venv
 
-### 3) Đang dùng venv mà lại cài bằng `sudo`
-⚠️ Tránh `sudo pip ...` vì sẽ cài vào system Python, dễ lệch môi trường.  
-✅ Hãy activate venv rồi chạy:
-```bash
-python -m pip install lightgbm
-```
-
----
-
-
-### Cấu hình docker transaction
-- Hướng dẫn setting docker để chạy (Setting transaction mongodb)
-
-#### ✅ 1) Kiểm tra Docker trước (dọn tài nguyên nếu bị chiếm port / trùng container)
-
-- Xem container đang chạy: `docker ps`
-- Xem tất cả container: `docker ps -a`
-- Xoá container (nếu cần): `docker rm -f <container_id_or_name>`
-- Xem images: `docker images`
-- Xoá images (nếu cần): `docker rmi <image_id>`
-- Xem network: `docker network ls`
-- Xoá network (nếu cần): `docker network rm <network_name>`
-
-#### ✅ 2) Tạo network riêng cho Mongo Replica Set
-
-```bash
-docker network create mongoNet
-```
-
-#### ✅ 3) Pull MongoDB image (nếu chưa có)
-
-```bash
-docker pull mongo:latest
-```
-
-#### ✅ 4) Tạo 3 container chạy chung Replica Set (mongoRepSet)
-
-```bash
-docker run -d --name r0 --net mongoNet -p 27108:27017 mongo:latest mongod --replSet mongoRepSet --bind_ip_all --port 27017
-docker run -d --name r1 --net mongoNet -p 27109:27017 mongo:latest mongod --replSet mongoRepSet --bind_ip_all --port 27017
-docker run -d --name r2 --net mongoNet -p 27110:27017 mongo:latest mongod --replSet mongoRepSet --bind_ip_all --port 27017
-```
-
-- Lí do tạo ra 3 container (3 node) là vì replica set thường là 3 nốt để node primary mà hỏng thì cũng còn 2 node secondary vẫn sẽ chạy được, không làm hỏng chương trình.
-
-#### ✅ 5) Initiate Replica Set (chạy trong r0)
-
-- Setting r0 sẽ là primary còn lại là secondary
-
-```bash
-docker exec -it r0 mongosh --eval '
-rs.initiate({
-  _id: "mongoRepSet",
-  members: [
-    { _id: 0, host: "r0:27017" },
-    { _id: 1, host: "r1:27017" },
-    { _id: 2, host: "r2:27017" }
-  ]
-})
-'
-```
-
-#### ✅ 6) Kiểm tra trạng thái Replica Set
-
-```bash
-docker exec -it r0 mongosh --eval 'rs.status().members.map(m=>({name:m.name,stateStr:m.stateStr}))'
-```
-
-#### ✅ 7) Vào shell của node primary (r0)
-
-```bash
-docker exec -it r0 mongosh
-```
-
-- Check trạng thái:
-
-```bash
-rs.status()
-```
-
-#### ✅ 8) Test ghi database (primary ghi được, secondary sẽ báo lỗi)
-
-Trong `r0`:
-
-```bash
-use Login
-db.Login.insert({name: "test"})
-db.Login.find()
-```
-
-Vào `r1` hoặc `r2` và thử insert sẽ thấy báo lỗi (do secondary không cho ghi).
-
----
-
-### 11.3. Cấu hình env
-SECRET_KEY = "..."
-MONGO_URI=mongodb://localhost:27108/Login?directConnection=true
-
-### 11.4. Chạy nhanh
-```bash
-python -m venv .venv
+# Activate venv
 source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
+.venv\Scripts\activate     # Windows
+```
 
+#### 3️⃣ Install Dependencies
+```bash
+# Install Python packages
 pip install -r requirements.txt
 
+# Verify installation
+pip list
+```
+
+**Key packages:**
+```txt
+Django==5.1.5
+djongo==1.3.6
+pymongo==4.10.1  
+pandas==2.2.0
+numpy==1.26.0
+scikit-learn==1.8.0
+xgboost==3.2.0
+lightgbm==4.6.0
+catboost==1.2.10
+seaborn==0.13.2
+shap==0.51.0
+selenium==4.27.1
+beautifulsoup4==4.12.3
+requests==2.32.3
+openpyxl==3.1.5
+python-dotenv==1.0.1
+Pillow==11.0.0
+```
+
+#### 4️⃣ Configure Environment Variables
+
+Create `.env` file in project root:
+
+```env
+# Django Settings
+SECRET_KEY=django-insecure-4$t0@wnk+#qu19m66%a90(d10z69tr$-ei@u_pf_%#m5it@=t+
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# MongoDB Connection
+MONGO_URI=mongodb://localhost:27017/Login?directConnection=true
+DB_HOST=mongodb+srv://username:<password>@cluster0.mongodb.net/
+DB_NAME=Login
+DB_USER=username
+DB_PASSWORD=your_password
+DB_PORT=27017
+DB_AUTH_SOURCE=admin
+DB_AUTH_MECHANISM=SCRAM-SHA-256
+
+# Authentication
+PASSWORD_PEPPER=yPTp0tlNjhhCmktx_FInwo0bLcu2aquaT3BLVMJaQqw
+JWT_SECRET=MHGtW9YsZcP1O04ScNbiOTVMPS-DCS_NKeenFBzaWXzR2Fk7_3xxnT2vubAMIuXNVybtBsCYifEYHxVW6fRnEQ
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TTL=900
+JWT_REFRESH_TTL=604800
+MAX_FAILED_ATTEMPS=5
+LOCKOUT_SECOND=300
+
+# Email Configuration (Gmail SMTP)
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your_email@gmail.com
+EMAIL_HOST_PASSWORD=your_16_char_app_password
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=VN Weather Hub <your_email@gmail.com>
+
+# OTP Settings
+PASSWORD_RESET_OTP_EXPIRE_SECONDS=600
+PASSWORD_RESET_OTP_MAX_ATTEMPTS=5
+
+# Resend API (alternative to Gmail)
+RESEND_API_KEY=re_your_resend_api_key
+RESEND_FROM_EMAIL=onboarding@resend.dev
+
+# Admin Account (first-time setup)
+USER_NAME_ADMIN=admin
+ADMIN_PASSWORD=Admin@2026
+ADMIN_EMAIL=admin@vnweatherhub.com
+```
+
+#### 5️⃣ Set Up MongoDB
+
+**Option A: MongoDB Atlas (Cloud)**
+1. Create free cluster at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. Get connection string
+3. Update `DB_HOST` in `.env`
+
+**Option B: Local MongoDB**
+```bash
+# Install MongoDB
+# Ubuntu
+sudo apt install mongodb
+
+# macOS
+brew install mongodb-community
+
+# Start MongoDB
+sudo systemctl start mongodb  # Linux
+brew services start mongodb-community  # macOS
+
+# Verify running
+mongosh --eval "db.version()"
+```
+
+#### 6️⃣ Initialize Database
+```bash
+# Run Django migrations (creates SQLite tables)
 python manage.py migrate
+
+# Create first admin user (inserts to MongoDB)
+python manage.py insert_first_data
+
+# Verify MongoDB collections
+mongosh
+> use Login
+> db.logins.find()
+```
+
+#### 7️⃣ Run Development Server
+```bash
 python manage.py runserver
 
-Check train: python3 Weather_Forcast_App/Machine_learning_model/trainning/train.py --config Weather_Forcast_App/Machine_learning_model/config/train_config.json
+# Server starts at http://127.0.0.1:8000
+```
+
+#### 8️⃣ Access Application
+Open browser and navigate to:
+- **Homepage**: http://127.0.0.1:8000/
+- **Login**: http://127.0.0.1:8000/login/
+- **Register**: http://127.0.0.1:8000/register/
+- **Datasets**: http://127.0.0.1:8000/datasets/
+- **Admin**: http://127.0.0.1:8000/admin/ (use admin credentials)
+
+---
+
+### 🎯 Quick Start Commands
+
+```bash
+# Development workflow
+python manage.py runserver           # Start dev server
+python manage.py check               # Check Django configuration
+python manage.py showurls            # List all URL patterns (if installed)
+
+# ML commands
+python manage.py train_model         # Train ML model
+python Weather_Forcast_App/Machine_learning_model/trainning/train.py \
+  --config Weather_Forcast_App/Machine_learning_model/config/train_config.json
+
+# Database commands
+python manage.py makemigrations      # Create migration files
+python manage.py migrate             # Apply migrations
+python manage.py insert_first_data   # Insert admin user
+
+# Utility commands
+python manage.py collectstatic       # Collect static files for production
+python manage.py createsuperuser     # Create Django admin superuser
 ```
 
 ---
 
-## 12. Lỗi thường gặp & cách xử lý
+## 📖 User Guide
 
-### 12.1. 👀 XEM / ⬇️ TẢI bị 404 “File not found”
-**Nguyên nhân:** truyền sai folder key (không khớp mapping mục 7).  
-**Fix:** dùng đúng key (`output`, `merged`, `cleaned_merge`, `cleaned_raw`, …) hoặc dùng `f.folder`.
+### 🏠 Homepage
 
-### 12.2. “📅 MỚI NHẤT” đúng nhưng list bên dưới không đổi
-**Nguyên nhân hay gặp:** template dùng nhầm biến hoặc list lấy từ nguồn khác.  
-**Fix checklist:**
-- “mới nhất” và list phải cùng nguồn (đều từ `Merge_data`, hoặc đều từ `cleaned_merge`…)
-- check lại variable name (ví dụ `latest_merged` vs `latest_cleaned_merge`)
-- đảm bảo merge thật sự tạo file trong đúng thư mục (`Merge_data`)
+#### Features
+- **Hero section** with animated weather graphics
+- **Quick actions** for data collection, training, forecasting
+- **Activity cards** showing recent datasets and model status
+- **Language switcher** (Vietnamese ⇄ English)
+- **User profile** dropdown with logout option
 
-### 12.3. CSS không cập nhật
-- File CSS trong template có `?v=...` để cache-busting  
-- Nếu vẫn không thấy đổi: hard reload / clear cache
+#### Quick Actions
+| Button | Action | Description |
+|--------|--------|-------------|
+| 🌐 **Start Data Collection** | Opens crawl modal | Choose data source (API/Selenium/HTML) |
+| 📊 **Browse Datasets** | Navigate to datasets page | View all raw/merged/cleaned data |
+| 🧠 **Train Model** | Open training page | Configure and train ML model |
+| 🔮 **Weather Forecast** | Open forecast page | Generate predictions with trained model |
+| ❓ **User Guide** | Opens help modal | Step-by-step tutorials |
 
-### 12.4. Lỗi docker chưa chạy
-- Khởi động docker: docker start r0 r1 r2
+### 📊 Datasets Page
+
+#### Tabs
+1. **📦 Recent Raw Data** (`data_crawl/`)
+   - Latest crawled files
+   - View, download, merge options
+   
+2. **🔗 Merged Data** (`data_merge/`)
+   - Combined datasets
+   - View, download, clean options
+   
+3. **🧹 Cleaned Data**
+   - **From merged** (`data_merge_clean/`)
+   - **From raw** (`data_not_merge_clean/`)
+   
+4. **🧪 Process Data**
+   - Merge wizard
+   - Clean wizard
+   - Progress tracking
+
+#### Actions
+- **👁️ VIEW**: Preview file in browser (table/JSON/text)
+- **⬇️ DOWNLOAD**: Download file to local machine
+- **🔗 MERGE**: Combine multiple raw files
+- **🧹 CLEAN**: Run cleaning pipeline on file
+
+### 🧠 Train Model Page
+
+#### Configuration
+```json
+{
+  "dataset": "Select cleaned dataset",
+  "target": "rain_total",
+  "model_type": "two_stage | xgboost | lightgbm | catboost | randomforest",
+  "train_ratio": 0.7,
+  "valid_ratio": 0.15,
+  "test_ratio": 0.15
+}
+```
+
+#### Training Process
+1. Select dataset from dropdown
+2. Choose model algorithm
+3. Configure train/valid/test split
+4. Set hyperparameters (optional)
+5. Click **🧠 Start Training**
+6. Monitor progress bar
+7. View metrics report
+8. Download model artifacts
+
+#### Output
+- `Feature_list.json` — Feature schema
+- `Metrics.json` — Performance metrics
+- `Train_info.json` — Training metadata
+- `Model.pkl` — Trained model binary
+
+### 🔮 Weather Forecast Page
+
+#### Input
+- **Date range**: Start and end dates
+- **Location**: City/province selection
+- **Model**: Choose trained model
+
+#### Output
+```
+Date       | Temperature | Humidity | Rain (mm) | Confidence
+-----------|-------------|----------|-----------|------------
+2026-03-09 | 28.5°C      | 75%      | 12.3      | 0.92
+2026-03-10 | 27.8°C      | 78%      | 18.5      | 0.89
+2026-03-11 | 29.2°C      | 72%      | 0.0       | 0.95
+```
+
+#### Visualization
+- Line chart: Temperature over time
+- Bar chart: Rain predictions
+- Confidence intervals shaded areas
+- Export to CSV/Excel
 
 ---
 
-## 13. Roadmap
+## 🔧 Configuration
 
-<ul>
-        <li>📈 <b>Dashboard ML models</b>: Xây dựng dashboard trực quan, biểu đồ dự báo, so sánh các model, export report.</li>
-        <li>🔐 <b>Auth/Role</b>: Phân quyền thao tác pipeline (merge/clean/crawl), quản lý user, role, log hoạt động.</li>
-        <li>✅ <b>Schema validation</b>: Kiểm tra schema trước khi merge/clean, cảnh báo lỗi, tự động sửa lỗi phổ biến.</li>
-        <li>🚀 <b>Deploy</b>: Triển khai Docker/Railway, tích hợp CI/CD, lưu trữ dữ liệu trên S3/MinIO, backup tự động.</li>
-        <li>🧠 <b>ML pipeline mở rộng</b>: Thêm module dự báo nâng cao, tuning tự động, tích hợp Optuna, XGBoost, LightGBM, CatBoost.</li>
-        <li>🧩 <b>Service layer</b>: Tách biệt business logic, dễ bảo trì, mở rộng.</li>
-        <li>🧪 <b>Test/Benchmark</b>: Bổ sung test, benchmark, validate pipeline, đảm bảo chất lượng.</li>
-        <li>🌐 <b>API RESTful</b>: Mở rộng API cho frontend/mobile, tích hợp Swagger/OpenAPI.</li>
-</ul>
+### ⚙️ Django Settings
+
+**File:** `WeatherForcast/settings.py`
+
+#### Key Configurations
+
+```python
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'Weather_Forcast_App',  # Main app
+]
+
+# Middleware
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Weather_Forcast_App.i18n.middleware.LanguageMiddleware',  # i18n
+    'Weather_Forcast_App.middleware.Authentication.JWTAuthenticationMiddleware',  # JWT
+]
+
+# Database (MongoDB via djongo)
+DATABASES = {
+    'default': {
+        'ENGINE': 'djongo',
+        'NAME': os.getenv('DB_NAME', 'Login'),
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': os.getenv('DB_HOST'),
+            'username': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD'),
+            'authSource': os.getenv('DB_AUTH_SOURCE', 'admin'),
+            'authMechanism': os.getenv('DB_AUTH_MECHANISM', 'SCRAM-SHA-256'),
+        }
+    }
+}
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'Weather_Forcast_App' / 'static',
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Email configuration
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+# Security
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # Set True in production with HTTPS
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = False  # Set True in production
+```
+
+### 🔐 Security Settings
+
+#### Production Checklist
+```python
+# settings.py (production overrides)
+DEBUG = False
+ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+```
+
+### 📊 ML Training Configuration
+
+**File:** `config/train_config.json`
+
+```json
+{
+  "data": {
+    "filename": "merged_vrain_data_cleaned_20260307_223506.clean_final.csv",
+    "target_column": "rain_total",
+    "date_column": "datetime",
+    "features": ["temperature", "humidity", "pressure", "wind_speed", "..."]
+  },
+  "model": {
+    "type": "two_stage",
+    "classifier": {
+      "algorithm": "xgboost",
+      "params": {
+        "n_estimators": 100,
+        "max_depth": 8,
+        "learning_rate": 0.1,
+        "objective": "binary:logistic"
+      }
+    },
+    "regressor": {
+      "algorithm": "lightgbm",
+      "params": {
+        "n_estimators": 150,
+        "max_depth": 10,
+        "learning_rate": 0.05,
+        "objective": "regression"
+      }
+    }
+  },
+  "split": {
+    "train_ratio": 0.7,
+    "valid_ratio": 0.15,
+    "test_ratio": 0.15,
+    "shuffle": false,
+    "random_state": 42
+  },
+  "feature_engineering": {
+    "lag_features": [1, 2, 3, 6, 12, 24],
+    "rolling_windows": [3, 6, 12, 24],
+    "time_features": ["hour", "day", "month", "season"],
+    "location_features": ["lat", "lon", "elevation"]
+  },
+  "evaluation": {
+    "metrics": ["mae", "rmse", "mape", "r2", "rain_accuracy"],
+    "save_predictions": true,
+    "save_feature_importance": true
+  }
+}
+```
 
 ---
 
-## 14. Ghi chú nguồn dữ liệu
-Nếu crawl dữ liệu từ bên thứ ba (OpenWeather / vrain / website thống kê…):
-- Tôn trọng điều khoản sử dụng (Terms/ToS)
-- Rate-limit crawl để tránh gây tải
-- Ghi attribution nếu cần
+## 🐛 Troubleshooting
+
+### ❌ Common Errors
+
+#### 1. `UnicodeEncodeError` on Windows
+**Error:**
+```
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2500'
+```
+
+**Solution:**
+Set console encoding to UTF-8:
+```python
+# Add to top of script
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+```
+
+Or use ASCII characters instead of Unicode:
+```python
+# Before
+print("──────")  # Box-drawing characters
+# After
+print("------")  # ASCII hyphens
+```
+
+#### 2. MongoDB Connection Failed
+**Error:**
+```
+pymongo.errors.ServerSelectionTimeoutError: localhost:27017: [Errno 111] Connection refused
+```
+
+**Solutions:**
+```bash
+# Check if MongoDB is running
+sudo systemctl status mongodb  # Linux
+brew services list             # macOS
+
+# Start MongoDB
+sudo systemctl start mongodb   # Linux
+brew services start mongodb-community  # macOS
+
+# Verify connection string in .env
+MONGO_URI=mongodb://localhost:27017/Login?directConnection=true
+```
+
+#### 3. Email OTP Not Sending
+**Error:**
+```
+SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted')
+```
+
+**Solutions:**
+1. **Check Gmail App Password:**
+   - Go to Google Account → Security → 2-Step Verification → App passwords
+   - Generate new app password
+   - Update `EMAIL_HOST_PASSWORD` in `.env`
+
+2. **Verify settings:**
+   ```env
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USE_TLS=True
+   EMAIL_HOST_USER=your_email@gmail.com
+   EMAIL_HOST_PASSWORD=16_char_app_password
+   ```
+
+3. **Use console backend for testing:**
+   ```env
+   EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+   ```
+
+#### 4. 404 on Static Files
+**Error:**
+```
+Not Found: /static/weather/css/Home.css
+```
+
+**Solutions:**
+```bash
+# Collect static files
+python manage.py collectstatic
+
+# Verify STATIC_URL in settings.py
+STATIC_URL = '/static/'
+
+# Check file exists
+ls Weather_Forcast_App/static/weather/css/Home.css
+```
+
+#### 5. Import Error: `ModuleNotFoundError`
+**Error:**
+```
+ModuleNotFoundError: No module named 'xgboost'
+```
+
+**Solution:**
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Install missing package
+pip install xgboost
+
+# Or reinstall all requirements
+pip install -r requirements.txt
+```
+
+#### 6. Model Training Fails
+**Error:**
+```
+KeyError: 'rain_total'
+```
+
+**Solutions:**
+1. **Check dataset has target column:**
+   ```python
+   import pandas as pd
+   df = pd.read_csv('data.csv')
+   print(df.columns)
+   ```
+
+2. **Update `train_config.json`:**
+   ```json
+   {
+     "data": {
+       "target_column": "rain_total"  // Must match column name exactly
+     }
+   }
+   ```
+
+3. **Verify cleaned data:**
+   - Open cleaned CSV file
+   - Confirm column exists and has data
+
+#### 7. JWT Token Expires Too Quickly
+**Problem:**
+User gets logged out after a few minutes.
+
+**Solution:**
+Increase token TTL in `.env`:
+```env
+# Default: 900 seconds (15 minutes)
+JWT_ACCESS_TTL=3600  # 1 hour
+
+# Refresh token
+JWT_REFRESH_TTL=604800  # 7 days
+```
+
+#### 8. Language Not Switching
+**Problem:**
+Clicking language button doesn't change UI text.
+
+**Solutions:**
+1. **Check translations exist:**
+   ```bash
+   cat Weather_Forcast_App/i18n/locales/en.json
+   cat Weather_Forcast_App/i18n/locales/vi.json
+   ```
+
+2. **Verify template tag:**
+   ```html
+   {% load i18n_tags %}
+   {% t "home.hero_title" %}
+   ```
+
+3. **Clear browser cache:**
+   ```
+   Ctrl+Shift+Delete (Chrome/Firefox)
+   ```
+
+4. **Restart Django server:**
+   ```bash
+   python manage.py runserver
+   ```
 
 ---
-👤 Maintainer / Profile Info
-  
-- 🧑‍💻 Maintainer: Võ Anh Nhật, Dư Quốc Việt, Trương Hoài Tú, Võ Huỳnh Anh Tuần
-  
-- 🎓 University: UTH
-  
-- 📧 Email: voanhnhat1612@gmmail.com, vohuynhanhtuan0512@gmail.com, hoaitu163@gmail.com, duviet720@gmail.com
-  
-- 📞 Phone: 0335052899
-  
--  Last updated: 24/12/2006
+
+## 🗺️ Roadmap
+
+### 🔜 Short-term (Q1-Q2 2026)
+
+- [ ] 📈 **Enhanced Dashboard**
+  - Interactive charts with Chart.js/D3.js
+  - Real-time metrics updates via WebSocket
+  - Export dashboard as PDF report
+
+- [ ] 🔐 **Advanced Authentication**
+  - OAuth2 integration (Google, Facebook, GitHub)
+  - Two-factor authentication (2FA)
+  - Role-based access control (RBAC)
+  - Activity logging and audit trail
+
+- [ ] ✅ **Robust Data Validation**
+  - JSON Schema validation for all datasets
+  - Auto-fix common data issues
+  - Data quality score dashboard
+  - Anomaly detection in raw data
+
+- [ ] 🧠 **ML Model Improvements**
+  - AutoML with Optuna hyperparameter tuning
+  - Model explainability with SHAP values
+  - A/B testing framework for models
+  - Online learning capabilities
+
+### 🚀 Medium-term (Q3-Q4 2026)
+
+- [ ] 🌐 **RESTful API**
+  - Complete REST API for all features
+  - API authentication with API keys
+  - Rate limiting and quota management
+  - Interactive Swagger/OpenAPI documentation
+
+- [ ] 🐳 **Containerization & Deployment**
+  - Docker Compose setup for development
+  - Kubernetes manifests for production
+  - CI/CD pipeline with GitHub Actions
+  - Automated testing suite
+
+- [ ] 💾 **Data Storage Enhancements**
+  - S3/MinIO for large file storage
+  - Redis caching for frequently accessed data
+  - PostgreSQL for relational data
+  - Automated backup and restore
+
+- [ ] 📱 **Mobile App**
+  - React Native mobile application
+  - Push notifications for forecast alerts
+  - Offline mode with data sync
+  - Mobile-optimized UI
+
+### 🌟 Long-term (2027+)
+
+- [ ] 🧪 **Advanced ML Pipelines**
+  - Deep learning models (LSTM, Transformer)
+  - Ensemble stacking with meta-learner
+  - Transfer learning from global weather models
+  - Multi-task learning (temperature + rain + wind)
+
+- [ ] 🌍 **Geographic Expansion**
+  - Support for multiple countries/regions
+  - Multi-language support (10+ languages)
+  - Timezone handling for global users
+  - Regional weather pattern analysis
+
+- [ ] 🔬 **Research Features**
+  - Climate change trend analysis
+  - Extreme weather event prediction
+  - Integration with satellite data
+  - Collaboration with meteorological agencies
+
+- [ ] 🎨 **UI/UX Enhancements**
+  - Dark mode with system preference detection
+  - Customizable dashboard layouts
+  - Accessibility compliance (WCAG 2.1 AA)
+  - Interactive data visualization playground
+
 ---
+
+## 👥 Team
+
+### 🧑‍💻 Maintainers & Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Võ Anh Nhật</b><br>
+      <i>Team Lead & ML Engineer</i><br>
+      📧 voanhnhat1612@gmail.com<br>
+      📞 +84 335 052 899
+    </td>
+    <td align="center">
+      <b>Võ Huỳnh Anh Tuần</b><br>
+      <i>Full-stack Developer</i><br>
+      📧 vohuynhanhtuan0512@gmail.com
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>Trương Hoài Tú</b><br>
+      <i>Frontend Developer</i><br>
+      📧 hoaitu163@gmail.com
+    </td>
+    <td align="center">
+      <b>Dư Quốc Việt</b><br>
+      <i>Data Engineer</i><br>
+      📧 duviet720@gmail.com
+    </td>
+  </tr>
+</table>
+
+### 🎓 Institution
+**University of Technology and Humanities (UTH)**  
+*Computer Science Department*
+
+### 📅 Project Timeline
+- **Started:** January 2026
+- **Last Updated:** March 8, 2026
+- **Status:** Active Development
+
+---
+
+## 📜 License & Acknowledgments
+
+### 📄 License
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+### 🙏 Acknowledgments
+
+#### Data Sources
+- **OpenWeather** — [openweathermap.org](https://openweathermap.org) — Free weather API
+- **Vrain** — Vietnamese weather data provider
+
+#### Technologies & Frameworks
+- **Django** — Web framework by Django Software Foundation
+- **MongoDB** — NoSQL database by MongoDB Inc.
+- **Scikit-learn** — Machine learning library
+- **XGBoost** — Gradient boosting framework by DMLC
+- **LightGBM** — Fast gradient boosting by Microsoft
+- **CatBoost** — Gradient boosting by Yandex
+- **Pandas** — Data manipulation library
+- **NumPy** — Numerical computing library
+
+#### Design Inspiration
+- **Glassmorphism** — Design trend by Michal Malewicz
+- **Meteorological UI** — Inspired by Weather.com and Apple Weather
+
+---
+
 <div align="center">
-  <sub>Made with ☕ + ⛈️ — Weather Forecast Project</sub>
-</div>
 
+### 🌦️ VN Weather Hub
+
+**Making Weather Data Accessible Through Technology**
+
+---
+
+<sub>
+Made with ☕ + ⛈️ by VN Weather Hub Team  
+© 2026 University of Technology and Humanities
+</sub>
+
+<br/>
+
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.1+-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0+-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+</div>

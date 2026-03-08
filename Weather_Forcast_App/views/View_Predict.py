@@ -147,12 +147,12 @@ def _load_model_info() -> Dict[str, Any]:
 
 
 def _load_recent_predictions() -> List[Dict[str, Any]]:
-    """Load kết quả dự báo gần nhất (nếu có)."""
+    """Load toàn bộ kết quả dự báo (nếu có)."""
     pred_path = ML_MODEL_ROOT / "WeatherForcast" / "predictions.csv"
     if not pred_path.exists():
         return []
     try:
-        df = pd.read_csv(pred_path, nrows=50)
+        df = pd.read_csv(pred_path)
         rows = []
         for _, row in df.iterrows():
             rows.append({

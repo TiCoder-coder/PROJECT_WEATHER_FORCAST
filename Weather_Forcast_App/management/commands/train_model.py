@@ -111,23 +111,36 @@ class Command(BaseCommand):
             with open(info["artifacts"]["metrics"], encoding="utf-8") as f:
                 metrics = json.load(f)
 
-            self.stdout.write("\n── Metrics ──────────────────────────────────────")
+            self.stdout.write("\n-- Metrics --")
             for split in ("train", "valid", "test"):
                 m = metrics.get(split, {})
                 if m:
-                    r2      = m.get("R2", m.get("r2", "N/A"))
-                    mae     = m.get("MAE", "N/A")
+                    r2       = m.get("R2", m.get("r2", "N/A"))
+                    mae      = m.get("MAE", "N/A")
                     rain_acc = m.get("Rain_Detection_Accuracy", "N/A")
-                    r2_str   = f"{r2:.4f}"   if isinstance(r2,      float) else str(r2)
-                    mae_str  = f"{mae:.4f}"  if isinstance(mae,     float) else str(mae)
-                    acc_str  = f"{rain_acc:.4f}" if isinstance(rain_acc, float) else str(rain_acc)
+                    f1       = m.get("Rain_F1", "N/A")
+                    csi      = m.get("CSI", "N/A")
+                    mbe      = m.get("MBE", "N/A")
+                    pearson  = m.get("Pearson", "N/A")
+                    r2_str      = f"{r2:.4f}"       if isinstance(r2,       float) else str(r2)
+                    mae_str     = f"{mae:.4f}"      if isinstance(mae,      float) else str(mae)
+                    acc_str     = f"{rain_acc:.4f}" if isinstance(rain_acc, float) else str(rain_acc)
+                    f1_str      = f"{f1:.4f}"       if isinstance(f1,       float) else str(f1)
+                    csi_str     = f"{csi:.4f}"      if isinstance(csi,      float) else str(csi)
+                    mbe_str     = f"{mbe:+.4f}"     if isinstance(mbe,      float) else str(mbe)
+                    pearson_str = f"{pearson:.4f}"  if isinstance(pearson,  float) else str(pearson)
                     self.stdout.write(
-                        f"  {split:5s}  R²={r2_str}  MAE={mae_str}  RainAcc={acc_str}"
+                        f"  {split:5s}  R2={r2_str}  MAE={mae_str}  RainAcc={acc_str}"
+                        f"  F1={f1_str}  CSI={csi_str}  MBE={mbe_str}  Pearson={pearson_str}"
                     )
+
+            train_time = metrics.get("training_time_seconds", "N/A")
+            if isinstance(train_time, (int, float)):
+                self.stdout.write(f"  Training time  : {train_time}s")
 
             diag = metrics.get("diagnostics", {})
             if diag:
-                self.stdout.write(f"\n── Diagnostics ──────────────────────────────────")
+                self.stdout.write(f"\n-- Diagnostics --")
                 self.stdout.write(f"  Overfit status : {diag.get('overfit_status', 'N/A')}")
                 self.stdout.write(f"  Details        : {diag.get('overfit_details', 'N/A')}")
         except Exception as e:

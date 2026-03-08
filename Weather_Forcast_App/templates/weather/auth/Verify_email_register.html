@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xác thực Email - VN Weather Hub</title>
+  <title>{% t "auth.verify_email.page_title" %}</title>
   <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=299002">
   <style>
     .otp-input-group {
@@ -140,24 +140,24 @@
             </div>
           </div>
         </div>
-        <h1 class="auth-title">Xác thực Email</h1>
-        <p class="auth-subtitle">Một bước nữa để hoàn tất đăng ký!</p>
+        <h1 class="auth-title">{% t "auth.verify_email.title" %}</h1>
+        <p class="auth-subtitle">{% t "auth.verify_email.subtitle" %}</p>
       </div>
 
       {% if name %}
-        <p class="greeting">Xin chào <b>{{ name }}</b> 👋</p>
+        <p class="greeting">{% t "auth.verify_email.greeting" %} <b>{{ name }}</b> 👋</p>
       {% endif %}
 
       <div class="email-display">
-        📧 Mã OTP đã được gửi đến: <b>{{ email }}</b>
+        📧 {% t "auth.verify_email.otp_sent_to" %} <b>{{ email }}</b>
       </div>
 
       <div class="info-box">
         💡 <b>Lưu ý:</b>
         <ul>
-          <li>Kiểm tra hộp thư <b>Inbox</b> và thư mục <b>Spam</b></li>
-          <li>Mã OTP có hiệu lực trong <b>10 phút</b></li>
-          <li>Nếu không nhận được, hãy nhấn "Gửi lại mã OTP"</li>
+          <li>{% t "auth.verify_email.check_inbox" %}</li>
+          <li>{% t "auth.verify_email.otp_validity" %}</li>
+          <li>{% t "auth.verify_email.no_receive" %}</li>
         </ul>
       </div>
 
@@ -182,23 +182,23 @@
         </div>
 
         <button class="btn btn-primary btn-full btn-glow btn-glow-green" type="submit" style="background: linear-gradient(135deg, #10b981, #059669);">
-          <span class="btn-text">✅ Xác nhận & Hoàn tất đăng ký</span>
+          <span class="btn-text">✅ {% t "auth.verify_email.btn_confirm" %}</span>
         </button>
       </form>
 
       <div class="resend-section">
-        <p class="countdown" id="countdown">Có thể gửi lại OTP sau <span id="timer">60</span> giây</p>
+        <p class="countdown" id="countdown">{% t "auth.verify_email.countdown" %} <span id="timer">60</span> {% t "auth.verify_email.seconds" %}</p>
         <form method="post" action="{% url 'weather:resend_email_otp' %}" id="resendForm" style="display: none;">
           {% csrf_token %}
           <button type="submit" class="resend-btn">
-            🔄 Gửi lại mã OTP
+            {% t "auth.verify_email.resend_btn" %}
           </button>
         </form>
       </div>
 
       <div class="auth-footer" style="margin-top: 24px; text-align: center;">
         <a href="{% url 'weather:cancel_register' %}" class="cancel-link">
-          ❌ Hủy đăng ký và nhập lại thông tin
+          ❌ {% t "auth.verify_email.cancel" %}
         </a>
       </div>
     </div>

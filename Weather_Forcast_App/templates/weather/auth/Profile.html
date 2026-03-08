@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thông tin cá nhân - VN Weather Hub</title>
+    <title>{% t "auth.profile.page_title" %}</title>
   <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v={{ now|date:'U' }}">
 </head>
 
@@ -38,7 +38,7 @@
         <div class="info-item">
           <span class="info-icon">👤</span>
           <div class="info-content">
-            <span class="info-label">Tên đăng nhập</span>
+            <span class="info-label">{% t "auth.profile.username_label" %}</span>
             <span class="info-value">{{ user.username }}</span>
           </div>
         </div>
@@ -46,23 +46,23 @@
         <div class="info-item">
           <span class="info-icon">📧</span>
           <div class="info-content">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ user.email|default:"Chưa cập nhật" }}</span>
+            <span class="info-label">{% t "auth.profile.email_label" %}</span>
+            <span class="info-value">{{ user.email|default:"{% t 'auth.profile.not_updated' %}" }}</span>
           </div>
         </div>
 
         <div class="info-item">
           <span class="info-icon">📝</span>
           <div class="info-content">
-            <span class="info-label">Họ tên</span>
-            <span class="info-value">{{ user.get_full_name|default:"Chưa cập nhật" }}</span>
+            <span class="info-label">{% t "auth.profile.fullname_label" %}</span>
+            <span class="info-value">{{ user.get_full_name|default:"{% t 'auth.profile.not_updated' %}" }}</span>
           </div>
         </div>
 
         <div class="info-item">
           <span class="info-icon">📅</span>
           <div class="info-content">
-            <span class="info-label">Ngày tham gia</span>
+            <span class="info-label">{% t "auth.profile.joined_label" %}</span>
             <span class="info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
           </div>
         </div>
@@ -70,8 +70,8 @@
         <div class="info-item">
           <span class="info-icon">🕐</span>
           <div class="info-content">
-            <span class="info-label">Đăng nhập lần cuối</span>
-            <span class="info-value">{{ user.last_login|date:"d/m/Y H:i"|default:"Chưa có thông tin" }}</span>
+            <span class="info-label">{% t "auth.profile.last_login_label" %}</span>
+            <span class="info-value">{{ user.last_login|date:"d/m/Y H:i"|default:"{% t 'auth.profile.no_info' %}" }}</span>
           </div>
         </div>
       </div>
@@ -80,11 +80,11 @@
       <div class="profile-actions">
         <a href="{% url 'weather:home' %}" class="btn-action btn-primary">
           <span class="btn-icon">🏠</span>
-          <span class="btn-text">Về trang chủ</span>
+          <span class="btn-text">{% t "auth.profile.back_home" %}</span>
         </a>
         <a href="{% url 'weather:logout' %}" class="btn-action btn-danger">
           <span class="btn-icon">🚪</span>
-          <span class="btn-text">Đăng xuất</span>
+          <span class="btn-text">{% t "auth.profile.logout" %}</span>
         </a>
       </div>
     </div>

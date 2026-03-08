@@ -1,9 +1,9 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8" />
-  <title>Dữ liệu</title>
+  <title>{% t "datasets.page_title" %}</title>
   <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}">
   <link rel="stylesheet" href="{% static 'weather/css/Datasets.css' %}?v=9199999998888899988888908_01">
   <link rel="stylesheet" href="{% static 'weather/css/_sidebar.css' %}?v=20260304">
@@ -18,8 +18,8 @@
       <div class="sidebar__logo">
         <div class="sidebar__logo-circle">WF</div>
         <div class="sidebar__logo-text">
-          <span class="sidebar__logo-title">Dự báo thời tiết</span>
-          <span class="sidebar__logo-sub">Quản lý dữ liệu</span>
+          <span class="sidebar__logo-title">{% t "app.title" %}</span>
+          <span class="sidebar__logo-sub">{% t "datasets.page_title" %}</span>
         </div>
       </div>
       {% include 'weather/Sidebar_nav.html' %}
@@ -37,18 +37,18 @@
     <div class="hubTabs">
       <a class="hubTab {% if active_tab == 'recent' %}is-active{% endif %}"
          href="{% url 'weather:datasets' %}?tab=recent">
-        📦 Bộ dữ liệu gần đây
+        📦 {% t "datasets.tab_recent" %}
       </a>
 
       <a class="hubTab {% if active_tab == 'process' %}is-active{% endif %}"
          href="{% url 'weather:datasets' %}?tab=process#process">
-        🧪 Xử lí dữ liệu
+        🧪 {% t "datasets.tab_process" %}
       </a>
     </div>
 
     <div class="hubActions">
-      <button type="button" class="hubBtn hubBtn-ghost" id="btnBackTop">↩ Quay lại</button>
-      <a class="hubBtn hubBtn-ghost" href="{% url 'weather:home' %}">🏠 Trang chủ</a>
+      <button type="button" class="hubBtn hubBtn-ghost" id="btnBackTop">↩ {% t "datasets.btn_back_top" %}</button>
+      <a class="hubBtn hubBtn-ghost" href="{% url 'weather:home' %}">🏠 {% t "datasets.btn_home" %}</a>
     </div>
 
   </div>
@@ -61,14 +61,14 @@
       <div class="datasets-card">
         <div class="datasets-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
           <div class="title-block">
-            <h1 class="page-title merged">DỮ LIỆU ĐÃ GỘP (DỮ LIỆU CHUNG)</h1>
-            <div class="page-sub">Các tệp dữ liệu đã được gộp và lưu trữ tập trung. Dữ liệu đã xử lý sẵn sàng để phân tích.</div>
+            <h1 class="page-title merged">{% t "datasets.merged_title" %}</h1>
+            <div class="page-sub">{% t "datasets.merged_sub" %}</div>
             <div class="title-underline merged"></div>
           </div>
 
           <div class="actions" style="display: flex; gap: 15px; margin-top: 10px;">
-            <button type="button" class="pill" id="btnBack">↩ QUAY LẠI</button>
-            <a class="pill primary" href="{% url 'weather:home' %}">← TRANG CHỦ</a>
+            <button type="button" class="pill" id="btnBack">{% t "datasets.back" %}</button>
+            <a class="pill primary" href="{% url 'weather:home' %}">← {% t "datasets.btn_home" %}</a>
           </div>
         </div>
 
@@ -84,10 +84,10 @@
             </span>
           </div>
         {% else %}
-          <div class="latest-bar merged muted" style="font-weight: 700;">📭 CHƯA CÓ TỆP ĐÃ GỘP TRONG THƯ MỤC MERGE_DATA/</div>
+          <div class="latest-bar merged muted" style="font-weight: 700;">{% t "datasets.no_merged_file" %}</div>
         {% endif %}
 
-        <div class="section-badge merged">🗂️ THƯ MỤC MERGE_DATA</div>
+        <div class="section-badge merged">{% t "datasets.folder_merge" %}</div>
 
         {% if merged_items %}
         <table style="margin: 0 25px 35px;">
@@ -96,35 +96,35 @@
               <th style="width:170px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">📄</span>
-                  <span>TÊN TỆP</span>
+                  <span>{% t "datasets.col_filename" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">🌐</span>
-                  <span>NGUỒN DỮ LIỆU</span>
+                  <span>{% t "datasets.col_source" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">🕐</span>
-                  <span>CẬP NHẬT</span>
+                  <span>{% t "datasets.col_updated" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">📦</span>
-                  <span>DUNG LƯỢNG</span>
+                  <span>{% t "datasets.col_size" %}</span>
                 </span>
               </th>
 
               <th style="width:170px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">⚡</span>
-                  <span>THAO TÁC</span>
+                  <span>{% t "datasets.col_actions" %}</span>
                 </span>
               </th>
             </tr>
@@ -136,18 +136,18 @@
               <td><div class="file-name">{{ f.name }}</div></td>
               <td class="source-cell">
                 {% if "merged_vrain_" in f.name %}
-                  <span class="source-badge source-vrain">VRAIN</span>
+                  <span class="source-badge source-vrain">{% t "datasets.source_vrain" %}</span>
                 {% elif "merged_weather" in f.name %}
-                  <span class="source-badge source-openweather">OPENWEATHER</span>
+                  <span class="source-badge source-openweather">{% t "datasets.source_openweather" %}</span>
                 {% else %}
-                  <span class="source-badge source-openweather">ĐÃ GỘP</span>
+                  <span class="source-badge source-openweather">{% t "datasets.source_merged_label" %}</span>
                 {% endif %}
               </td>
               <td class="time-cell">{{ f.mtime }}</td>
               <td class="size-cell">{{ f.size_mb }} MB</td>
               <td>
                 <div class="op-actions">
-                  <a class="pill small" href="{% url 'weather:dataset_view' 'merged' f.name %}">👀 XEM</a>
+                  <a class="pill small" href="{% url 'weather:dataset_view' 'merged' f.name %}">{% t "datasets.view" %}</a>
                   <a class="pill small primary" href="{% url 'weather:dataset_download' 'merged' f.name %}">⬇️ TẢI</a>
                 </div>
               </td>
@@ -159,7 +159,7 @@
         {% else %}
         <div class="empty-state">
           <div class="empty-state-icon">📭</div>
-          <div>CHƯA CÓ DỮ LIỆU ĐÃ GỘP. HÃY NHẤN NÚT "🔗 GỘP DỮ LIỆU" Ở PHẦN DƯỚI.</div>
+          <div>{% t "datasets.no_merge_data" %}</div>
         </div>
         {% endif %}
       </div>
@@ -167,8 +167,8 @@
       <div class="datasets-card">
         <div class="datasets-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
           <div class="title-block">
-            <h1 class="page-title">DỮ LIỆU THÔ (CHƯA QUA XỬ LÍ) GẦN ĐÂY</h1>
-            <div class="page-sub">Duyệt, xem trước và tải xuống các tệp đã thu thập gần nhất. Dữ liệu thô từ các nguồn.</div>
+            <h1 class="page-title">{% t "datasets.raw_data_title" %}</h1>
+            <div class="page-sub">{% t "datasets.raw_data_desc" %}</div>
             <div class="title-underline"></div>
           </div>
 
@@ -177,7 +177,7 @@
 
         {% if latest_output %}
           <div class="latest-bar output muted latest-card" style="margin: 14px 0 0;">
-            <span class="latest-label">📅 MỚI NHẤT:</span>
+            <span class="latest-label">{% t "datasets.latest" %}</span>
             <span class="latest-name" title="{{ latest_output.name }}">
               <b>{{ latest_output.name }}</b>
             </span>
@@ -187,10 +187,10 @@
             </span>
           </div>
         {% else %}
-          <div class="latest-bar muted" style="font-weight: 700;">📭 KHÔNG CÓ TỆP NÀO TRONG THƯ MỤC OUTPUT/</div>
+          <div class="latest-bar muted" style="font-weight: 700;">{% t "datasets.no_output_file" %}</div>
         {% endif %}
 
-        <div class="section-badge output">📁 THƯ MỤC OUTPUT</div>
+        <div class="section-badge output">{% t "datasets.folder_output" %}</div>
 
         {% if output_items %}
         <table style="margin: 0 25px 35px;">
@@ -199,28 +199,28 @@
               <th style="width:170px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">📄</span>
-                  <span>TÊN TỆP</span>
+                  <span>{% t "datasets.col_filename" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">🕐</span>
-                  <span>CẬP NHẬT</span>
+                  <span>{% t "datasets.col_updated" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">📦</span>
-                  <span>DUNG LƯỢNG</span>
+                  <span>{% t "datasets.col_size" %}</span>
                 </span>
               </th>
 
               <th style="width:170px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">⚡</span>
-                  <span>THAO TÁC</span>
+                  <span>{% t "datasets.col_actions" %}</span>
                 </span>
               </th>
             </tr>
@@ -234,7 +234,7 @@
               <td class="size-cell">{{ f.size_mb }} MB</td>
               <td>
                 <div class="op-actions">
-                  <a class="pill small" href="{% url 'weather:dataset_view' 'output' f.name %}" style="background: #48bb78; color: white;">👀 XEM</a>
+                  <a class="pill small" href="{% url 'weather:dataset_view' 'output' f.name %}" style="background: #48bb78; color: white;">{% t "datasets.view" %}</a>
                   <a class="pill small primary" href="{% url 'weather:dataset_download' 'output' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
                 </div>
               </td>
@@ -246,7 +246,7 @@
         {% else %}
         <div class="empty-state">
           <div class="empty-state-icon">📭</div>
-          <div>KHÔNG CÓ DỮ LIỆU NÀO TRONG THƯ MỤC OUTPUT.</div>
+          <div>{% t "datasets.no_output_data" %}</div>
         </div>
         {% endif %}
       </div>
@@ -259,9 +259,9 @@
       <div class="processing-card">
         <div class="processing-header">
           <div>
-            <div class="processing-title">⚙️ THÔNG TIN XỬ LÝ DỮ LIỆU GẦN ĐÂY</div>
+            <div class="processing-title">{% t "datasets.process_info_title" %}</div>
             <div class="processing-subtitle">
-              Quản lý toàn bộ quy trình xử lý dữ liệu từ thu thập, gộp, làm sạch đến phân tích. Tất cả trong một giao diện duy nhất.
+              {% t "datasets.process_subtitle" %}
             </div>
           </div>
         </div>
@@ -271,22 +271,22 @@
           <div class="stat-card">
             <div class="stat-icon">📁</div>
             <div class="stat-number">{{ out }}</div>
-            <div class="stat-label">FILE THÔ</div>
+            <div class="stat-label">{% t "datasets.stat_raw_files" %}</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🔗</div>
             <div class="stat-number">{{ mer }}</div>
-            <div class="stat-label">FILE ĐÃ GỘP</div>
+            <div class="stat-label">{% t "datasets.stat_merged_files" %}</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🧹</div>
             <div class="stat-number">{{ cln }}</div>
-            <div class="stat-label">FILE ĐÃ LÀM SẠCH</div>
+            <div class="stat-label">{% t "datasets.stat_cleaned_files" %}</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📊</div>
             <div class="stat-number">{{ cln|add:mer }}</div>
-            <div class="stat-label">TỔNG FILE XỬ LÝ</div>
+            <div class="stat-label">{% t "datasets.stat_total_processed" %}</div>
           </div>
         </div>
         {% endwith %}
@@ -295,45 +295,45 @@
           <div class="processing-box merge-box">
             <div class="box-header">
               <div class="box-icon">🔗</div>
-              <div class="box-title">GỘP DỮ LIỆU THÔNG MINH</div>
+              <div class="box-title">{% t "datasets.merge_box_title" %}</div>
             </div>
             <div class="box-content">
-              Tự động phát hiện và gộp tất cả file dữ liệu từ nhiều nguồn. Hỗ trợ CSV/Excel… với khả năng nhận diện cấu trúc.
+              {% t "datasets.merge_box_desc" %}
             </div>
             <div class="box-steps">
-              <div class="step-item"><div class="step-number">1</div><div>Quét và phân tích file trong OUTPUT</div></div>
-              <div class="step-item"><div class="step-number">2</div><div>Tự động căn chỉnh cột dữ liệu</div></div>
-              <div class="step-item"><div class="step-number">3</div><div>Gộp và lưu vào MERGE_DATA</div></div>
+              <div class="step-item"><div class="step-number">1</div><div>{% t "datasets.merge_step1" %}</div></div>
+              <div class="step-item"><div class="step-number">2</div><div>{% t "datasets.merge_step2" %}</div></div>
+              <div class="step-item"><div class="step-number">3</div><div>{% t "datasets.merge_step3" %}</div></div>
             </div>
           </div>
 
           <div class="processing-box clean-box">
             <div class="box-header">
               <div class="box-icon">🧹</div>
-              <div class="box-title">LÀM SẠCH NÂNG CAO</div>
+              <div class="box-title">{% t "datasets.clean_box_title" %}</div>
             </div>
             <div class="box-content">
-              Áp dụng kỹ thuật làm sạch: missing, duplicates, outliers, normalize, encode, datetime, format…
+              {% t "datasets.clean_box_desc" %}
             </div>
             <div class="box-steps">
-              <div class="step-item"><div class="step-number">1</div><div>Chọn nguồn dữ liệu cần làm sạch</div></div>
-              <div class="step-item"><div class="step-number">2</div><div>Tùy chọn kỹ thuật làm sạch</div></div>
-              <div class="step-item"><div class="step-number">3</div><div>Xuất báo cáo chi tiết</div></div>
+              <div class="step-item"><div class="step-number">1</div><div>{% t "datasets.clean_step1" %}</div></div>
+              <div class="step-item"><div class="step-number">2</div><div>{% t "datasets.clean_step2" %}</div></div>
+              <div class="step-item"><div class="step-number">3</div><div>{% t "datasets.clean_step3" %}</div></div>
             </div>
           </div>
 
           <div class="processing-box desc-box">
             <div class="box-header">
               <div class="box-icon">📖</div>
-              <div class="box-title">TÀI LIỆU & HƯỚNG DẪN</div>
+              <div class="box-title">{% t "datasets.docs_box_title" %}</div>
             </div>
             <div class="box-content">
-              Xem quy trình xử lý, kỹ thuật áp dụng, thông số kỹ thuật và hướng dẫn sử dụng tính năng.
+              {% t "datasets.docs_box_desc" %}
             </div>
             <div class="box-steps">
-              <div class="step-item"><div class="step-number">1</div><div>Quy trình xử lý dữ liệu</div></div>
-              <div class="step-item"><div class="step-number">2</div><div>Các kỹ thuật làm sạch</div></div>
-              <div class="step-item"><div class="step-number">3</div><div>Hướng dẫn sử dụng</div></div>
+              <div class="step-item"><div class="step-number">1</div><div>{% t "datasets.docs_step1" %}</div></div>
+              <div class="step-item"><div class="step-number">2</div><div>{% t "datasets.docs_step2" %}</div></div>
+              <div class="step-item"><div class="step-number">3</div><div>{% t "datasets.docs_step3" %}</div></div>
             </div>
           </div>
         </div>
@@ -342,21 +342,21 @@
       <div class="datasets-card" style="border: 1px solid rgba(255,255,255,.08);">
         <div class="datasets-title" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap;">
           <div class="title-block">
-            <h1 class="page-title merged">GỘP DỮ LIỆU (OUTPUT → MERGE_DATA)</h1>
+            <h1 class="page-title merged">{% t "datasets.merge_section_title" %}</h1>
             <div class="page-sub">
-              Gộp các file dữ liệu thô trong <b>OUTPUT</b> thành bộ dữ liệu chung trong <b>MERGE_DATA</b>.
+              {% t "datasets.merge_section_desc" %}
             </div>
             <div class="title-underline merged"></div>
           </div>
 
           <div class="actions" style="display:flex; gap:15px; margin-top:10px;">
-            <button type="button" class="pill merge" id="btnMerge">🔗 GỘP DỮ LIỆU</button>
+            <button type="button" class="pill merge" id="btnMerge">{% t "datasets.btn_merge_data" %}</button>
           </div>
         </div>
 
         {% if latest_output %}
           <div class="latest-bar output muted latest-card" style="margin: 14px 0 0;">
-            <span class="latest-label">📦 OUTPUT mới nhất:</span>
+            <span class="latest-label">{% t "datasets.output_latest" %}</span>
             <span class="latest-name" title="{{ latest_output.name }}">
               <b>{{ latest_output.name }}</b>
             </span>
@@ -367,7 +367,7 @@
           </div>
         {% else %}
           <div class="latest-bar muted" style="margin: 14px 0 0; font-weight:700;">
-            📭 OUTPUT đang trống — chưa có gì để gộp.
+            {% t "datasets.output_empty" %}
           </div>
         {% endif %}
 
@@ -375,7 +375,7 @@
 
         {% if latest_merged %}
           <div class="latest-bar merged muted latest-card" style="margin: 14px 0 0;">
-            <span class="latest-label">✅ MERGE_DATA mới nhất:</span>
+            <span class="latest-label">{% t "datasets.merge_latest" %}</span>
             <span class="latest-name" title="{{ latest_merged.name }}">
               <b>{{ latest_merged.name }}</b>
             </span>
@@ -390,31 +390,31 @@
       <div class="datasets-card">
         <div class="datasets-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
           <div class="title-block">
-            <h1 class="page-title cleaned">LÀM SẠCH DỮ LIỆU && BỘ DỮ LIỆU ĐÃ LÀM SẠCH (GẦN ĐÂY)</h1>
-            <div class="page-sub">Dữ liệu đã được xử lý, làm sạch và chuẩn hóa từ file đã gộp. Sẵn sàng cho phân tích nâng cao và machine learning.</div>
+            <h1 class="page-title cleaned">{% t "datasets.clean_section_title" %}</h1>
+            <div class="page-sub">{% t "datasets.clean_section_desc" %}</div>
             <div class="title-underline cleaned"></div>
           </div>
 
           <div class="actions" style="display: flex; gap: 15px; margin-top: 10px;">
-            <button type="button" class="pill" id="btnClean">🧹 LÀM SẠCH DỮ LIỆU</button>
+            <button type="button" class="pill" id="btnClean">{% t "datasets.btn_start_clean" %}</button>
           </div>
         </div>
 
         <div id="cleanStatus" class="merge-status"></div>
 
-        <div class="section-badge cleaned">🧼 DỮ LIỆU SAU KHI LÀM SẠCH </div>
+        <div class="section-badge cleaned">{% t "datasets.clean_data_section" %}</div>
 
         <div class="clean-split">
 
           <div class="clean-card">
             <div class="clean-card__head">
-              <div class="clean-card__title">🧩DỮ LIỆU LÀM SẠCH ĐÃ GỘP</div>
-              <div class="clean-card__badge">Nguồn: Merge_data</div>
+              <div class="clean-card__title">{% t "datasets.clean_merged_title" %}</div>
+              <div class="clean-card__badge">{% t "datasets.clean_merged_badge" %}</div>
             </div>
 
             {% if latest_cleaned_merge %}
               <div class="latest-bar cleaned muted latest-card" style="margin: 14px 0 0;">
-                <span class="latest-label">📅 MỚI NHẤT:</span>
+                <span class="latest-label">{% t "datasets.latest" %}</span>
                 <span class="latest-name" title="{{ latest_cleaned_merge.name }}">
                   <b>{{ latest_cleaned_merge.name }}</b>
                 </span>
@@ -424,7 +424,7 @@
                 </span>
               </div>
             {% else %}
-              <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700;">📭 Chưa có file clean cho MERGE</div>
+              <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700;">{% t "datasets.clean_merged_empty" %}</div>
             {% endif %}
 
             {% if cleaned_merge_items %}
@@ -433,8 +433,8 @@
                   <div class="mini-item">
                     <div class="mini-name">{{ f.name }}</div>
                     <div class="mini-actions">
-                      <a class="pill small" href="{% url 'weather:dataset_view' f.folder f.name %}">👀 XEM</a>
-                      <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder f.name %}">⬇️ TẢI</a>
+                      <a class="pill small" href="{% url 'weather:dataset_view' f.folder f.name %}">{% t "datasets.view" %}</a>
+                      <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder f.name %}">{% t "datasets.download" %}</a>
                     </div>
                   </div>
                 {% endfor %}
@@ -442,20 +442,20 @@
             {% else %}
               <div class="empty-state" style="padding: 30px 10px;">
                 <div class="empty-state-icon" style="font-size:46px;">🧩</div>
-                <div>Chưa có file clean cho nhóm MERGE.</div>
+                <div>{% t "datasets.clean_merged_group_empty" %}</div>
               </div>
             {% endif %}
           </div>
 
           <div class="clean-card">
             <div class="clean-card__head">
-              <div class="clean-card__title">📦 DỮ LIỆU LÀM SẠCH CHƯA GỘP</div>
-              <div class="clean-card__badge">Nguồn: output</div>
+              <div class="clean-card__title">📦 {% t "datasets.clean_raw_title" %}</div>
+              <div class="clean-card__badge">{% t "datasets.clean_raw_badge" %}</div>
             </div>
 
             {% if latest_cleaned_raw %}
               <div class="latest-bar cleaned muted latest-card" style="margin: 14px 0 0;">
-                <span class="latest-label">📅 MỚI NHẤT:</span>
+                <span class="latest-label">{% t "datasets.latest" %}</span>
                 <span class="latest-name" title="{{ latest_cleaned_raw.name }}">
                   <b>{{ latest_cleaned_raw.name }}</b>
                 </span>
@@ -465,7 +465,7 @@
                 </span>
               </div>
             {% else %}
-              <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700;">📭 Chưa có file clean cho OUTPUT</div>
+              <div class="latest-bar cleaned muted" style="margin: 14px 0 0; font-weight:700;">{% t "datasets.clean_raw_empty" %}</div>
             {% endif %}
 
             {% if cleaned_raw_items %}
@@ -474,8 +474,8 @@
                   <div class="mini-item">
                     <div class="mini-name">{{ f.name }}</div>
                     <div class="mini-actions">
-                      <a class="pill small" href="{% url 'weather:dataset_view' 'cleaned_raw' f.name %}" style="background: #48bb78; color: white;">👀 XEM</a>
-                      <a class="pill small primary" href="{% url 'weather:dataset_download' 'cleaned_raw' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
+                      <a class="pill small" href="{% url 'weather:dataset_view' 'cleaned_raw' f.name %}" style="background: #48bb78; color: white;">{% t "datasets.view" %}</a>
+                      <a class="pill small primary" href="{% url 'weather:dataset_download' 'cleaned_raw' f.name %}" style="background: #4299e1; color: white;">{% t "datasets.download" %}</a>
                     </div>
                   </div>
                 {% endfor %}
@@ -483,14 +483,14 @@
             {% else %}
               <div class="empty-state" style="padding: 30px 10px;">
                 <div class="empty-state-icon" style="font-size:46px;">📦</div>
-                <div>Chưa có file clean cho nhóm OUTPUT.</div>
+                <div>{% t "datasets.clean_raw_group_empty" %}</div>
               </div>
             {% endif %}
           </div>
 
         </div>
 
-        <div class="section-badge cleaned">📊 TỔNG HỢP CÁC FILE LÀM SẠCH (GẦN ĐÂY)</div>
+        <div class="section-badge cleaned">{% t "datasets.clean_summary_section" %}</div>
 
         {% if cleaned_items %}
         <table style="margin: 0 25px 35px;">
@@ -499,35 +499,35 @@
               <th style="width:170px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">📄</span>
-                  <span>TÊN TỆP</span>
+                  <span>{% t "datasets.col_filename" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">🌐</span>
-                  <span>NGUỒN DỮ LIỆU</span>
+                  <span>{% t "datasets.col_source" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">🕐</span>
-                  <span>CẬP NHẬT</span>
+                  <span>{% t "datasets.col_updated" %}</span>
                 </span>
               </th>
 
               <th style="width:220px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">📦</span>
-                  <span>DUNG LƯỢNG</span>
+                  <span>{% t "datasets.col_size" %}</span>
                 </span>
               </th>
 
               <th style="width:170px;" class="th-center">
                 <span class="th-inner">
                   <span class="th-ico">⚡</span>
-                  <span>THAO TÁC</span>
+                  <span>{% t "datasets.col_actions" %}</span>
                 </span>
               </th>
             </tr>
@@ -538,14 +538,14 @@
             <tr>
               <td><div class="file-name cleaned">{{ f.name }}</div></td>
               <td class="source-cell">
-                <span class="source-badge source-cleaned">ĐÃ LÀM SẠCH</span>
+                <span class="source-badge source-cleaned">{% t "datasets.source_cleaned" %}</span>
               </td>
               <td class="time-cell">{{ f.mtime }}</td>
               <td class="size-cell">{{ f.size_mb }} MB</td>
               <td>
                 <div class="op-actions">
                   <a class="pill small"
-                    href="{% url 'weather:dataset_view' f.folder|default:'cleaned' f.name %}">👀 XEM</a>
+                    href="{% url 'weather:dataset_view' f.folder|default:'cleaned' f.name %}">{% t "datasets.view" %}</a>
 
                   <a class="pill small primary"
                     href="{% url 'weather:dataset_download' f.folder|default:'cleaned' f.name %}">⬇️ TẢI</a>
@@ -559,7 +559,7 @@
         {% else %}
         <div class="empty-state">
           <div class="empty-state-icon">🧹</div>
-          <div>CHƯA CÓ DỮ LIỆU ĐÃ LÀM SẠCH. NHẤN NÚT "🧹 LÀM SẠCH DỮ LIỆU" ĐỂ BẮT ĐẦU.</div>
+          <div>{% t "datasets.empty_cleaned" %}</div>
         </div>
         {% endif %}
       </div>
@@ -572,8 +572,8 @@
     <div class="cw-modal">
       <div class="cw-top">
         <div>
-          <div class="cw-title">🧼 LÀM SẠCH DỮ LIỆU</div>
-          <div class="cw-sub">Chọn nguồn → chọn file → xem tiến trình → tải kết quả</div>
+          <div class="cw-title">{% t "datasets.clean_modal_title" %}</div>
+          <div class="cw-sub">{% t "datasets.clean_modal_sub" %}</div>
         </div>
         <button class="pill" id="cwClose">✕</button>
       </div>
@@ -581,46 +581,46 @@
       <div class="cw-step" id="cwStep1">
         <div class="cw-grid2">
           <button class="cw-choice" data-source="merge">
-            <div class="cw-choice__t">🧩 LÀM SẠCH CHO FILE ĐÃ GỘP</div>
-            <div class="cw-choice__d">Đọc từ Merge_data → lưu vào Clean_Data_For_File_Merge</div>
+            <div class="cw-choice__t">{% t "datasets.clean_merge_choice" %}</div>
+            <div class="cw-choice__d">{% t "datasets.clean_merge_choice_desc" %}</div>
           </button>
 
           <button class="cw-choice" data-source="output">
-            <div class="cw-choice__t">📦 LÀM SẠCH CHO FILE CHƯA GỘP</div>
-            <div class="cw-choice__d">Đọc từ output → lưu vào Clean_Data_For_File_Not_Merge</div>
+            <div class="cw-choice__t">{% t "datasets.clean_raw_choice" %}</div>
+            <div class="cw-choice__d">{% t "datasets.clean_raw_choice_desc" %}</div>
           </button>
         </div>
       </div>
 
       <div class="cw-step" id="cwStep2" style="display:none;">
         <div class="cw-row">
-          <div class="cw-pill" id="cwSourceLabel">Nguồn: —</div>
-          <input class="cw-search" id="cwSearch" placeholder="Tìm file..." />
-          <button class="pill" id="cwBack">↩ QUAY LẠI</button>
+          <div class="cw-pill" id="cwSourceLabel">{% t "datasets.source_field" %} —</div>
+          <input class="cw-search" id="cwSearch" placeholder="{% t 'datasets.search_placeholder' %}" />
+          <button class="pill" id="cwBack">{% t "datasets.back" %}</button>
         </div>
 
         <div class="cw-filelist" id="cwFileList"></div>
 
         <div class="cw-technique-section">
-          <label class="cw-technique-label">🔧 Chọn kỹ thuật làm sạch:</label>
+          <label class="cw-technique-label">🔧 {% t "datasets.technique_label" %}</label>
           <select id="cwTechnique" class="cw-technique-select">
-            <option value="all" selected>🔥 TẤT CẢ KỸ THUẬT (Khuyến nghị)</option>
-            <option value="missing">📊 Xử lý Missing Values</option>
-            <option value="duplicates">🔁 Loại bỏ Duplicates</option>
-            <option value="outliers">📈 Xử lý Outliers</option>
-            <option value="normalize">⚖️ Chuẩn hóa dữ liệu (Normalize)</option>
-            <option value="encode">🔢 Mã hóa dữ liệu (Encode)</option>
-            <option value="datetime">📅 Xử lý thời gian (DateTime)</option>
-            <option value="format">✏️ Sửa lỗi định dạng</option>
+            <option value="all" selected>{% t "datasets.technique_all" %}</option>
+            <option value="missing">{% t "datasets.technique_missing" %}</option>
+            <option value="duplicates">{% t "datasets.technique_duplicates" %}</option>
+            <option value="outliers">{% t "datasets.technique_outliers" %}</option>
+            <option value="normalize">{% t "datasets.technique_normalize" %}</option>
+            <option value="encode">{% t "datasets.technique_encode" %}</option>
+            <option value="datetime">{% t "datasets.technique_datetime" %}</option>
+            <option value="format">{% t "datasets.technique_format" %}</option>
           </select>
           <div id="techniqueDescription" class="cw-technique-desc">
-            Áp dụng tất cả 7 kỹ thuật làm sạch chuyên sâu cho file đã chọn.
+            {% t "datasets.technique_all_desc" %}
           </div>
         </div>
 
 
         <div class="cw-actions">
-          <button class="pill" id="cwStart" disabled style="background:linear-gradient(135deg,#48bb78,#38a169);color:#fff;">🚀 BẮT ĐẦU LÀM SẠCH</button>
+          <button class="pill" id="cwStart" disabled style="background:linear-gradient(135deg,#48bb78,#38a169);color:#fff;">{% t "datasets.clean_start" %}</button>
         </div>
       </div>
 
@@ -628,7 +628,7 @@
         <div class="cw-progress">
           <div class="cw-bar"><div class="cw-bar__fill" id="cwBarFill" style="width:0%;"></div></div>
           <div class="cw-prow">
-            <div class="cw-steptext" id="cwStepText">Đang khởi tạo…</div>
+            <div class="cw-steptext" id="cwStepText">{% t "datasets.initializing" %}</div>
             <div class="cw-pct" id="cwPct">0%</div>
           </div>
         </div>
@@ -637,9 +637,9 @@
         <div class="cw-report" id="cwReport" style="display:none;"></div>
 
         <div class="cw-actions">
-          <a class="pill" id="cwViewBtn" href="#" style="display:none;background:#48bb78;color:#fff;">👀 XEM NGAY</a>
-          <a class="pill primary" id="cwDownloadBtn" href="#" style="display:none;background:#4299e1;color:#fff;">⬇️ TẢI VỀ</a>
-          <button class="pill" id="cwDone" style="display:none;">✅ Đóng</button>
+          <a class="pill" id="cwViewBtn" href="#" style="display:none;background:#48bb78;color:#fff;">{% t "datasets.view_now" %}</a>
+          <a class="pill primary" id="cwDownloadBtn" href="#" style="display:none;background:#4299e1;color:#fff;">{% t "datasets.download_now" %}</a>
+          <button class="pill" id="cwDone" style="display:none;">{% t "datasets.clean_done" %}</button>
         </div>
       </div>
     </div>
@@ -651,19 +651,19 @@
     <div class="wf-modal__panel" role="dialog" aria-modal="true" aria-labelledby="mergeModalTitle">
       <button class="wf-modal__close" type="button" data-close="1">✕</button>
 
-      <h3 id="mergeModalTitle">✅ GỘP DỮ LIỆU HOÀN TẤT</h3>
+      <h3 id="mergeModalTitle">{% t "datasets.merge_modal_title" %}</h3>
       <p id="mergeModalMsg" class="wf-modal__msg"></p>
 
       <div class="wf-modal__file">
-        <div class="wf-kv"><span>📄 Tệp:</span> <b id="mergeFileName">—</b></div>
-        <div class="wf-kv"><span>📦 Dung lượng:</span> <b id="mergeFileSize">—</b></div>
-        <div class="wf-kv"><span>🕐 Cập nhật:</span> <b id="mergeFileTime">—</b></div>
+        <div class="wf-kv"><span>{% t "datasets.merge_modal_file" %}</span> <b id="mergeFileName">—</b></div>
+        <div class="wf-kv"><span>{% t "datasets.merge_modal_size" %}</span> <b id="mergeFileSize">—</b></div>
+        <div class="wf-kv"><span>{% t "datasets.merge_modal_time" %}</span> <b id="mergeFileTime">—</b></div>
       </div>
 
       <div class="wf-modal__actions">
-        <a id="mergeViewBtn" class="pill" href="#">👀 XEM</a>
-        <a id="mergeDownloadBtn" class="pill primary" href="#">⬇️ TẢI</a>
-        <button class="pill" type="button" data-close="1">✖ ĐÓNG</button>
+        <a id="mergeViewBtn" class="pill" href="#">{% t "datasets.view" %}</a>
+        <a id="mergeDownloadBtn" class="pill primary" href="#">{% t "datasets.download" %}</a>
+        <button class="pill" type="button" data-close="1">{% t "datasets.merge_modal_close" %}</button>
       </div>
     </div>
   </div>
@@ -671,14 +671,14 @@
   <div id="descModal" class="desc-modal" style="display:none;">
     <div class="desc-modal-content">
       <div class="desc-modal-header">
-        <div class="desc-modal-title">📖 TÀI LIỆU HƯỚNG DẪN XỬ LÝ DỮ LIỆU</div>
-        <button class="desc-modal-close" id="descModalClose">✕</button>
+        <div class="desc-modal-title">{% t "datasets.docs_modal_title" %}</div>
+        <button class="desc-modal-close" id="descModalClose">{% t "datasets.docs_modal_close" %}</button>
       </div>
       <div class="desc-modal-body">
         <div class="desc-section">
-          <div class="section-title">🎯 TỔNG QUAN HỆ THỐNG</div>
+          <div class="section-title">{% t "datasets.docs_overview_title" %}</div>
           <div class="section-content">
-            Hệ thống xử lý dữ liệu được thiết kế để quản lý toàn bộ vòng đời dữ liệu từ thu thập đến phân tích.
+            {% t "datasets.docs_overview_desc" %}
           </div>
         </div>
       </div>
@@ -712,14 +712,14 @@
       const techniqueDescription = document.getElementById("techniqueDescription");
 
       const TECH_DESC = {
-        all: "Áp dụng tất cả kỹ thuật làm sạch chuyên sâu (khuyến nghị).",
-        missing: "Điền/loại missing values theo chiến lược phù hợp.",
-        duplicates: "Loại bỏ dòng trùng lặp theo tiêu chí.",
-        outliers: "Xử lý giá trị ngoại lai (IQR/Z-score…).",
-        normalize: "Chuẩn hóa dữ liệu số (min-max/standardize…).",
-        encode: "Mã hóa biến phân loại (label/one-hot…).",
-        datetime: "Chuẩn hóa định dạng thời gian, tách đặc trưng ngày-giờ…",
-        format: "Sửa lỗi định dạng dữ liệu (text/number/unit…)."
+        all: "{% t 'datasets.technique_all_desc' %}",
+        missing: "{% t 'datasets.technique_missing' %}",
+        duplicates: "{% t 'datasets.technique_duplicates' %}",
+        outliers: "{% t 'datasets.technique_outliers' %}",
+        normalize: "{% t 'datasets.technique_normalize' %}",
+        encode: "{% t 'datasets.technique_encode' %}",
+        datetime: "{% t 'datasets.technique_datetime' %}",
+        format: "{% t 'datasets.technique_format' %}"
       };
 
       if (cwTechnique && techniqueDescription) {
@@ -734,7 +734,7 @@
         const modal = document.getElementById('mergeResultModal');
         if (!modal) return;
 
-        document.getElementById('mergeModalMsg').textContent = msg || 'Gộp dữ liệu thành công!';
+        document.getElementById('mergeModalMsg').textContent = msg || "{% t 'datasets.merge_success' %}";
         document.getElementById('mergeFileName').textContent = (file && file.name) ? file.name : '—';
         document.getElementById('mergeFileSize').textContent = (file && file.size_mb != null) ? (file.size_mb + ' MB') : '—';
         document.getElementById('mergeFileTime').textContent = (file && file.mtime) ? file.mtime : '—';
@@ -790,10 +790,10 @@
       if (btnMerge) {
         btnMerge.addEventListener("click", async function () {
           btnMerge.disabled = true;
-          btnMerge.innerHTML = "⏳ ĐANG GỘP...";
+          btnMerge.innerHTML = "{% t 'datasets.btn_merging' %}";
           btnMerge.style.background = "linear-gradient(135deg, #718096, #4a5568)";
 
-          showStatus("ĐANG XỬ LÝ GỘP DỮ LIỆU... VUI LÒNG CHỜ", "processing", mergeStatusEl);
+          showStatus("{% t 'datasets.processing_status' %}", "processing", mergeStatusEl);
 
           try {
             const res = await fetch("{% url 'weather:merge_data' %}", {
@@ -807,7 +807,7 @@
             const data = await res.json();
 
             if (data.success) {
-              showStatus(data.message || "✅ GỘP DỮ LIỆU THÀNH CÔNG!", "success", mergeStatusEl);
+              showStatus(data.message || "{% t 'datasets.merge_success' %}", "success", mergeStatusEl);
 
               if (data.latest_merged) {
                 openMergeModal(data.latest_merged, data.message);
@@ -816,21 +816,21 @@
               }
 
             } else {
-              showStatus("❌ " + (data.message || "CÓ LỖI XẢY RA KHI GỘP DỮ LIỆU"), "error", mergeStatusEl);
+              showStatus("❌ " + (data.message || "{% t 'datasets.merge_error' %}"), "error", mergeStatusEl);
 
               if (data.latest_merged) {
                 openMergeModal(data.latest_merged, data.message);
               }
 
               btnMerge.disabled = false;
-              btnMerge.innerHTML = "🔗 GỘP DỮ LIỆU";
+              btnMerge.innerHTML = "{% t 'datasets.btn_merge_data' %}";
               btnMerge.style.background = "linear-gradient(135deg, #9f7aea, #805ad5)";
             }
 
           } catch (err) {
-            showStatus("❌ LỖI KẾT NỐI: " + err.message, "error", mergeStatusEl);
+            showStatus("{% t 'datasets.connection_error' %} " + err.message, "error", mergeStatusEl);
             btnMerge.disabled = false;
-            btnMerge.innerHTML = "🔗 GỘP DỮ LIỆU";
+            btnMerge.innerHTML = "{% t 'datasets.btn_merge_data' %}";
             btnMerge.style.background = "linear-gradient(135deg, #9f7aea, #805ad5)";
           } finally {
             btnMerge.disabled = false;
@@ -906,7 +906,7 @@
       function cwRender(list){
         cwFileList.innerHTML = "";
         if (!list.length){
-          cwFileList.innerHTML = `<div class="cw-empty">📭 Không có file trong thư mục này.</div>`;
+          cwFileList.innerHTML = `<div class="cw-empty">{% t "datasets.no_files" %}</div>`;
           return;
         }
         list.forEach((f) => {
@@ -933,14 +933,14 @@
         cwSelected = null;
         cwStart.disabled = true;
 
-        cwSourceLabel.textContent = "Nguồn: " + (source === "merge" ? "Merge_data (đã gộp)" : "output (chưa gộp)");
+        cwSourceLabel.textContent = "{% t 'datasets.source_field' %} " + (source === "merge" ? "{% t 'datasets.source_label_merge' %}" : "{% t 'datasets.source_label_output' %}");
         cwShowStep(2);
-        cwFileList.innerHTML = `<div class="cw-empty">⏳ Đang tải danh sách file…</div>`;
+        cwFileList.innerHTML = `<div class="cw-empty">{% t "datasets.loading_files" %}</div>`;
 
         const res = await fetch(`${CLEAN_LIST_URL}?source=${encodeURIComponent(source)}`);
         const data = await res.json();
         if (!data.ok){
-          cwFileList.innerHTML = `<div class="cw-empty">❌ ${data.message || "Lỗi tải danh sách"}</div>`;
+          cwFileList.innerHTML = `<div class="cw-empty">❌ ${data.message || "{% t 'datasets.error_loading' %}"}</div>`;
           return;
         }
         cwFiles = data.files || [];
@@ -964,7 +964,7 @@
 
         cwShowStep(3);
         cwBarFill.style.width = "0%";
-        cwStepText.textContent = "Đang khởi tạo…";
+        cwStepText.textContent = "{% t 'datasets.initializing' %}";
         cwPct.textContent = "0%";
         cwLog.textContent = "";
         cwReport.style.display = "none";
@@ -988,7 +988,7 @@
 
         const data = await res.json();
         if (!data.ok){
-          cwLog.textContent = "❌ " + (data.message || "Không start được job");
+          cwLog.textContent = "❌ " + (data.message || "{% t 'datasets.clean_job_error' %}");
           cwDone.style.display = "";
           return;
         }
@@ -1004,7 +1004,7 @@
           const p = t.progress || {pct:0, step:""};
           cwBarFill.style.width = (p.pct || 0) + "%";
           cwPct.textContent = (p.pct || 0) + "%";
-          cwStepText.textContent = p.step || "Đang chạy…";
+          cwStepText.textContent = p.step || "{% t 'datasets.processing' %}";
 
           const lines = t.lines || [];
           if (lines.length){
@@ -1029,12 +1029,12 @@
             cwReport.style.display = "";
             cwReport.innerHTML = `
               <div class="cw-rgrid">
-                <div class="cw-ritem"><div class="cw-rl">Input</div><div class="cw-rv">${rsl.input_file || "-"}</div></div>
-                <div class="cw-ritem"><div class="cw-rl">Output</div><div class="cw-rv">${rsl.output_file || "-"}</div></div>
-                <div class="cw-ritem"><div class="cw-rl">Rows</div><div class="cw-rv">${rep.rows_before || 0} → ${rep.rows_after || 0}</div></div>
-                <div class="cw-ritem"><div class="cw-rl">Missing</div><div class="cw-rv">${rep.missing_before || 0} → ${rep.missing_after || 0}</div></div>
-                <div class="cw-ritem"><div class="cw-rl">Dup removed</div><div class="cw-rv">${rep.duplicates_removed || 0}</div></div>
-                <div class="cw-ritem"><div class="cw-rl">Size</div><div class="cw-rv">${rsl.size_mb || "-"} MB</div></div>
+                <div class="cw-ritem"><div class="cw-rl">{% t "datasets.clean_report_input" %}</div><div class="cw-rv">${rsl.input_file || "-"}</div></div>
+                <div class="cw-ritem"><div class="cw-rl">{% t "datasets.clean_report_output" %}</div><div class="cw-rv">${rsl.output_file || "-"}</div></div>
+                <div class="cw-ritem"><div class="cw-rl">{% t "datasets.clean_report_rows" %}</div><div class="cw-rv">${rep.rows_before || 0} → ${rep.rows_after || 0}</div></div>
+                <div class="cw-ritem"><div class="cw-rl">{% t "datasets.clean_report_missing" %}</div><div class="cw-rv">${rep.missing_before || 0} → ${rep.missing_after || 0}</div></div>
+                <div class="cw-ritem"><div class="cw-rl">{% t "datasets.clean_report_dup" %}</div><div class="cw-rv">${rep.duplicates_removed || 0}</div></div>
+                <div class="cw-ritem"><div class="cw-rl">{% t "datasets.clean_report_size" %}</div><div class="cw-rv">${rsl.size_mb || "-"} MB</div></div>
               </div>
             `;
 

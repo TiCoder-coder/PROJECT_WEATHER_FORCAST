@@ -1,9 +1,9 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Bảng điều khiển Dự báo Thời tiết</title>
+    <title>{% t "home.page_title" %}</title>
     <link rel="stylesheet" href="{% static 'weather/css/Home.css' %}?v=9998909988999999986261994999987821170">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -17,16 +17,26 @@
             <span class="logo-text">VN Weather Hub</span>
         </div>
         <nav class="home-nav">
-            <button type="button" class="nav-pill" id="btnIntro">Giới thiệu</button>
+            <button type="button" class="nav-pill" id="btnIntro">{% t "home.nav_intro" %}</button>
+            <!-- Language toggle -->
+            {% if lang == 'vi' %}
+            <a href="{% lang_url 'en' %}" class="nav-pill nav-lang-toggle" title="Switch to English">
+              <span class="lang-seg lang-seg--on">VI</span><span class="lang-sep">|</span><span class="lang-seg">EN</span>
+            </a>
+            {% else %}
+            <a href="{% lang_url 'vi' %}" class="nav-pill nav-lang-toggle" title="Chuyển sang Tiếng Việt">
+              <span class="lang-seg">VI</span><span class="lang-sep">|</span><span class="lang-seg lang-seg--on">EN</span>
+            </a>
+            {% endif %}
             {% if is_logged_in and profile %}
                 <a href="{% url 'weather:profile' %}" class="nav-user-profile">
                     <span class="nav-user-avatar">{{ profile.userName|default:profile.name|slice:":1"|upper }}</span>
                     <span class="nav-user-name">{{ profile.name|default:profile.userName }}</span>
                 </a>
-                <a href="{% url 'weather:logout' %}" class="nav-pill nav-logout">🚪 Đăng xuất</a>
+                <a href="{% url 'weather:logout' %}" class="nav-pill nav-logout">🚪 {% t "home.nav_logout" %}</a>
             {% else %}
-                <a href="{% url 'weather:login' %}" class="nav-pill nav-login">🔑 Đăng nhập</a>
-                <a href="{% url 'weather:register' %}" class="nav-pill nav-register">✨ Đăng ký</a>
+                <a href="{% url 'weather:login' %}" class="nav-pill nav-login">🔑 {% t "home.nav_login" %}</a>
+                <a href="{% url 'weather:register' %}" class="nav-pill nav-register">✨ {% t "home.nav_register" %}</a>
             {% endif %}
         </nav>
     </header>
@@ -157,26 +167,24 @@
         </div>
 
         <div class="hero-content">
-            <h1>Dữ liệu thời tiết Việt Nam theo thời gian thực</h1>
-            <p>
-                Thu thập, hợp nhất và trực quan hóa dữ liệu thời tiết từ Vrain và API/HTML của OpenWeather trong một bảng điều khiển.
-            </p>
+            <h1>{% t "home.hero_title" %}</h1>
+            <p>{% t "home.hero_desc" %}</p>
             <div class="hero-actions">
                 <button type="button" class="btn primary" id="btnOpenCrawlModal">
-                    🌐 Bắt đầu thu thập data
+                    🌐 {% t "home.btn_crawl" %}
                 </button>
                 <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">
-                    📊 Xử lí dữ liệu
+                    📊 {% t "home.btn_datasets" %}
                 </a>
                 <a class="btn secondary" href="{% url 'weather:train' %}" style="border-color:rgba(168,85,247,0.4); background:rgba(168,85,247,0.12);">
-                    🧠 Huấn luyện Model
+                    🧠 {% t "home.btn_train" %}
                 </a>
                 <a class="btn secondary" href="{% url 'weather:predict' %}" style="border-color:rgba(124,58,237,0.4); background:rgba(124,58,237,0.12);">
-                    🔮 Dự báo thời tiết
+                    🔮 {% t "home.btn_predict" %}
                 </a>
 
                 <button type="button" class="btn secondary btn-help" id="btnOpenHelpModal">
-                    ❓ Hướng dẫn sử dụng
+                    ❓ {% t "home.btn_help" %}
                 </button>
 
                 <span id="chosenCrawlMethod" style="display:none"></span>
@@ -184,7 +192,7 @@
 
             <div class="hero-meta">
                 <div class="meta-item">
-                    <span class="meta-label">Cập nhật lần cuối</span>
+                    <span class="meta-label">{% t "home.meta_last_updated" %}</span>
                     <span class="meta-value">
                         {{ latest_dataset_time|default:"—" }}
                     </span>
@@ -195,48 +203,48 @@
     </section>
 
     <section id="overview" class="section overview">
-        <h2>Tổng quan về hệ thống</h2>
+        <h2>{% t "home.overview_title" %}</h2>
         <p class="section-desc">
-            Weather Hub tích hợp toàn bộ quy trình: thu thập dữ liệu → xử lý → huấn luyện ML → dự báo thời tiết.
+            {% t "home.overview_desc" %}
         </p>
 
         <div class="cards">
+            {% t "home.card_api_alt" as card_api_alt %}
+            {% t "home.card_vrain_alt" as card_vrain_alt %}
+            {% t "home.card_clean_alt" as card_clean_alt %}
             <div class="card">
                 <div class="card-icon">
                     <img src="{% static 'weather/img/icons/api.svg' %}"
-                         alt="Biểu tượng API"
+                         alt="{{ card_api_alt }}"
                          onerror="this.style.display='none'">
                 </div>
-                <h3>API OpenWeather</h3>
+                <h3>{% t "home.card_api_title" %}</h3>
                 <p>
-                    Sử dụng API để lấy dữ liệu thời tiết thời gian thực như nhiệt độ, độ ẩm, gió,
-                    độ che phủ mây và các dữ liệu khác cho toàn bộ lãnh thổ Việt Nam.
+                    {% t "home.card_api_desc" %}
                 </p>
             </div>
 
             <div class="card">
                 <div class="card-icon">
                     <img src="{% static 'weather/img/icons/vrain.svg' %}"
-                         alt="Biểu tượng Vrain"
+                         alt="{{ card_vrain_alt }}"
                          onerror="this.style.display='none'">
                 </div>
-                <h3>Vrain – API / Selenium / HTML</h3>
+                <h3>{% t "home.card_vrain_title" %}</h3>
                 <p>
-                    Crawl dữ liệu lượng mưa tại từng trạm từ trang web Vrain bằng nhiều phương pháp:
-                    API, Selenium, hoặc phân tích HTML. Lưu thành file CSV/Excel.
+                    {% t "home.card_vrain_desc" %}
                 </p>
             </div>
 
             <div class="card">
                 <div class="card-icon">
                     <img src="{% static 'weather/img/icons/report.svg' %}"
-                         alt="Biểu tượng Xử lý"
+                         alt="{{ card_clean_alt }}"
                          onerror="this.style.display='none'">
                 </div>
-                <h3>Xử lý & Làm sạch dữ liệu</h3>
+                <h3>{% t "home.card_clean_title" %}</h3>
                 <p>
-                    Gộp (Merge) dữ liệu từ nhiều nguồn, làm sạch (Clean) với 7 kỹ thuật chuyên sâu:
-                    missing values, outliers, normalize, encode, datetime…
+                    {% t "home.card_clean_desc" %}
                 </p>
             </div>
 
@@ -244,48 +252,50 @@
                 <div class="card-icon">
                     <span style="font-size:32px;">🧠</span>
                 </div>
-                <h3>Huấn luyện ML & Dự báo</h3>
+                <h3>{% t "home.card_ml_title" %}</h3>
                 <p>
-                    Huấn luyện model ML (Ensemble/CatBoost/XGBoost…), đánh giá R²/RMSE/MAE/Rain Accuracy,
-                    và sử dụng model để dự báo lượng mưa theo thời gian thực.
+                    {% t "home.card_ml_desc" %}
                 </p>
             </div>
         </div>
     </section>
 
     <section id="datasets" class="section datasets">
-        <h2>Tổng quan hoạt động gần đây</h2>
+        <h2>{% t "home.activity_title" %}</h2>
         <div style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
             <button type="button" class="btn secondary" id="btnQuickCrawl">
-                🚀 Thu thập nhanh
+                🚀 {% t "home.btn_quick_crawl" %}
             </button>
             <button type="button" class="btn secondary" id="scroll-to-datasets" style="display:none;"></button>
         </div>
 
         <div class="dataset-grid">
             <div class="dataset-card">
-                <h3>API OpenWeather</h3>
-                <p>Số lần thu thập: {{ total_api_runs|default:0 }}</p>
+                <h3>{% t "home.activity_api_title" %}</h3>
+                <p>{% t "home.activity_count" %}: {{ total_api_runs|default:0 }}</p>
                 <span class="badge badge-api">API</span>
             </div>
 
             <div class="dataset-card">
-                <h3>Thu thập Vrain</h3>
-                <p>Số lần thu thập: {{ total_vrain_runs|default:0 }}</p>
+                <h3>{% t "home.activity_vrain_title" %}</h3>
+                <p>{% t "home.activity_count" %}: {{ total_vrain_runs|default:0 }}</p>
                 <span class="badge badge-vrain">VRAIN</span>
             </div>
 
             <div class="dataset-card">
-                <h3>🧠 Huấn luyện ML</h3>
-                <p>Model: {{ latest_model_type|default:"Ensemble" }}</p>
-                <p>Trạng thái: {{ latest_train_status|default:"✓ Sẵn sàng" }}</p>
+                <h3>🧠 {% t "home.card_ml_title" %}</h3>
+                {% t "home.activity_ml_model_label" as ml_model_label %}
+                {% t "home.activity_ml_status_label" as ml_status_label %}
+                {% t "home.status_ready" as status_ready %}
+                <p>{{ ml_model_label }}: {{ latest_model_type|default:"Ensemble" }}</p>
+                <p>{{ ml_status_label }}: {{ latest_train_status|default:status_ready }}</p>
                 <span class="badge" style="background:rgba(168,85,247,0.25); color:#c084fc; border:1px solid rgba(168,85,247,0.35);">ML</span>
             </div>
 
             <div class="dataset-card">
-                <h3>🔮 Dự báo thời tiết</h3>
-                <p>Sử dụng model đã huấn luyện</p>
-                <p>Hỗ trợ: file / thủ công</p>
+                <h3>🔮 {% t "home.btn_predict" %}</h3>
+                <p>{% t "home.activity_predict_desc1" %}</p>
+                <p>{% t "home.activity_predict_desc2" %}</p>
                 <span class="badge" style="background:rgba(124,58,237,0.25); color:#a78bfa; border:1px solid rgba(124,58,237,0.35);">PREDICT</span>
             </div>
 
@@ -297,7 +307,7 @@
 
         <div class="crawl-modal__content">
             <header class="crawl-modal__header">
-                <h2>CHỌN CÁCH THU THẬP DỮ LIỆU</h2>
+                <h2>{% t "home.modal_crawl_title" %}</h2>
                 <button type="button"
                         class="crawl-modal__close"
                         data-close-crawl-modal>&times;</button>
@@ -306,58 +316,58 @@
 
             <div class="crawl-modal__grid">
                 <div class="crawl-card">
-                    <h3>1. Thu thập qua API OpenWeather</h3>
+                    <h3>{% t "home.modal_crawl_api_title" %}</h3>
                     <ul class="crawl-card__list">
-                        <li>Lấy dữ liệu thời tiết từ các API quốc tế (nhiệt độ, độ ẩm, gió, mưa, v.v.).</li>
-                        <li>Phù hợp để có cái nhìn tổng quát trên toàn quốc.</li>
+                        <li>{% t "home.modal_crawl_api_li1" %}</li>
+                        <li>{% t "home.modal_crawl_api_li2" %}</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="api_weather"
                             data-crawl-label="Crawl_data_by_API.py">
-                        Chọn phương pháp này
+                        {% t "home.modal_crawl_select" %}
                     </button>
                 </div>
 
                 <div class="crawl-card">
-                    <h3>2. Thu thập qua API của Vrain</h3>
+                    <h3>{% t "home.modal_crawl_vrain_api_title" %}</h3>
                     <ul class="crawl-card__list">
-                        <li>Lấy dữ liệu lượng mưa trực tiếp từ API (nếu Vrain cung cấp).</li>
-                        <li>Ổn định, ít phụ thuộc vào giao diện HTML.</li>
+                        <li>{% t "home.modal_crawl_vrain_api_li1" %}</li>
+                        <li>{% t "home.modal_crawl_vrain_api_li2" %}</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="vrain_api"
                             data-crawl-label="Crawl_data_from_Vrain_by_API.py">
-                        Chọn phương pháp này
+                        {% t "home.modal_crawl_select" %}
                     </button>
                 </div>
 
                 <div class="crawl-card">
-                    <h3>3. Thu thập Vrain bằng Selenium (multi-ID)</h3>
+                    <h3>{% t "home.modal_crawl_selenium_title" %}</h3>
                     <ul class="crawl-card__list">
-                        <li>Sử dụng Selenium điều khiển trình duyệt và đọc giao diện Vrain.</li>
-                        <li>Phù hợp khi thu thập nhiều tỉnh/trạm cùng lúc.</li>
+                        <li>{% t "home.modal_crawl_selenium_li1" %}</li>
+                        <li>{% t "home.modal_crawl_selenium_li2" %}</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="vrain_selenium"
                             data-crawl-label="Crawl_data_from_Vrain_by_Selenium.py">
-                        Chọn phương pháp này
+                        {% t "home.modal_crawl_select" %}
                     </button>
                 </div>
 
                 <div class="crawl-card">
-                    <h3>4. Thu thập HTML Vrain (phân tích nguồn)</h3>
+                    <h3>{% t "home.modal_crawl_html_title" %}</h3>
                     <ul class="crawl-card__list">
-                        <li>Đọc HTML và sử dụng regex để trích xuất dữ liệu lượng mưa cho từng trạm.</li>
-                        <li>Phù hợp khi cần tinh chỉnh logic phân tích HTML.</li>
+                        <li>{% t "home.modal_crawl_html_li1" %}</li>
+                        <li>{% t "home.modal_crawl_html_li2" %}</li>
                     </ul>
                     <button type="button"
                             class="crawl-card__btn"
                             data-crawl-method="vrain_html"
                             data-crawl-label="Crawl_data_from_html_of_Vrain.py">
-                        Chọn phương pháp này
+                        {% t "home.modal_crawl_select" %}
                     </button>
                 </div>
             </div>
@@ -368,69 +378,69 @@
             <button class="modal-close" type="button" data-close-help-modal>×</button>
 
             <div class="help-head">
-            <h2>📖 HƯỚNG DẪN SỬ DỤNG</h2>
+            <h2>{% t "home.modal_help_title" %}</h2>
             <p class="help-sub">
-                Hướng dẫn từng bước sử dụng các chức năng chính của <b>VN Weather Hub</b>.
+                {% t "home.modal_help_sub" %}
             </p>
             </div>
 
             <div class="help-grid">
 
-            <!-- Card 1: Thu thập dữ liệu -->
+            <!-- Card 1 -->
             <div class="help-card">
-                <div class="help-card__title">🌐 Bước 1 — Thu thập dữ liệu</div>
+                <div class="help-card__title">{% t "home.modal_help_step1_title" %}</div>
                 <ol class="help-steps">
-                <li>Từ trang chủ, nhấn <b>🌐 Bắt đầu thu thập data</b>.</li>
-                <li>Chọn 1 trong 4 nguồn: <b>OpenWeather API</b>, <b>Vrain API</b>, <b>Vrain Selenium</b>, hoặc <b>Vrain HTML</b>.</li>
-                <li>Hệ thống tự động chạy script thu thập và hiển thị log thời gian thực.</li>
-                <li>Khi hoàn tất, file dữ liệu (CSV/Excel) sẽ xuất hiện trong thư mục <code>output/</code>.</li>
+                <li>{% t "home.modal_help_step1_li1_pre" %} <b>🌐 {% t "home.btn_crawl" %}</b>.</li>
+                <li>{% t "home.modal_help_step1_li2" %}</li>
+                <li>{% t "home.modal_help_step1_li3" %}</li>
+                <li>{% t "home.modal_help_step1_li4_pre" %} <code>output/</code>.</li>
                 </ol>
             </div>
 
-            <!-- Card 2: Xử lí dữ liệu -->
+            <!-- Card 2 -->
             <div class="help-card">
-                <div class="help-card__title">📊 Bước 2 — Xử lí dữ liệu</div>
+                <div class="help-card__title">{% t "home.modal_help_step2_title" %}</div>
                 <ol class="help-steps">
-                <li>Nhấn <b>📊 Xử lí dữ liệu</b> để vào trang quản lí dataset.</li>
-                <li><b>👀 Xem</b>: preview bảng dữ liệu trực tiếp (có phân trang). <b>⬇️ Tải</b>: download file về máy.</li>
-                <li><b>🔗 Gộp</b>: gom nhiều file thành 1 dataset chung (Merge).</li>
-                <li><b>🧹 Làm sạch</b>: chuẩn hoá dữ liệu — xử lý missing values, outliers, normalize, encode…</li>
+                <li>{% t "home.modal_help_step2_li1_pre" %} <b>📊 {% t "home.btn_datasets" %}</b> {% t "home.modal_help_step2_li1_post" %}</li>
+                <li><b>👀 {% t "home.modal_help_step2_li2_view" %}</b>: {% t "home.modal_help_step2_li2_view_desc" %} <b>⬇️ {% t "home.modal_help_step2_li2_dl" %}</b>: {% t "home.modal_help_step2_li2_dl_desc" %}</li>
+                <li><b>🔗 {% t "home.modal_help_step2_li3_merge" %}</b>: {% t "home.modal_help_step2_li3_desc" %}</li>
+                <li><b>🧹 {% t "home.modal_help_step2_li4_clean" %}</b>: {% t "home.modal_help_step2_li4_desc" %}</li>
                 </ol>
             </div>
 
-            <!-- Card 3: Huấn luyện ML -->
+            <!-- Card 3 -->
             <div class="help-card">
-                <div class="help-card__title">🧠 Bước 3 — Huấn luyện Machine Learning</div>
+                <div class="help-card__title">{% t "home.modal_help_step3_title" %}</div>
                 <ol class="help-steps">
-                <li>Nhấn <b>🧠 Huấn luyện Model</b> để vào trang training.</li>
-                <li>Chọn file dataset đã clean, cấu hình model (Ensemble, CatBoost, XGBoost, Random Forest, LightGBM).</li>
-                <li>Bấm <b>Bắt đầu huấn luyện</b> — theo dõi log và tiến trình real-time.</li>
-                <li>Xem kết quả đánh giá: <b>R²</b>, <b>RMSE</b>, <b>MAE</b>, <b>Rain Accuracy</b>.</li>
+                <li>{% t "home.modal_help_step3_li1_pre" %} <b>🧠 {% t "home.btn_train" %}</b> {% t "home.modal_help_step3_li1_post" %}</li>
+                <li>{% t "home.modal_help_step3_li2" %}</li>
+                <li>{% t "home.modal_help_step3_li3_pre" %} <b>{% t "home.modal_help_step3_li3_btn" %}</b> {% t "home.modal_help_step3_li3_post" %}</li>
+                <li>{% t "home.modal_help_step3_li4" %}</li>
                 </ol>
             </div>
 
-            <!-- Card 4: Dự báo -->
+            <!-- Card 4 -->
             <div class="help-card">
-                <div class="help-card__title">🔮 Bước 4 — Dự báo thời tiết</div>
+                <div class="help-card__title">{% t "home.modal_help_step4_title" %}</div>
                 <ol class="help-steps">
-                <li>Nhấn <b>🔮 Dự báo thời tiết</b> để vào trang dự báo.</li>
-                <li><b>Dự báo theo file</b>: upload file CSV chứa dữ liệu đầu vào → nhận kết quả hàng loạt.</li>
-                <li><b>Dự báo thủ công</b>: nhập từng tham số (nhiệt độ, độ ẩm, gió…) → nhận kết quả ngay.</li>
-                <li>Kết quả bao gồm lượng mưa dự báo và xác suất mưa.</li>
+                <li>{% t "home.modal_help_step4_li1_pre" %} <b>🔮 {% t "home.btn_predict" %}</b> {% t "home.modal_help_step4_li1_post" %}</li>
+                <li>{% t "home.modal_help_step4_li2" %}</li>
+                <li>{% t "home.modal_help_step4_li3" %}</li>
+                <li>{% t "home.modal_help_step4_li4" %}</li>
                 </ol>
             </div>
 
             </div>
 
             <div class="help-actions">
-            <button class="pill" type="button" data-close-help-modal>Đóng</button>
+            <button class="pill" type="button" data-close-help-modal>{% t "home.modal_help_close" %}</button>
             </div>
         </div>
     </div>
 
 
     <footer class="home-footer">
-        <span>© {{ now|default:"2025" }} Dự án Dự báo Thời tiết — Xây dựng bằng Django</span>
+        <span>© {{ now|default:"2025" }} {% t "home.footer" %}</span>
     </footer>
 
 <script src="{% static 'weather/js/Home.js' %}?v=99199996264999979699579"></script>
@@ -441,65 +451,63 @@
   <div class="crawl-modal__content intro-modal__content intro-x" role="dialog" aria-modal="true" aria-labelledby="introTitle">
     <header class="crawl-modal__header intro-x__header">
       <div class="intro-x__head">
-        <div class="intro-x__badge">🌦️ VN Weather Hub</div>
-        <h2 id="introTitle">GIỚI THIỆU HỆ THỐNG</h2>
+        <div class="intro-x__badge">🌦️ {% t "home.modal_intro_badge" %}</div>
+        <h2 id="introTitle">{% t "home.modal_intro_title" %}</h2>
         <p class="crawl-modal__subtitle intro-x__subtitle">
-          Nền tảng thu thập, xử lí, huấn luyện và dự báo thời tiết Việt Nam — tất cả trong một giao diện.
+          {% t "home.modal_intro_sub" %}
         </p>
       </div>
-      <button type="button" class="crawl-modal__close" data-close-intro-modal aria-label="Đóng">&times;</button>
+      <button type="button" class="crawl-modal__close" data-close-intro-modal aria-label="{% t 'home.btn_close_aria' %}">&times;</button>
     </header>
 
     <div class="intro-x__grid">
 
-      <!-- Card 1: VN Weather Hub là gì? -->
+      <!-- Card 1 -->
       <section class="intro-x__card">
-        <h3>🌦️ VN Weather Hub là gì?</h3>
+        <h3>{% t "home.modal_intro_what_title" %}</h3>
         <p style="color:var(--color-text-secondary,#94a3b8); line-height:1.7; margin:0;">
-          <b>VN Weather Hub</b> là hệ thống web được xây dựng trên Django, giúp bạn thực hiện toàn bộ quy trình
-          từ <b>thu thập dữ liệu thời tiết</b> đến <b>dự báo lượng mưa</b> bằng Machine Learning.
-          Hệ thống hỗ trợ nhiều nguồn dữ liệu (OpenWeather, Vrain) và nhiều định dạng file (CSV, XLSX, JSON, TXT).
+          <b>VN Weather Hub</b> {% t "home.modal_intro_what_desc" %}
         </p>
       </section>
 
-      <!-- Card 2: Các chức năng chính -->
+      <!-- Card 2 -->
       <section class="intro-x__card">
-        <h3>⭐ Tính năng chính</h3>
+        <h3>{% t "home.modal_intro_features_title" %}</h3>
         <ul class="intro-x__list">
-          <li><b>🌐 Thu thập dữ liệu</b> — 4 nguồn: OpenWeather API, Vrain API, Vrain Selenium, Vrain HTML Parser.</li>
-          <li><b>📊 Xử lí dữ liệu</b> — xem, tải, gộp (merge) và làm sạch (clean) dữ liệu ngay trên web.</li>
-          <li><b>🧠 Huấn luyện ML</b> — hỗ trợ Ensemble, CatBoost, XGBoost, Random Forest, LightGBM.</li>
-          <li><b>🔮 Dự báo</b> — dự báo lượng mưa và thời tiết theo file hoặc nhập thủ công.</li>
-          <li><b>🔒 Tài khoản</b> — đăng ký, đăng nhập, quên mật khẩu (hỗ trợ OTP qua email).</li>
+          <li><b>🌐 {% t "home.modal_intro_label_collect" %}</b> — {% t "home.modal_intro_feature1_desc" %}</li>
+          <li><b>📊 {% t "home.modal_intro_label_process" %}</b> — {% t "home.modal_intro_feature2_desc" %}</li>
+          <li><b>🧠 {% t "home.modal_intro_label_train" %}</b> — {% t "home.modal_intro_feature3_desc" %}</li>
+          <li><b>🔮 {% t "home.modal_intro_label_predict" %}</b> — {% t "home.modal_intro_feature4_desc" %}</li>
+          <li><b>🔒 {% t "home.modal_intro_label_account" %}</b> — {% t "home.modal_intro_feature5_desc" %}</li>
         </ul>
       </section>
 
-      <!-- Card 3: Quy trình tổng quan -->
+      <!-- Card 3 -->
       <section class="intro-x__card intro-x__card--wide">
-        <h3>🔄 Quy trình sử dụng</h3>
+        <h3>{% t "home.modal_intro_flow_title" %}</h3>
         <div style="display:flex; flex-wrap:wrap; gap:8px 4px; align-items:center; margin:8px 0;">
-          <span class="intro-x__chip">🌐 Thu thập</span>
+          <span class="intro-x__chip">🌐 {% t "home.modal_intro_chip_collect" %}</span>
           <span style="color:#64748b;">→</span>
-          <span class="intro-x__chip">🔗 Gộp</span>
+          <span class="intro-x__chip">🔗 {% t "home.modal_intro_chip_merge" %}</span>
           <span style="color:#64748b;">→</span>
-          <span class="intro-x__chip">🧹 Làm sạch</span>
+          <span class="intro-x__chip">🧹 {% t "home.modal_intro_chip_clean" %}</span>
           <span style="color:#64748b;">→</span>
-          <span class="intro-x__chip">🧠 Huấn luyện</span>
+          <span class="intro-x__chip">🧠 {% t "home.modal_intro_chip_train" %}</span>
           <span style="color:#64748b;">→</span>
-          <span class="intro-x__chip">🔮 Dự báo</span>
+          <span class="intro-x__chip">🔮 {% t "home.modal_intro_chip_predict" %}</span>
         </div>
         <ol class="intro-x__steps">
-          <li><b>Thu thập</b>: chạy crawl từ 1 trong 4 nguồn → file xuất ra <code>output/</code>.</li>
-          <li><b>Gộp</b> (tuỳ chọn): kết hợp nhiều file thành 1 dataset chung.</li>
-          <li><b>Làm sạch</b> (tuỳ chọn): xử lý missing values, outliers, chuẩn hoá dữ liệu.</li>
-          <li><b>Huấn luyện</b>: chọn dataset đã clean → cấu hình model → train & đánh giá kết quả.</li>
-          <li><b>Dự báo</b>: dùng model đã train để dự đoán lượng mưa và thời tiết.</li>
+          <li><b>{% t "home.modal_intro_chip_collect" %}</b>: {% t "home.modal_intro_step1_desc" %}</li>
+          <li><b>{% t "home.modal_intro_chip_merge" %}</b> {% t "home.modal_intro_step2_desc" %}</li>
+          <li><b>{% t "home.modal_intro_chip_clean" %}</b> {% t "home.modal_intro_step3_desc" %}</li>
+          <li><b>{% t "home.modal_intro_chip_train" %}</b>: {% t "home.modal_intro_step4_desc" %}</li>
+          <li><b>{% t "home.modal_intro_chip_predict" %}</b>: {% t "home.modal_intro_step5_desc" %}</li>
         </ol>
       </section>
 
-      <!-- Card 4: Nguồn dữ liệu -->
+      <!-- Card 4 -->
       <section class="intro-x__card">
-        <h3>📡 Nguồn dữ liệu hỗ trợ</h3>
+        <h3>{% t "home.modal_intro_sources_title" %}</h3>
         <div class="intro-x__chips">
           <span class="intro-x__chip">🌐 OpenWeather API</span>
           <span class="intro-x__chip">🌧️ Vrain API</span>
@@ -507,29 +515,29 @@
           <span class="intro-x__chip">🧾 Vrain HTML Parser</span>
         </div>
         <ul class="intro-x__list" style="margin-top:10px;">
-          <li><b>OpenWeather</b>: nhiệt độ, độ ẩm, tốc độ gió, độ che phủ mây, lượng mưa…</li>
-          <li><b>Vrain</b>: dữ liệu lượng mưa chi tiết theo từng trạm quan trắc tại Việt Nam.</li>
+          <li><b>OpenWeather</b>: {% t "home.modal_intro_source1" %}</li>
+          <li><b>Vrain</b>: {% t "home.modal_intro_source2" %}</li>
         </ul>
       </section>
 
-      <!-- Card 5: Bắt đầu nhanh -->
+      <!-- Card 5 -->
       <section class="intro-x__card">
-        <h3>🚀 Bắt đầu nhanh</h3>
+        <h3>{% t "home.modal_intro_quickstart_title" %}</h3>
         <ol class="intro-x__steps">
-          <li>Nhấn <b>🌐 Bắt đầu thu thập data</b> ở trang chủ.</li>
-          <li>Chọn nguồn dữ liệu và đợi hoàn thành.</li>
-          <li>Vào <b>Xử lí dữ liệu</b> để xem, gộp hoặc làm sạch.</li>
-          <li>Vào <b>Huấn luyện ML</b> để train model.</li>
-          <li>Vào <b>Dự báo</b> để sử dụng model.</li>
+          <li>{% t "home.modal_intro_quickstart_li1_pre" %} <b>🌐 {% t "home.btn_crawl" %}</b> {% t "home.modal_intro_quickstart_li1_post" %}</li>
+          <li>{% t "home.modal_intro_quickstart_li2" %}</li>
+          <li>{% t "home.modal_intro_quickstart_li3_pre" %} <b>{% t "home.modal_intro_label_process" %}</b> {% t "home.modal_intro_quickstart_li3_post" %}</li>
+          <li>{% t "home.modal_intro_quickstart_li3_pre" %} <b>{% t "home.modal_intro_label_train" %}</b> {% t "home.modal_intro_quickstart_li4_post" %}</li>
+          <li>{% t "home.modal_intro_quickstart_li3_pre" %} <b>{% t "home.modal_intro_label_predict" %}</b> {% t "home.modal_intro_quickstart_li5_post" %}</li>
         </ol>
       </section>
 
     </div><!-- /intro-x__grid -->
 
     <div class="intro-x__actions">
-      <button type="button" class="btn primary" id="introStartCrawl">🚀 Bắt đầu thu thập</button>
-      <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">📚 Xử lí dữ liệu</a>
-      <button type="button" class="btn secondary" data-close-intro-modal>✕ Đóng</button>
+      <button type="button" class="btn primary" id="introStartCrawl">{% t "home.btn_start_crawl" %}</button>
+      <a class="btn secondary" href="{% url 'weather:datasets' %}?tab=recent">{% t "home.btn_datasets_link" %}</a>
+      <button type="button" class="btn secondary" data-close-intro-modal>{% t "home.btn_close" %}</button>
     </div>
 
   </div><!-- /crawl-modal__content -->

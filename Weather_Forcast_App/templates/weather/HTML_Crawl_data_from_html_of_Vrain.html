@@ -1,9 +1,9 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8" />
-  <title>Thu thập dữ liệu Vrain từ HTML (Phân tích mã nguồn)</title>
+  <title>{% t "crawl.vrain_html.page_title" %}</title>
   <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_html_of_Vrain.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
@@ -15,8 +15,8 @@
       <div class="sidebar__logo">
         <div class="sidebar__logo-circle">WF</div>
         <div class="sidebar__logo-text">
-          <span class="sidebar__logo-title">Dự báo thời tiết</span>
-          <span class="sidebar__logo-sub">Công cụ thu thập HTML Vrain</span>
+          <span class="sidebar__logo-title">{% t "app.title" %}</span>
+          <span class="sidebar__logo-sub">{% t "crawl.vrain_html.sidebar_sub" %}</span>
         </div>
       </div>
 
@@ -29,53 +29,53 @@
       <header class="main__header">
         <div>
           <h1 class="main__title">
-            THU THẬP DỮ LIỆU VRAIN TỪ NGUỒN HTML
+            {% t "crawl.vrain_html.title" %}
           </h1>
         </div>
       </header>
 
       <section class="card">
-        <h2 class="card__title">Cấu hình và điều khiển quá trình thu thập</h2>
+        <h2 class="card__title">{% t "crawl.config_title" %}</h2>
 
         <div class="form__actions">
           <button id="btnStartCrawl" class="btn btn--primary">
-            🚀 Bắt đầu thu thập ngay
+            {% t "crawl.start_now" %}
           </button>
 
           <span class="run-pill">
             <span class="run-pill__spinner" style="display:none" id="spinner"></span>
-            <span>Nhật ký thời gian thực</span>
+            <span>{% t "crawl.running_desc" %}</span>
           </span>
         </div>
       </section>
 
       <section class="card">
-        <h2 class="card__title">Kết quả của lần thu thập gần nhất</h2>
+        <h2 class="card__title">{% t "crawl.last_result_title" %}</h2>
 
         <div class="summary">
           <div class="summary__item">
-            <span class="summary__label">Trạng thái</span>
-            <span class="summary__value" id="statusValue">✅ Sẵn sàng</span>
+            <span class="summary__label">{% t "crawl.status_label" %}</span>
+            <span class="summary__value" id="statusValue">✅ {% t "crawl.status_ready" %}</span>
           </div>
 
           <div class="summary__item">
-            <span class="summary__label">Lần crawl gần nhất</span>
+            <span class="summary__label">{% t "crawl.last_crawl_label" %}</span>
             <span class="summary__value" id="lastCrawlTime">{% if last_crawl_time %}{{ last_crawl_time }}{% else %}–{% endif %}</span>
           </div>
 
           <div class="summary__item">
-            <span class="summary__label">Tệp đầu ra</span>
+            <span class="summary__label">{% t "crawl.output_file" %}</span>
             <span class="summary__value">
               {% if last_file %}
                 {{ last_file }}
               {% else %}
-                Chưa có tệp
+                {% t "crawl.no_file" %}
               {% endif %}
             </span>
           </div>
 
           <div class="summary__item">
-            <span class="summary__label">Dung lượng</span>
+            <span class="summary__label">{% t "crawl.file_size" %}</span>
             <span class="summary__value" id="lastFileSize">
               {% if last_size_mb %}
                 {{ last_size_mb }} MB
@@ -93,9 +93,9 @@
 
       <section class="card card--log">
         <div class="card__header">
-          <h2 class="card__title">Nhật ký</h2>
+          <h2 class="card__title">{% t "crawl.log_title" %}</h2>
           <button type="button" class="btn btn--ghost" onclick="clearLog()">
-            🧹 Xoá nhật ký
+            {% t "crawl.clear_log" %}
           </button>
         </div>
 

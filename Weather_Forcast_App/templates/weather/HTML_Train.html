@@ -1,9 +1,9 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Huấn luyện mô hình ML – Weather Hub</title>
+    <title>{% t "train.page_title" %}</title>
     <link rel="stylesheet" href="{% static 'weather/css/CSS_Train.css' %}?v=20260303">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -15,8 +15,8 @@
             <div class="sidebar__logo">
                 <div class="sidebar__logo-circle">WF</div>
                 <div class="sidebar__logo-text">
-                    <span class="sidebar__logo-title">Dự báo thời tiết</span>
-                    <span class="sidebar__logo-sub">Huấn luyện mô hình ML</span>
+                    <span class="sidebar__logo-title">{% t "app.title" %}</span>
+                    <span class="sidebar__logo-sub">{% t "train.logo_sub" %}</span>
                 </div>
             </div>
             {% include 'weather/Sidebar_nav.html' %}
@@ -33,10 +33,10 @@
                     </div>
                     <h1 class="hero__title">
                         <span class="hero__icon">🧠</span>
-                        HUẤN LUYỆN MÔ HÌNH ML
+                        {% t "train.title" %}
                     </h1>
                     <p class="hero__desc">
-                        Chọn dataset, cấu hình model và bắt đầu training. Kết quả sẽ được lưu vào
+                        {% t "train.subtitle" %}
                         <code>Machine_learning_artifacts/latest/</code>
                     </p>
                 </div>
@@ -46,7 +46,7 @@
                     <div class="run-panel__row">
                         <span class="run-panel__spinner"></span>
                         <div>
-                            <div class="run-panel__title">Đang huấn luyện...</div>
+                            <div class="run-panel__title">{% t "train.training_running" %}</div>
                             <div class="run-panel__desc">Job ID: {{ active_job.job_id }}</div>
                         </div>
                     </div>
@@ -57,56 +57,56 @@
             <!-- ═══════ HƯỚNG DẪN SỬ DỤNG ═══════ -->
             <section class="card card--guide" id="sectionGuide">
                 <div class="card__header card__header--toggle" id="guideHeaderToggle">
-                    <h2 class="card__title">📖 Hướng dẫn sử dụng</h2>
-                    <button type="button" class="pill small" id="btnToggleGuide">Thu gọn</button>
+                    <h2 class="card__title">📖 {% t "train.guide_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleGuide">{% t "train.collapse" %}</button>
                 </div>
                 <div class="guide-body" id="guideBody">
                     <div class="guide-steps">
                         <div class="guide-step">
                             <div class="guide-step__number">1</div>
                             <div class="guide-step__content">
-                                <h3 class="guide-step__title">Chọn Dataset</h3>
+                                <h3 class="guide-step__title">{% t "train.guide_step1_title" %}</h3>
                                 <p class="guide-step__desc">
-                                    Chọn <strong>thư mục dữ liệu</strong> và <strong>file</strong> từ danh sách dropdown.
-                                    Hoặc cuộn xuống bảng "Datasets có sẵn" và bấm nút <strong>"✅ Dùng"</strong> để chọn nhanh.
-                                    Nên sử dụng data đã clean (<code>Cleaned Merge</code>) để có kết quả tốt nhất.
+                                    {% t "train.guide_step1_desc_p1" %}
+                                    {% t "train.guide_step1_desc_p2" %}
+                                    {% t "train.guide_step1_desc_p3" %}
                                 </p>
                             </div>
                         </div>
                         <div class="guide-step">
                             <div class="guide-step__number">2</div>
                             <div class="guide-step__content">
-                                <h3 class="guide-step__title">Cấu hình Model</h3>
-                                <p class="guide-step__desc">Có 2 chế độ cấu hình:</p>
+                                <h3 class="guide-step__title">{% t "train.guide_step2_title" %}</h3>
+                                <p class="guide-step__desc">{% t "train.guide_step2_desc_p1" %}</p>
                                 <ul class="guide-step__list">
-                                    <li><strong>⚡ Cấu hình nhanh:</strong> Chọn loại model (Two-Stage, XGBoost, LightGBM, CatBoost hoặc Ensemble), điều chỉnh tỷ lệ test/validation</li>
-                                    <li><strong>🔧 Cấu hình nâng cao:</strong> Chỉnh trực tiếp file JSON config, kiểm soát toàn bộ tham số</li>
+                                    <li>{% t "train.guide_step2_desc_quick" %}</li>
+                                    <li>{% t "train.guide_step2_desc_advanced" %}</li>
                                 </ul>
                                 <p class="guide-step__desc" style="margin-top:6px;">
-                                    Tick <strong>"Sử dụng config mặc định"</strong> để dùng config từ file <code>train_config.json</code>.
+                                    {% t "train.guide_step2_desc_p2" %}
                                 </p>
                             </div>
                         </div>
                         <div class="guide-step">
                             <div class="guide-step__number">3</div>
                             <div class="guide-step__content">
-                                <h3 class="guide-step__title">Huấn luyện & Xem kết quả</h3>
+                                <h3 class="guide-step__title">{% t "train.guide_step3_title" %}</h3>
                                 <p class="guide-step__desc">
-                                    Bấm <strong>"🚀 Bắt đầu huấn luyện"</strong>. Theo dõi tiến trình qua thanh progress bar và nhật ký chi tiết.
-                                    Khi hoàn tất, kết quả metrics (R², RMSE, MAE) sẽ hiển thị ở mục "Kết quả huấn luyện gần nhất".
-                                    Model được lưu tại <code>Machine_learning_artifacts/latest/</code>.
+                                    {% t "train.guide_step3_desc_p1" %}
+                                    {% t "train.guide_step3_desc_p2" %}
+                                    {% t "train.guide_step3_desc_p3" %}
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="guide-tips">
-                        <h4 class="guide-tips__title">💡 Mẹo sử dụng</h4>
+                        <h4 class="guide-tips__title">{% t "train.tips_title" %}</h4>
                         <ul class="guide-tips__list">
-                            <li><strong>⭐ Two-Stage (Khuyến nghị)</strong> tối ưu cho dữ liệu mưa không cân bằng — phân loại mưa trước, rồi hồi quy lượng mưa</li>
-                            <li>Target column mặc định là <strong>rain_total</strong> - thay đổi nếu cần dự báo biến khác</li>
-                            <li>Tỷ lệ <strong>Test size = 0.15</strong> và <strong>Valid size = 0.15</strong> là cấu hình khuyến nghị</li>
-                            <li>Kiểm tra <strong>Overfit Status</strong> trong Diagnostics — trạng thái "GOOD" là lý tưởng</li>
-                            <li>Rain Detection Accuracy cho biết độ chính xác phân loại mưa/không mưa</li>
+                            <li>{% t "train.tips_tip1" %}</li>
+                            <li>{% t "train.tips_tip2" %}</li>
+                            <li>{% t "train.tips_tip3" %}</li>
+                            <li>{% t "train.tips_tip4" %}</li>
+                            <li>{% t "train.tips_tip5" %}</li>
                         </ul>
                     </div>
                 </div>
@@ -116,8 +116,8 @@
             {% if artifacts.metrics %}
             <section class="card card--artifacts" id="sectionArtifacts">
                 <div class="card__header">
-                    <h2 class="card__title">📊 Kết quả huấn luyện gần nhất</h2>
-                    <button type="button" class="pill small" id="btnToggleArtifacts">Thu gọn</button>
+                    <h2 class="card__title">📊 {% t "train.results_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleArtifacts">{% t "train.collapse" %}</button>
                 </div>
                 <div class="artifacts-body" id="artifactsBody">
                     <div class="metrics-grid">
@@ -210,7 +210,7 @@
                             <div class="metric-card__label">DIAGNOSTICS</div>
                             <div class="metric-card__items">
                                 <div class="metric-item">
-                                    <span class="metric-name">Trạng thái</span>
+                                    <span class="metric-name">{% t "train.status" %}</span>
                                     <span class="metric-value metric-badge
                                         {% if artifacts.metrics.diagnostics.overfit_status == 'good' %}metric-badge--good
                                         {% elif artifacts.metrics.diagnostics.overfit_status == 'overfit' %}metric-badge--warn
@@ -232,7 +232,7 @@
                                 </div>
                                 {% if artifacts.metrics.diagnostics.overfit_details %}
                                 <div class="metric-item" style="grid-column: 1 / -1;">
-                                    <span class="metric-name">Chi tiết</span>
+                                    <span class="metric-name">{% t "train.details" %}</span>
                                     <span class="metric-value" style="font-size:0.8rem; color:#94a3b8;">
                                         {{ artifacts.metrics.diagnostics.overfit_details }}
                                     </span>
@@ -246,16 +246,30 @@
                     <!-- Thông tin thêm -->
                     <div class="artifacts-meta">
                         <span class="artifacts-meta__item">
-                            🕒 Trained: {{ artifacts.metrics.generated_at }}
+                            🕒 {% t "train.trained_at" %}: {{ artifacts.metrics.generated_at }}
                         </span>
                         <span class="artifacts-meta__item">
-                            🤖 Model: {{ artifacts.metrics.model_type|upper }}
+                            🤖 {% t "train.model" %}: {{ artifacts.metrics.model_type|upper }}
                         </span>
                         {% if artifacts.model_exists %}
                         <span class="artifacts-meta__item">
-                            💾 Model size: {{ artifacts.model_size_mb }} MB
+                            💾 {% t "train.model_size" %}: {{ artifacts.model_size_mb }} MB
                         </span>
                         {% endif %}
+                    </div>
+
+                    <div class="card__desc" style="margin-top:12px; background:rgba(15,23,42,0.45); border:1px solid rgba(148,163,184,0.2); border-radius:10px; padding:12px;">
+                        <h4 style="margin:0 0 8px; color:#e2e8f0;">{% t "train.metrics_explain_title" %}</h4>
+                        <p style="margin:0 0 8px;">{% t "train.metrics_explain_intro" %}</p>
+                        <ul style="margin:0 0 8px 16px; padding:0; display:grid; gap:6px;">
+                            <li><strong>{% t "train.metrics_explain_r2_label" %}</strong> {% t "train.metrics_explain_r2_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_rmse_label" %}</strong> {% t "train.metrics_explain_rmse_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_mae_label" %}</strong> {% t "train.metrics_explain_mae_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_rain_acc_label" %}</strong> {% t "train.metrics_explain_rain_acc_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_overfit_label" %}</strong> {% t "train.metrics_explain_overfit_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_zero_ratio_label" %}</strong> {% t "train.metrics_explain_zero_ratio_desc" %}</li>
+                        </ul>
+                        <p style="margin:0; color:#94a3b8;">{% t "train.metrics_explain_tip" %}</p>
                     </div>
                 </div>
             </section>
@@ -265,18 +279,18 @@
             {% if best_params %}
             <section class="card card--artifacts" id="sectionBestParams">
                 <div class="card__header">
-                    <h2 class="card__title">🏆 Best Params (Optuna)</h2>
-                    <button type="button" class="pill small" id="btnToggleBestParams">Thu gọn</button>
+                    <h2 class="card__title">🏆 {% t "train.best_params_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleBestParams">{% t "train.collapse" %}</button>
                 </div>
                 <div id="bestParamsBody">
                     <div class="artifacts-meta" style="margin-bottom:8px;">
-                        <span class="artifacts-meta__item">🎯 Metric: {{ best_params.optimized_metric|upper }}</span>
+                        <span class="artifacts-meta__item">🎯 {% t "train.best_params_metric" %}: {{ best_params.optimized_metric|upper }}</span>
                         <span class="artifacts-meta__item">
-                            🏅 Best value:
+                            🏅 {% t "train.best_params_value" %}:
                             <strong style="color:#34d399;">{{ best_params.best_value|floatformat:6 }}</strong>
                         </span>
-                        <span class="artifacts-meta__item">🔁 Trials: {{ best_params.n_trials }}</span>
-                        <span class="artifacts-meta__item">⏱️ Thời gian: {{ best_params.elapsed_seconds|floatformat:1 }}s</span>
+                        <span class="artifacts-meta__item">🔁 {% t "train.best_params_trials" %}: {{ best_params.n_trials }}</span>
+                        <span class="artifacts-meta__item">⏱️ {% t "train.time_elapsed" %}: {{ best_params.elapsed_seconds|floatformat:1 }}s</span>
                     </div>
                     <div class="metrics-grid">
                         {% for key, val in best_params.best_params.items %}
@@ -286,6 +300,25 @@
                         </div>
                         {% endfor %}
                     </div>
+
+                    <div class="card__desc" style="margin-top:12px; background:rgba(15,23,42,0.45); border:1px solid rgba(148,163,184,0.2); border-radius:10px; padding:12px;">
+                        <h4 style="margin:0 0 8px; color:#e2e8f0;">{% t "train.best_params_explain_title" %}</h4>
+                        <p style="margin:0 0 8px;">{% t "train.best_params_explain_intro" %}</p>
+                        <ul style="margin:0 0 8px 16px; padding:0; display:grid; gap:6px;">
+                            <li>{% t "train.best_params_explain_trials" %}</li>
+                            <li>{% t "train.best_params_explain_metric_value" %}</li>
+                            <li>{% t "train.best_params_explain_learning_rate" %}</li>
+                            <li>{% t "train.best_params_explain_n_estimators" %}</li>
+                            <li>{% t "train.best_params_explain_max_depth_num_leaves" %}</li>
+                            <li>{% t "train.best_params_explain_min_child_samples" %}</li>
+                            <li>{% t "train.best_params_explain_subsample_colsample" %}</li>
+                            <li>{% t "train.best_params_explain_reg_alpha_lambda" %}</li>
+                            <li>{% t "train.best_params_explain_rain_threshold" %}</li>
+                            <li>{% t "train.best_params_explain_predict_threshold" %}</li>
+                            <li>{% t "train.best_params_explain_tweedie_variance_power" %}</li>
+                        </ul>
+                        <p style="margin:0; color:#94a3b8;">{% t "train.best_params_explain_adjust_tip" %}</p>
+                    </div>
                 </div>
             </section>
             {% endif %}
@@ -293,20 +326,20 @@
             <!-- ═══════ TỐI ƯU SIÊU THAM SỐ (Optuna) ═══════ -->
             <section class="card" id="sectionTune">
                 <div class="card__header">
-                    <h2 class="card__title">🔬 Tối ưu siêu tham số (Optuna)</h2>
-                    <button type="button" class="pill small" id="btnToggleTune">Thu gọn</button>
+                    <h2 class="card__title">🔬 {% t "train.optuna_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleTune">{% t "train.collapse" %}</button>
                 </div>
                 <div id="tuneBody">
-                    <p class="card__desc">Chạy Optuna để tìm hyperparameters tốt nhất cho model Two-Stage. Kết quả sẽ tự động ghi vào <code>best_params_twostage.json</code>.</p>
+                    <p class="card__desc">{% t "train.optuna_desc" %}</p>
                     <div class="form__grid" style="margin-bottom:12px;">
                         <div class="form__group">
-                            <label class="form__label">🔁 Số trials</label>
+                            <label class="form__label">{% t "train.optuna_trials_label" %}</label>
                             <input type="number" id="tuneTrials" class="form__input" value="100" min="5" max="500" step="5">
                         </div>
                         <div class="form__group">
-                            <label class="form__label">🎯 Metric tối ưu</label>
+                            <label class="form__label">{% t "train.optuna_metric_label" %}</label>
                             <select id="tuneMetric" class="form__select">
-                                <option value="rain_acc" selected>Rain Accuracy (Khuyến nghị)</option>
+                                <option value="rain_acc" selected>{% t "train.optuna_metric_rain_acc" %}</option>
                                 <option value="rmse">RMSE</option>
                                 <option value="mae">MAE</option>
                                 <option value="r2">R²</option>
@@ -316,12 +349,12 @@
                     <div class="form__group form__group--check" style="margin-bottom:12px;">
                         <label class="form__check-label">
                             <input type="checkbox" id="tuneAutoApply" checked>
-                            <span>Tự động áp dụng best params vào <code>train_config.json</code> sau khi tối ưu</span>
+                            <span>{% t "train.optuna_auto_apply" %}</span>
                         </label>
                     </div>
                     <div class="form__actions" style="margin-bottom:12px;">
                         <button type="button" id="btnStartTune" class="btn btn--primary">
-                            🔬 Bắt đầu tối ưu
+                            {% t "train.optuna_start_btn" %}
                         </button>
                     </div>
                     <!-- Tune progress -->
@@ -332,7 +365,7 @@
                             </div>
                             <div class="progress-info">
                                 <span id="tuneProgressPercent">0%</span>
-                                <span id="tuneProgressStep">Khởi tạo</span>
+                                <span id="tuneProgressStep">{% t "train.optuna_progress_init" %}</span>
                             </div>
                         </div>
                         <div class="log-output" style="max-height:200px; overflow-y:auto;">
@@ -344,8 +377,8 @@
 
             <!-- ═══════ CẤU HÌNH TRAINING ═══════ -->
             <section class="card" id="sectionConfig">
-                <h2 class="card__title">⚙️ Cấu hình huấn luyện</h2>
-                <p class="card__desc">Chọn dataset, loại model và tham số. Hoặc sử dụng config mặc định.</p>
+                <h2 class="card__title">⚙️ {% t "train.config_title" %}</h2>
+                <p class="card__desc">{% t "train.config_desc" %}</p>
 
                 <form id="trainForm" class="form">
                     {% csrf_token %}
@@ -353,10 +386,10 @@
                     <!-- Tabs: Quick / Advanced -->
                     <div class="config-tabs">
                         <button type="button" class="config-tab config-tab--active" data-tab="quick">
-                            ⚡ Cấu hình nhanh
+                            {% t "train.config_quick" %}
                         </button>
                         <button type="button" class="config-tab" data-tab="advanced">
-                            🔧 Cấu hình nâng cao
+                            {% t "train.config_advanced" %}
                         </button>
                     </div>
 
@@ -365,27 +398,27 @@
                         <div class="form__grid">
                             <!-- Dataset Source -->
                             <div class="form__group">
-                                <label class="form__label">📂 Thư mục dữ liệu</label>
+                                <label class="form__label">{% t "train.folder_label" %}</label>
                                 <select id="folderKey" name="folder_key" class="form__select">
-                                    <option value="">-- Chọn thư mục --</option>
-                                    <option value="data_crawl">Data Crawl (raw)</option>
-                                    <option value="data_merge">Data Merge</option>
-                                    <option value="cleaned_merge">Cleaned Merge ✨</option>
-                                    <option value="cleaned_not_merge">Cleaned Not Merge</option>
+                                    <option value="">{% t "train.folder_placeholder" %}</option>
+                                    <option value="data_crawl">{% t "train.folder_crawl" %}</option>
+                                    <option value="data_merge">{% t "train.folder_merge" %}</option>
+                                    <option value="cleaned_merge">{% t "train.folder_cleaned_merge" %}</option>
+                                    <option value="cleaned_not_merge">{% t "train.folder_cleaned_not_merge" %}</option>
                                 </select>
                             </div>
 
                             <!-- Dataset File -->
                             <div class="form__group">
-                                <label class="form__label">📄 File dữ liệu</label>
+                                <label class="form__label">{% t "train.file_label" %}</label>
                                 <select id="fileName" name="filename" class="form__select">
-                                    <option value="">-- Chọn thư mục trước --</option>
+                                    <option value="">{% t "train.file_placeholder" %}</option>
                                 </select>
                             </div>
 
                             <!-- Model Type -->
                             <div class="form__group">
-                                <label class="form__label">🤖 Loại model</label>
+                                <label class="form__label">{% t "train.model_type_label" %}</label>
                                 <select id="modelType" name="model_type" class="form__select">
                                     {% for mt in model_types %}
                                     <option value="{{ mt.value }}"
@@ -398,21 +431,21 @@
 
                             <!-- Target Column -->
                             <div class="form__group">
-                                <label class="form__label">🎯 Cột mục tiêu (target)</label>
+                                <label class="form__label">{% t "train.target_label" %}</label>
                                 <input type="text" id="targetColumn" name="target_column"
                                        class="form__input" value="rain_total"
-                                       placeholder="VD: rain_total, Tổng lượng mưa">
+                                       placeholder="{% t 'train.target_placeholder' %}">
                             </div>
 
                             <!-- Split ratios -->
                             <div class="form__group">
-                                <label class="form__label">📐 Test size</label>
+                                <label class="form__label">{% t "train.test_size_label" %}</label>
                                 <input type="number" id="testSize" name="test_size"
                                        class="form__input" value="0.15" step="0.05" min="0.05" max="0.4">
                             </div>
 
                             <div class="form__group">
-                                <label class="form__label">📐 Validation size</label>
+                                <label class="form__label">{% t "train.valid_size_label" %}</label>
                                 <input type="number" id="validSize" name="valid_size"
                                        class="form__input" value="0.15" step="0.05" min="0.05" max="0.4">
                             </div>
@@ -422,20 +455,20 @@
                         <div class="form__group form__group--check">
                             <label class="form__check-label">
                                 <input type="checkbox" id="sortByTime" name="sort_by_time" checked>
-                                <span>Sắp xếp theo thời gian (<code>sort_by_time</code>) — khuyến nghị cho dữ liệu chuỗi thời gian</span>
+                                <span>{% t "train.sort_by_time_label" %}</span>
                             </label>
                         </div>
                         <div class="form__group form__group--check">
                             <label class="form__check-label">
                                 <input type="checkbox" id="featureSelectionEnabled" name="feature_selection_enabled" checked>
-                                <span>Bật chọn lọc đặc trưng (<code>feature_selection</code>, max 50 features)</span>
+                                <span>{% t "train.feature_selection_label" %}</span>
                             </label>
                         </div>
                         <!-- Use default config checkbox -->
                         <div class="form__group form__group--check">
                             <label class="form__check-label">
                                 <input type="checkbox" id="useDefaultConfig" name="use_default_config">
-                                <span>Sử dụng config mặc định (từ <code>train_config.json</code>)</span>
+                                <span>{% t "train.use_default_config" %}</span>
                             </label>
                         </div>
                     </div>
@@ -443,22 +476,22 @@
                     <!-- TAB: Advanced Config -->
                     <div class="config-panel" data-panel="advanced">
                         <div class="form__group">
-                            <label class="form__label">📝 Config JSON (chỉnh trực tiếp)</label>
+                            <label class="form__label">{% t "train.config_json_label" %}</label>
                             <textarea id="configJson" name="config_json" class="form__textarea"
                                 rows="20" spellcheck="false">{{ default_config }}</textarea>
                         </div>
                         <p class="form__hint">
-                            Chỉnh sửa config JSON ở trên. Khi gửi, config này sẽ ghi đè cấu hình nhanh.
+                            {% t "train.config_json_hint" %}
                         </p>
                     </div>
 
                     <!-- Actions -->
                     <div class="form__actions">
                         <button type="submit" id="btnStartTrain" class="btn btn--primary btn--lg">
-                            🚀 Bắt đầu huấn luyện
+                            {% t "train.start_training" %}
                         </button>
                         <button type="button" id="btnResetForm" class="btn btn--ghost">
-                            🔄 Reset form
+                            {% t "train.btn_reset" %}
                         </button>
                     </div>
                 </form>
@@ -467,8 +500,8 @@
             <!-- ═══════ LOGS / PROGRESS ═══════ -->
             <section class="card card--log" id="sectionLogs" style="display:none;">
                 <div class="card__header">
-                    <h2 class="card__title">📋 Nhật ký huấn luyện</h2>
-                    <span class="train-status" id="trainStatus">⏳ Đang chờ...</span>
+                    <h2 class="card__title">📋 {% t "train.logs_title" %}</h2>
+                    <span class="train-status" id="trainStatus">{% t "train.logs_status_waiting" %}</span>
                 </div>
 
                 <!-- Progress bar -->
@@ -478,7 +511,7 @@
                     </div>
                     <div class="progress-info">
                         <span id="progressPercent">0%</span>
-                        <span id="progressStep">Khởi tạo</span>
+                        <span id="progressStep">{% t "train.logs_progress_init" %}</span>
                     </div>
                 </div>
 
@@ -491,18 +524,18 @@
             <!-- ═══════ DATASET BROWSER ═══════ -->
             <section class="card" id="sectionDatasets">
                 <div class="card__header">
-                    <h2 class="card__title">📦 Datasets có sẵn</h2>
-                    <button type="button" class="pill small" id="btnRefreshDatasets">🔄 Refresh</button>
+                    <h2 class="card__title">📦 {% t "train.dataset_available" %}</h2>
+                    <button type="button" class="pill small" id="btnRefreshDatasets">{% t "train.dataset_refresh_btn" %}</button>
                 </div>
                 <div class="dataset-table-wrap">
                     <table class="dataset-table" id="datasetTable">
                         <thead>
                             <tr>
-                                <th>Thư mục</th>
-                                <th>Tên file</th>
-                                <th>Kích thước</th>
-                                <th>Cập nhật</th>
-                                <th>Hành động</th>
+                                <th>{% t "train.dataset_table_folder" %}</th>
+                                <th>{% t "train.dataset_table_file" %}</th>
+                                <th>{% t "train.dataset_table_size" %}</th>
+                                <th>{% t "train.dataset_table_updated" %}</th>
+                                <th>{% t "train.dataset_table_action" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -518,13 +551,13 @@
                                     <button type="button" class="pill small btn-use-dataset"
                                             data-folder="{{ ds.folder_key }}"
                                             data-file="{{ ds.filename }}">
-                                        ✅ Dùng
+                                        {% t "train.use_dataset" %}
                                     </button>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="td-empty">Chưa có dataset nào. Hãy crawl hoặc merge dữ liệu trước.</td>
+                                <td colspan="5" class="td-empty">{% t "train.dataset_table_empty" %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

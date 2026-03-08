@@ -572,15 +572,18 @@ class ForecastRunner:
 		X_transformed = X_transformed.loc[:, model_feature_names]
 
 		logger.info("Predicting")
-		# Thực hiện dự đoán
-		preds = model.predict(X_transformed)
+		# Thực hiện dự đoán — lưu raw_result để trích probabilities nếu có
+		raw_result = model.predict(X_transformed)
 
-		# Một số model custom có thể trả object chứa thuộc tính `.predictions`
-		# nên ở đây thử bóc ra nếu có
+		# Trích predictions (numpy array) và probabilities (xác suất có mưa) từ result
+		rain_prob: np.ndarray | None = None
 		try:
-			preds = getattr(preds, "predictions", preds)
+			preds = getattr(raw_result, "predictions", raw_result)
+			prob_candidate = getattr(raw_result, "probabilities", None)
+			if prob_candidate is not None:
+				rain_prob = np.array(prob_candidate).reshape(-1)
 		except Exception:
-			pass
+			preds = raw_result
 
 		# Đảm bảo preds thành numpy array 1 chiều
 		preds = np.array(preds).reshape(-1)
@@ -590,17 +593,41 @@ class ForecastRunner:
 		if self.applied_log_target:
 			logger.info("Applying expm1 inverse transform (log1p was used during training)")
 			preds = np.expm1(preds).clip(min=0)
+			# Probabilities là xác suất, không cần inverse transform
 
 		# Tạo output bằng cách copy input gốc rồi thêm cột dự đoán
 		df_out = df_in.copy()
 		df_out["y_pred"] = preds
 
+		# Thêm xác suất có mưa (Stage 1 classifier) vào output nếu model trả về
+		if rain_prob is not None and len(rain_prob) == len(df_out):
+			df_out["rain_probability"] = rain_prob.round(4)
+			logger.info("Added 'rain_probability' column from Stage 1 classifier")
+
 		# Nếu trong input có sẵn cột target thật
-		# thì tính RMSE để xem dự đoán trên batch này tốt tới đâu
-		if self.target_column in df_out:
+		# thì tính đầy đủ metrics để đánh giá chất lượng dự đoán trên batch này
+		if self.target_column in df_out.columns:
 			y_true = df_out[self.target_column].astype(float).values
-			rmse = float(np.sqrt(((y_true - preds) ** 2).mean()))
-			logger.info("Prediction RMSE on provided target: %.4f", rmse)
+			try:
+				from Weather_Forcast_App.Machine_learning_model.evaluation.metrics import (
+					calculate_all_metrics,
+				)
+				m = calculate_all_metrics(y_true, preds, rain_threshold=0.1)
+				logger.info(
+					"Forecast quality — RMSE: %.4f | MAE: %.4f | R²: %.4f | "
+					"MBE: %+.4f | Pearson: %.4f | Rain Det: %.1f%% | CSI: %.4f",
+					m.get("RMSE", float("nan")),
+					m.get("MAE", float("nan")),
+					m.get("R2", float("nan")),
+					m.get("MBE", float("nan")),
+					m.get("Pearson", float("nan")),
+					m.get("Rain_Accuracy", float("nan")) * 100,
+					m.get("CSI", float("nan")),
+				)
+			except Exception as exc:
+				# Fallback: tính RMSE thủ công nếu metrics module bị lỗi
+				rmse = float(np.sqrt(((y_true - preds) ** 2).mean()))
+				logger.warning("calculate_all_metrics failed (%s). RMSE=%.4f", exc, rmse)
 
 		# Ghi kết quả ra file CSV
 		self._write_output(df_out)

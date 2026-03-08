@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Xác thực OTP - VN Weather Hub</title>
+  <title>{% t "auth.verify_otp.page_title" %}</title>
   <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=299002">
   <style>
     .otp-input-group {
@@ -88,12 +88,12 @@
             </div>
           </div>
         </div>
-        <h1 class="auth-title">Xác thực OTP</h1>
-        <p class="auth-subtitle">Nhập mã 5 số đã gửi đến email của bạn</p>
+        <h1 class="auth-title">{% t "auth.verify_otp.title" %}</h1>
+        <p class="auth-subtitle">{% t "auth.verify_otp.subtitle" %}</p>
       </div>
 
       <div class="email-display">
-        📧 OTP đã gửi đến: <b>{{ email }}</b>
+        📧 {% t "auth.verify_otp.otp_sent_to" %} <b>{{ email }}</b>
       </div>
 
       {% if messages %}
@@ -118,25 +118,25 @@
         </div>
 
         <button class="btn btn-primary btn-full btn-glow" type="submit">
-          <span class="btn-text">Xác nhận OTP</span>
+          <span class="btn-text">{% t "auth.verify_otp.btn_confirm" %}</span>
           <span class="btn-icon">✓</span>
         </button>
       </form>
 
       <div class="resend-section">
-        <p class="countdown" id="countdown">Có thể gửi lại OTP sau <span id="timer">60</span> giây</p>
+        <p class="countdown" id="countdown">{% t "auth.verify_otp.countdown" %} <span id="timer">60</span> {% t "auth.verify_otp.seconds" %}</p>
         <form method="post" action="{% url 'weather:forgot_password_otp' %}" id="resendForm" style="display: none;">
           {% csrf_token %}
           <input type="hidden" name="email" value="{{ email }}">
           <button type="submit" class="resend-btn" id="resendBtn">
-            🔄 Gửi lại mã OTP
+            {% t "auth.verify_otp.resend_btn" %}
           </button>
         </form>
       </div>
 
       <div class="auth-footer" style="margin-top: 20px;">
         <a href="{% url 'weather:forgot_password_otp' %}" class="auth-link">
-          ← Quay lại nhập email khác
+          ← {% t "auth.verify_otp.back_email" %}
         </a>
       </div>
     </div>

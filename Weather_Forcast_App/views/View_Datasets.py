@@ -84,8 +84,11 @@ def _merged_dir() -> Path:
 
 def _cleaned_dir() -> Path:
     """Trả về thư mục cleaned_data"""
-    # cleaned_data/ chứa file clean sau xử lý missing/duplicate/...
-    return _base_dir() / "cleaned_data"
+    # Dynamic path: lấy từ cấu hình trung tâm trong paths.py
+    # Thực tế dữ liệu clean nằm ở: PROJECT_ROOT/data/data_clean
+    from Weather_Forcast_App.paths import DATA_CLEAN_ROOT
+    DATA_CLEAN_ROOT.mkdir(parents=True, exist_ok=True)
+    return DATA_CLEAN_ROOT
 
 
 # ============================================================
@@ -96,20 +99,24 @@ def _cleaned_dir() -> Path:
 # - Bạn yêu cầu "không đổi code" nên chỉ ghi chú để bạn hiểu hành vi này.
 
 def _cleaned_merge_dir():
-    # cleaned_data/Clean_Data_For_File_Merge
-    # - chứa file clean cho nguồn "merged"
-    return _cleaned_dir() / "Clean_Data_For_File_Merge"
+    # dữ liệu clean cho nguồn merge
+    # PROJECT_ROOT/data/data_clean/data_merge_clean
+    from Weather_Forcast_App.paths import DATA_CLEAN_MERGE_DIR
+    DATA_CLEAN_MERGE_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_CLEAN_MERGE_DIR
 
 def _cleaned_not_merge_dir() -> Path:
-    """cleaned_data/Clean_Data_For_File_Not_Merge"""
-    # cleaned_data/Clean_Data_For_File_Not_Merge
-    # - chứa file clean cho nguồn "output" (raw)
-    return _cleaned_dir() / "Clean_Data_For_File_Not_Merge"
+    """data/data_clean/data_not_merge_clean"""
+    # dữ liệu clean cho nguồn output/raw
+    from Weather_Forcast_App.paths import DATA_CLEAN_NOT_MERGE_DIR
+    DATA_CLEAN_NOT_MERGE_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_CLEAN_NOT_MERGE_DIR
 
 def _cleaned_raw_dir():
-    # Ở đây _cleaned_raw_dir trả về cùng path với _cleaned_not_merge_dir
-    # => "raw" nghĩa là dữ liệu output chưa merge nhưng đã clean
-    return _cleaned_dir() / "Clean_Data_For_File_Not_Merge"
+    # "raw" nghĩa là dữ liệu output chưa merge nhưng đã clean
+    from Weather_Forcast_App.paths import DATA_CLEAN_NOT_MERGE_DIR
+    DATA_CLEAN_NOT_MERGE_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_CLEAN_NOT_MERGE_DIR
 
 
 # ============================================================
@@ -542,9 +549,13 @@ def dataset_view_view(request, folder: str, filename: str):
 # Vì vậy hai hàm dưới đây mới là phiên bản "có hiệu lực" cuối cùng.
 
 def _cleaned_merge_dir() -> Path:
-    # cleaned_data/Clean_Data_For_File_Merge
-    return _cleaned_dir() / "Clean_Data_For_File_Merge"
+    # data/data_clean/data_merge_clean
+    from Weather_Forcast_App.paths import DATA_CLEAN_MERGE_DIR
+    DATA_CLEAN_MERGE_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_CLEAN_MERGE_DIR
 
 def _cleaned_raw_dir() -> Path:
-    # cleaned_data/Clean_Data_For_File_Not_Merge
-    return _cleaned_dir() / "Clean_Data_For_File_Not_Merge"
+    # data/data_clean/data_not_merge_clean
+    from Weather_Forcast_App.paths import DATA_CLEAN_NOT_MERGE_DIR
+    DATA_CLEAN_NOT_MERGE_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_CLEAN_NOT_MERGE_DIR

@@ -1,10 +1,10 @@
-{% load static %}
+{% load static i18n_tags %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="{{ lang }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - VN Weather Hub</title>
+    <title>{% t "auth.login.page_title" %}</title>
     <link rel="stylesheet" href="{% static 'weather/css/Auth.css' %}?v=10099923">
     <style>
         .auth-messages {
@@ -86,8 +86,8 @@
                         </div>
                     </div>
                 </div>
-                <h1 class="auth-title">Đăng nhập</h1>
-                <p class="auth-subtitle">Chào mừng bạn quay trở lại!</p>
+                <h1 class="auth-title">{% t "auth.login.title" %}</h1>
+                <p class="auth-subtitle">{% t "auth.login.subtitle" %}</p>
             </div>
 
             {% if messages %}
@@ -106,7 +106,7 @@
                 <div class="form-group animated-input">
                     <label for="username" class="form-label">
                         <span class="label-icon">👤</span>
-                        Tên đăng nhập hoặc Email
+                        {% t "auth.login.username_label" %}
                     </label>
                     <div class="input-wrapper">
                         <input 
@@ -114,7 +114,7 @@
                             id="username" 
                             name="username" 
                             class="form-input"
-                            placeholder="Nhập username hoặc email"
+                            placeholder="{% t 'auth.login.username_placeholder' %}"
                             required
                             autofocus
                         >
@@ -125,11 +125,11 @@
                 <div class="form-group animated-input">
                     <label for="password" class="form-label">
                         <span class="label-icon">🔒</span>
-                        Mật khẩu
+                        {% t "auth.login.password_label" %}
                     </label>
                     <div class="input-wrapper">
                         <input id="password" type="password" name="password" required class="form-input" />
-                        <button type="button" class="toggle-password" data-target="password" aria-label="Hiện/ẩn mật khẩu">
+                            <button type="button" class="toggle-password" data-target="password" aria-label="{% t 'auth.login.show_password' %}">
                             <svg viewBox="0 0 24 24" fill="none">
                                 <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
                                 <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2"/>
@@ -144,12 +144,12 @@
                         <input type="checkbox" name="remember_me" style="cursor: pointer;">
                         <span>Ghi nhớ</span>
                     </label>
-                    <a href="{% url 'weather:forgot_password_otp' %}" class="auth-link" style="font-size: 13px;">Quên mật khẩu?</a>
+                    <a href="{% url 'weather:forgot_password_otp' %}" class="auth-link" style="font-size: 13px;">{% t "auth.login.forgot_password" %}</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-full btn-glow">
                     <span class="btn-ripple"></span>
-                    <span class="btn-text">Đăng nhập</span>
+                    <span class="btn-text">{% t "auth.login.submit" %}</span>
                     <span class="btn-icon">→</span>
                 </button>
             </form>
@@ -157,9 +157,9 @@
             <div class="auth-footer">
                 <div class="auth-divider-line"></div>
                 <div class="auth-links">
-                    <span style="color: #94a3b8; font-size: 13px;">Chưa có tài khoản?</span>
+                    <span style="color: #94a3b8; font-size: 13px;">{% t "auth.login.no_account" %}</span>
                     <a href="{% url 'weather:register' %}" class="auth-link hover-slide">
-                        <span class="link-text">Đăng ký ngay</span>
+                        <span class="link-text">{% t "auth.login.register_link" %}</span>
                         <span class="link-icon">→</span>
                     </a>
                 </div>
@@ -169,7 +169,7 @@
         <div class="auth-extra">
             <a href="{% url 'weather:home' %}" class="back-home glass-button">
                 <span class="home-icon">🏠</span>
-                <span class="home-text">Về trang chủ</span>
+                <span class="home-text">{% t "auth.login.back_home" %}</span>
             </a>
         </div>
     </div>

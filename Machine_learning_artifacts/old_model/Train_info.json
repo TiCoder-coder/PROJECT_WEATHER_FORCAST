@@ -1,0 +1,114 @@
+{
+  "trained_at": "2026-02-25 19:44:06",
+  "project_root": "D:\\PROJECT_WEATHER_FORCAST",
+  "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
+  "input": {
+    "folder_key": "cleaned_merge",
+    "filename": "cleaned_merge_merged_vrain_data_20260216_121532.csv",
+    "file_info": "None"
+  },
+  "schema_report": {
+    "rows_before": 7356,
+    "rows_after": 7356,
+    "rows_dropped": 0,
+    "note": "schema_validation_skipped"
+  },
+  "split_config": {
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "shuffle": true,
+    "sort_by_time_if_possible": true,
+    "time_col_candidates": [
+      "timestamp"
+    ]
+  },
+  "split_saved_paths": {
+    "train": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_train.csv",
+    "valid": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_valid.csv",
+    "test": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model\\Dataset_after_split\\Dataset_merge\\merge_test.csv"
+  },
+  "target_column": "rain_total",
+  "group_by": null,
+  "feature_info": {
+    "n_created_features": 320,
+    "n_total_feature_columns": 150,
+    "n_static_features_removed": 0,
+    "feature_selection_enabled": true
+  },
+  "target_transform": {
+    "log1p_applied": true,
+    "target_zero_ratio": 0.8531611148878314
+  },
+  "transform": {
+    "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
+    "pipeline_info": {
+      "is_fitted": true,
+      "fitted_at": "2026-02-25T19:43:45.791265",
+      "n_steps": 4,
+      "steps": [
+        "MissingValueHandler",
+        "OutlierHandler",
+        "CategoricalEncoder",
+        "WeatherScaler"
+      ],
+      "n_features": 150,
+      "config": {
+        "missing_strategy": "median",
+        "scaler_type": "standard",
+        "encoding_type": "label",
+        "handle_outliers": true
+      }
+    }
+  },
+  "model": {
+    "type": "ensemble",
+    "params": {
+      "base_models": [
+        {
+          "type": "xgboost",
+          "params": {
+            "n_estimators": 800,
+            "learning_rate": 0.02,
+            "max_depth": 16,
+            "reg_alpha": 0,
+            "reg_lambda": 0
+          }
+        },
+        {
+          "type": "random_forest",
+          "params": {
+            "n_estimators": 800,
+            "max_depth": 18
+          }
+        },
+        {
+          "type": "lightgbm",
+          "params": {
+            "n_estimators": 800,
+            "learning_rate": 0.02,
+            "max_depth": 16,
+            "reg_alpha": 0,
+            "reg_lambda": 0
+          }
+        },
+        {
+          "type": "catboost",
+          "params": {
+            "iterations": 200,
+            "learning_rate": 0.02,
+            "depth": 8
+          }
+        }
+      ],
+      "ensemble_type": "voting",
+      "voting": "soft"
+    },
+    "model_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Model.pkl"
+  },
+  "artifacts": {
+    "feature_list": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Feature_list.json",
+    "metrics": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Metrics.json"
+  },
+  "note": "Artifacts saved to Weather_Forcast_App/Machine_learning_artifacts/latest"
+}

@@ -2,7 +2,7 @@
   "optimized_metric": "rain_acc",
   "best_value": 0.9526411657559198,
   "n_trials": 100,
-  "elapsed_seconds": 150.7,
+  "elapsed_seconds": 19.0,
   "best_params": {
     "n_estimators": 300,
     "learning_rate": 0.10866318080918577,

@@ -246,6 +246,44 @@ def r2_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return float(1 - (ss_res / ss_tot))
 
 
+def mean_bias_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """
+    MBE - Mean Bias Error (Độ lệch trung bình hệ thống)
+    
+    Công thức: MBE = (1/n) * Σ(y_pred - y_true)
+    
+    Ý nghĩa:
+    - MBE > 0: Model dự báo quá cao (over-forecast)
+    - MBE < 0: Model dự báo quá thấp (under-forecast)
+    - MBE = 0: Không có độ lệch hệ thống (lý tưởng)
+    - Khác với MAE ở chỗ không lấy giá trị tuyệt đối — phát hiện thiên lệch chiều
+    """
+    y_true = np.asarray(y_true).flatten()
+    y_pred = np.asarray(y_pred).flatten()
+    if len(y_true) != len(y_pred):
+        raise ValueError(f"Độ dài không khớp: y_true={len(y_true)}, y_pred={len(y_pred)}")
+    return float(np.mean(y_pred - y_true))
+
+
+def pearson_correlation(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """
+    Pearson Correlation Coefficient (Hệ số tương quan Pearson)
+    
+    Ý nghĩa:
+    - Đo mức độ tương quan tuyến tính giữa dự báo và thực tế
+    - Giá trị trong [-1, 1], càng gần 1 càng tốt
+    - Bổ sung cho R2: khi không có bias, PCC^2 ≈ R2
+    - Giá trị >= 0.7 được coi là tương quan tốt trong dự báo thời tiết
+    """
+    y_true = np.asarray(y_true).flatten()
+    y_pred = np.asarray(y_pred).flatten()
+    if len(y_true) != len(y_pred):
+        raise ValueError(f"Độ dài không khớp: y_true={len(y_true)}, y_pred={len(y_pred)}")
+    if np.std(y_true) == 0 or np.std(y_pred) == 0:
+        return 0.0
+    return float(np.corrcoef(y_true, y_pred)[0, 1])
+
+
 def adjusted_r2_score(
     y_true: np.ndarray, 
     y_pred: np.ndarray, 
@@ -437,7 +475,7 @@ def calculate_all_metrics(
     y_true: np.ndarray, 
     y_pred: np.ndarray,
     n_features: Optional[int] = None,
-    include_weather_metrics: bool = False,
+    include_weather_metrics: bool = True,
     rain_threshold: float = 0.1
 ) -> Dict[str, float]:
     """
@@ -446,9 +484,9 @@ def calculate_all_metrics(
     Args:
         y_true: Giá trị thực tế
         y_pred: Giá trị dự đoán
-        n_features: Số features (để tính Adjusted R²)
-        include_weather_metrics: Có tính metrics đặc thù thời tiết không
-        rain_threshold: Ngưỡng mưa (nếu include_weather_metrics=True)
+        n_features: Số features (để tính Adjusted R2)
+        include_weather_metrics: Có tính metrics thời tiết không (mặc định True)
+        rain_threshold: Ngưỡng mưa (mm) cho các weather metrics
         
     Returns:
         Dict chứa tất cả metrics
@@ -460,9 +498,11 @@ def calculate_all_metrics(
         "MAPE": mean_absolute_percentage_error(y_true, y_pred),
         "sMAPE": symmetric_mean_absolute_percentage_error(y_true, y_pred),
         "R2": r2_score(y_true, y_pred),
+        "MBE": mean_bias_error(y_true, y_pred),
+        "Pearson": pearson_correlation(y_true, y_pred),
     }
     
-    # Adjusted R² nếu có số features
+    # Adjusted R2 nếu có số features
     if n_features is not None:
         try:
             results["Adjusted_R2"] = adjusted_r2_score(y_true, y_pred, n_features)
@@ -479,6 +519,15 @@ def calculate_all_metrics(
         results["Rain_Precision"] = pr_metrics["precision"]
         results["Rain_Recall"] = pr_metrics["recall"]
         results["Rain_F1"] = pr_metrics["f1_score"]
+
+        # Metrics theo ngưỡng mưa nặng (chuẩn WMO)
+        # Light: < 2.5mm | Moderate: 2.5-7.5mm | Heavy: 7.5-25mm | Very Heavy: > 25mm
+        y_true_arr = np.asarray(y_true).flatten()
+        for thr, label in [(2.5, "Moderate"), (7.5, "Heavy"), (25.0, "VeryHeavy")]:
+            if (y_true_arr > thr).sum() >= 5:  # chỉ tính khi có ít nhất 5 mẫu dương
+                results[f"CSI_{label}Rain"] = critical_success_index(y_true, y_pred, thr)
+                pr = rainfall_precision_recall(y_true, y_pred, thr)
+                results[f"F1_{label}Rain"] = pr["f1_score"]
     
     return results
 

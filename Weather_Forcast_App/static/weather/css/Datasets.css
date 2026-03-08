@@ -999,12 +999,12 @@ body.home-page::before{
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(700px 420px at 18% 12%, rgba(56,189,248,.14), transparent 60%),
-    radial-gradient(760px 520px at 85% 18%, rgba(168,85,247,.14), transparent 62%),
-    radial-gradient(900px 520px at 50% 95%, rgba(34,197,94,.08), transparent 60%);
+    radial-gradient(700px 420px at 18% 12%, rgba(56,189,248,.04), transparent 60%),
+    radial-gradient(760px 520px at 85% 18%, rgba(168,85,247,.03), transparent 62%),
+    radial-gradient(900px 520px at 50% 95%, rgba(34,197,94,.02), transparent 60%);
   filter: blur(0px);
-  animation: ambientFloat 10s ease-in-out infinite;
-  opacity: .9;
+  animation: none;
+  opacity: .3;
 }
 
 body.home-page::after{
@@ -1013,7 +1013,7 @@ body.home-page::after{
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: .065;
+  opacity: 0;
   background-image:
     repeating-linear-gradient(
       0deg,
@@ -1023,7 +1023,7 @@ body.home-page::after{
       transparent 3px
     );
   mix-blend-mode: overlay;
-  animation: grainShift 6s linear infinite;
+  animation: none;
 }
 
 @keyframes ambientFloat{
@@ -1041,11 +1041,11 @@ body.home-page::after{
   inset: 0;
   pointer-events: none;
   z-index: 2;
-  opacity: .55;
+  opacity: 0;
   mix-blend-mode: screen;
 }
 .wind{
-  animation-name: wind-sweep !important;
+  animation: none !important;
 }
 @keyframes wind-sweep{
   from { transform: translateX(-40%); }
@@ -1072,9 +1072,9 @@ body.home-page::after{
   width: 70%;
   height: 180%;
   transform: skewX(-18deg) translateX(-120%);
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+  background: transparent;
   opacity: 0;
-  transition: transform .55s ease, opacity .25s ease;
+  transition: none;
 }
 .datasets-card:hover .datasets-title::after{
   opacity: 1;
@@ -1088,8 +1088,8 @@ body.home-page::after{
   inset: -120% -60%;
   background: radial-gradient(circle, rgba(255,255,255,.35), transparent 55%);
   transform: translateX(-120%);
-  animation: underlineScan 2.8s ease-in-out infinite;
-  opacity: .55;
+  animation: none;
+  opacity: 0;
 }
 @keyframes underlineScan{
   0%   { transform: translateX(-120%); opacity:.0; }
