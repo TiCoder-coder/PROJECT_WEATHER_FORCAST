@@ -338,7 +338,15 @@ urlpatterns = [
     # Method: POST
     path("auth/resend-email-otp/", resend_email_otp_view, name="resend_email_otp"),
     
-    # 7.12) CÓ THỂHỦY ĐĂNG KÝ (trong quá trình chưa hoàn thành)
+    # 7.12) ĐẶT LẠI MẬT KHẨU (LUỒNG TOKEN QUA EMAIL)
+    # Method: GET (form), POST (submit new password)
+    path("auth/reset-password/<str:token>/", reset_password_view, name="reset_password"),
+
+    # 7.13) HOÀN TẤT ĐẶT LẠI MẬT KHẨU
+    # Method: GET
+    path("auth/password-reset-complete/", password_reset_complete_view, name="password_reset_complete"),
+
+    # 7.14) HỦY ĐĂNG KÝ (trong quá trình chưa hoàn thành)
     # Method: POST
     path("auth/cancel-register/", cancel_register_view, name="cancel_register"),
 

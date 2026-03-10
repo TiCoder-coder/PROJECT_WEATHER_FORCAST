@@ -9,6 +9,7 @@ import numpy as np
 
 from django.http import JsonResponse, HttpResponseNotAllowed, Http404
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 
 
 # ============================================================
@@ -208,16 +209,20 @@ def _load_df(file_path: Path, job_id: str) -> pd.DataFrame:
 # - log tiến trình bằng _push
 # - update progress bằng _set_progress
 # - trả report (thống kê trước/sau) để UI hiển thị
-def _clean_dataframe(df: pd.DataFrame, job_id: str):
+def _clean_dataframe(df: pd.DataFrame, job_id: str, technique: str = "all"):
     """
-    Clean “an toàn” cho nhiều nguồn:
-    - trim string
-    - convert numeric nếu có thể
-    - parse datetime nếu tên cột gợi ý
-    - fill missing: numeric->median, text->mode/"unknown"
-    - drop duplicates
+    Clean "an toàn" cho nhiều nguồn, lọc theo technique:
+    - all:        chạy tất cả
+    - format:     trim string + convert numeric
+    - datetime:   parse datetime
+    - missing:    fill missing (numeric->median, text->mode/"unknown")
+    - duplicates: drop duplicates
+    - outliers:   clip outliers theo IQR
+    - normalize:  min-max scale cột số
+    - encode:     label-encode cột text
     """
     report = {}
+    run_all = (technique == "all")
 
     # Log shape ban đầu
     _push(job_id, f"[INFO] Shape ban đầu: rows={len(df)} cols={df.shape[1]}")
@@ -246,98 +251,122 @@ def _clean_dataframe(df: pd.DataFrame, job_id: str):
     # -------------------------
     # 2) Chuẩn hoá string & numeric
     # -------------------------
-    _set_progress(job_id, 30, "Chuẩn hoá string & numeric")
+    if run_all or technique == "format":
+        _set_progress(job_id, 30, "Chuẩn hoá string & numeric")
 
-    # Lấy danh sách cột kiểu object (thường là string/mixed)
-    obj_cols = df.select_dtypes(include=["object"]).columns
+        obj_cols = df.select_dtypes(include=["object"]).columns
 
-    # Với mỗi cột object:
-    # - ép về str để strip (cắt khoảng trắng)
-    # - replace các string "nan"/"None"/"" thành NaN thực sự
-    for c in obj_cols:
-        df[c] = df[c].astype(str).str.strip().replace({"nan": np.nan, "None": np.nan, "": np.nan})
+        for c in obj_cols:
+            df[c] = df[c].astype(str).str.strip().replace({"nan": np.nan, "None": np.nan, "": np.nan})
 
-    # Cố convert object -> numeric nếu đủ “tín hiệu”
-    # - replace "," -> "." để parse số kiểu "12,5"
-    # - errors="coerce": không parse được thì NaN
-    # Điều kiện để chấp nhận convert:
-    # - số lượng giá trị parse được (notna) >= max(5, 60% số non-null)
-    # -> tránh convert nhầm cột text thành numeric khi dữ liệu lẫn lộn
-    for c in obj_cols:
-        s = pd.to_numeric(df[c].str.replace(",", ".", regex=False), errors="coerce")
-        if s.notna().sum() >= max(5, int(0.6 * len(df[c].dropna()))):
-            df[c] = s
+        for c in obj_cols:
+            s = pd.to_numeric(df[c].str.replace(",", ".", regex=False), errors="coerce")
+            if s.notna().sum() >= max(5, int(0.6 * len(df[c].dropna()))):
+                df[c] = s
 
     # -------------------------
     # 3) Parse datetime (nếu có)
     # -------------------------
-    _set_progress(job_id, 45, "Parse datetime (nếu có)")
+    if run_all or technique == "datetime":
+        _set_progress(job_id, 45, "Parse datetime (nếu có)")
 
-    # candidates:
-    # - các cột có tên gợi ý liên quan thời gian:
-    #   "time", "date", "timestamp", "ngày", "giờ", "cap nhat", "cập nhật"
-    candidates = []
-    for c in df.columns:
-        name = str(c).lower()
-        if any(k in name for k in ["time", "date", "timestamp", "ngày", "giờ", "cap nhat", "cập nhật"]):
-            candidates.append(c)
+        candidates = []
+        for c in df.columns:
+            name = str(c).lower()
+            if any(k in name for k in ["time", "date", "timestamp", "ngày", "giờ", "cap nhat", "cập nhật"]):
+                candidates.append(c)
 
-    # Với mỗi cột candidate:
-    # - pd.to_datetime(errors="coerce") để parse an toàn
-    # - dayfirst=True: ưu tiên kiểu ngày Việt Nam (dd/mm/yyyy)
-    # Điều kiện chấp nhận:
-    # - parsed.notna() >= max(5, 30% tổng dòng)
-    # -> tránh parse nhầm cột không phải datetime
-    for c in candidates:
-        try:
-            parsed = pd.to_datetime(df[c], errors="coerce", dayfirst=True, utc=False)
-            if parsed.notna().sum() >= max(5, int(0.3 * len(df))):
-                df[c] = parsed
-                _push(job_id, f"[INFO] Parsed datetime column: {c}")
-        except Exception:
-            pass  # nuốt lỗi parse để không làm crash toàn pipeline
+        for c in candidates:
+            try:
+                parsed = pd.to_datetime(df[c], errors="coerce", dayfirst=True, utc=False)
+                if parsed.notna().sum() >= max(5, int(0.3 * len(df))):
+                    df[c] = parsed
+                    _push(job_id, f"[INFO] Parsed datetime column: {c}")
+            except Exception:
+                pass
 
     # -------------------------
     # 4) Impute missing
     # -------------------------
-    _set_progress(job_id, 60, "Impute missing")
+    if run_all or technique == "missing":
+        _set_progress(job_id, 60, "Impute missing")
 
-    # num_cols: các cột số (np.number)
-    num_cols = df.select_dtypes(include=[np.number]).columns
+        num_cols = df.select_dtypes(include=[np.number]).columns
+        obj_cols = df.select_dtypes(include=["object"]).columns
 
-    # obj_cols: các cột object (text)
-    obj_cols = df.select_dtypes(include=["object"]).columns
+        for c in num_cols:
+            med = df[c].median(skipna=True)
+            if pd.isna(med):
+                med = 0
+            df[c] = df[c].fillna(med)
 
-    # Fill missing numeric bằng median (robust hơn mean khi có outliers)
-    for c in num_cols:
-        med = df[c].median(skipna=True)
-        if pd.isna(med):
-            med = 0  # nếu median không tính được -> fallback 0
-        df[c] = df[c].fillna(med)
-
-    # Fill missing text bằng mode (giá trị xuất hiện nhiều nhất)
-    # - nếu mode không có -> fallback "unknown"
-    for c in obj_cols:
-        mode = None
-        try:
-            mode = df[c].mode(dropna=True)
-            mode = mode.iloc[0] if not mode.empty else None
-        except Exception:
+        for c in obj_cols:
             mode = None
-        df[c] = df[c].fillna(mode if mode is not None else "unknown")
+            try:
+                mode = df[c].mode(dropna=True)
+                mode = mode.iloc[0] if not mode.empty else None
+            except Exception:
+                mode = None
+            df[c] = df[c].fillna(mode if mode is not None else "unknown")
 
     # -------------------------
     # 5) Drop duplicates
     # -------------------------
-    _set_progress(job_id, 75, "Drop duplicates")
-    before = len(df)
-    df = df.drop_duplicates()
-    removed = before - len(df)
-    report["duplicates_removed"] = int(removed)
-    _push(job_id, f"[INFO] Removed duplicates: {removed}")
+    if run_all or technique == "duplicates":
+        _set_progress(job_id, 75, "Drop duplicates")
+        before = len(df)
+        df = df.drop_duplicates()
+        removed = before - len(df)
+        report["duplicates_removed"] = int(removed)
+        _push(job_id, f"[INFO] Removed duplicates: {removed}")
+    else:
+        report["duplicates_removed"] = 0
 
     # -------------------------
-    # 6) Final check
+    # 6) Clip outliers (IQR)
+    # -------------------------
+    if run_all or technique == "outliers":
+        _set_progress(job_id, 80, "Clip outliers (IQR)")
+        num_cols = df.select_dtypes(include=[np.number]).columns
+        clipped_count = 0
+        for c in num_cols:
+            q1 = df[c].quantile(0.25)
+            q3 = df[c].quantile(0.75)
+            iqr = q3 - q1
+            if iqr > 0:
+                lower = q1 - 1.5 * iqr
+                upper = q3 + 1.5 * iqr
+                oob = ((df[c] < lower) | (df[c] > upper)).sum()
+                if oob > 0:
+                    df[c] = df[c].clip(lower, upper)
+                    clipped_count += int(oob)
+        report["outliers_clipped"] = clipped_count
+        _push(job_id, f"[INFO] Outliers clipped: {clipped_count}")
+
+    # -------------------------
+    # 7) Normalize (min-max)
+    # -------------------------
+    if technique == "normalize":
+        _set_progress(job_id, 85, "Normalize (min-max)")
+        num_cols = df.select_dtypes(include=[np.number]).columns
+        for c in num_cols:
+            cmin, cmax = df[c].min(), df[c].max()
+            if cmax > cmin:
+                df[c] = (df[c] - cmin) / (cmax - cmin)
+        _push(job_id, f"[INFO] Normalized {len(num_cols)} numeric columns")
+
+    # -------------------------
+    # 8) Encode categorical
+    # -------------------------
+    if technique == "encode":
+        _set_progress(job_id, 85, "Encode categorical")
+        obj_cols = df.select_dtypes(include=["object"]).columns
+        for c in obj_cols:
+            df[c] = df[c].astype("category").cat.codes
+        _push(job_id, f"[INFO] Encoded {len(obj_cols)} categorical columns")
+
+    # -------------------------
+    # Final check
     # -------------------------
     _set_progress(job_id, 90, "Final check")
     missing_after = int(df.isna().sum().sum())
@@ -363,10 +392,10 @@ def _clean_dataframe(df: pd.DataFrame, job_id: str):
 #   4) clean df
 #   5) ghi file cleaned_...csv
 #   6) cập nhật trạng thái job trong _JOBS (done/result/progress/error)
-def _worker(job_id: str, source: str, filename: str | None):
+def _worker(job_id: str, source: str, filename: str | None, technique: str = "all"):
     try:
         _push(job_id, "========== START CLEAN ==========")
-        _push(job_id, f"[INFO] source={source}")
+        _push(job_id, f"[INFO] source={source}, technique={technique}")
         _set_progress(job_id, 5, "Chuẩn bị thư mục")
 
         # Đảm bảo các thư mục tồn tại trước khi làm
@@ -412,7 +441,7 @@ def _worker(job_id: str, source: str, filename: str | None):
         # Clean dữ liệu
         # --------------------------------------------------------
         _set_progress(job_id, 20, "Clean dữ liệu")
-        df2, report = _clean_dataframe(df, job_id)
+        df2, report = _clean_dataframe(df, job_id, technique)
 
         # --------------------------------------------------------
         # Ghi file output CSV
@@ -456,8 +485,8 @@ def _worker(job_id: str, source: str, filename: str | None):
                     "size_mb": size_mb,
                     "report": report,
                     # Các URL để UI mở xem/tải file cleaned
-                    "view_url": f"/datasets/view/{out_folder_key}/{out_name}/",
-                    "download_url": f"/datasets/download/{out_folder_key}/{out_name}/",
+                    "view_url": reverse("weather:dataset_view", args=[out_folder_key, out_name]),
+                    "download_url": reverse("weather:dataset_download", args=[out_folder_key, out_name]),
                 }
                 # progress 100% khi hoàn thành
                 job["progress"] = {"pct": 100, "step": "Hoàn thành"}
@@ -513,10 +542,15 @@ def clean_files_list_view(request):
 # 4) tạo entry trong _JOBS
 # 5) spawn thread chạy _worker
 # 6) trả JSON {ok:true, job_id:...}
+VALID_TECHNIQUES = {"all", "missing", "duplicates", "outliers", "normalize",
+                     "encode", "datetime", "format"}
+
+
 @require_http_methods(["POST"])
 def clean_data_start_view(request):
     source = None
     filename = None
+    technique = "all"
 
     # Lấy content-type để quyết định parse JSON hay form
     ct = (request.headers.get("content-type") or "").lower()
@@ -529,14 +563,20 @@ def clean_data_start_view(request):
             payload = {}
         source = (payload.get("source") or "").strip().lower()
         filename = (payload.get("filename") or "").strip() or None
+        technique = (payload.get("technique") or "all").strip().lower()
     else:
         # Nếu không phải JSON thì đọc từ request.POST (form-data)
         source = (request.POST.get("source") or "").strip().lower()
         filename = (request.POST.get("filename") or "").strip() or None
+        technique = (request.POST.get("technique") or "all").strip().lower()
 
     # Validate source
     if source not in ("merge", "output"):
         return JsonResponse({"ok": False, "message": "source phải là merge hoặc output"}, status=400)
+
+    # Validate technique
+    if technique not in VALID_TECHNIQUES:
+        technique = "all"
 
     # Tạo job_id dạng hex (uuid4)
     job_id = uuid.uuid4().hex
@@ -556,7 +596,7 @@ def clean_data_start_view(request):
 
     # Tạo thread chạy _worker ở background
     # daemon=True: nếu process server tắt thì thread cũng tắt theo
-    t = threading.Thread(target=_worker, args=(job_id, source, filename), daemon=True)
+    t = threading.Thread(target=_worker, args=(job_id, source, filename, technique), daemon=True)
     t.start()
 
     # Trả về job_id để frontend poll logs/progress

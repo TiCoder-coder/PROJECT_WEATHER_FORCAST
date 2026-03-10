@@ -147,8 +147,8 @@
               <td class="size-cell">{{ f.size_mb }} MB</td>
               <td>
                 <div class="op-actions">
-                  <a class="pill small" href="{% url 'weather:dataset_view' 'merged' f.name %}">{% t "datasets.view" %}</a>
-                  <a class="pill small primary" href="{% url 'weather:dataset_download' 'merged' f.name %}">⬇️ TẢI</a>
+                  <a class="pill small" href="{% url 'weather:dataset_view' 'merged' f.name %}" style="background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
+                  <a class="pill small primary" href="{% url 'weather:dataset_download' 'merged' f.name %}" style="background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
                 </div>
               </td>
             </tr>
@@ -234,8 +234,8 @@
               <td class="size-cell">{{ f.size_mb }} MB</td>
               <td>
                 <div class="op-actions">
-                  <a class="pill small" href="{% url 'weather:dataset_view' 'output' f.name %}" style="background: #48bb78; color: white;">{% t "datasets.view" %}</a>
-                  <a class="pill small primary" href="{% url 'weather:dataset_download' 'output' f.name %}" style="background: #4299e1; color: white;">⬇️ TẢI</a>
+                  <a class="pill small" href="{% url 'weather:dataset_view' 'output' f.name %}" style="background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
+                  <a class="pill small primary" href="{% url 'weather:dataset_download' 'output' f.name %}" style="background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
                 </div>
               </td>
             </tr>
@@ -433,8 +433,8 @@
                   <div class="mini-item">
                     <div class="mini-name">{{ f.name }}</div>
                     <div class="mini-actions">
-                      <a class="pill small" href="{% url 'weather:dataset_view' f.folder f.name %}">{% t "datasets.view" %}</a>
-                      <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder f.name %}">{% t "datasets.download" %}</a>
+                      <a class="pill small" href="{% url 'weather:dataset_view' f.folder f.name %}" style="background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
+                      <a class="pill small primary" href="{% url 'weather:dataset_download' f.folder f.name %}" style="background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
                     </div>
                   </div>
                 {% endfor %}
@@ -474,8 +474,8 @@
                   <div class="mini-item">
                     <div class="mini-name">{{ f.name }}</div>
                     <div class="mini-actions">
-                      <a class="pill small" href="{% url 'weather:dataset_view' 'cleaned_raw' f.name %}" style="background: #48bb78; color: white;">{% t "datasets.view" %}</a>
-                      <a class="pill small primary" href="{% url 'weather:dataset_download' 'cleaned_raw' f.name %}" style="background: #4299e1; color: white;">{% t "datasets.download" %}</a>
+                      <a class="pill small" href="{% url 'weather:dataset_view' 'cleaned_raw' f.name %}" style="background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
+                      <a class="pill small primary" href="{% url 'weather:dataset_download' 'cleaned_raw' f.name %}" style="background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
                     </div>
                   </div>
                 {% endfor %}
@@ -545,10 +545,10 @@
               <td>
                 <div class="op-actions">
                   <a class="pill small"
-                    href="{% url 'weather:dataset_view' f.folder|default:'cleaned' f.name %}">{% t "datasets.view" %}</a>
+                    href="{% url 'weather:dataset_view' f.folder|default:'cleaned' f.name %}" style="background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
 
                   <a class="pill small primary"
-                    href="{% url 'weather:dataset_download' f.folder|default:'cleaned' f.name %}">⬇️ TẢI</a>
+                    href="{% url 'weather:dataset_download' f.folder|default:'cleaned' f.name %}" style="background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
                 </div>
               </td>
             </tr>
@@ -637,8 +637,8 @@
         <div class="cw-report" id="cwReport" style="display:none;"></div>
 
         <div class="cw-actions">
-          <a class="pill" id="cwViewBtn" href="#" style="display:none;background:#48bb78;color:#fff;">{% t "datasets.view_now" %}</a>
-          <a class="pill primary" id="cwDownloadBtn" href="#" style="display:none;background:#4299e1;color:#fff;">{% t "datasets.download_now" %}</a>
+          <a class="pill" id="cwViewBtn" href="#" style="display:none;background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
+          <a class="pill primary" id="cwDownloadBtn" href="#" style="display:none;background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
           <button class="pill" id="cwDone" style="display:none;">{% t "datasets.clean_done" %}</button>
         </div>
       </div>
@@ -661,8 +661,8 @@
       </div>
 
       <div class="wf-modal__actions">
-        <a id="mergeViewBtn" class="pill" href="#">{% t "datasets.view" %}</a>
-        <a id="mergeDownloadBtn" class="pill primary" href="#">{% t "datasets.download" %}</a>
+        <a id="mergeViewBtn" class="pill" href="#" style="background:#48bb78;color:#fff;">{% t "datasets.view" %}</a>
+        <a id="mergeDownloadBtn" class="pill primary" href="#" style="background:#4299e1;color:#fff;">{% t "datasets.download" %}</a>
         <button class="pill" type="button" data-close="1">{% t "datasets.merge_modal_close" %}</button>
       </div>
     </div>

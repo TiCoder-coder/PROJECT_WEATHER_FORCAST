@@ -8,24 +8,18 @@ from datetime import datetime
 from django.http import JsonResponse, HttpResponseNotAllowed
 from django.shortcuts import render
 
+from Weather_Forcast_App.paths import DATA_CRAWL_DIR, SCRIPT_CRAWL_VRAIN_API
 
 # ============================================================
 # CẤU HÌNH ĐƯỜNG DẪN CỐ ĐỊNH CHO APP (ROOT / SCRIPT / OUTPUT)
 # ============================================================
-# APP_ROOT:
-# - Thư mục gốc của app (tính từ file views hiện tại).
-# - Path(__file__).resolve(): lấy path tuyệt đối của file đang chạy.
-# - .parents[1]: đi lên 2 cấp thư mục để ra root (tuỳ cấu trúc dự án).
 APP_ROOT = Path(__file__).resolve().parents[1]
 
-# SCRIPT_PATH:
-# - Đường dẫn đến script crawl dữ liệu mưa Vrain qua API.
-# - Script này sẽ được chạy bằng subprocess ở background thread.
-SCRIPT_PATH = APP_ROOT / "scripts" / "Crawl_data_from_Vrain_by_API.py"
+# SCRIPT_PATH: script crawl dữ liệu mưa Vrain qua API
+SCRIPT_PATH = SCRIPT_CRAWL_VRAIN_API
 
-# OUTPUT_DIR:
-# - Thư mục output nơi script sẽ xuất file dataset (xlsx/csv/xls).
-OUTPUT_DIR = APP_ROOT / "output"
+# OUTPUT_DIR: thư mục output nơi script xuất file dataset
+OUTPUT_DIR = DATA_CRAWL_DIR
 
 
 # ============================================================
@@ -161,6 +155,7 @@ def _run_script_worker():
         # --------------------------------------------------------
         env = os.environ.copy()
         env["PYTHONUNBUFFERED"] = "1"
+        env["PYTHONIOENCODING"] = "utf-8"
         # PYTHONUNBUFFERED=1:
         # - ép Python flush stdout/stderr ngay
         # - giúp logs hiển thị realtime thay vì bị buffer
@@ -198,6 +193,8 @@ def _run_script_worker():
             text=True,
             bufsize=1,
             env=env,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # --------------------------------------------------------

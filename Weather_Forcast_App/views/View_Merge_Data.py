@@ -98,10 +98,7 @@ def merge_data_view(request):
         # ============================================================
         # 3) Snapshot file trước khi merge (để đếm file mới)
         # ============================================================
-        # before_files:
-        # - nếu output_dir tồn tại -> listdir lấy danh sách tên file
-        # - nếu không tồn tại -> set rỗng
-        before_files = set(os.listdir(output_dir)) if os.path.exists(output_dir) else set()
+        before_files = set(os.listdir(merge_dir)) if os.path.exists(merge_dir) else set()
 
         # ============================================================
         # 4) Chạy script merge bằng subprocess
@@ -118,13 +115,15 @@ def merge_data_view(request):
             [python_exe, script_path],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # ============================================================
         # 5) Snapshot file sau khi merge -> tính số file mới
         # ============================================================
-        after_files = set(os.listdir(output_dir)) if os.path.exists(output_dir) else set()
+        after_files = set(os.listdir(merge_dir)) if os.path.exists(merge_dir) else set()
 
         # new_files_count:
         # - after_files - before_files => tập file xuất hiện mới trong output_dir

@@ -181,13 +181,19 @@ def _run_script_worker():
         #
         # bufsize=1:
         # - line buffered (hữu ích cho realtime log)
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+        env["PYTHONIOENCODING"] = "utf-8"
         proc = subprocess.Popen(
-            [sys.executable, str(SCRIPT_PATH)],
+            [sys.executable, "-u", str(SCRIPT_PATH)],
             cwd=str(APP_ROOT),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            env=env,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # --------------------------------------------------------

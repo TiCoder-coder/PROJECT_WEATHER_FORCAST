@@ -141,8 +141,20 @@ class SessionUser:
         self.last_name = parts[1] if len(parts) > 1 else ""
 
         # Các field thời gian (có thể là datetime/iso string tùy _make_json_safe)
-        self.date_joined = data.get("createdAt")
-        self.last_login = data.get("last_login")
+        self.date_joined = self._parse_dt(data.get("createdAt"))
+        self.last_login = self._parse_dt(data.get("last_login"))
+
+    @staticmethod
+    def _parse_dt(val):
+        """Convert ISO-string back to datetime so Django |date filter works."""
+        if isinstance(val, datetime):
+            return val
+        if isinstance(val, str):
+            try:
+                return datetime.fromisoformat(val)
+            except (ValueError, TypeError):
+                return None
+        return val
 
     # Helper cho template: hiện full name
     def get_full_name(self):
@@ -356,17 +368,13 @@ def register_view(request):
         EmailValidator.send_verification_otp(email, name)
         
         # Lưu data đăng ký vào session để bước verify OTP dùng lại
-        # NOTE/TODO: Bạn đang lưu name/username/email/role... nhưng KHÔNG thấy lưu password.
-        #            Trong verify_email_register_view phía dưới, bạn gọi:
-        #            ManagerService.authenticate(register_data["userName"], register_data["password"])
-        #            => Có nguy cơ KeyError vì register_data không có "password".
-        #            (Chỉ comment để bạn debug, KHÔNG đổi code theo yêu cầu của bạn)
         request.session[SESSION_REGISTER_DATA] = {
             "name": name,
             "first_name": first_name,
             "last_name": last_name,
             "userName": userName,
             "email": email,
+            "password": password,
             "role": "staff",
         }
 
@@ -496,14 +504,7 @@ def forgot_password_view(request):
             reverse("weather:reset_password", kwargs={"token": token})
         )
 
-        # Debug dev mode: in link ra terminal
-        print("========== RESET LINK (DEV) ==========")
-        print(reset_link)
-        print("======================================")
-
-        # Lưu session để trang khác có thể hiển thị/trace (dev)
-        request.session["last_reset_link"] = reset_link
-        messages.success(request, "Nếu tài khoản tồn tại, link reset đã được tạo (dev: xem terminal).")
+        messages.success(request, "Nếu tài khoản tồn tại, link reset đã được gửi qua email.")
         return redirect("weather:password_reset_sent")
 
     except Exception as e:
@@ -734,7 +735,7 @@ def verify_email_register_view(request):
         
         # Sau khi tạo account, bạn thử auto-login:
         try:
-            # NOTE/TODO: chỗ này dùng register_data["password"] có thể lỗi nếu register_data không chứa password
+            # Auto-login sau khi tạo tài khoản thành công
             manager = ManagerService.authenticate(register_data["userName"], register_data["password"])
             token = create_access_token({
                 "manager_id": manager["_id"],

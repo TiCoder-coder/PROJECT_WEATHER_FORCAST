@@ -159,6 +159,7 @@ def _run_script_worker(job_id: str):
         # --------------------------------------------------------
         env = os.environ.copy()
         env["PYTHONUNBUFFERED"] = "1"
+        env["PYTHONIOENCODING"] = "utf-8"
         # PYTHONUNBUFFERED=1:
         # - hạn chế việc stdout bị buffer => log realtime rõ hơn
 
@@ -191,6 +192,8 @@ def _run_script_worker(job_id: str):
             text=True,
             bufsize=1,
             env=env,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # --------------------------------------------------------

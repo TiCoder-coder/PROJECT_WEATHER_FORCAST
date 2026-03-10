@@ -23,7 +23,7 @@ Cách sử dụng:
     # Sẽ crawl tất cả 64 tỉnh và xuất sang CSV
 
 Dữ liệu được lưu:
-    - CSV: output/Bao_cao_YYYYMMDD_HHMMSS.csv
+    - CSV: data/data_crawl/Bao_cao_YYYYMMDD_HHMMSS.csv
     - Columns:
       - Tỉnh/Thành phố
       - Tên trạm
@@ -56,7 +56,7 @@ Dependencies:
 Lưu ý:
     - Crawl tuần tự => chậm (2-3 phút)
     - Nếu muốn nhanh hơn => dùng Crawl_data_from_Vrain_by_Selenium.py (đa luồng)
-    - Cần thư mục output/ có sẵn
+    - Thư mục data/data_crawl/ sẽ được tạo tự động nếu chưa có
 
 Author: Weather Forecast Team
 Version: 1.0
@@ -76,203 +76,208 @@ from selenium.webdriver.support import expected_conditions as EC
 
 VN_TZ = ZoneInfo("Asia/Bangkok")
 
-# === CẤU HÌNH SELENIUM ===
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-driver = webdriver.Chrome(options=options)
 
-# === 1. LẤY NGÀY VÀ GIỜ CẬP NHẬT TỪ TRANG CHỦ ===
-print("Đang truy cập trang chủ để lấy ngày và giờ cập nhật...")
-driver.get("https://vrain.vn/landing")
-time.sleep(5)
+def main():
+    # === CẤU HÌNH SELENIUM ===
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    driver = webdriver.Chrome(options=options)
 
-all_text = driver.find_element(By.TAG_NAME, "body").text
-print("  Đang tìm kiếm ngày và giờ trong văn bản trang...")
+    # === 1. LẤY NGÀY VÀ GIỜ CẬP NHẬT TỪ TRANG CHỦ ===
+    print("Đang truy cập trang chủ để lấy ngày và giờ cập nhật...")
+    driver.get("https://vrain.vn/landing")
+    time.sleep(5)
 
-date_match = re.search(r"ngày\s*(\d{1,2}/\d{1,2})", all_text)
-hour_match = re.search(r"Tính từ\s*(\d{1,2})h", all_text)
+    all_text = driver.find_element(By.TAG_NAME, "body").text
+    print("  Đang tìm kiếm ngày và giờ trong văn bản trang...")
 
-if date_match and hour_match:
-    date_from_main = date_match.group(1)
-    hour_from_main = hour_match.group(1)
-    current_year = datetime.now(VN_TZ).strftime("%Y")
-    unified_datetime_info = f"{date_from_main}/{current_year} {hour_from_main}:00"
-    print(f"  Đã lấy ngày và giờ cập nhật từ trang chủ: {unified_datetime_info}")
-elif date_match:
-    date_from_main = date_match.group(1)
-    current_year = datetime.now(VN_TZ).strftime("%Y")
-    unified_datetime_info = f"{date_from_main}/{current_year}"
-    print(
-        f"  Đã lấy ngày cập nhật từ trang chủ (không có giờ): {unified_datetime_info}"
-    )
-else:
-    unified_datetime_info = "N/A"
-    print("  Cảnh báo: Không tìm thấy ngày cập nhật. Sử dụng ngày và giờ hiện tại.")
-    unified_datetime_info = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+    date_match = re.search(r"ngày\s*(\d{1,2}/\d{1,2})", all_text)
+    hour_match = re.search(r"Tính từ\s*(\d{1,2})h", all_text)
 
-current_crawl_datetime = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M:%S")
+    if date_match and hour_match:
+        date_from_main = date_match.group(1)
+        hour_from_main = hour_match.group(1)
+        current_year = datetime.now(VN_TZ).strftime("%Y")
+        unified_datetime_info = f"{date_from_main}/{current_year} {hour_from_main}:00"
+        print(f"  Đã lấy ngày và giờ cập nhật từ trang chủ: {unified_datetime_info}")
+    elif date_match:
+        date_from_main = date_match.group(1)
+        current_year = datetime.now(VN_TZ).strftime("%Y")
+        unified_datetime_info = f"{date_from_main}/{current_year}"
+        print(
+            f"  Đã lấy ngày cập nhật từ trang chủ (không có giờ): {unified_datetime_info}"
+        )
+    else:
+        unified_datetime_info = "N/A"
+        print("  Cảnh báo: Không tìm thấy ngày cập nhật. Sử dụng ngày và giờ hiện tại.")
+        unified_datetime_info = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
 
-# Danh sách các URL tỉnh thành
-province_urls = [
-    "https://vrain.vn/20/overview?public_map=windy",
-    "https://vrain.vn/2/overview?public_map=windy",
-    "https://vrain.vn/4/overview?public_map=windy",
-    "https://vrain.vn/5/overview?public_map=windy",
-    "https://vrain.vn/6/overview?public_map=windy",
-    "https://vrain.vn/7/overview?public_map=windy",
-    "https://vrain.vn/8/overview?public_map=windy",
-    "https://vrain.vn/11/overview?public_map=windy",
-    "https://vrain.vn/18/overview?public_map=windy",
-    "https://vrain.vn/12/overview?public_map=windy",
-    "https://vrain.vn/14/overview?public_map=windy",
-    "https://vrain.vn/13/overview?public_map=windy",
-    "https://vrain.vn/17/overview?public_map=windy",
-    "https://vrain.vn/22/overview?public_map=windy",
-    "https://vrain.vn/24/overview?public_map=windy",
-    "https://vrain.vn/27/overview?public_map=windy",
-    "https://vrain.vn/26/overview?public_map=windy",
-    "https://vrain.vn/28/overview?public_map=windy",
-    "https://vrain.vn/30/overview?public_map=windy",
-    "https://vrain.vn/31/overview?public_map=windy",
-    "https://vrain.vn/32/overview?public_map=windy",
-    "https://vrain.vn/34/overview?public_map=windy",
-    "https://vrain.vn/37/overview?public_map=windy",
-    "https://vrain.vn/41/overview?public_map=windy",
-    "https://vrain.vn/42/overview?public_map=windy",
-    "https://vrain.vn/44/overview?public_map=windy",
-    "https://vrain.vn/61/overview?public_map=windy",
-    "https://vrain.vn/45/overview?public_map=windy",
-    "https://vrain.vn/56/overview?public_map=windy",
-    "https://vrain.vn/63/overview?public_map=windy",
-    "https://vrain.vn/54/overview?public_map=windy",
-    "https://vrain.vn/46/overview?public_map=windy",
-    "https://vrain.vn/53/overview?public_map=windy",
-    "https://vrain.vn/52/overview?public_map=windy",
-]
+    current_crawl_datetime = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M:%S")
 
-# Dynamic path: tự tính từ vị trí project root
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
-OUTPUT_DIR = _PROJECT_ROOT / "data" / "data_crawl"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-timestamp = datetime.now(VN_TZ).strftime("%Y%m%d_%H%M%S")
-csv_path = OUTPUT_DIR / f"Bao_cao_{timestamp}.csv"
-
-with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
-    fieldnames = [
-        "station_id",
-        "station_name",
-        "province",
-        "district",
-        "rain_total",
-        "status",
-        "timestamp",
-        "data_time"
+    # Danh sách các URL tỉnh thành
+    province_urls = [
+        "https://vrain.vn/20/overview?public_map=windy",
+        "https://vrain.vn/2/overview?public_map=windy",
+        "https://vrain.vn/4/overview?public_map=windy",
+        "https://vrain.vn/5/overview?public_map=windy",
+        "https://vrain.vn/6/overview?public_map=windy",
+        "https://vrain.vn/7/overview?public_map=windy",
+        "https://vrain.vn/8/overview?public_map=windy",
+        "https://vrain.vn/11/overview?public_map=windy",
+        "https://vrain.vn/18/overview?public_map=windy",
+        "https://vrain.vn/12/overview?public_map=windy",
+        "https://vrain.vn/14/overview?public_map=windy",
+        "https://vrain.vn/13/overview?public_map=windy",
+        "https://vrain.vn/17/overview?public_map=windy",
+        "https://vrain.vn/22/overview?public_map=windy",
+        "https://vrain.vn/24/overview?public_map=windy",
+        "https://vrain.vn/27/overview?public_map=windy",
+        "https://vrain.vn/26/overview?public_map=windy",
+        "https://vrain.vn/28/overview?public_map=windy",
+        "https://vrain.vn/30/overview?public_map=windy",
+        "https://vrain.vn/31/overview?public_map=windy",
+        "https://vrain.vn/32/overview?public_map=windy",
+        "https://vrain.vn/34/overview?public_map=windy",
+        "https://vrain.vn/37/overview?public_map=windy",
+        "https://vrain.vn/41/overview?public_map=windy",
+        "https://vrain.vn/42/overview?public_map=windy",
+        "https://vrain.vn/44/overview?public_map=windy",
+        "https://vrain.vn/61/overview?public_map=windy",
+        "https://vrain.vn/45/overview?public_map=windy",
+        "https://vrain.vn/56/overview?public_map=windy",
+        "https://vrain.vn/63/overview?public_map=windy",
+        "https://vrain.vn/54/overview?public_map=windy",
+        "https://vrain.vn/46/overview?public_map=windy",
+        "https://vrain.vn/53/overview?public_map=windy",
+        "https://vrain.vn/52/overview?public_map=windy",
     ]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
 
-    for url in province_urls:
-        try:
-            print(f"\nĐang truy cập: {url}")
-            driver.get(url)
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "landing-content"))
-            )
-            time.sleep(2)
+    # Dynamic path: tự tính từ vị trí project root
+    _PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    OUTPUT_DIR = _PROJECT_ROOT / "data" / "data_crawl"
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-            page_html = driver.page_source
+    timestamp = datetime.now(VN_TZ).strftime("%Y%m%d_%H%M%S")
+    csv_path = OUTPUT_DIR / f"Bao_cao_{timestamp}.csv"
 
-            # === TRÍCH XUẤT DỮ LIỆU ===
-            # 1. Tên tỉnh
-            province_match = re.search(
-                r"<div[^>]*app-title[^>]*>.*?<span[^>]*>([^<]+)</span>",
-                page_html,
-                re.DOTALL,
-            )
-            province_name = (
-                province_match.group(1).strip() if province_match else "Không xác định"
-            )
-            print(f"  Tỉnh: {province_name}")
+    with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
+        fieldnames = [
+            "station_id",
+            "station_name",
+            "province",
+            "district",
+            "rain_total",
+            "status",
+            "timestamp",
+            "data_time"
+        ]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-            # 2. SỬ DỤNG NGÀY VÀ GIỜ ĐÃ LẤY TỪ TRANG CHỦ
-            datetime_info = unified_datetime_info
+        for url in province_urls:
+            try:
+                print(f"\nĐang truy cập: {url}")
+                driver.get(url)
+                WebDriverWait(driver, 15).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "landing-content"))
+                )
+                time.sleep(2)
 
-            # 3. Tìm các khối thông tin trạm
-            station_blocks = re.findall(
-                r'<div[^>]*class="[^"]*\bgroup\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
-                page_html,
-                re.DOTALL,
-            )
-            if not station_blocks:
-                station_blocks = re.findall(
-                    r'<div[^>]*class="[^"]*\bstation\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
+                page_html = driver.page_source
+
+                # === TRÍCH XUẤT DỮ LIỆU ===
+                # 1. Tên tỉnh
+                province_match = re.search(
+                    r"<div[^>]*app-title[^>]*>.*?<span[^>]*>([^<]+)</span>",
                     page_html,
                     re.DOTALL,
                 )
+                province_name = (
+                    province_match.group(1).strip() if province_match else "Không xác định"
+                )
+                print(f"  Tỉnh: {province_name}")
 
-            print(f"  Tìm thấy {len(station_blocks)} khối trạm")
+                # 2. SỬ DỤNG NGÀY VÀ GIỜ ĐÃ LẤY TỪ TRANG CHỦ
+                datetime_info = unified_datetime_info
 
-            for block in station_blocks:
-
-                station_match = re.search(
-                    r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*\bmax-w-70\b[^"]*"[^>]*>([^<]+)</span>',
-                    block,
+                # 3. Tìm các khối thông tin trạm
+                station_blocks = re.findall(
+                    r'<div[^>]*class="[^"]*\bgroup\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
+                    page_html,
                     re.DOTALL,
                 )
-                station_name = (
-                    station_match.group(1).strip() if station_match else "N/A"
-                )
+                if not station_blocks:
+                    station_blocks = re.findall(
+                        r'<div[^>]*class="[^"]*\bstation\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
+                        page_html,
+                        re.DOTALL,
+                    )
 
-                location_match = re.search(
-                    r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\bsub-title\b[^"]*"[^>]*>([^<]+)</div>',
-                    block,
-                    re.DOTALL,
-                )
-                xa_phuong = location_match.group(1).strip() if location_match else "N/A"
+                print(f"  Tìm thấy {len(station_blocks)} khối trạm")
 
-                rainfall_match = re.search(
-                    r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*font-size-18px[^"]*"[^>]*>([\d.]+)\s*<span[^>]*>mm</span>',
-                    block,
-                    re.DOTALL,
-                )
-                rainfall = rainfall_match.group(1).strip() if rainfall_match else "0.0"
+                for block in station_blocks:
 
-                status_match = re.search(
-                    r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\blevel\b[^"]*"[^>]*>.*?<span[^>]*>([^<]+)</span>',
-                    block,
-                    re.DOTALL,
-                )
-                status = (
-                    status_match.group(1).strip() if status_match else "Không xác định"
-                )
+                    station_match = re.search(
+                        r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*\bmax-w-70\b[^"]*"[^>]*>([^<]+)</span>',
+                        block,
+                        re.DOTALL,
+                    )
+                    station_name = (
+                        station_match.group(1).strip() if station_match else "N/A"
+                    )
 
-                writer.writerow(
-                    {
-                        "station_id": station_name,  # station_id chưa có, tạm dùng station_name
-                        "station_name": station_name,
-                        "province": province_name,
-                        "district": xa_phuong,
-                        "rain_total": rainfall,
-                        "status": status,
-                        "timestamp": datetime_info,
-                        "data_time": current_crawl_datetime,
-                    }
-                )
+                    location_match = re.search(
+                        r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\bsub-title\b[^"]*"[^>]*>([^<]+)</div>',
+                        block,
+                        re.DOTALL,
+                    )
+                    xa_phuong = location_match.group(1).strip() if location_match else "N/A"
 
-            print(f"  Đã trích xuất {len(station_blocks)} trạm.")
+                    rainfall_match = re.search(
+                        r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*font-size-18px[^"]*"[^>]*>([\d.]+)\s*<span[^>]*>mm</span>',
+                        block,
+                        re.DOTALL,
+                    )
+                    rainfall = rainfall_match.group(1).strip() if rainfall_match else "0.0"
 
-        except Exception as e:
-            print(f"  Lỗi khi xử lý {url}: {e}")
+                    status_match = re.search(
+                        r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\blevel\b[^"]*"[^>]*>.*?<span[^>]*>([^<]+)</span>',
+                        block,
+                        re.DOTALL,
+                    )
+                    status = (
+                        status_match.group(1).strip() if status_match else "Không xác định"
+                    )
 
-try:
-    driver.quit()
-except Exception as e:
-    print(f"[WARN] Lỗi khi đóng trình duyệt: {e}")
+                    writer.writerow(
+                        {
+                            "station_id": station_name,  # station_id chưa có, tạm dùng station_name
+                            "station_name": station_name,
+                            "province": province_name,
+                            "district": xa_phuong,
+                            "rain_total": rainfall,
+                            "status": status,
+                            "timestamp": datetime_info,
+                            "data_time": current_crawl_datetime,
+                        }
+                    )
 
-print("\n" + "=" * 50)
-print(f"Hoàn thành! Thời gian crawl: {current_crawl_datetime}")
-print(f"Dữ liệu đã được lưu vào: {csv_path}")
-VN_TZ = ZoneInfo("Asia/Bangkok")
+                print(f"  Đã trích xuất {len(station_blocks)} trạm.")
+
+            except Exception as e:
+                print(f"  Lỗi khi xử lý {url}: {e}")
+
+    try:
+        driver.quit()
+    except Exception as e:
+        print(f"[WARN] Lỗi khi đóng trình duyệt: {e}")
+
+    print("\n" + "=" * 50)
+    print(f"Hoàn thành! Thời gian crawl: {current_crawl_datetime}")
+    print(f"Dữ liệu đã được lưu vào: {csv_path}")
+
+
+if __name__ == "__main__":
+    main()

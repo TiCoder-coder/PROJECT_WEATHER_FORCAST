@@ -11,6 +11,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
+from Weather_Forcast_App.paths import DATA_CRAWL_DIR, SCRIPT_CRAWL_BY_API
+
 
 # ============================================================
 # _STATE: TRẠNG THÁI CHẠY JOB CRAWL (IN-MEMORY)
@@ -126,6 +128,7 @@ def _run_script_background(script_path: str, output_dir: str, extra_args=None):
     # - ép Python subprocess flush stdout/stderr ngay lập tức
     # - giúp log realtime (không bị delay do buffer)
     env["PYTHONUNBUFFERED"] = "1"
+    env["PYTHONIOENCODING"] = "utf-8"
 
     # CRAWL_MODE="once":
     # - biến môi trường tuỳ bạn dùng trong script để chạy 1 lần rồi thoát
@@ -173,6 +176,8 @@ def _run_script_background(script_path: str, output_dir: str, extra_args=None):
             bufsize=1,
             cwd=str(settings.BASE_DIR),
             env=env,
+            encoding="utf-8",
+            errors="replace",
         )
 
         # --------------------------------------------------------
@@ -222,16 +227,12 @@ def crawl_api_weather_view(request):
     # ------------------------------------------------------------
     # Xác định đường dẫn script crawl
     # ------------------------------------------------------------
-    # __file__ ở đây là file views.py (hoặc file chứa code này)
-    # ".." đi lên 1 thư mục, rồi vào scripts/Crawl_data_by_API.py
-    script_path = os.path.join(os.path.dirname(__file__), "..", "scripts", "Crawl_data_by_API.py")
-    script_path = os.path.abspath(script_path)
+    script_path = str(SCRIPT_CRAWL_BY_API)
 
     # ------------------------------------------------------------
     # Xác định output_dir cho script
     # ------------------------------------------------------------
-    output_dir = os.path.join(os.path.dirname(__file__), "..", "output")
-    output_dir = os.path.abspath(output_dir)
+    output_dir = str(DATA_CRAWL_DIR)
     os.makedirs(output_dir, exist_ok=True)  # đảm bảo thư mục tồn tại
 
     # ------------------------------------------------------------
@@ -399,7 +400,7 @@ def crawl_api_weather_view(request):
 # - thông tin file output mới nhất: last_csv_name, csv_size_mb, last_crawl_time
 @require_http_methods(["GET"])
 def api_weather_logs_view(request):
-    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "output"))
+    output_dir = str(DATA_CRAWL_DIR)
 
     # ------------------------------------------------------------
     # Lấy thông tin file output mới nhất (nếu có)
@@ -434,13 +435,3 @@ def api_weather_logs_view(request):
         }
 
     return JsonResponse(data)
-
-
-# ============================================================
-# crawl_vrain_html_view: TRANG COMING SOON (VRAIN HTML)
-# ============================================================
-# - Hiện tại chỉ render 1 trang thông báo "coming soon"
-# - Sau này bạn sẽ thay bằng trang crawl vrain html thực tế
-@require_http_methods(["GET"])
-def crawl_vrain_html_view(request):
-    return render(request, "weather/coming_soon_vrain_html.html")

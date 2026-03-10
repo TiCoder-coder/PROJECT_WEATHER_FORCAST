@@ -1,5 +1,4 @@
-x-airflow-common:
-  &airflow-common
+x-airflow-common: &airflow-common
   build:
     context: .
     dockerfile: airflow/Dockerfile

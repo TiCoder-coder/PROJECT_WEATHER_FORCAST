@@ -271,7 +271,7 @@ def _tune_worker(job_id: str, trials: int, metric: str, auto_apply: bool) -> Non
         _push_tune(job_id, f"🔍 Bắt đầu tối ưu siêu tham số ({trials} trials, metric={metric})...")
         _set_tune_progress(job_id, 5, "Khởi động Optuna")
 
-        env = {**os.environ, "DJANGO_SETTINGS_MODULE": "WeatherForcast.settings"}
+        env = {**os.environ, "DJANGO_SETTINGS_MODULE": "WeatherForcast.settings", "PYTHONIOENCODING": "utf-8"}
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -279,6 +279,8 @@ def _tune_worker(job_id: str, trials: int, metric: str, auto_apply: bool) -> Non
             text=True,
             cwd=str(PROJECT_ROOT),
             env=env,
+            encoding="utf-8",
+            errors="replace",
         )
 
         for line in iter(proc.stdout.readline, ""):

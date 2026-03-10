@@ -112,7 +112,7 @@ def home_view(request):
     # - các file bắt đầu bởi:
     #   "bao_cao_mua" / "vrain"
     # => giả định đây là output của crawler Vrain.
-    total_vrain_runs = count_by_prefix(["bao_cao_mua", "vrain"])
+    total_vrain_runs = count_by_prefix(["bao_cao", "vrain"])
 
     # total_image_runs:
     # - các file bắt đầu bởi:

@@ -142,7 +142,7 @@
                 <div class="form-options" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; color: #94a3b8;">
                         <input type="checkbox" name="remember_me" style="cursor: pointer;">
-                        <span>Ghi nhớ</span>
+                        <span>{% t "auth.login.remember_me" %}</span>
                     </label>
                     <a href="{% url 'weather:forgot_password_otp' %}" class="auth-link" style="font-size: 13px;">{% t "auth.login.forgot_password" %}</a>
                 </div>

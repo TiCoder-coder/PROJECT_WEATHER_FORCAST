@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>{% t "crawl.vrain_html.page_title" %}</title>
-  <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_html_of_Vrain.css' %}">
+  <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_from_html_of_Vrain.css' %}?v=9001">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
@@ -46,6 +46,44 @@
             <span class="run-pill__spinner" style="display:none" id="spinner"></span>
             <span>{% t "crawl.running_desc" %}</span>
           </span>
+        </div>
+
+        <div class="auto-crawl" id="autoCrawlPanel">
+          <div class="auto-crawl__head">
+            <div class="auto-crawl__head-left">
+              <span class="auto-crawl__icon">⏱</span>
+              <h3 class="auto-crawl__title">{% t "crawl.auto.title" %}</h3>
+            </div>
+            <div class="auto-crawl__status" id="autoCrawlStatus">
+              <span class="auto-crawl__status-dot" id="autoCrawlDot"></span>
+              <span id="autoCrawlStatusText">{% t "crawl.auto.status_idle" %}</span>
+            </div>
+          </div>
+
+          <div class="auto-crawl__row">
+            <div class="auto-crawl__field">
+              <span class="auto-crawl__label">{% t "crawl.auto.interval_label" %}</span>
+              <div class="auto-crawl__input-group">
+                <input type="number" id="autoCrawlInterval" class="auto-crawl__input" min="1" max="1440" value="5" />
+                <select id="autoCrawlUnit" class="auto-crawl__select">
+                  <option value="minutes">{% t "crawl.auto.unit_minutes" %}</option>
+                  <option value="hours">{% t "crawl.auto.unit_hours" %}</option>
+                </select>
+              </div>
+            </div>
+            <div class="auto-crawl__actions">
+              <button id="btnAutoStart" class="btn btn--auto-start">{% t "crawl.auto.btn_start" %}</button>
+              <button id="btnAutoStop" class="btn btn--auto-stop" disabled>{% t "crawl.auto.btn_stop" %}</button>
+            </div>
+            <span class="auto-crawl__round" id="autoCrawlRound"></span>
+          </div>
+
+          <div class="auto-crawl__progress" id="autoCrawlProgress" style="display:none">
+            <div class="auto-crawl__progress-bar">
+              <div class="auto-crawl__progress-fill" id="autoCrawlProgressFill"></div>
+            </div>
+            <span class="auto-crawl__countdown" id="autoCrawlCountdown"></span>
+          </div>
         </div>
       </section>
 
@@ -115,13 +153,11 @@
     };
   </script>
 
-  <script defer src="{% static 'weather/js/JS_Crawl_data_from_html_of_Vrain.js' %}?v=8517"></script>
+  <script defer src="{% static 'weather/js/JS_Crawl_data_from_html_of_Vrain.js' %}?v=9001"></script>
 
+  <div class="wx-layer wx-clouds" aria-hidden="true"></div>
+  <div class="wx-layer wind-layer" aria-hidden="true"></div>
+  <div class="wx-layer wx-rain" aria-hidden="true"></div>
+  <div class="wx-layer wx-lightning" aria-hidden="true"></div>
 </body>
-<div class="wx-layer wx-clouds" aria-hidden="true"></div>
-<div class="wx-layer wind-layer" aria-hidden="true"></div>
-<div class="wx-layer wx-rain" aria-hidden="true"></div>
-<div class="wx-layer wx-lightning" aria-hidden="true"></div>
-<div class="wx-layer wx-lightning" aria-hidden="true"></div>
-
 </html>

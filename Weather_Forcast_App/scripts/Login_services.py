@@ -29,7 +29,7 @@ def convert_objectid(obj):
     return obj
 
 
-MAX_FAILED_ATTEMPTS = int(config("MAX_FAILED_ATTEMPS", default=5))
+MAX_FAILED_ATTEMPTS = int(config("MAX_FAILED_ATTEMPTS", default=5))
 PASSWORD_PEPPER = config("PASSWORD_PEPPER", default=None)
 RESET_TOKEN_SALT = config("RESET_TOKEN_SALT", default="reset_secret")
 RESET_TOKEN_EXPIRY_SECONDS = int(config("RESET_TOKEN_EXPIRY_SECONDS", default=3600))

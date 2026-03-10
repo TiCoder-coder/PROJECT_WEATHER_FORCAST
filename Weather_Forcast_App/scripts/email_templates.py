@@ -337,15 +337,12 @@ def send_otp_email(
                 # - domain chưa verify
                 # - bị 403 forbidden
                 # Khi đó bạn chủ động fallback SMTP nếu có
-                if "verify a domain" in error_msg.lower() or response.status_code == 403:
-                    print("[EMAIL] Falling back to SMTP...")
+                if has_smtp:
+                    print(f"[EMAIL] Resend failed ({response.status_code}), falling back to SMTP...")
                 else:
                     # Nếu không có SMTP để fallback -> in ra console để test
-                    if not has_smtp:
-                        print(f"\n[FALLBACK] OTP cho {email}: {otp}\n")
-                        return {"success": True, "provider": "console", "otp": otp}
-                    # Nếu có SMTP thì raise để đi vào flow fallback phía dưới
-                    raise Exception(f"Resend API error: {error_msg}")
+                    print(f"\n[FALLBACK] OTP cho {email}: {otp}\n")
+                    return {"success": True, "provider": "console", "otp": otp}
         except requests.exceptions.RequestException as e:
             # RequestException: lỗi mạng, timeout, DNS...
             print(f"[EMAIL] Resend API request error: {e}")

@@ -47,7 +47,7 @@
           <span class="info-icon">📧</span>
           <div class="info-content">
             <span class="info-label">{% t "auth.profile.email_label" %}</span>
-            <span class="info-value">{{ user.email|default:"{% t 'auth.profile.not_updated' %}" }}</span>
+            <span class="info-value">{% if user.email %}{{ user.email }}{% else %}{% t 'auth.profile.not_updated' %}{% endif %}</span>
           </div>
         </div>
 
@@ -55,7 +55,7 @@
           <span class="info-icon">📝</span>
           <div class="info-content">
             <span class="info-label">{% t "auth.profile.fullname_label" %}</span>
-            <span class="info-value">{{ user.get_full_name|default:"{% t 'auth.profile.not_updated' %}" }}</span>
+            <span class="info-value">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{% t 'auth.profile.not_updated' %}{% endif %}</span>
           </div>
         </div>
 
@@ -63,7 +63,7 @@
           <span class="info-icon">📅</span>
           <div class="info-content">
             <span class="info-label">{% t "auth.profile.joined_label" %}</span>
-            <span class="info-value">{{ user.date_joined|date:"d/m/Y" }}</span>
+            <span class="info-value">{% if user.date_joined %}{{ user.date_joined|date:"d/m/Y" }}{% else %}{% t 'auth.profile.no_info' %}{% endif %}</span>
           </div>
         </div>
 
@@ -71,7 +71,7 @@
           <span class="info-icon">🕐</span>
           <div class="info-content">
             <span class="info-label">{% t "auth.profile.last_login_label" %}</span>
-            <span class="info-value">{{ user.last_login|date:"d/m/Y H:i"|default:"{% t 'auth.profile.no_info' %}" }}</span>
+            <span class="info-value">{% if user.last_login %}{{ user.last_login|date:"d/m/Y H:i" }}{% else %}{% t 'auth.profile.no_info' %}{% endif %}</span>
           </div>
         </div>
       </div>
