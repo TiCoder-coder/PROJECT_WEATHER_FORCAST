@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body = {
           folder_key: $folderKey?.value || '',
           filename: $fileName?.value || '',
-          model_type: $modelType?.value || 'two_stage',
+          model_type: $modelType?.value || 'ensemble',
           target_column: $targetColumn?.value || 'rain_total',
           test_size: parseFloat($testSize?.value || 0.15),
           valid_size: parseFloat($validSize?.value || 0.15),
@@ -270,8 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
         $btnStart.disabled = false;
         $btnStart.textContent = '🚀 Bắt đầu huấn luyện';
 
-        // Reload page after 2s to refresh artifacts
-        setTimeout(() => location.reload(), 2500);
+        // Fetch & hiển thị kết quả ngay tại chỗ (không reload)
+        fetchAndShowArtifacts();
       } else if (data.status === 'error') {
         clearInterval(pollTimer);
         $trainStatus.textContent = '❌ Lỗi!';
@@ -285,13 +285,128 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ═══════════════════════════════════════════════
+  // Fetch & hiển thị kết quả sau khi train/tune xong
+  // ═══════════════════════════════════════════════
+  async function fetchAndShowArtifacts() {
+    try {
+      const resp = await fetch('/train/artifacts/');
+      const data = await resp.json();
+      if (!data.ok || !data.artifacts || !data.artifacts.metrics) return;
+
+      const m = data.artifacts.metrics;
+      const a = data.artifacts;
+
+      // Helper: render 1 metric card
+      function metricCard(label, cssClass, metrics) {
+        let rainAcc = '';
+        if (metrics.Rain_Detection_Accuracy != null) {
+          rainAcc = `<div class="metric-item">
+            <span class="metric-name">Rain Acc</span>
+            <span class="metric-value metric-value--accent">${Number(metrics.Rain_Detection_Accuracy).toFixed(4)}</span>
+          </div>`;
+        }
+        return `<div class="metric-card ${cssClass}">
+          <div class="metric-card__label">${label}</div>
+          <div class="metric-card__items">
+            <div class="metric-item">
+              <span class="metric-name">R²</span>
+              <span class="metric-value metric-value--good">${Number(metrics.R2).toFixed(4)}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-name">RMSE</span>
+              <span class="metric-value">${Number(metrics.RMSE).toFixed(4)}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-name">MAE</span>
+              <span class="metric-value">${Number(metrics.MAE).toFixed(4)}</span>
+            </div>
+            ${rainAcc}
+          </div>
+        </div>`;
+      }
+
+      let diagHtml = '';
+      if (m.diagnostics) {
+        const d = m.diagnostics;
+        const statusCls = d.overfit_status === 'good' ? 'metric-badge--good'
+          : d.overfit_status === 'overfit' ? 'metric-badge--warn' : 'metric-badge--bad';
+        const qualCls = d.model_quality === 'excellent' ? 'metric-badge--good'
+          : d.model_quality === 'good' ? 'metric-badge--good'
+          : d.model_quality === 'fair' ? 'metric-badge--warn' : 'metric-badge--bad';
+        diagHtml = `<div class="metric-card metric-card--diag">
+          <div class="metric-card__label">DIAGNOSTICS</div>
+          <div class="metric-card__items">
+            <div class="metric-item">
+              <span class="metric-name">Generalization</span>
+              <span class="metric-value metric-badge ${statusCls}">${(d.overfit_status || '').toUpperCase()}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-name">Quality</span>
+              <span class="metric-value metric-badge ${qualCls}">${(d.model_quality || '').toUpperCase()}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-name">Features</span>
+              <span class="metric-value">${d.n_features_after_selection || ''}</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-name">Zero ratio</span>
+              <span class="metric-value">${d.target_zero_ratio != null ? Number(d.target_zero_ratio).toFixed(2) : ''}</span>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      const html = `
+        <div class="card__header">
+          <h2 class="card__title">📊 Kết quả huấn luyện</h2>
+        </div>
+        <div class="artifacts-body">
+          <div class="metrics-grid">
+            ${m.train ? metricCard('TRAIN', 'metric-card--train', m.train) : ''}
+            ${m.valid ? metricCard('VALIDATION', 'metric-card--valid', m.valid) : ''}
+            ${m.test ? metricCard('TEST', 'metric-card--test', m.test) : ''}
+            ${diagHtml}
+          </div>
+          <div class="artifacts-meta" style="margin-top:12px">
+            <span class="artifacts-meta__item">🕒 Trained at: ${m.generated_at || ''}</span>
+            <span class="artifacts-meta__item">🤖 Model: ${(m.model_type || '').toUpperCase()}</span>
+            ${a.model_exists ? `<span class="artifacts-meta__item">💾 Size: ${a.model_size_mb} MB</span>` : ''}
+          </div>
+        </div>`;
+
+      // Cập nhật hoặc tạo section artifacts
+      let $section = document.getElementById('sectionArtifacts');
+      if (!$section) {
+        $section = document.createElement('section');
+        $section.id = 'sectionArtifacts';
+        $section.className = 'card card--artifacts';
+        // Chèn ngay sau section logs
+        const $logs = document.getElementById('sectionLogs');
+        if ($logs && $logs.parentNode) {
+          $logs.parentNode.insertBefore($section, $logs.nextSibling);
+        } else {
+          document.querySelector('.train-content')?.appendChild($section);
+        }
+      }
+      $section.innerHTML = html;
+      $section.style.display = '';
+
+      // Scroll đến kết quả
+      $section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+      console.error('Failed to fetch artifacts:', err);
+    }
+  }
+
+  // ═══════════════════════════════════════════════
   // Reset form
   // ═══════════════════════════════════════════════
   if ($btnReset) {
     $btnReset.addEventListener('click', () => {
       if ($folderKey) $folderKey.value = '';
       if ($fileName) $fileName.innerHTML = '<option value="">-- Chọn thư mục trước --</option>';
-      if ($modelType) $modelType.value = 'two_stage';
+      if ($modelType) $modelType.value = 'ensemble';
       if ($targetColumn) $targetColumn.value = 'rain_total';
       if ($testSize) $testSize.value = '0.15';
       if ($validSize) $validSize.value = '0.15';
@@ -439,7 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
           $btnStartTune.disabled = false;
           $btnStartTune.textContent = '🔬 Bắt đầu tối ưu';
         }
-        setTimeout(() => location.reload(), 2500);
+        // Fetch & hiển thị kết quả ngay tại chỗ (không reload)
+        fetchAndShowArtifacts();
       } else if (data.status === 'error') {
         clearInterval(tunePollTimer);
         if ($btnStartTune) {

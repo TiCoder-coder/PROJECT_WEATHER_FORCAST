@@ -93,7 +93,7 @@ threshold = 0.5  # Hardcode
 df["status"] = np.where(predictions > threshold, "Mưa", "Không mưa")
 ```
 
-**Vấn đề:** Model `two_stage` đã được Optuna tuning với `predict_threshold = 0.449`. Dùng 0.5 làm mất một phần trường hợp mưa.
+**Vấn đề:** Model `ensemble` đã được Optuna tuning với `predict_threshold = 0.449`. Dùng 0.5 làm mất một phần trường hợp mưa.
 
 **Sau khi sửa:**
 ```python

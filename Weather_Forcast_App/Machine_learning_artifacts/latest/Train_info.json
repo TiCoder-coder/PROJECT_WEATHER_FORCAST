@@ -1,10 +1,10 @@
 {
-  "trained_at": "2026-03-10 14:44:06",
+  "trained_at": "2026-03-10 23:11:46",
   "project_root": "D:\\PROJECT_WEATHER_FORCAST",
   "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_merged_all_data_20260310_144022.csv",
+    "filename": "cleaned_merge_historical_hourly_20260308_165309.csv",
     "file_info": "None"
   },
   "schema_report": {
@@ -39,7 +39,7 @@
   ],
   "feature_info": {
     "n_created_features": 40,
-    "n_total_feature_columns": 106,
+    "n_total_feature_columns": 100,
     "n_static_features_removed": 0,
     "n_constant_features_removed": 8,
     "feature_selection_enabled": false,
@@ -54,7 +54,7 @@
     "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-10T14:43:16.180619",
+      "fitted_at": "2026-03-10T23:11:16.210610",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -62,7 +62,7 @@
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 106,
+      "n_features": 100,
       "config": {
         "missing_strategy": "median",
         "scaler_type": "standard",
@@ -72,8 +72,12 @@
     }
   },
   "model": {
-    "type": "two_stage",
-    "params": {},
+    "type": "ensemble",
+    "params": {
+      "rain_threshold": 0.22,
+      "predict_threshold": 0.45,
+      "random_state": 42
+    },
     "model_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Model.pkl"
   },
   "artifacts": {

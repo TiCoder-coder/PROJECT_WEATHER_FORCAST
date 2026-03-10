@@ -42,14 +42,8 @@
     "dew_point_depression"
   ],
   "all_feature_columns": [
-    "location_station_id",
-    "location_station_name",
-    "location_province",
-    "location_district",
     "location_latitude",
     "location_longitude",
-    "timestamp",
-    "data_time",
     "temperature_current",
     "temperature_max",
     "temperature_min",
@@ -151,7 +145,7 @@
   ],
   "target_column": "rain_total",
   "forecast_horizon": 24,
-  "generated_at": "2026-03-10 14:43:12",
+  "generated_at": "2026-03-10 23:11:12",
   "group_by": null,
   "removed_static_features": [],
   "removed_constant_features": [

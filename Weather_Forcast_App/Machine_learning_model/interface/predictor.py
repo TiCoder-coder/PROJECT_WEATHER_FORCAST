@@ -138,6 +138,17 @@ class WeatherPredictor:
             with open(info_path, "r", encoding="utf-8") as f:
                 train_info = json.load(f)
 
+        # --- Override feature builder with training config if available ---
+        fb_config = train_info.get("feature_builder_config")
+        if fb_config is not None:
+            try:
+                from Weather_Forcast_App.Machine_learning_model.features.Build_transfer import (
+                    WeatherFeatureBuilder,
+                )
+                feature_builder = WeatherFeatureBuilder(config=fb_config)
+            except ImportError:
+                pass
+
         logger.info("Loaded predictor from %s", artifacts_dir)
         return cls(
             model=model,
@@ -195,6 +206,23 @@ class WeatherPredictor:
         if self.pipeline is not None:
             X = self.pipeline.transform(X)
 
+        # 3b) Ensure all columns are numeric (safety net)
+        # During training, datetime columns (timestamp, data_time) are converted
+        # via pd.to_datetime; during prediction they may arrive as object strings.
+        # Convert datetime-like columns to numeric epoch, then drop any remaining
+        # object columns that the model cannot consume.
+        for col in X.columns:
+            if X[col].dtype == 'object':
+                try:
+                    X[col] = pd.to_datetime(X[col], errors='coerce')
+                except Exception:
+                    pass
+            if pd.api.types.is_datetime64_any_dtype(X[col]):
+                X[col] = X[col].astype(np.int64) // 10**9  # epoch seconds
+        obj_cols = X.select_dtypes(include=['object']).columns.tolist()
+        if obj_cols:
+            X = X.drop(columns=obj_cols)
+
         # 4) Predict
         if hasattr(self.model, "predict"):
             preds = self.model.predict(X)
@@ -204,13 +232,20 @@ class WeatherPredictor:
         else:
             raise RuntimeError(f"Model {type(self.model).__name__} has no predict()")
 
+        preds = np.array(preds)
+
+        # 5) Inverse transform: nếu training dùng log1p thì phải expm1 về scale gốc
+        log1p_applied = self.train_info.get("target_transform", {}).get("log1p_applied", False)
+        if log1p_applied:
+            preds = np.expm1(preds).clip(min=0)
+
         elapsed = (datetime.now() - start).total_seconds()
 
         # Lấy forecast_horizon từ train_info (nếu model được train ở chế độ forecast)
         forecast_horizon = self.train_info.get("forecast_horizon", 0)
 
         return {
-            "predictions": np.array(preds),
+            "predictions": preds,
             "prediction_time": elapsed,
             "n_samples": len(df),
             "forecast_horizon": forecast_horizon,

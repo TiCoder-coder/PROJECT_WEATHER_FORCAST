@@ -389,3 +389,83 @@ def send_otp_email(
     # - Trường hợp này thường hiếm vì phía trên đã handle đa số tình huống
     print(f"\n[FALLBACK] OTP cho {email}: {otp}\n")
     return {"success": True, "provider": "console", "otp": otp}  # (giữ nguyên theo yêu cầu: chỉ thêm chú thích, không đổi logic)
+
+
+def send_reset_link_email(
+    email: str,
+    name: str,
+    reset_link: str,
+    expire_minutes: int = 30
+) -> dict:
+    """
+    Gửi email chứa link đặt lại mật khẩu.
+    Sử dụng cùng cơ chế provider như send_otp_email (Resend > SMTP > Console).
+    """
+    from django.conf import settings
+    import requests
+
+    subject = "[VN Weather Hub] Đặt lại mật khẩu"
+    plain_message = (
+        f"Xin chào {name or 'bạn'},\n\n"
+        f"Bạn đã yêu cầu đặt lại mật khẩu. Nhấn vào link bên dưới để tiếp tục:\n\n"
+        f"{reset_link}\n\n"
+        f"Link có hiệu lực trong {expire_minutes} phút.\n"
+        f"Nếu bạn không yêu cầu, hãy bỏ qua email này.\n\n"
+        f"— VN Weather Hub"
+    )
+    html_message = f"""
+    <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;padding:24px;border:1px solid #e0e0e0;border-radius:8px">
+        <h2 style="color:#1976d2">🔑 Đặt lại mật khẩu</h2>
+        <p>Xin chào <strong>{name or 'bạn'}</strong>,</p>
+        <p>Bạn đã yêu cầu đặt lại mật khẩu. Nhấn nút bên dưới:</p>
+        <p style="text-align:center;margin:24px 0">
+            <a href="{reset_link}" style="background:#1976d2;color:#fff;padding:12px 28px;text-decoration:none;border-radius:6px;font-size:16px">Đặt lại mật khẩu</a>
+        </p>
+        <p style="font-size:13px;color:#888">Link có hiệu lực trong {expire_minutes} phút.<br>Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>
+    </div>
+    """
+
+    has_smtp = bool(getattr(settings, 'EMAIL_HOST_PASSWORD', None))
+    has_resend = bool(RESEND_API_KEY)
+
+    if not has_smtp and not has_resend:
+        print("\n" + "="*60)
+        print("📧 [DEVELOPMENT MODE] - Reset link in ra console")
+        print("="*60)
+        print(f"📮 Email: {email}")
+        print(f"🔗 Link: {reset_link}")
+        print(f"⏱️ Hết hạn: {expire_minutes} phút")
+        print("="*60 + "\n")
+        return {"success": True, "provider": "console"}
+
+    if RESEND_API_KEY:
+        try:
+            response = requests.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={"from": f"VN Weather Hub <{RESEND_FROM_EMAIL}>", "to": [email],
+                      "subject": subject, "html": html_message, "text": plain_message},
+                timeout=10,
+            )
+            if response.status_code in (200, 201):
+                return {"success": True, "provider": "resend", "result": response.json()}
+        except Exception as e:
+            print(f"[EMAIL] Resend failed: {e}")
+        if not has_smtp:
+            print(f"\n[FALLBACK] Reset link cho {email}: {reset_link}\n")
+            return {"success": True, "provider": "console"}
+
+    if has_smtp:
+        from django.core.mail import send_mail as django_send_mail
+        try:
+            result = django_send_mail(
+                subject=subject, message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email], html_message=html_message, fail_silently=False,
+            )
+            return {"success": True, "provider": "smtp", "result": result}
+        except Exception as e:
+            print(f"[EMAIL] SMTP failed: {e}")
+
+    print(f"\n[FALLBACK] Reset link cho {email}: {reset_link}\n")
+    return {"success": True, "provider": "console"}

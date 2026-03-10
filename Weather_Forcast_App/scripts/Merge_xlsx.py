@@ -2,8 +2,6 @@ import sys
 import re
 from pathlib import Path
 import pandas as pd
-from openpyxl import Workbook, load_workbook
-from openpyxl.worksheet.worksheet import Worksheet
 
 
 # ============================================================
@@ -37,12 +35,9 @@ LOG_FILENAME = "merged_files_log.txt"
 LOG_VIETNAM_FILENAME = "merged_vietnam_files_log.txt"
 
 # ============================================================
-# CƠ CHẾ SAVE THEO BATCH (tránh mất dữ liệu, giảm rủi ro crash)
+# CƠ CHẾ SAVE: dùng pandas to_excel (nhanh hơn openpyxl row-by-row)
 # ============================================================
-# - Khi append quá nhiều dòng vào workbook, nếu crash giữa chừng sẽ mất công
-# - SAVE_EVERY_N_ROWS giúp cứ mỗi N dòng append sẽ save 1 lần xuống disk
-# - N càng nhỏ càng an toàn nhưng save nhiều -> chậm hơn
-SAVE_EVERY_N_ROWS = 30000
+SAVE_EVERY_N_ROWS = 30000  # kept for backward compat, not used in new logic
 
 MASTER_COLUMNS = [
     "station_id",
@@ -281,14 +276,19 @@ def save_processed_files(log_path: Path, processed_files: set[str]) -> None:
         print(f"Loi khi ghi log file {log_path.name}: {e}")
 
 
-def read_excel_file(file_path: Path) -> pd.DataFrame:
+def read_data_file(file_path: Path) -> pd.DataFrame:
     # ============================================================
-    # ĐỌC 1 FILE EXCEL -> DATAFRAME
+    # ĐỌC 1 FILE EXCEL HOẶC CSV -> DATAFRAME
     # ============================================================
-    # - pd.read_excel sẽ đọc sheet đầu tiên mặc định
-    # - Nếu file lỗi/đọc không được -> trả DataFrame rỗng
     try:
-        df = pd.read_excel(file_path)
+        suffix = file_path.suffix.lower()
+        if suffix == ".csv":
+            df = pd.read_csv(file_path, encoding="utf-8-sig")
+        elif suffix == ".xlsx":
+            df = pd.read_excel(file_path, engine="openpyxl")
+        else:
+            print(f"  Bo qua file khong ho tro: {file_path.name}")
+            return pd.DataFrame()
         if df is None or df.empty:
             return pd.DataFrame()
         return df
@@ -323,184 +323,39 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_new_excel_files(output_dir: Path, processed_files: set[str]) -> tuple[list[Path], list[Path]]:
+def get_new_data_files(output_dir: Path, processed_files: set[str]) -> tuple[list[Path], list[Path]]:
     # ============================================================
-    # QUÉT THƯ MỤC output -> LẤY CÁC FILE .xlsx CHƯA XỬ LÝ
+    # QUÉT THƯ MỤC output -> LẤY CÁC FILE .xlsx VÀ .csv CHƯA XỬ LÝ
     # ============================================================
-    # - output_dir: nơi chứa file excel nguồn
-    # - processed_files: tập tên file đã merge (từ log)
-    #
-    # Trả về 2 list:
-    # 1) vietnam_files: file có prefix "vietnam_weather_"
-    # 2) other_files: các file còn lại
     if not output_dir.exists():
         print(f"Thu muc nguon khong ton tai: {output_dir}")
         return [], []
 
-    all_excel_files = sorted(output_dir.glob("*.xlsx"))
-    if not all_excel_files:
-        print(f"Khong tim thay file .xlsx nao trong thu muc: {output_dir}")
+    all_data_files = sorted(
+        [f for f in output_dir.iterdir()
+         if f.is_file() and f.suffix.lower() in {".xlsx", ".csv"}
+         and not f.name.startswith("~$")]
+    )
+    if not all_data_files:
+        print(f"Khong tim thay file .xlsx/.csv nao trong thu muc: {output_dir}")
         return [], []
 
     vietnam_files, other_files = [], []
-    for file_path in all_excel_files:
-        # Nếu file đã nằm trong log -> bỏ qua
+    for file_path in all_data_files:
         if file_path.name in processed_files:
             continue
-
-        # Phân loại theo prefix tên file
         if file_path.name.startswith("vietnam_weather_"):
             vietnam_files.append(file_path)
         else:
             other_files.append(file_path)
 
-    # In thống kê để biết pipeline đang xử lý được bao nhiêu file mới
-    print(f"Tong so file .xlsx trong output: {len(all_excel_files)}")
+    print(f"Tong so file trong output: {len(all_data_files)}")
     print(f"So file vietnam_weather_ moi: {len(vietnam_files)}")
     print(f"So file khac moi: {len(other_files)}")
     return vietnam_files, other_files
 
 
-def _load_or_create_wb_ws(merge_path: Path) -> tuple[Workbook, Worksheet, list[str]]:
-    # ============================================================
-    # MỞ FILE MERGE NẾU ĐÃ TỒN TẠI, HOẶC TẠO FILE MỚI
-    # ============================================================
-    # Trả về:
-    # - wb: Workbook openpyxl
-    # - ws: worksheet active
-    # - header: list tên cột hiện có trong dòng 1 của file merge
-    #
-    # Ý tưởng:
-    # - Nếu merge_path tồn tại:
-    #   + load_workbook để tiếp tục append vào file cũ
-    #   + đọc header row (row=1) để biết schema hiện tại
-    # - Nếu không tồn tại:
-    #   + tạo workbook mới và viết MASTER_COLUMNS làm header
-    if merge_path.exists():
-        wb = load_workbook(merge_path)
-        ws = wb.active
-
-        # Đọc header dòng 1 theo số cột hiện tại
-        header = []
-        max_col = ws.max_column
-        for col in range(1, max_col + 1):
-            v = ws.cell(row=1, column=col).value
-            if v is None:
-                continue
-            header.append(norm_col(v))
-
-        # Nếu file merge có nhưng dòng header bị trống/hỏng
-        # -> reset lại header theo MASTER_COLUMNS
-        if not header:
-            header = list(MASTER_COLUMNS)
-            for i, col_name in enumerate(header, start=1):
-                ws.cell(row=1, column=i).value = col_name
-
-        return wb, ws, header
-
-    # Nếu file merge chưa tồn tại -> tạo mới
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "data"
-
-    # Ghi header = MASTER_COLUMNS vào dòng 1
-    header = list(MASTER_COLUMNS)
-    for i, col_name in enumerate(header, start=1):
-        ws.cell(row=1, column=i).value = col_name
-
-    # Save ngay để tạo file vật lý trên disk
-    wb.save(merge_path)
-    return wb, ws, header
-
-
-def _ensure_header_has_columns(ws: Worksheet, header: list[str], cols_to_ensure: list[str]) -> list[str]:
-    # ============================================================
-    # ĐẢM BẢO HEADER CÓ ĐỦ CÁC CỘT TRONG cols_to_ensure
-    # ============================================================
-    # - Nếu thiếu cột -> append vào cuối header + ghi vào row 1 của sheet
-    # - Trả về header mới (có thể đã được mở rộng)
-    changed = False
-    for c in cols_to_ensure:
-        c = norm_col(c)
-        if c not in header:
-            header.append(c)
-            ws.cell(row=1, column=len(header)).value = c
-            changed = True
-    if changed:
-        print(f"  + Da mo rong schema, tong so cot hien tai: {len(header)}")
-    return header
-
-
-def _to_excel_value(v):
-    # ============================================================
-    # CHUYỂN GIÁ TRỊ PANDAS -> GIÁ TRỊ HỢP LỆ CHO OPENPYXL
-    # ============================================================
-    # - pd.NA / NaN: openpyxl không thích -> đổi thành None
-    # - pd.Timestamp: đổi sang datetime python bằng to_pydatetime()
-    # - còn lại giữ nguyên
-    try:
-        if pd.isna(v):
-            return None
-    except Exception:
-        # Một số kiểu object có thể khiến pd.isna lỗi -> bỏ qua
-        pass
-    if isinstance(v, pd.Timestamp):
-        return v.to_pydatetime()
-    return v
-
-
-def append_df_incremental(
-    wb: Workbook,
-    ws: Worksheet,
-    header: list[str],
-    df: pd.DataFrame,
-    merge_path: Path,
-    save_every_n_rows: int = SAVE_EVERY_N_ROWS,
-) -> int:
-    # ============================================================
-    # APPEND DATAFRAME VÀO FILE EXCEL THEO KIỂU INCREMENTAL
-    # ============================================================
-    # Mục tiêu:
-    # - Append từng dòng một vào worksheet để không phải giữ toàn bộ dữ liệu trong RAM
-    # - Save định kỳ mỗi save_every_n_rows dòng để:
-    #   + giảm rủi ro mất dữ liệu
-    #   + tránh workbook quá lớn mà chưa save
-    #
-    # Bước chính:
-    # 1) Bổ sung các cột còn thiếu trong df theo header (NA)
-    # 2) Reorder df theo đúng thứ tự header
-    # 3) itertuples để iterate nhanh hơn iterrows
-    # 4) ws.append từng dòng
-    # 5) save theo batch
-    for c in header:
-        # Nếu df không có cột nào đó trong schema -> tạo cột đó toàn NA
-        if c not in df.columns:
-            df[c] = pd.NA
-    # Chỉ giữ đúng các cột trong header (không mở rộng thêm cột ngoài schema)
-    df = df[header]
-
-    appended = 0
-    buffer_count = 0
-
-    # itertuples(index=False, name=None) -> trả tuple thuần, nhanh
-    for row in df.itertuples(index=False, name=None):
-        # Convert giá trị sang dạng excel-friendly
-        excel_row = [_to_excel_value(x) for x in row]
-        ws.append(excel_row)
-        appended += 1
-        buffer_count += 1
-
-        # Save định kỳ để giảm rủi ro crash/mất dữ liệu
-        if save_every_n_rows > 0 and buffer_count >= save_every_n_rows:
-            wb.save(merge_path)
-            buffer_count = 0
-
-    # Save cuối cùng sau khi append xong
-    wb.save(merge_path)
-    return appended
-
-
-def merge_single_category_incremental(
+def merge_single_category_fast(
     file_list: list[Path],
     merge_path: Path,
     log_path: Path,
@@ -508,84 +363,72 @@ def merge_single_category_incremental(
     category_name: str,
 ) -> None:
     # ============================================================
-    # MERGE 1 NHÓM FILE (category) THEO KIỂU INCREMENTAL
+    # MERGE 1 NHÓM FILE BẰNG PANDAS (NHANH)
     # ============================================================
-    # Tham số:
-    # - file_list: danh sách file cần merge (chưa processed)
-    # - merge_path: file excel đích để append vào
-    # - log_path: file log của category đó
-    # - processed_files: set tên file đã xử lý (riêng cho category)
-    # - category_name: tên hiển thị/log (vd: "vietnam_weather_" hoặc "khac")
-    #
-    # Luồng xử lý:
-    # - Mở hoặc tạo file merge
-    # - Đảm bảo header có MASTER_COLUMNS
-    # - Với mỗi file:
-    #   + đọc -> clean
-    #   + nếu phát hiện cột mới -> mở rộng header
-    #   + append dữ liệu incremental
-    #   + ghi log ngay sau khi append thành công
     if not file_list:
         print(f"Khong co file {category_name} moi de merge.")
         return
 
-    print(f"\n=== MERGE INCREMENTAL: {category_name.upper()} ===")
-    print(f"So luong file: {len(file_list)}")
+    print(f"\n=== MERGE NHANH: {category_name.upper()} ===")
+    print(f"So luong file moi: {len(file_list)}")
     print(f"File merge: {merge_path}")
 
-    # Mở workbook merge hiện có hoặc tạo mới nếu chưa có
-    wb, ws, header = _load_or_create_wb_ws(merge_path)
-
-    # Đảm bảo header chứa đầy đủ MASTER_COLUMNS (schema chuẩn)
-    header = _ensure_header_has_columns(ws, header, MASTER_COLUMNS)
-    wb.save(merge_path)
-
-    ok_count = 0
-    for idx, file_path in enumerate(sorted(file_list), start=1):
-        print(f"\n[{idx}/{len(file_list)}] Dang xu ly: {file_path.name}")
-
-        # Đọc file excel nguồn
-        df = read_excel_file(file_path)
-        if df.empty:
-            print("  - File rong/khong doc duoc, bo qua.")
-            continue
-
-        # Làm sạch: chuẩn hoá tên cột, bỏ cột unnamed, bỏ cột trùng
-        df = clean_dataframe(df)
-
-        # Không mở rộng schema, chỉ giữ đúng các cột chuẩn
-        new_cols = [c for c in df.columns if c not in header]
-        if new_cols:
-            print(f"  ! File có cột lạ không thuộc schema chuẩn, sẽ bị loại bỏ: {new_cols}")
-
+    # 1) Đọc file merge hiện có (nếu tồn tại)
+    existing_df = pd.DataFrame()
+    if merge_path.exists():
         try:
-            # Append dữ liệu theo từng dòng + save theo batch
-            appended = append_df_incremental(
-                wb=wb,
-                ws=ws,
-                header=header,
-                df=df,
-                merge_path=merge_path,
-                save_every_n_rows=SAVE_EVERY_N_ROWS,
-            )
-            print(f"  ✓ Da append {appended} dong tu {file_path.name}")
-
-            # Sau khi append thành công:
-            # - đánh dấu file đã xử lý
-            # - ghi log ngay để nếu script dừng đột ngột vẫn không merge lại file này
-            processed_files.add(file_path.name)
-            save_processed_files(log_path, processed_files)
-            ok_count += 1
+            existing_df = pd.read_excel(merge_path, engine="openpyxl")
+            existing_df.columns = [COLUMN_SCHEMA_MAPPING.get(norm_col(c), norm_col(c)) for c in existing_df.columns]
+            print(f"  File merge hien co: {len(existing_df)} dong")
         except Exception as e:
-            # Nếu append lỗi:
-            # - in lỗi
-            # - KHÔNG ghi log (để lần sau chạy lại file này)
-            print(f"  ✗ Loi khi append file {file_path.name}: {e}")
-            print("  -> Khong danh dau processed (de lan sau chay lai).")
+            print(f"  Loi doc file merge cu: {e}, se tao moi.")
+            existing_df = pd.DataFrame()
 
-    # Save cuối cùng cho chắc chắn
-    wb.save(merge_path)
-    print(f"\n=== XONG {category_name}: OK {ok_count}/{len(file_list)} file ===")
+    # 2) Đọc từng file mới → clean → collect
+    new_dfs = []
+    ok_files = []
+    for idx, file_path in enumerate(sorted(file_list), start=1):
+        print(f"  [{idx}/{len(file_list)}] Doc: {file_path.name}", end=" ")
+        df = read_data_file(file_path)
+        if df.empty:
+            print("-> rong, bo qua.")
+            continue
+        df = clean_dataframe(df)
+        new_dfs.append(df)
+        ok_files.append(file_path)
+        print(f"-> {len(df)} dong")
+
+    if not new_dfs:
+        print(f"  Khong co du lieu moi de merge cho {category_name}.")
+        return
+
+    # 3) Concat tất cả
+    all_new = pd.concat(new_dfs, ignore_index=True)
+    print(f"  Tong dong moi: {len(all_new)}")
+
+    if not existing_df.empty:
+        merged = pd.concat([existing_df, all_new], ignore_index=True)
+    else:
+        merged = all_new
+
+    # 4) Chuẩn hóa cột theo MASTER_COLUMNS
+    for c in MASTER_COLUMNS:
+        if c not in merged.columns:
+            merged[c] = pd.NA
+    # Giữ đúng thứ tự MASTER_COLUMNS + các cột thừa (nếu có)
+    final_cols = [c for c in MASTER_COLUMNS if c in merged.columns]
+    merged = merged[final_cols]
+
+    # 5) Ghi ra file 1 lần (nhanh hơn row-by-row rất nhiều)
+    merged.to_excel(merge_path, index=False, engine="openpyxl")
+    print(f"  Da ghi {len(merged)} dong vao {merge_path.name}")
+
+    # 6) Cập nhật log
+    for fp in ok_files:
+        processed_files.add(fp.name)
+    save_processed_files(log_path, processed_files)
+
+    print(f"\n=== XONG {category_name}: OK {len(ok_files)}/{len(file_list)} file ===")
 
 
 def merge_excel_files_once(base_dir: Path) -> None:
@@ -625,10 +468,10 @@ def merge_excel_files_once(base_dir: Path) -> None:
     processed_all = processed_vietnam.union(processed_other)
 
     # Lấy danh sách file mới trong output (chưa nằm trong processed_all)
-    vietnam_files, other_files = get_new_excel_files(output_dir, processed_all)
+    vietnam_files, other_files = get_new_data_files(output_dir, processed_all)
 
     # Merge nhóm vietnam_weather_
-    merge_single_category_incremental(
+    merge_single_category_fast(
         vietnam_files,
         merge_vietnam_path,
         log_vietnam_path,
@@ -637,7 +480,7 @@ def merge_excel_files_once(base_dir: Path) -> None:
     )
 
     # Merge nhóm còn lại
-    merge_single_category_incremental(
+    merge_single_category_fast(
         other_files,
         merge_other_path,
         log_other_path,

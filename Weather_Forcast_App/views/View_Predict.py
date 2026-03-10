@@ -154,12 +154,19 @@ def _load_recent_predictions() -> List[Dict[str, Any]]:
         return []
     try:
         df = pd.read_csv(pred_path)
+        # Support both old (station_name) and new (location_station_name) column names
+        def _get(row, *names, default=""):
+            for n in names:
+                v = row.get(n)
+                if v is not None and pd.notna(v):
+                    return v
+            return default
         rows = []
         for _, row in df.iterrows():
             rows.append({
-                "station_name": str(row.get("station_name", "")),
-                "province": str(row.get("province", "")),
-                "district": str(row.get("district", "")),
+                "station_name": str(_get(row, "station_name", "location_station_name")),
+                "province": str(_get(row, "province", "location_province")),
+                "district": str(_get(row, "district", "location_district")),
                 "rain_total": row.get("rain_total", ""),
                 "status": str(row.get("status", "")),
                 "timestamp": str(row.get("forecast_for", row.get("timestamp", ""))),
@@ -217,6 +224,19 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
             df = pd.read_excel(fp, nrows=nrows) if nrows else pd.read_excel(fp)
 
         _push(job_id, f"📊 Đọc được {len(df)} dòng, {len(df.columns)} cột")
+
+        # Rename cột cho khớp với training features (nếu data từ crawler)
+        _rename_map = {
+            'station_id': 'location_station_id',
+            'station_name': 'location_station_name',
+            'province': 'location_province',
+            'district': 'location_district',
+            'latitude': 'location_latitude',
+            'longitude': 'location_longitude',
+        }
+        df = df.rename(columns={old: new for old, new in _rename_map.items()
+                                if old in df.columns and new not in df.columns})
+
         _set_progress(job_id, 20, "Load model")
 
         # Load predictor
@@ -226,19 +246,25 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
         _push(job_id, f"🤖 Model: {type(predictor.model).__name__}")
         _push(job_id, f"🎯 Target: {predictor.target_column}")
         _push(job_id, f"📐 Features: {len(predictor.feature_columns)}")
-        _set_progress(job_id, 40, "Đang dự báo...")
+        _set_progress(job_id, 40, "Đang build features & dự báo...")
 
         # Lấy forecast_horizon từ model
         forecast_horizon = predictor.train_info.get("forecast_horizon", 0)
         if forecast_horizon > 0:
             _push(job_id, f"🔮 Forecast mode: dự báo trước {forecast_horizon} bước")
 
-        # Chạy prediction
-        result = predictor.predict(df)
-        predictions = result["predictions"]
-        pred_time = result["prediction_time"]
-
+        # Tạm restore stdout trước khi predict (để log nội bộ không trộn vào nhật ký)
         sys.stdout = old_stdout
+
+        # Chạy prediction
+        try:
+            result = predictor.predict(df)
+            predictions = result["predictions"]
+            pred_time = result["prediction_time"]
+        except Exception as e:
+            _push(job_id, f"❌ Lỗi khi dự báo: {str(e)}")
+            _push(job_id, traceback.format_exc())
+            raise
 
         _push(job_id, f"✅ Dự báo xong! {len(predictions)} kết quả trong {pred_time:.2f}s")
         _set_progress(job_id, 80, "Lưu kết quả")
@@ -256,6 +282,18 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
         else:
             df["forecast_for"] = now.strftime("%Y-%m-%d %H:%M:%S")
 
+        # Rename location_ columns back to user-friendly names
+        _rename_back = {
+            'location_station_id': 'station_id',
+            'location_station_name': 'station_name',
+            'location_province': 'province',
+            'location_district': 'district',
+            'location_latitude': 'latitude',
+            'location_longitude': 'longitude',
+        }
+        df = df.rename(columns={old: new for old, new in _rename_back.items()
+                                if old in df.columns and new not in df.columns})
+
         # Lưu file kết quả
         output_dir = ML_MODEL_ROOT / "WeatherForcast"
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -272,17 +310,18 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
         # Nếu có cột target thực tế, tính RMSE
         target_col = predictor.target_column
         if target_col and target_col in df.columns:
-            y_true = df[target_col].dropna()
-            y_pred_aligned = pred_arr[:len(y_true)]
+            mask = df[target_col].notna()
+            y_true = df.loc[mask, target_col].values
+            y_pred_aligned = pred_arr[mask.values]
             if len(y_true) > 0:
-                rmse = np.sqrt(np.mean((y_true.values - y_pred_aligned) ** 2))
+                rmse = np.sqrt(np.mean((y_true - y_pred_aligned) ** 2))
                 _push(job_id, f"📊 RMSE (so với actual): {rmse:.4f}")
 
         # Lấy top rows cho preview
         preview_rows = []
         preview_df = df.head(20)
         cols_to_show = []
-        for c in ["station_name", "province", "district", "forecast_for", "rain_total", "status", "y_pred"]:
+        for c in ["station_name", "province", "district", "rain_total", "status", "y_pred", "forecast_for"]:
             if c in preview_df.columns:
                 cols_to_show.append(c)
         if not cols_to_show:
@@ -626,6 +665,18 @@ def _forecast_now_worker(job_id: str) -> None:
         forecast_horizon = predictor.train_info.get("forecast_horizon", 0)
         now = datetime.now()
 
+        # Rename cột cho khớp với training features
+        _rename_map = {
+            'station_id': 'location_station_id',
+            'station_name': 'location_station_name',
+            'province': 'location_province',
+            'district': 'location_district',
+            'latitude': 'location_latitude',
+            'longitude': 'location_longitude',
+        }
+        df = df.rename(columns={old: new for old, new in _rename_map.items()
+                                if old in df.columns and new not in df.columns})
+
         # GIỮ NGUYÊN timestamp = thời điểm hiện tại cho feature builder
         # (model train với features tại t → predict target tại t + forecast_horizon)
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -637,14 +688,21 @@ def _forecast_now_worker(job_id: str) -> None:
 
         _push(job_id, f"🤖 Model: {type(predictor.model).__name__}")
         _push(job_id, f"🎯 Target: {predictor.target_column}")
-        _set_progress(job_id, 70, "Đang dự báo...")
+        _push(job_id, f"📐 Features: {len(predictor.feature_columns)}")
+        _set_progress(job_id, 70, "Đang build features & dự báo...")
+
+        # Tạm restore stdout trước khi predict (để log nội bộ không trộn vào nhật ký)
+        sys.stdout = old_stdout
 
         # Chạy prediction (features tại thời điểm hiện tại → dự báo tương lai)
-        result = predictor.predict(df)
-        predictions = result["predictions"]
-        pred_time = result["prediction_time"]
-
-        sys.stdout = old_stdout
+        try:
+            result = predictor.predict(df)
+            predictions = result["predictions"]
+            pred_time = result["prediction_time"]
+        except Exception as e:
+            _push(job_id, f"❌ Lỗi khi dự báo: {str(e)}")
+            _push(job_id, traceback.format_exc())
+            raise
 
         # Sau khi predict xong, cập nhật timestamp → thời điểm dự báo (tương lai)
         forecast_dt = now + timedelta(hours=forecast_horizon) if forecast_horizon > 0 else now
@@ -665,6 +723,18 @@ def _forecast_now_worker(job_id: str) -> None:
         predict_threshold = predictor.train_info.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
         df["status"] = np.where(np.array(predictions) > predict_threshold, "Mưa", "Không mưa")
 
+        # Rename location_ columns back to user-friendly names for CSV & display
+        _rename_back = {
+            'location_station_id': 'station_id',
+            'location_station_name': 'station_name',
+            'location_province': 'province',
+            'location_district': 'district',
+            'location_latitude': 'latitude',
+            'location_longitude': 'longitude',
+        }
+        df = df.rename(columns={old: new for old, new in _rename_back.items()
+                                if old in df.columns and new not in df.columns})
+
         # Lưu file kết quả
         output_dir = ML_MODEL_ROOT / "WeatherForcast"
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -682,7 +752,7 @@ def _forecast_now_worker(job_id: str) -> None:
         preview_rows = []
         preview_df = df.head(20)
         cols_to_show = []
-        for c in ["station_name", "province", "district", "forecast_for", "data_collected_at", "status", "y_pred"]:
+        for c in ["station_name", "province", "district", "rain_total", "status", "y_pred", "forecast_for"]:
             if c in preview_df.columns:
                 cols_to_show.append(c)
         if not cols_to_show:

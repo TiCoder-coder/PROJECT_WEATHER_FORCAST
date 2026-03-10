@@ -67,7 +67,7 @@
 - 🌐 **Multi-Source Data Collection**: Crawl weather data from OpenWeather API, Vrain API, Selenium scraping, and HTML parsing
 - 🔗 **Intelligent Data Integration**: Merge heterogeneous datasets with conflict resolution and schema validation
 - 🧹 **Advanced Data Cleaning**: Automated cleaning wizard with customizable pipelines
-- 🧠 **Machine Learning**: Train and deploy forecasting models (RandomForest, XGBoost, LightGBM, CatBoost, Two-Stage Ensemble)
+- 🧠 **Machine Learning**: Train and deploy forecasting models (Ensemble, XGBoost, LightGBM, CatBoost, RandomForest)
 - 🔮 **Weather Forecasting**: Generate multi-day weather predictions with confidence intervals
 - 📊 **Interactive Dashboard**: Real-time metrics, visualization, and dataset management
 - 🎨 **Modern UX**: Glassmorphism design with weather-themed animations
@@ -92,7 +92,7 @@
 
 | Feature | Description |
 |---------|-------------|
-| 🏗️ **Model training** | Support for 5 algorithms: RandomForest, XGBoost, LightGBM, CatBoost, Two-Stage |
+| 🏗️ **Model training** | Support for 5 algorithms: Ensemble, XGBoost, LightGBM, CatBoost, RandomForest |
 | 🔮 **Forecasting** | Multi-day weather prediction with rain detection |
 | 📊 **Evaluation** | Comprehensive metrics: MAE, RMSE, MAPE, R², Rain Accuracy |
 | 🎛️ **Hyperparameter tuning** | Grid search, random search, Optuna integration |
@@ -199,13 +199,13 @@ graph TD
 | **XGBoost** | XGBoost 3.2 | High performance, gradient boosting | R² = 0.72 |
 | **LightGBM** | LightGBM 4.6 | Fast training, large datasets | R² = 0.71 |
 | **CatBoost** | CatBoost 1.2 | Categorical feature handling | R² = 0.70 |
-| **Two-Stage** | Custom ensemble | Rain detection + value regression | R² = 0.70, Acc = 93.7% |
+| **Ensemble** | Voting ensemble | Combines multiple models for stable forecasting | R² = 0.70, Acc = 93.7% |
 
 ### 📊 Model Evaluation Metrics
 
 ```json
 {
-  "model": "two_stage",
+  "model": "ensemble",
   "metrics": {
     "r2_score": 0.70,
     "mae": 2.84,
@@ -246,7 +246,7 @@ Machine_learning_artifacts/
     "date_column": "datetime"
   },
   "model": {
-    "type": "two_stage",
+    "type": "ensemble",
     "params": {
       "n_estimators": 100,
       "max_depth": 10,
@@ -925,7 +925,7 @@ PROJECT_WEATHER_FORECAST/
 │   │   │   ├── XGBoost.py
 │   │   │   ├── LightGBM_Model.py
 │   │   │   ├── CatBoost.py
-│   │   │   └── TwoStage_Model.py   # Ensemble model
+│   │   │   └── Ensemble_Model.py    # Voting ensemble model
 │   │   ├── 📁 trainning/           # Training pipeline
 │   │   │   ├── train.py            # Main training script
 │   │   │   └── tuning.py           # Hyperparameter tuning
@@ -1313,7 +1313,7 @@ python manage.py createsuperuser     # Create Django admin superuser
 {
   "dataset": "Select cleaned dataset",
   "target": "rain_total",
-  "model_type": "two_stage | xgboost | lightgbm | catboost | randomforest",
+  "model_type": "ensemble | xgboost | lightgbm | catboost | randomforest",
   "train_ratio": 0.7,
   "valid_ratio": 0.15,
   "test_ratio": 0.15
@@ -1463,24 +1463,11 @@ X_FRAME_OPTIONS = 'DENY'
     "features": ["temperature", "humidity", "pressure", "wind_speed", "..."]
   },
   "model": {
-    "type": "two_stage",
-    "classifier": {
-      "algorithm": "xgboost",
-      "params": {
-        "n_estimators": 100,
-        "max_depth": 8,
-        "learning_rate": 0.1,
-        "objective": "binary:logistic"
-      }
-    },
-    "regressor": {
-      "algorithm": "lightgbm",
-      "params": {
-        "n_estimators": 150,
-        "max_depth": 10,
-        "learning_rate": 0.05,
-        "objective": "regression"
-      }
+    "type": "ensemble",
+    "params": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "learning_rate": 0.1
     }
   },
   "split": {

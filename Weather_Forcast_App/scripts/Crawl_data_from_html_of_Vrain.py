@@ -67,29 +67,166 @@ import re
 import csv
 import time
 import hashlib
+import threading
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, WebDriverException
 
 VN_TZ = ZoneInfo("Asia/Bangkok")
+MAX_WORKERS = 6
+MAX_RETRIES = 2
+
+
+def _create_driver():
+    """Tạo Chrome driver với options tối ưu"""
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-logging")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-notifications")
+    options.add_argument("--blink-settings=imagesEnabled=false")
+    options.add_argument("--window-size=1280,720")
+    options.page_load_strategy = "eager"
+    driver = webdriver.Chrome(options=options)
+    driver.set_page_load_timeout(60)
+    driver.implicitly_wait(3)
+    return driver
+
+
+def _crawl_single_province(url, unified_datetime_info, current_crawl_datetime, results, seen_lock, seen_stations, retry=0):
+    """Crawl 1 tỉnh, trả về list rows."""
+    driver = None
+    rows = []
+    try:
+        driver = _create_driver()
+        print(f"\nĐang truy cập: {url}")
+        driver.get(url)
+        try:
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".landing-content, div[class*='station'], body"))
+            )
+        except TimeoutException:
+            pass
+        time.sleep(1)
+
+        page_html = driver.page_source
+
+        # === TRÍCH XUẤT DỮ LIỆU ===
+        province_match = re.search(
+            r"<div[^>]*app-title[^>]*>.*?<span[^>]*>([^<]+)</span>",
+            page_html,
+            re.DOTALL,
+        )
+        province_name = (
+            province_match.group(1).strip() if province_match else "Không xác định"
+        )
+        print(f"  Tỉnh: {province_name}")
+
+        datetime_info = unified_datetime_info
+
+        station_blocks = re.findall(
+            r'<div[^>]*class="[^"]*\bgroup\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
+            page_html,
+            re.DOTALL,
+        )
+        if not station_blocks:
+            station_blocks = re.findall(
+                r'<div[^>]*class="[^"]*\bstation\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
+                page_html,
+                re.DOTALL,
+            )
+
+        print(f"  Tìm thấy {len(station_blocks)} khối trạm")
+
+        for block in station_blocks:
+            station_match = re.search(
+                r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*\bmax-w-70\b[^"]*"[^>]*>([^<]+)</span>',
+                block,
+                re.DOTALL,
+            )
+            station_name = (
+                station_match.group(1).strip() if station_match else "N/A"
+            )
+
+            location_match = re.search(
+                r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\bsub-title\b[^"]*"[^>]*>([^<]+)</div>',
+                block,
+                re.DOTALL,
+            )
+            xa_phuong = location_match.group(1).strip() if location_match else "N/A"
+
+            rainfall_match = re.search(
+                r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*font-size-18px[^"]*"[^>]*>([\d.]+)\s*<span[^>]*>mm</span>',
+                block,
+                re.DOTALL,
+            )
+            rainfall = rainfall_match.group(1).strip() if rainfall_match else "0.0"
+
+            status_match = re.search(
+                r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\blevel\b[^"]*"[^>]*>.*?<span[^>]*>([^<]+)</span>',
+                block,
+                re.DOTALL,
+            )
+            status = (
+                status_match.group(1).strip() if status_match else "Không xác định"
+            )
+
+            unique_key = f"{province_name}_{station_name}".lower()
+            with seen_lock:
+                if unique_key in seen_stations:
+                    continue
+                seen_stations.add(unique_key)
+
+            rows.append({
+                "station_id": hashlib.md5(unique_key.encode()).hexdigest()[:12],
+                "station_name": station_name,
+                "province": province_name,
+                "district": xa_phuong,
+                "rain_total": rainfall,
+                "status": status,
+                "timestamp": datetime_info,
+                "data_time": current_crawl_datetime,
+            })
+
+        print(f"  Đã trích xuất {len(rows)} trạm từ {province_name}")
+
+    except (TimeoutException, WebDriverException) as e:
+        print(f"  Lỗi kết nối {url}: {e}")
+        if retry < MAX_RETRIES:
+            print(f"  🔄 Retry lần {retry + 1}...")
+            if driver:
+                try: driver.quit()
+                except: pass
+            time.sleep(1)
+            return _crawl_single_province(url, unified_datetime_info, current_crawl_datetime, results, seen_lock, seen_stations, retry + 1)
+    except Exception as e:
+        print(f"  Lỗi khi xử lý {url}: {e}")
+    finally:
+        if driver:
+            try: driver.quit()
+            except: pass
+
+    with seen_lock:
+        results.extend(rows)
+    return rows
 
 
 def main():
-    # === CẤU HÌNH SELENIUM ===
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
-
-    # === 1. LẤY NGÀY VÀ GIỜ CẬP NHẬT TỪ TRANG CHỦ ===
+    # === 1. LẤY NGÀY VÀ GIỞ CẬP NHẬT TỪ TRANG CHỦ ===
     print("Đang truy cập trang chủ để lấy ngày và giờ cập nhật...")
+    driver = _create_driver()
     driver.get("https://vrain.vn/landing")
-    time.sleep(5)
+    time.sleep(3)
 
     all_text = driver.find_element(By.TAG_NAME, "body").text
     print("  Đang tìm kiếm ngày và giờ trong văn bản trang...")
@@ -115,6 +252,11 @@ def main():
         print("  Cảnh báo: Không tìm thấy ngày cập nhật. Sử dụng ngày và giờ hiện tại.")
         unified_datetime_info = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
 
+    try:
+        driver.quit()
+    except Exception:
+        pass
+
     current_crawl_datetime = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M:%S")
 
     # Danh sách các URL tỉnh thành - tự động sinh từ ID 1–63
@@ -131,131 +273,40 @@ def main():
     timestamp = datetime.now(VN_TZ).strftime("%Y%m%d_%H%M%S")
     csv_path = OUTPUT_DIR / f"Bao_cao_{timestamp}.csv"
 
+    # Multi-thread crawl
+    results = []
+    seen_stations = set()
+    seen_lock = threading.Lock()
+
+    print(f"\n🚀 Bắt đầu crawl {len(province_urls)} tỉnh với {MAX_WORKERS} workers...")
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {
+            executor.submit(
+                _crawl_single_province, url, unified_datetime_info,
+                current_crawl_datetime, results, seen_lock, seen_stations
+            ): url for url in province_urls
+        }
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"❌ Thread exception: {e}")
+
+    # Ghi CSV
+    fieldnames = [
+        "station_id", "station_name", "province", "district",
+        "rain_total", "status", "timestamp", "data_time"
+    ]
     with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
-        fieldnames = [
-            "station_id",
-            "station_name",
-            "province",
-            "district",
-            "rain_total",
-            "status",
-            "timestamp",
-            "data_time"
-        ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-
-        # Deduplication: theo dõi các trạm đã ghi
-        seen_stations = set()
-
-        for url in province_urls:
-            try:
-                print(f"\nĐang truy cập: {url}")
-                driver.get(url)
-                WebDriverWait(driver, 15).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "landing-content"))
-                )
-                time.sleep(2)
-
-                page_html = driver.page_source
-
-                # === TRÍCH XUẤT DỮ LIỆU ===
-                # 1. Tên tỉnh
-                province_match = re.search(
-                    r"<div[^>]*app-title[^>]*>.*?<span[^>]*>([^<]+)</span>",
-                    page_html,
-                    re.DOTALL,
-                )
-                province_name = (
-                    province_match.group(1).strip() if province_match else "Không xác định"
-                )
-                print(f"  Tỉnh: {province_name}")
-
-                # 2. SỬ DỤNG NGÀY VÀ GIỜ ĐÃ LẤY TỪ TRANG CHỦ
-                datetime_info = unified_datetime_info
-
-                # 3. Tìm các khối thông tin trạm
-                station_blocks = re.findall(
-                    r'<div[^>]*class="[^"]*\bgroup\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
-                    page_html,
-                    re.DOTALL,
-                )
-                if not station_blocks:
-                    station_blocks = re.findall(
-                        r'<div[^>]*class="[^"]*\bstation\b[^"]*"[^>]*>(.*?)</div>\s*</div>\s*</div>',
-                        page_html,
-                        re.DOTALL,
-                    )
-
-                print(f"  Tìm thấy {len(station_blocks)} khối trạm")
-
-                for block in station_blocks:
-
-                    station_match = re.search(
-                        r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*\bmax-w-70\b[^"]*"[^>]*>([^<]+)</span>',
-                        block,
-                        re.DOTALL,
-                    )
-                    station_name = (
-                        station_match.group(1).strip() if station_match else "N/A"
-                    )
-
-                    location_match = re.search(
-                        r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\bsub-title\b[^"]*"[^>]*>([^<]+)</div>',
-                        block,
-                        re.DOTALL,
-                    )
-                    xa_phuong = location_match.group(1).strip() if location_match else "N/A"
-
-                    rainfall_match = re.search(
-                        r'<div[^>]*station-row-1[^>]*>.*?<span[^>]*class="[^"]*font-size-18px[^"]*"[^>]*>([\d.]+)\s*<span[^>]*>mm</span>',
-                        block,
-                        re.DOTALL,
-                    )
-                    rainfall = rainfall_match.group(1).strip() if rainfall_match else "0.0"
-
-                    status_match = re.search(
-                        r'<div[^>]*station-row-2[^>]*>.*?<div[^>]*class="[^"]*\blevel\b[^"]*"[^>]*>.*?<span[^>]*>([^<]+)</span>',
-                        block,
-                        re.DOTALL,
-                    )
-                    status = (
-                        status_match.group(1).strip() if status_match else "Không xác định"
-                    )
-
-                    # Deduplication: bỏ qua nếu trạm đã được ghi
-                    unique_key = f"{province_name}_{station_name}".lower()
-                    if unique_key in seen_stations:
-                        continue
-                    seen_stations.add(unique_key)
-
-                    writer.writerow(
-                        {
-                            "station_id": hashlib.md5(
-                                unique_key.encode()
-                            ).hexdigest()[:12],
-                            "station_name": station_name,
-                            "province": province_name,
-                            "district": xa_phuong,
-                            "rain_total": rainfall,
-                            "status": status,
-                            "timestamp": datetime_info,
-                            "data_time": current_crawl_datetime,
-                        }
-                    )
-
-                print(f"  Đã trích xuất {len(station_blocks)} trạm (unique: {len(seen_stations)}).")
-
-            except Exception as e:
-                print(f"  Lỗi khi xử lý {url}: {e}")
-
-    try:
-        driver.quit()
-    except Exception as e:
-        print(f"[WARN] Lỗi khi đóng trình duyệt: {e}")
+        for row in results:
+            writer.writerow(row)
 
     print("\n" + "=" * 50)
-    print(f"Hoàn thành! Thời gian crawl: {current_crawl_datetime}")
+    print(f"Hoàn thành! Tổng số trạm: {len(results)}")
+    print(f"Thời gian crawl: {current_crawl_datetime}")
     print(f"Dữ liệu đã được lưu vào: {csv_path}")
 
 

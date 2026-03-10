@@ -504,6 +504,15 @@ def forgot_password_view(request):
             reverse("weather:reset_password", kwargs={"token": token})
         )
 
+        # Gửi email chứa reset link
+        from Weather_Forcast_App.scripts.email_templates import send_reset_link_email
+        send_reset_link_email(
+            email=identifier,
+            name="",
+            reset_link=reset_link,
+            expire_minutes=30,
+        )
+
         messages.success(request, "Nếu tài khoản tồn tại, link reset đã được gửi qua email.")
         return redirect("weather:password_reset_sent")
 

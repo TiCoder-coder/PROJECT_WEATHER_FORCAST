@@ -13,7 +13,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
-import sqlite3
 
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "").strip()
@@ -26,408 +25,6 @@ logging.info(f"OPENWEATHER_API_KEY length = {len(OPENWEATHER_API_KEY)}")
 logging.info(f"WEATHERAPI_KEY length = {len(WEATHERAPI_KEY)}")
 logging.info(f"CRAWL_MODE = {CRAWL_MODE}")
 
-
-class SQLiteManager:
-    """Quản lý kết nối và thao tác với SQLite database"""
-
-    def __init__(self, db_path=None):
-        if db_path is None:
-            db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output", "vietnam_weather.db")
-        self.db_path = db_path
-        self.conn = None
-        self.cursor = None
-
-    def connect(self):
-        """Kết nối đến database"""
-        try:
-            self.conn = sqlite3.connect(self.db_path)
-            self.cursor = self.conn.cursor()
-            logging.info(f"✅ Đã kết nối đến SQLite database: {self.db_path}")
-        except Exception as e:
-            logging.error(f"❌ Lỗi kết nối SQLite: {e}")
-
-    def disconnect(self):
-        """Đóng kết nối database"""
-        if self.conn:
-            self.conn.close()
-            logging.info("✅ Đã đóng kết nối SQLite")
-
-    def create_tables(self):
-        """Tạo các bảng cần thiết trong database"""
-        try:
-            # Bảng thông tin trạm
-            self.cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS weather_stations (
-                    station_id TEXT PRIMARY KEY,
-                    station_name TEXT NOT NULL,
-                    province TEXT NOT NULL,
-                    district TEXT NOT NULL,
-                    type TEXT,
-                    region TEXT,
-                    latitude REAL,
-                    longitude REAL,
-                    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """
-            )
-
-            # Bảng dữ liệu thời tiết
-            self.cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS weather_data (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    station_id TEXT,
-                    station_name TEXT,
-                    province TEXT,
-                    district TEXT,
-                    latitude REAL,
-                    longitude REAL,
-                    timestamp TEXT,
-                    data_source TEXT,
-                    data_quality TEXT,
-                    data_time TEXT,
-
-                    -- Nhiệt độ
-                    temperature_current REAL,
-                    temperature_max REAL,
-                    temperature_min REAL,
-                    temperature_avg REAL,
-
-                    -- Độ ẩm
-                    humidity_current REAL,
-                    humidity_max REAL,
-                    humidity_min REAL,
-                    humidity_avg REAL,
-
-                    -- Áp suất
-                    pressure_current REAL,
-                    pressure_max REAL,
-                    pressure_min REAL,
-                    pressure_avg REAL,
-
-                    -- Gió
-                    wind_speed_current REAL,
-                    wind_speed_max REAL,
-                    wind_speed_min REAL,
-                    wind_speed_avg REAL,
-                    wind_direction_current REAL,
-                    wind_direction_avg REAL,
-
-                    -- Mưa
-                    rain_current REAL,
-                    rain_max REAL,
-                    rain_min REAL,
-                    rain_avg REAL,
-                    rain_total REAL,
-
-                    -- Các chỉ số khác
-                    cloud_cover_current INTEGER,
-                    cloud_cover_max INTEGER,
-                    cloud_cover_min INTEGER,
-                    cloud_cover_avg INTEGER,
-
-                    visibility_current INTEGER,
-                    visibility_max INTEGER,
-                    visibility_min INTEGER,
-                    visibility_avg INTEGER,
-
-                    thunder_probability INTEGER,
-                    error_reason TEXT,
-
-                    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-                    FOREIGN KEY (station_id) REFERENCES weather_stations (station_id)
-                )
-            """
-            )
-
-            # Bảng chất lượng dữ liệu
-            self.cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS data_quality_log (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    run_timestamp TEXT,
-                    data_type TEXT,
-                    total_records INTEGER,
-                    high_quality INTEGER,
-                    medium_quality INTEGER,
-                    low_quality INTEGER,
-                    high_percent REAL,
-                    medium_percent REAL,
-                    low_percent REAL,
-                    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """
-            )
-
-            self.conn.commit()
-            logging.info("✅ Đã tạo/xác nhận các bảng trong database")
-
-        except Exception as e:
-            logging.error(f"❌ Lỗi tạo bảng SQLite: {e}")
-
-    def insert_stations(self, stations):
-        """Chèn dữ liệu trạm vào database"""
-        try:
-            for station in stations:
-                self.cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO weather_stations 
-                    (station_id, station_name, province, district, type, region, latitude, longitude)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        station["station_id"],
-                        station["station_name"],
-                        station["province"],
-                        station["district"],
-                        station.get("type", ""),
-                        station.get("region", ""),
-                        station["latitude"],
-                        station["longitude"],
-                    ),
-                )
-            self.conn.commit()
-            logging.info(f"✅ Đã chèn {len(stations)} trạm vào database")
-        except Exception as e:
-            logging.error(f"❌ Lỗi chèn dữ liệu trạm: {e}")
-
-    def convert_vietnamese_keys_to_english(self, data):
-        """Chuyển đổi khóa tiếng Việt sang tiếng Anh"""
-        key_mapping = {
-            "station_id": "station_id",
-            "station_name": "station_name",
-            "province": "province",
-            "district": "district",
-            "latitude": "latitude",
-            "longitude": "longitude",
-            "timestamp": "timestamp",
-            "data_source": "data_source",
-            "data_quality": "data_quality",
-            "data_time": "data_time",
-            "temperature_current": "temperature_current",
-            "temperature_max": "temperature_max",
-            "temperature_min": "temperature_min",
-            "temperature_avg": "temperature_avg",
-            "humidity_current": "humidity_current",
-            "humidity_max": "humidity_max",
-            "humidity_min": "humidity_min",
-            "humidity_avg": "humidity_avg",
-            "pressure_current": "pressure_current",
-            "pressure_max": "pressure_max",
-            "pressure_min": "pressure_min",
-            "pressure_avg": "pressure_avg",
-            "wind_speed_current": "wind_speed_current",
-            "wind_speed_max": "wind_speed_max",
-            "wind_speed_min": "wind_speed_min",
-            "wind_speed_avg": "wind_speed_avg",
-            "wind_direction_current": "wind_direction_current",
-            "wind_direction_avg": "wind_direction_avg",
-            "rain_current": "rain_current",
-            "rain_max": "rain_max",
-            "rain_min": "rain_min",
-            "rain_avg": "rain_avg",
-            "rain_total": "rain_total",
-            "cloud_cover_current": "cloud_cover_current",
-            "cloud_cover_max": "cloud_cover_max",
-            "cloud_cover_min": "cloud_cover_min",
-            "cloud_cover_avg": "cloud_cover_avg",
-            "visibility_current": "visibility_current",
-            "visibility_max": "visibility_max",
-            "visibility_min": "visibility_min",
-            "visibility_avg": "visibility_avg",
-            "thunder_probability": "thunder_probability",
-            "error_reason": "error_reason",
-        }
-        
-        converted = {}
-        for viet_key, eng_key in key_mapping.items():
-            converted[eng_key] = data.get(viet_key, None)
-        
-        return converted
-
-    def insert_weather_data(self, weather_data):
-        """Chèn dữ liệu thời tiết vào database"""
-        try:
-            inserted_count = 0
-            for data in weather_data:
-                # Chuyển đổi khóa tiếng Việt sang tiếng Anh
-                data_converted = self.convert_vietnamese_keys_to_english(data)
-                
-                self.cursor.execute(
-                    """
-                    INSERT INTO weather_data (
-                        station_id, station_name, province, district, latitude, longitude,
-                        timestamp, data_source, data_quality, data_time,
-                        temperature_current, temperature_max, temperature_min, temperature_avg,
-                        humidity_current, humidity_max, humidity_min, humidity_avg,
-                        pressure_current, pressure_max, pressure_min, pressure_avg,
-                        wind_speed_current, wind_speed_max, wind_speed_min, wind_speed_avg,
-                        wind_direction_current, wind_direction_avg,
-                        rain_current, rain_max, rain_min, rain_avg, rain_total,
-                        cloud_cover_current, cloud_cover_max, cloud_cover_min, cloud_cover_avg,
-                        visibility_current, visibility_max, visibility_min, visibility_avg,
-                        thunder_probability, error_reason
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    (
-                        data_converted["station_id"],
-                        data_converted["station_name"],
-                        data_converted["province"],
-                        data_converted["district"],
-                        data_converted["latitude"],
-                        data_converted["longitude"],
-                        data_converted["timestamp"],
-                        data_converted["data_source"],
-                        data_converted["data_quality"],
-                        data_converted["data_time"],
-                        data_converted["temperature_current"],
-                        data_converted["temperature_max"],
-                        data_converted["temperature_min"],
-                        data_converted["temperature_avg"],
-                        data_converted["humidity_current"],
-                        data_converted["humidity_max"],
-                        data_converted["humidity_min"],
-                        data_converted["humidity_avg"],
-                        data_converted["pressure_current"],
-                        data_converted["pressure_max"],
-                        data_converted["pressure_min"],
-                        data_converted["pressure_avg"],
-                        data_converted["wind_speed_current"],
-                        data_converted["wind_speed_max"],
-                        data_converted["wind_speed_min"],
-                        data_converted["wind_speed_avg"],
-                        data_converted["wind_direction_current"],
-                        data_converted["wind_direction_avg"],
-                        data_converted["rain_current"],
-                        data_converted["rain_max"],
-                        data_converted["rain_min"],
-                        data_converted["rain_avg"],
-                        data_converted["rain_total"],
-                        data_converted["cloud_cover_current"],
-                        data_converted["cloud_cover_max"],
-                        data_converted["cloud_cover_min"],
-                        data_converted["cloud_cover_avg"],
-                        data_converted["visibility_current"],
-                        data_converted["visibility_max"],
-                        data_converted["visibility_min"],
-                        data_converted["visibility_avg"],
-                        data_converted["thunder_probability"],
-                        data_converted.get("error_reason", ""),
-                    ),
-                )
-                inserted_count += 1
-
-            self.conn.commit()
-            logging.info(f"✅ Đã chèn {inserted_count} bản ghi thời tiết vào database")
-            return inserted_count
-
-        except Exception as e:
-            logging.error(f"❌ Lỗi chèn dữ liệu thời tiết: {e}")
-            return 0
-
-    def insert_quality_log(self, quality_report, run_timestamp):
-        """Chèn log chất lượng dữ liệu"""
-        try:
-            weather_report = quality_report["weather"]
-
-            self.cursor.execute(
-                """
-                INSERT INTO data_quality_log 
-                (run_timestamp, data_type, total_records, high_quality, medium_quality, low_quality, high_percent, medium_percent, low_percent)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-                (
-                    run_timestamp,
-                    "weather",
-                    weather_report["total"],
-                    weather_report["high_quality"],
-                    weather_report["medium_quality"],
-                    weather_report["low_quality"],
-                    weather_report["high_percent"],
-                    weather_report["medium_percent"],
-                    weather_report["low_percent"],
-                ),
-            )
-
-            self.conn.commit()
-            logging.info("✅ Đã chèn log chất lượng dữ liệu")
-
-        except Exception as e:
-            logging.error(f"❌ Lỗi chèn log chất lượng: {e}")
-
-    def get_recent_data(self, limit=10, province=None):
-        """Lấy dữ liệu gần đây từ database"""
-        try:
-            if province:
-                self.cursor.execute(
-                    """
-                    SELECT * FROM weather_data 
-                    WHERE province = ? 
-                    ORDER BY timestamp DESC 
-                    LIMIT ?
-                """,
-                    (province, limit),
-                )
-            else:
-                self.cursor.execute(
-                    """
-                    SELECT * FROM weather_data 
-                    ORDER BY timestamp DESC 
-                    LIMIT ?
-                """,
-                    (limit,),
-                )
-
-            columns = [description[0] for description in self.cursor.description]
-            results = self.cursor.fetchall()
-
-            data = []
-            for row in results:
-                data.append(dict(zip(columns, row)))
-
-            return data
-
-        except Exception as e:
-            logging.error(f"❌ Lỗi lấy dữ liệu: {e}")
-            return []
-
-    def get_data_summary(self):
-        """Lấy tổng quan dữ liệu"""
-        try:
-            # Tổng số bản ghi
-            self.cursor.execute("SELECT COUNT(*) FROM weather_data")
-            total_records = self.cursor.fetchone()[0]
-
-            # Số tỉnh thành
-            self.cursor.execute("SELECT COUNT(DISTINCT province) FROM weather_data")
-            total_provinces = self.cursor.fetchone()[0]
-
-            # Dữ liệu mới nhất
-            self.cursor.execute("SELECT MAX(timestamp) FROM weather_data")
-            latest_data = self.cursor.fetchone()[0]
-
-            # Chất lượng dữ liệu trung bình
-            self.cursor.execute(
-                """
-                SELECT data_quality, COUNT(*) 
-                FROM weather_data 
-                GROUP BY data_quality
-            """
-            )
-            quality_stats = dict(self.cursor.fetchall())
-
-            return {
-                "total_records": total_records,
-                "total_provinces": total_provinces,
-                "latest_data": latest_data,
-                "quality_stats": quality_stats,
-            }
-
-        except Exception as e:
-            logging.error(f"❌ Lỗi lấy tổng quan: {e}")
-            return {}
 
 FILE_PATH = Path(__file__).resolve()
 APP_DIR = FILE_PATH.parents[1]
@@ -446,7 +43,6 @@ class VietnamWeatherDataCrawler:
         self.data_quality_tracking = {
             "weather": {"high_quality": 0, "medium_quality": 0, "low_quality": 0}
         }
-        self.db_manager = SQLiteManager()
 
     def get_data_quality_assessment(self, data_source, data_type):
         """Đánh giá chất lượng dữ liệu dựa trên nguồn"""
@@ -1234,47 +830,6 @@ class VietnamWeatherDataCrawler:
         df.to_csv(csv_file, index=False, encoding="utf-8-sig")
         logging.info(f"💾 Đã lưu CSV: {csv_file} ({len(df)} rows)")
         return csv_file
-
-    def save_to_sqlite(self, weather_data, locations):
-        """Lưu dữ liệu vào SQLite database"""
-        try:
-            # Kết nối database
-            self.db_manager.connect()
-
-            # Tạo các bảng
-            self.db_manager.create_tables()
-
-            # Chèn dữ liệu trạm
-            self.db_manager.insert_stations(locations)
-
-            # Chèn dữ liệu thời tiết
-            inserted_count = self.db_manager.insert_weather_data(weather_data)
-
-            # Chèn log chất lượng
-            quality_report = self.get_data_quality_report()
-            run_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.db_manager.insert_quality_log(quality_report, run_timestamp)
-
-            # Đóng kết nối
-            self.db_manager.disconnect()
-
-            logging.info(f"💾 Đã lưu {inserted_count} bản ghi vào SQLite database")
-            return True
-
-        except Exception as e:
-            logging.error(f"❌ Lỗi lưu dữ liệu vào SQLite: {e}")
-            return False
-
-    def get_database_summary(self):
-        """Lấy tổng quan dữ liệu từ database"""
-        try:
-            self.db_manager.connect()
-            summary = self.db_manager.get_data_summary()
-            self.db_manager.disconnect()
-            return summary
-        except Exception as e:
-            logging.error(f"❌ Lỗi lấy tổng quan database: {e}")
-            return {}
 
 
 # DANH SÁCH ĐỊA ĐIỂM VIỆT NAM
@@ -5633,8 +5188,6 @@ def parse_args():
                         help="Khoảng cách giữa các lần crawl ở chế độ continuous (giây, mặc định 600)")
     parser.add_argument("--format", choices=["csv", "excel", "both"], default="both",
                         help="Định dạng xuất: csv, excel, hoặc both (mặc định both)")
-    parser.add_argument("--no-sqlite", action="store_true",
-                        help="Bỏ qua lưu SQLite")
     parser.add_argument("--skip-fallback", action="store_true",
                         help="Bỏ qua dữ liệu statistical/fallback, chỉ giữ dữ liệu API thật")
     return parser.parse_args()
@@ -5661,7 +5214,6 @@ def main(args=None):
         workers = args.workers if args else 5
         output_format = args.format if args else "both"
         skip_fallback = args.skip_fallback if args else False
-        no_sqlite = args.no_sqlite if args else False
 
         logging.info("=" * 70)
         logging.info("🌏 HỆ THỐNG THU THẬP DỮ LIỆU THỜI TIẾT VIỆT NAM")
@@ -5688,11 +5240,6 @@ def main(args=None):
             if output_format in ("excel", "both"):
                 excel_file = crawler.save_to_excel(weather_data)
 
-            if not no_sqlite:
-                sqlite_success = crawler.save_to_sqlite(weather_data, locations)
-                if sqlite_success:
-                    db_summary = crawler.get_database_summary()
-
             quality_report = crawler.get_data_quality_report()
 
             logging.info("=" * 70)
@@ -5710,17 +5257,6 @@ def main(args=None):
             logging.info(
                 f"   ❌ Chất lượng thấp: {w_report['low_quality']}/{w_report['total']} ({w_report['low_percent']}%)"
             )
-
-            if not no_sqlite and sqlite_success and db_summary:
-                logging.info("=" * 70)
-                logging.info("🗃️  TỔNG QUAN DATABASE")
-                logging.info("=" * 70)
-                logging.info(
-                    f"📊 Tổng số bản ghi: {db_summary.get('total_records', 0)}"
-                )
-                logging.info(
-                    f"🏙️  Số tỉnh thành: {db_summary.get('total_provinces', 0)}"
-                )
 
             logging.info("=" * 70)
             logging.info(f"⏱️ Thời gian thực hiện: {end_time - start_time:.2f} giây")

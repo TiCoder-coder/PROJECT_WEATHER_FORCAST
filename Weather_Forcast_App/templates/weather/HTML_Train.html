@@ -210,7 +210,7 @@
                             <div class="metric-card__label">DIAGNOSTICS</div>
                             <div class="metric-card__items">
                                 <div class="metric-item">
-                                    <span class="metric-name">{% t "train.status" %}</span>
+                                    <span class="metric-name">Generalization</span>
                                     <span class="metric-value metric-badge
                                         {% if artifacts.metrics.diagnostics.overfit_status == 'good' %}metric-badge--good
                                         {% elif artifacts.metrics.diagnostics.overfit_status == 'overfit' %}metric-badge--warn
@@ -219,8 +219,14 @@
                                     </span>
                                 </div>
                                 <div class="metric-item">
-                                    <span class="metric-name">Data type</span>
-                                    <span class="metric-value">{{ artifacts.metrics.diagnostics.detected_data_type }}</span>
+                                    <span class="metric-name">Quality</span>
+                                    <span class="metric-value metric-badge
+                                        {% if artifacts.metrics.diagnostics.model_quality == 'excellent' %}metric-badge--good
+                                        {% elif artifacts.metrics.diagnostics.model_quality == 'good' %}metric-badge--good
+                                        {% elif artifacts.metrics.diagnostics.model_quality == 'fair' %}metric-badge--warn
+                                        {% else %}metric-badge--bad{% endif %}">
+                                        {{ artifacts.metrics.diagnostics.model_quality|upper }}
+                                    </span>
                                 </div>
                                 <div class="metric-item">
                                     <span class="metric-name">Features</span>
@@ -230,6 +236,12 @@
                                     <span class="metric-name">Zero ratio</span>
                                     <span class="metric-value">{{ artifacts.metrics.diagnostics.target_zero_ratio|floatformat:2 }}</span>
                                 </div>
+                                {% if artifacts.metrics.diagnostics.quality_detail %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Quality metric</span>
+                                    <span class="metric-value" style="font-size:0.85rem;">{{ artifacts.metrics.diagnostics.quality_detail }}</span>
+                                </div>
+                                {% endif %}
                                 {% if artifacts.metrics.diagnostics.overfit_details %}
                                 <div class="metric-item" style="grid-column: 1 / -1;">
                                     <span class="metric-name">{% t "train.details" %}</span>
@@ -422,7 +434,7 @@
                                 <select id="modelType" name="model_type" class="form__select">
                                     {% for mt in model_types %}
                                     <option value="{{ mt.value }}"
-                                        {% if mt.value == "two_stage" %}selected{% endif %}>
+                                        {% if mt.value == "ensemble" %}selected{% endif %}>
                                         {{ mt.label }}
                                     </option>
                                     {% endfor %}
@@ -579,6 +591,6 @@
 
     {{ datasets|json_script:"datasets-data" }}
     <meta name="active-job-id" content="{% if active_job %}{{ active_job.job_id }}{% endif %}">
-    <script src="{% static 'weather/js/JS_Train.js' %}?v=20260305"></script>
+    <script src="{% static 'weather/js/JS_Train.js' %}?v=20260310"></script>
 </body>
 </html>

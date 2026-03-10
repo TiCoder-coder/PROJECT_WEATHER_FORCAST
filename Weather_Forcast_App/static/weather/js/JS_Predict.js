@@ -429,9 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
           renderResults(data);
         }
 
-        // Reload page after 5s to refresh recent predictions
-        setTimeout(() => location.reload(), 5000);
-
       } else if (data.status === 'error') {
         clearInterval(pollTimer);
         if ($predictStatus) {
@@ -488,13 +485,23 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
-    // Table
+    // Table — map raw column names to user-friendly Vietnamese headers
+    const colHeaders = {
+      'station_name': 'Trạm',
+      'province': 'Tỉnh/TP',
+      'district': 'Quận/Huyện',
+      'rain_total': 'Mưa thực tế',
+      'status': 'Trạng thái',
+      'y_pred': 'Dự báo (y_pred)',
+      'forecast_for': 'Thời gian dự báo',
+      'data_collected_at': 'Thu thập lúc',
+    };
     const columns = data.preview_columns || [];
     const rows = data.preview || [];
 
     if ($resultThead && columns.length > 0) {
       $resultThead.innerHTML = '<tr>' + columns.map(c =>
-        `<th>${escHtml(c)}</th>`
+        `<th>${escHtml(colHeaders[c] || c)}</th>`
       ).join('') + '</tr>';
     }
 
@@ -502,7 +509,13 @@ document.addEventListener('DOMContentLoaded', () => {
       $resultTbody.innerHTML = rows.map(row =>
         '<tr>' + columns.map(c => {
           const val = row[c] !== undefined ? row[c] : '';
-          const cls = c === 'y_pred' ? ' class="td-pred"' : '';
+          const cls = c === 'y_pred' ? ' class="td-pred"'
+            : c === 'status' ? ` class="${val === 'Mưa' ? 'td-rain' : 'td-ok'}"`
+            : '';
+          if (c === 'status') {
+            const badge = val === 'Mưa' ? 'badge--rain' : 'badge--ok';
+            return `<td><span class="badge ${badge}">${escHtml(String(val))}</span></td>`;
+          }
           return `<td${cls}>${escHtml(String(val))}</td>`;
         }).join('') + '</tr>'
       ).join('');

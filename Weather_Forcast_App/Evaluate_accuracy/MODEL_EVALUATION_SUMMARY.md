@@ -20,13 +20,12 @@
 
 ## 1. Tổng quan
 
-### Kiến trúc mô hình: WeatherTwoStageModel
+### Kiến trúc mô hình: WeatherEnsembleModel
 
 ```
 Input → Feature Engineering (117 features)
-     → Stage 1: LGBMClassifier (binary: mưa / không mưa)
-     → Stage 2: LGBMRegressor (dự báo lượng mưa mm)
-     → Hard-switch: if P(mưa) >= 0.51 → dùng regressor, else → 0
+     → Ensemble: VotingRegressor (XGBoost + LightGBM + CatBoost)
+     → Combined predictions for stable forecasting
 ```
 
 - **Dữ liệu**: 7,322 mẫu, 117 features (38 raw + 22 interaction + 55 polynomial)
@@ -39,7 +38,7 @@ Input → Feature Engineering (117 features)
 ```
 MissingValueHandler → OutlierHandler (IQR, chỉ features) 
 → CategoricalEncoder → WeatherScaler (RobustScaler)
-→ log1p(target) → TwoStage Model → inv_log1p(prediction)
+→ log1p(target) → Ensemble Model → inv_log1p(prediction)
 ```
 
 ---
@@ -270,7 +269,7 @@ PROJECT_WEATHER_FORCAST/
 │   │   ├── trainning/
 │   │   │   └── train.py                     # ✅ Training pipeline (line ~815: progressive weight)
 │   │   ├── Models/
-│   │   │   └── TwoStage_Model.py            # Two-stage model architecture
+│   │   │   └── Ensemble_Model.py            # Ensemble model architecture
 │   │   ├── features/
 │   │   │   ├── Feature_Engineering.py        # Feature creation
 │   │   │   └── Feature_selection.py         # Feature selection

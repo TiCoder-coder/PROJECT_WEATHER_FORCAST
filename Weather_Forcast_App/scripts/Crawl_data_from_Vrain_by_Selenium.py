@@ -69,7 +69,7 @@ import hashlib
 from pathlib import Path
 
 class VrainCrawlerFinal:
-    def __init__(self, headless=True, max_workers=5, max_retries=3):
+    def __init__(self, headless=True, max_workers=8, max_retries=3):
         self.base_url = "https://www.vrain.vn"
         self.all_rainfall_data = []
         self.headless = headless
@@ -78,8 +78,9 @@ class VrainCrawlerFinal:
         self.data_lock = threading.Lock()
         self.unique_stations = {}
         self.failed_provinces = []
+        self._thread_local = threading.local()
 
-    def create_driver(self):
+    def _get_chrome_options(self):
         chrome_options = Options()
         if self.headless:
             chrome_options.add_argument("--headless=new")
@@ -87,15 +88,43 @@ class VrainCrawlerFinal:
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-logging")
+        chrome_options.add_argument("--disable-infobars")
+        chrome_options.add_argument("--disable-notifications")
+        chrome_options.add_argument("--disable-popup-blocking")
+        chrome_options.add_argument("--blink-settings=imagesEnabled=false")
+        chrome_options.add_argument("--window-size=1280,720")
         chrome_options.add_experimental_option(
-            "prefs", {"profile.default_content_setting_values": {"images": 2}}
+            "prefs", {
+                "profile.default_content_setting_values": {"images": 2},
+                "profile.managed_default_content_settings.javascript": 1,
+            }
         )
         chrome_options.page_load_strategy = "eager"
+        return chrome_options
 
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.set_page_load_timeout(30)
+    def create_driver(self):
+        driver = webdriver.Chrome(options=self._get_chrome_options())
+        driver.set_page_load_timeout(60)
+        driver.implicitly_wait(3)
         return driver
+
+    def _get_thread_driver(self):
+        """Lấy hoặc tạo driver cho thread hiện tại (tái sử dụng)"""
+        if not hasattr(self._thread_local, 'driver') or self._thread_local.driver is None:
+            self._thread_local.driver = self.create_driver()
+        return self._thread_local.driver
+
+    def _close_thread_driver(self):
+        """Đóng driver của thread hiện tại"""
+        if hasattr(self._thread_local, 'driver') and self._thread_local.driver is not None:
+            try:
+                self._thread_local.driver.quit()
+            except Exception:
+                pass
+            self._thread_local.driver = None
 
     def normalize_string(self, text):
         """Chuẩn hóa tiếng Việt và loại bỏ khoảng trắng thừa"""
@@ -150,13 +179,18 @@ class VrainCrawlerFinal:
         """Crawl một tỉnh với cơ chế retry"""
         driver = None
         try:
-            driver = self.create_driver()
+            driver = self._get_thread_driver()
             url = f"{self.base_url}/{province_id}/overview?public_map=windy"
             driver.get(url)
 
-            wait = WebDriverWait(driver, 15)
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
-            time.sleep(4)
+            wait = WebDriverWait(driver, 20)
+            try:
+                wait.until(EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, "div[class*='station'], table tbody tr, .landing-content")
+                ))
+            except TimeoutException:
+                pass
+            time.sleep(1.5)
 
             province_name = self.get_province_name(driver)
 
@@ -219,9 +253,8 @@ class VrainCrawlerFinal:
                     print(
                         f"⚠️  ID {province_id}: {province_name} - Không có dữ liệu, thử lại lần {retry_count + 1}..."
                     )
-                    if driver:
-                        driver.quit()
-                    time.sleep(2)
+                    self._close_thread_driver()
+                    time.sleep(1)
                     return self.crawl_province(province_id, retry_count + 1)
                 else:
                     print(
@@ -234,14 +267,13 @@ class VrainCrawlerFinal:
             print(f"✅ ID {province_id}: {province_name} - Lấy được {found_count} trạm")
             return found_count
 
-        except Exception as e:
+        except (TimeoutException, WebDriverException) as e:
+            self._close_thread_driver()
             if retry_count < self.max_retries:
                 print(
                     f"⚠️  ID {province_id} lỗi: {str(e)[:30]} - Thử lại lần {retry_count + 1}..."
                 )
-                if driver:
-                    driver.quit()
-                time.sleep(2)
+                time.sleep(1)
                 return self.crawl_province(province_id, retry_count + 1)
             else:
                 print(
@@ -250,27 +282,53 @@ class VrainCrawlerFinal:
                 with self.data_lock:
                     self.failed_provinces.append(province_id)
                 return 0
-        finally:
-            if driver:
-                driver.quit()
+        except Exception as e:
+            self._close_thread_driver()
+            print(f"❌ Lỗi không xác định ID {province_id}: {str(e)[:50]}")
+            with self.data_lock:
+                self.failed_provinces.append(province_id)
+            return 0
+
+    def _crawl_and_cleanup(self, province_id):
+        """Wrapper crawl 1 tỉnh, đóng driver khi pool kết thúc"""
+        return self.crawl_province(province_id)
 
     def run(self, start_id=1, end_id=63):
         print(f"🚀 Bắt đầu crawl từ ID {start_id} đến {end_id}...")
-        print(f"🔄 Số lần thử lại tối đa: {self.max_retries}")
+        print(f"🔄 Số luồng: {self.max_workers} | Retry tối đa: {self.max_retries}")
+
+        province_ids = list(range(start_id, end_id + 1))
+
+        def _worker(pid):
+            try:
+                return self.crawl_province(pid)
+            finally:
+                pass  # driver stays alive for reuse in the same thread
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            executor.map(self.crawl_province, range(start_id, end_id + 1))
+            futures = {executor.submit(_worker, pid): pid for pid in province_ids}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    pid = futures[future]
+                    print(f"❌ Thread exception ID {pid}: {e}")
 
         if self.failed_provinces:
             print(f"\n🔄 Đang retry {len(self.failed_provinces)} tỉnh thất bại...")
             retry_failed = []
-            for province_id in self.failed_provinces:
-                time.sleep(1)
+            for province_id in list(self.failed_provinces):
+                self._close_thread_driver()
+                time.sleep(0.5)
                 result = self.crawl_province(province_id, 0)
                 if result == 0:
                     retry_failed.append(province_id)
+                self._close_thread_driver()
 
             self.failed_provinces = retry_failed
+
+        # Cleanup thread-local drivers
+        self._close_thread_driver()
 
         self.all_rainfall_data = list(self.unique_stations.values())
         self.all_rainfall_data.sort(key=lambda x: (x["province_id"], x["tram"]))
@@ -342,6 +400,6 @@ class VrainCrawlerFinal:
 
 
 if __name__ == "__main__":
-    crawler = VrainCrawlerFinal(headless=True, max_workers=3, max_retries=3)
+    crawler = VrainCrawlerFinal(headless=True, max_workers=8, max_retries=3)
     crawler.run(start_id=1, end_id=63)
     crawler.export()

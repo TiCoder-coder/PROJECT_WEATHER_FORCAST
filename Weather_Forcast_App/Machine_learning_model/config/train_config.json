@@ -7,7 +7,10 @@
   "target_column": "rain_total",
   "forecast_horizon": 24,
   "leaked_columns": [
-    "rain_current", "rain_avg", "rain_max", "rain_min"
+    "rain_current",
+    "rain_avg",
+    "rain_max",
+    "rain_min"
   ],
   "features": {
     "input_columns": [
@@ -49,39 +52,107 @@
       "thunder_probability"
     ],
     "lag_features": true,
-    "rolling_features": false,
-    "difference_features": false,
+    "rolling_features": {
+      "enabled": true,
+      "windows": [
+        6,
+        24
+      ],
+      "functions": [
+        "mean",
+        "std"
+      ],
+      "columns": [
+        "temperature_current",
+        "temperature_avg",
+        "humidity_current",
+        "humidity_avg",
+        "pressure_current",
+        "pressure_avg",
+        "wind_speed_current",
+        "wind_speed_avg",
+        "cloud_cover_current",
+        "cloud_cover_avg",
+        "visibility_current",
+        "visibility_avg",
+        "thunder_probability",
+        "rain_total"
+      ]
+    },
+    "difference_features": true,
     "time_features": true,
     "location_features": true,
-    "interaction_features": false
+    "interaction_features": true
   },
   "auto_detect_data_type": true,
   "polynomial_features": {
-    "enabled": false,
+    "enabled": true,
     "degree": 2,
-    "top_k_corr": 8
+    "top_k_corr": 5
   },
   "feature_selection": {
     "enabled": true,
-    "max_features": 50
+    "max_features": 120
   },
   "model": {
-    "type": "two_stage",
+    "type": "ensemble",
     "params": {
-      "n_estimators": 300,
-      "learning_rate": 0.10866318080918577,
-      "max_depth": 7,
-      "num_leaves": 38,
-      "min_child_samples": 40,
-      "subsample": 0.857116102762388,
-      "colsample_bytree": 0.721646561343565,
-      "reg_alpha": 0.6400899653736896,
-      "reg_lambda": 7.947957719016305,
-      "tweedie_variance_power": 1.0916812719218079,
-      "rain_threshold": 0.21996921961756769,
-      "predict_threshold": 0.448935197363175,
+      "rain_threshold": 0.22,
+      "predict_threshold": 0.45,
       "random_state": 42
-    }
+    },
+    "base_models": [
+      {
+        "type": "xgboost",
+        "params": {
+          "n_estimators": 500,
+          "learning_rate": 0.05,
+          "max_depth": 8,
+          "subsample": 0.8,
+          "colsample_bytree": 0.7,
+          "reg_alpha": 0.5,
+          "reg_lambda": 5.0,
+          "min_child_weight": 5,
+          "random_state": 42
+        }
+      },
+      {
+        "type": "lightgbm",
+        "params": {
+          "n_estimators": 500,
+          "learning_rate": 0.05,
+          "max_depth": 8,
+          "num_leaves": 63,
+          "min_child_samples": 30,
+          "subsample": 0.8,
+          "colsample_bytree": 0.7,
+          "reg_alpha": 0.5,
+          "reg_lambda": 5.0,
+          "random_state": 42
+        }
+      },
+      {
+        "type": "catboost",
+        "params": {
+          "iterations": 500,
+          "learning_rate": 0.05,
+          "depth": 8,
+          "l2_leaf_reg": 5.0,
+          "random_seed": 42,
+          "verbose": 0
+        }
+      },
+      {
+        "type": "random_forest",
+        "params": {
+          "n_estimators": 500,
+          "max_depth": 12,
+          "min_samples_leaf": 20,
+          "min_samples_split": 10,
+          "random_state": 42
+        }
+      }
+    ]
   },
   "split": {
     "test_size": 0.15,

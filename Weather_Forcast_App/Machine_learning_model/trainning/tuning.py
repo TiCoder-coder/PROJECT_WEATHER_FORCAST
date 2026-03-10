@@ -131,6 +131,9 @@ HYPERPARAMETER_SPACES = {
     },
 }
 
+# Ensemble tuning: tune từng base model rồi gộp best params
+ENSEMBLE_BASE_MODELS = ["xgboost", "lightgbm", "catboost", "random_forest"]
+
 # Các range cho Optuna (dùng cho Optuna trial)
 OPTUNA_SEARCH_SPACES = {
     "xgboost": {
@@ -168,6 +171,10 @@ OPTUNA_SEARCH_SPACES = {
         "subsample": (0.5, 1.0),
     },
 }
+
+# Alias: ensemble dùng xgboost space làm default (sẽ tune riêng từng base model)
+HYPERPARAMETER_SPACES["ensemble"] = HYPERPARAMETER_SPACES["xgboost"]
+OPTUNA_SEARCH_SPACES["ensemble"] = OPTUNA_SEARCH_SPACES["xgboost"]
 
 
 # =====================================================================================
@@ -436,6 +443,10 @@ class HyperparameterTuner:
             elif self.config.model_type.lower() in ["cat", "catboost"]:
                 from Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model import WeatherCatBoost
                 return WeatherCatBoost(task_type="regression")
+            elif self.config.model_type.lower() in ["ensemble"]:
+                # Ensemble tuning: dùng XGBoost làm proxy model
+                from Weather_Forcast_App.Machine_learning_model.Models.XGBoost_Model import WeatherXGBoost
+                return WeatherXGBoost(task_type="regression")
             else:
                 raise ValueError(f"Unknown model type: {self.config.model_type}")
         except ImportError as e:
@@ -746,18 +757,126 @@ def main():
             output_dir=args.output_dir or Path("Weather_Forcast_App/Machine_learning_artifacts/latest"),
         )
 
-    # Load data (dummy) - demo, thực tế sẽ load từ file
+    # ── Load real training data nếu có config ──
     logger.info("Loading data...")
-    X_dummy = np.random.randn(100, 20)
-    y_dummy = np.random.randn(100)
+    try:
+        import os
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WeatherForcast.settings")
+        import django
+        django.setup()
 
-    # Tuning
-    tuner = HyperparameterTuner(tuning_config)
-    result = tuner.tune(X_dummy, y_dummy)
+        cfg_path = Path(project_root) / "Weather_Forcast_App" / "Machine_learning_model" / "config" / "train_config.json"
+        if cfg_path.exists():
+            train_cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+            folder_key = train_cfg.get("data", {}).get("folder_key", "")
+            filename = train_cfg.get("data", {}).get("filename", "")
+            target_col = train_cfg.get("target_column", "rain_total")
 
-    logger.info("Tuning completed!")
-    logger.info(f"Best params: {result.best_params}")
-    logger.info(f"Best score: {result.best_score:.6f}")
+            if folder_key and filename:
+                app_root = Path(project_root) / "Weather_Forcast_App"
+                loader = DataLoader(app_root=str(app_root))
+                df = loader.load(folder_key, filename)
+
+                if target_col in df.columns:
+                    y_all = df[target_col].dropna()
+                    X_all = df.drop(columns=[target_col]).loc[y_all.index]
+                    # Chỉ giữ cột numeric
+                    X_all = X_all.select_dtypes(include=[np.number])
+                    X_all = X_all.fillna(0)
+                    y_all = y_all.values
+                    X_dummy = X_all.values
+                    y_dummy = y_all
+                    logger.info(f"Loaded real data: X={X_dummy.shape}, y={y_dummy.shape}")
+                else:
+                    raise ValueError(f"Target '{target_col}' not in data columns")
+            else:
+                raise ValueError("No data config found")
+        else:
+            raise FileNotFoundError("train_config.json not found")
+    except Exception as e:
+        logger.warning(f"Could not load real data ({e}), using dummy data")
+        X_dummy = np.random.randn(200, 20)
+        y_dummy = np.abs(np.random.randn(200)) * 10
+
+    # ── Ensemble tuning: tune từng base model rồi gộp kết quả ──
+    if tuning_config.model_type.lower() == "ensemble":
+        logger.info("=== ENSEMBLE TUNING: tune từng base model ===")
+        all_results = {}
+        for base_model in ENSEMBLE_BASE_MODELS:
+            logger.info(f"\n--- Tuning {base_model} ---")
+            sub_config = TuningConfig(
+                model_type=base_model,
+                tuning_method=tuning_config.tuning_method,
+                n_trials=max(tuning_config.n_trials // len(ENSEMBLE_BASE_MODELS), 10),
+                cv_folds=tuning_config.cv_folds,
+                metric=tuning_config.metric,
+                n_jobs=tuning_config.n_jobs,
+                output_dir=tuning_config.output_dir,
+            )
+            sub_tuner = HyperparameterTuner(sub_config)
+            try:
+                sub_result = sub_tuner.tune(X_dummy, y_dummy)
+                all_results[base_model] = {
+                    "best_params": sub_result.best_params,
+                    "best_score": sub_result.best_score,
+                }
+                logger.info(f"{base_model} best score: {sub_result.best_score:.6f}")
+            except Exception as e:
+                logger.error(f"{base_model} tuning failed: {e}")
+
+        # Gộp thành ensemble config
+        ensemble_result = {
+            "model_type": "ensemble",
+            "best_params": {},
+            "base_models_params": all_results,
+            "best_value": max((r["best_score"] for r in all_results.values()), default=0),
+            "timestamp": datetime.now().isoformat(),
+        }
+        # Lưu kết quả ensemble
+        output_dir = tuning_config.output_dir or Path("Weather_Forcast_App/Machine_learning_artifacts/latest")
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        best_path = Path(project_root) / "Weather_Forcast_App" / "Machine_learning_model" / "config" / "best_params_ensemble.json"
+        best_path.write_text(json.dumps(ensemble_result, indent=2, ensure_ascii=False), encoding="utf-8")
+        logger.info(f"\nEnsemble tuning saved to {best_path}")
+        logger.info(f"Best ensemble value: {ensemble_result['best_value']:.6f}")
+
+        # Cập nhật train_config.json với best params cho từng base model
+        cfg_path = Path(project_root) / "Weather_Forcast_App" / "Machine_learning_model" / "config" / "train_config.json"
+        if cfg_path.exists():
+            train_cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+            base_models = train_cfg.get("model", {}).get("base_models", [])
+            updated = False
+            for bm in base_models:
+                bm_type = bm.get("type", "").lower()
+                if bm_type in all_results:
+                    bm["params"].update(all_results[bm_type]["best_params"])
+                    updated = True
+                    logger.info(f"Updated {bm_type} params in train_config.json")
+            if updated:
+                cfg_path.write_text(json.dumps(train_cfg, indent=2, ensure_ascii=False), encoding="utf-8")
+                logger.info("✅ train_config.json đã được cập nhật best params cho ensemble!")
+
+    else:
+        # Single model tuning
+        tuner = HyperparameterTuner(tuning_config)
+        result = tuner.tune(X_dummy, y_dummy)
+
+        logger.info("Tuning completed!")
+        logger.info(f"Best params: {result.best_params}")
+        logger.info(f"Best score: {result.best_score:.6f}")
+
+        # Lưu best params
+        output = {
+            "model_type": tuning_config.model_type,
+            "best_params": result.best_params,
+            "best_value": result.best_score,
+            "timestamp": datetime.now().isoformat(),
+        }
+        best_path = Path(project_root) / "Weather_Forcast_App" / "Machine_learning_model" / "config" / f"best_params_{tuning_config.model_type}.json"
+        best_path.write_text(json.dumps(output, indent=2, ensure_ascii=False), encoding="utf-8")
+        logger.info(f"Saved to {best_path}")
 
 
 if __name__ == "__main__":

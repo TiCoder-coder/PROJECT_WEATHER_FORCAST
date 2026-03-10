@@ -83,9 +83,6 @@ MODEL_REGISTRY = {
     "lightgbm": "Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model.WeatherLightGBM",
     "cat": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
     "catboost": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
-    # Two-stage model for zero-inflated rainfall (handled separately in _create_model)
-    "two_stage": "Weather_Forcast_App.Machine_learning_model.Models.TwoStage_Model.WeatherTwoStageModel",
-    "twostage": "Weather_Forcast_App.Machine_learning_model.Models.TwoStage_Model.WeatherTwoStageModel",
 }
 
 
@@ -536,9 +533,6 @@ def _create_model(model_type: str, model_config: Dict[str, Any]):
         base_models = model_config.get("base_models", [])
         from Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Model import WeatherEnsembleModel
         return WeatherEnsembleModel(base_models=base_models, model_registry=MODEL_REGISTRY)
-    if model_type in ("two_stage", "twostage"):
-        from Weather_Forcast_App.Machine_learning_model.Models.TwoStage_Model import WeatherTwoStageModel
-        return WeatherTwoStageModel(**model_config)
     if model_type not in MODEL_REGISTRY:
         raise ValueError(f"Unsupported model_type='{model_type}'. Use: {list(set(MODEL_REGISTRY.keys()))}")
     module_path, class_name = MODEL_REGISTRY[model_type].rsplit(".", 1)
@@ -779,7 +773,20 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
 
     # feature list: list các feature mới + toàn bộ cột output (sau build + selection)
     created_feature_names = builder.get_feature_names()
-    all_feature_columns = X_train_raw.columns.tolist()
+    # Exclude non-numeric identifier / datetime columns that are not real features.
+    # They would cause dtype errors during prediction (XGBoost rejects object cols).
+    _non_feature_cols = {'timestamp', 'data_time', 'data_quality',
+                         'location_station_id', 'location_station_name',
+                         'location_province', 'location_district'}
+    all_feature_columns = [c for c in X_train_raw.columns
+                           if c not in _non_feature_cols]
+    # Also strip from the actual DataFrames so pipeline only fits numeric data
+    _drop_existing = [c for c in _non_feature_cols if c in X_train_raw.columns]
+    if _drop_existing:
+        X_train_raw = X_train_raw.drop(columns=_drop_existing)
+        X_valid_raw = X_valid_raw.drop(columns=[c for c in _drop_existing if c in X_valid_raw.columns])
+        X_test_raw  = X_test_raw.drop(columns=[c for c in _drop_existing if c in X_test_raw.columns])
+        print(f"  [FEATURES] Dropped non-feature columns: {_drop_existing}")
 
     # Save Feature_list.json (để predict giữ đúng columns)
     feature_list_path = artifacts_latest / "Feature_list.json"
@@ -846,7 +853,11 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
     model_type = model_cfg.get("type", "random_forest")
     model_params = model_cfg.get("params", {})
 
-    model = _create_model(model_type=model_type, model_config=model_params)
+    # For ensemble, pass full model_cfg so base_models is accessible
+    if model_type == "ensemble":
+        model = _create_model(model_type=model_type, model_config=model_cfg)
+    else:
+        model = _create_model(model_type=model_type, model_config=model_params)
 
     # --- ANTI-UNDERFIT: Tạo sample_weight cho zero-inflated target ---
     # Upweight non-zero samples để model chú ý hơn vào rain events
@@ -1019,33 +1030,62 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
 
     overfit_status, overfit_details = detect_overfit_underfit(metrics)
     
-    # Kiểm tra thêm R² score - nếu âm tức model tệ hơn dự đoán mean
+    # --- R² notes (informational, NEVER override generalization status) ---
     r2_train = metrics.get("train", {}).get("R2", None)
     r2_valid = metrics.get("valid", {}).get("R2", None)
     r2_test = metrics.get("test", {}).get("R2", None)
-    
-    # Extra underfit hints — only flag R² issues when RainAcc is also poor,
-    # to avoid false alarms on zero-inflated data where low R² is expected.
-    rain_acc_train_val = metrics.get("train", {}).get("Rain_Detection_Accuracy")
-    rain_acc_healthy   = rain_acc_train_val is not None and rain_acc_train_val >= 0.80
+    is_zero_inflated = zero_ratio > 0.3
 
-    underfit_hints = []
+    r2_notes = []
+    if r2_train is not None and r2_train < 0:
+        r2_notes.append(f"Train R²={r2_train:.3f}")
     if r2_valid is not None and r2_valid < 0:
-        underfit_hints.append(f"Valid R2={r2_valid:.3f} (negative = worse than mean baseline)")
+        r2_notes.append(f"Valid R²={r2_valid:.3f}")
     if r2_test is not None and r2_test < 0:
-        underfit_hints.append(f"Test R2={r2_test:.3f} (negative = worse than mean baseline)")
-    if r2_train is not None and r2_train < 0.3 and not rain_acc_healthy:
-        # Only complain about low R² when detection accuracy is also bad;
-        # zero-inflated datasets routinely have low R² even for good models.
-        underfit_hints.append(f"Train R2={r2_train:.3f} (too low, model not learning patterns)")
+        r2_notes.append(f"Test R²={r2_test:.3f}")
 
-    if underfit_hints:
-        overfit_status = "underfit"
-        overfit_details += " | " + " | ".join(underfit_hints)
-    
+    # For zero-inflated data: negative R² is expected, add note but don't change status
+    if is_zero_inflated and r2_notes:
+        overfit_details += " | Note: " + ", ".join(r2_notes) + " (normal for zero-inflated rainfall)"
+    elif not is_zero_inflated and r2_notes:
+        # Non-rain data with negative R²: genuine underfit
+        if overfit_status == "good":
+            overfit_status = "underfit"
+        overfit_details += " | " + " | ".join(r2_notes)
+
+    # --- Model quality assessment (separate from overfit/underfit) ---
+    if is_zero_inflated:
+        # Rain F1 across splits is the best quality indicator for zero-inflated targets
+        f1_vals = [metrics.get(s, {}).get("Rain_F1", None) for s in ("train", "valid", "test")]
+        f1_vals = [v for v in f1_vals if v is not None]
+        avg_f1 = sum(f1_vals) / len(f1_vals) if f1_vals else 0
+        if avg_f1 >= 0.70:
+            model_quality = "excellent"
+        elif avg_f1 >= 0.45:
+            model_quality = "good"
+        elif avg_f1 >= 0.25:
+            model_quality = "fair"
+        else:
+            model_quality = "poor"
+        quality_detail = f"Rain F1 avg={avg_f1:.3f}"
+    else:
+        r2_vals = [v for v in (r2_train, r2_valid, r2_test) if v is not None]
+        avg_r2 = sum(r2_vals) / len(r2_vals) if r2_vals else 0
+        if avg_r2 >= 0.70:
+            model_quality = "excellent"
+        elif avg_r2 >= 0.40:
+            model_quality = "good"
+        elif avg_r2 >= 0.10:
+            model_quality = "fair"
+        else:
+            model_quality = "poor"
+        quality_detail = f"R² avg={avg_r2:.3f}"
+
     metrics["diagnostics"] = {
         "overfit_status": overfit_status,
         "overfit_details": overfit_details,
+        "model_quality": model_quality,
+        "quality_detail": quality_detail,
         "applied_log_target": applied_log_target,
         "detected_data_type": detected_data_type,
         "n_features_after_selection": len(all_feature_columns),
@@ -1124,6 +1164,7 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
             "feature_list": str(feature_list_path),
             "metrics": str(metrics_path),
         },
+        "feature_builder_config": feature_cfg,
         "note": "Artifacts saved to Weather_Forcast_App/Machine_learning_artifacts/latest",
     }
 

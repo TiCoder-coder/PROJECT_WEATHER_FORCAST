@@ -179,7 +179,8 @@ class WeatherFeatureBuilder:
         df: pd.DataFrame,
         columns: Optional[List[str]] = None,
         lag_periods: Optional[List[int]] = None,
-        group_by: Optional[str] = None
+        group_by: Optional[str] = None,
+        _copy: bool = True,
     ) -> pd.DataFrame:
         """
         Tạo LAG features - giá trị quá khứ của các biến.
@@ -194,11 +195,12 @@ class WeatherFeatureBuilder:
             columns: Danh sách cột cần tạo lag (None = auto detect)
             lag_periods: Danh sách các khoảng lag [1, 3, 6, 12, 24, 168]
             group_by: Cột để group (ví dụ: 'location_ma_tram')
+            _copy: Nếu False, không copy DataFrame (khi gọi từ build_all_features)
         
         Returns:
             DataFrame với lag features đã thêm
         """
-        df_result = df.copy()
+        df_result = df.copy() if _copy else df
         
         # Lấy config
         lag_config = self.config.get('lag_features', {})
@@ -245,7 +247,8 @@ class WeatherFeatureBuilder:
         columns: Optional[List[str]] = None,
         windows: Optional[List[int]] = None,
         functions: Optional[List[str]] = None,
-        group_by: Optional[str] = None
+        group_by: Optional[str] = None,
+        _copy: bool = True,
     ) -> pd.DataFrame:
         """
         Tạo ROLLING features - thống kê trượt.
@@ -261,11 +264,12 @@ class WeatherFeatureBuilder:
             windows: Danh sách window sizes [3, 6, 12, 24, 168]
             functions: Danh sách hàm thống kê ['mean', 'std', 'min', 'max']
             group_by: Cột để group
+            _copy: Nếu False, không copy DataFrame
         
         Returns:
             DataFrame với rolling features đã thêm
         """
-        df_result = df.copy()
+        df_result = df.copy() if _copy else df
         
         # Lấy config
         rolling_config = self.config.get('rolling_features', {})
@@ -326,7 +330,8 @@ class WeatherFeatureBuilder:
     def create_time_features(
         self,
         df: pd.DataFrame,
-        time_column: Optional[str] = None
+        time_column: Optional[str] = None,
+        _copy: bool = True,
     ) -> pd.DataFrame:
         """
         Tạo TIME features - trích xuất từ timestamp.
@@ -344,7 +349,7 @@ class WeatherFeatureBuilder:
         Returns:
             DataFrame với time features đã thêm
         """
-        df_result = df.copy()
+        df_result = df.copy() if _copy else df
         
         # Lấy config
         time_config = self.config.get('time_features', {})
@@ -442,7 +447,8 @@ class WeatherFeatureBuilder:
         df: pd.DataFrame,
         lat_column: str = 'location_vi_do',
         lon_column: str = 'location_kinh_do',
-        province_column: str = 'location_tinh_thanh_pho'
+        province_column: str = 'location_tinh_thanh_pho',
+        _copy: bool = True,
     ) -> pd.DataFrame:
         """
         Tạo LOCATION features - features theo vị trí địa lý.
@@ -461,7 +467,7 @@ class WeatherFeatureBuilder:
         Returns:
             DataFrame với location features đã thêm
         """
-        df_result = df.copy()
+        df_result = df.copy() if _copy else df
         
         # Lấy config
         loc_config = self.config.get('location_features', {})
@@ -523,7 +529,8 @@ class WeatherFeatureBuilder:
     
     def create_weather_interaction_features(
         self,
-        df: pd.DataFrame
+        df: pd.DataFrame,
+        _copy: bool = True,
     ) -> pd.DataFrame:
         """
         Tạo INTERACTION features - tương tác giữa các biến thời tiết.
@@ -539,7 +546,7 @@ class WeatherFeatureBuilder:
         Returns:
             DataFrame với interaction features đã thêm
         """
-        df_result = df.copy()
+        df_result = df.copy() if _copy else df
         
         # Lấy config
         inter_config = self.config.get('interaction_features', {})
@@ -709,7 +716,8 @@ class WeatherFeatureBuilder:
         df: pd.DataFrame,
         columns: Optional[List[str]] = None,
         periods: Optional[List[int]] = None,
-        group_by: Optional[str] = None
+        group_by: Optional[str] = None,
+        _copy: bool = True,
     ) -> pd.DataFrame:
         """
         Tạo DIFFERENCE features - sự thay đổi giữa các thời điểm.
@@ -727,7 +735,7 @@ class WeatherFeatureBuilder:
         Returns:
             DataFrame với difference features đã thêm
         """
-        df_result = df.copy()
+        df_result = df.copy() if _copy else df
         
         # Lấy config
         diff_config = self.config.get('difference_features', {})
@@ -819,23 +827,24 @@ class WeatherFeatureBuilder:
             
             df_result = df_result.reset_index(drop=True)
         
+        # Sub-methods can skip their internal df.copy() since we already copied above
         # 1. Time features
-        df_result = self.create_time_features(df_result, time_column)
+        df_result = self.create_time_features(df_result, time_column, _copy=False)
         
         # 2. Location features
-        df_result = self.create_location_features(df_result)
+        df_result = self.create_location_features(df_result, _copy=False)
         
         # 3. Lag features
-        df_result = self.create_lag_features(df_result, group_by=group_by)
+        df_result = self.create_lag_features(df_result, group_by=group_by, _copy=False)
         
         # 4. Rolling features
-        df_result = self.create_rolling_features(df_result, group_by=group_by)
+        df_result = self.create_rolling_features(df_result, group_by=group_by, _copy=False)
         
         # 5. Difference features
-        df_result = self.create_difference_features(df_result, group_by=group_by)
+        df_result = self.create_difference_features(df_result, group_by=group_by, _copy=False)
         
         # 6. Interaction features
-        df_result = self.create_weather_interaction_features(df_result)
+        df_result = self.create_weather_interaction_features(df_result, _copy=False)
         
         # Handle NaN
         if drop_na:
@@ -855,6 +864,9 @@ class WeatherFeatureBuilder:
     
     # ============================= UTILITY METHODS =============================
     
+    # Suffixes that mark derived (lag/rolling/diff) columns
+    _DERIVED_SUFFIXES = ('_lag_', '_rolling_', '_diff_', '_pct_change_')
+
     def _get_numeric_weather_columns(self, df: pd.DataFrame, exclude_static: bool = True) -> List[str]:
         """Lấy danh sách cột numeric liên quan đến thời tiết.
         
@@ -874,6 +886,11 @@ class WeatherFeatureBuilder:
                        if any(kw in col.lower() for kw in weather_keywords)]
         
         result = weather_cols if weather_cols else numeric_cols[:10]
+        
+        # Exclude already-derived columns (lag/rolling/diff/pct_change)
+        # to prevent exponential column explosion
+        result = [col for col in result
+                 if not any(suf in col for suf in self._DERIVED_SUFFIXES)]
         
         # Loại bỏ cột tĩnh (tọa độ, mã trạm) - tạo lag/rolling trên chúng chỉ tạo noise
         if exclude_static:

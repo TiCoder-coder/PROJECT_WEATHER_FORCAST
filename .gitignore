@@ -9,7 +9,9 @@ db.sqlite3
 media/
 staticfiles/
 
-.env.vscode/extensions.json
+.env
+.venv/
+.vscode/extensions.json
 .vscode/
 airflow/logs/*
 !airflow/logs/.gitkeep

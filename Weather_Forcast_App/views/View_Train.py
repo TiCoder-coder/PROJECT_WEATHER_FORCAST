@@ -159,7 +159,7 @@ def _load_artifacts() -> Dict[str, Any]:
 
 def _load_best_params() -> Optional[Dict[str, Any]]:
     """Load best params từ Optuna (nếu có)."""
-    bp_path = ML_MODEL_ROOT / "config" / "best_params_twostage.json"
+    bp_path = ML_MODEL_ROOT / "config" / "best_params_ensemble.json"
     if bp_path.exists():
         try:
             return json.loads(bp_path.read_text(encoding="utf-8"))
@@ -259,12 +259,18 @@ class _LogCapture(io.TextIOBase):
 # Background worker: Tối ưu Optuna
 # ────────────────────────────────────────────────────────────────
 def _tune_worker(job_id: str, trials: int, metric: str, auto_apply: bool) -> None:
-    """Chạy tune_optuna.py dưới dạng subprocess, stream output vào job logs."""
-    tune_script = ML_MODEL_ROOT / "trainning" / "tune_optuna.py"
+    """Chạy tuning.py dưới dạng subprocess, stream output vào job logs."""
+    # Đọc model type từ config (mặc định ensemble)
+    default_cfg = _load_existing_config()
+    model_type = default_cfg.get("model", {}).get("type", "ensemble")
+
+    tune_script = ML_MODEL_ROOT / "trainning" / "tuning.py"
     cmd = [
         sys.executable,
         str(tune_script),
-        "--trials", str(trials),
+        "--model", model_type,
+        "--method", "optuna",
+        "--n-trials", str(trials),
         "--metric", metric,
     ]
     try:
@@ -297,11 +303,11 @@ def _tune_worker(job_id: str, trials: int, metric: str, auto_apply: bool) -> Non
 
         proc.wait()
         if proc.returncode != 0:
-            raise RuntimeError(f"tune_optuna.py thoát với code {proc.returncode}")
+            raise RuntimeError(f"tuning.py thoát với code {proc.returncode}")
 
         _set_tune_progress(job_id, 95, "Lưu kết quả")
 
-        best_path = ML_MODEL_ROOT / "config" / "best_params_twostage.json"
+        best_path = ML_MODEL_ROOT / "config" / "best_params_ensemble.json"
         if best_path.exists():
             bp = json.loads(best_path.read_text(encoding="utf-8"))
             _push_tune(job_id, f"✅ Best RAIN_ACC: {bp.get('best_value', 0):.6f}")
@@ -360,12 +366,11 @@ def train_view(request):
         "artifacts": artifacts,
         "active_job": active_job,
         "model_types": [
-            {"value": "two_stage",     "label": "⭐ Two-Stage (Khuyến nghị)"},
+            {"value": "ensemble",      "label": "⭐ Ensemble (Khuyen nghị)"},
             {"value": "xgboost",       "label": "XGBoost"},
             {"value": "random_forest", "label": "Random Forest"},
             {"value": "lightgbm",      "label": "LightGBM"},
             {"value": "catboost",      "label": "CatBoost"},
-            {"value": "ensemble",      "label": "Ensemble (Voting)"},
         ],
         "best_params": _load_best_params(),
     }
@@ -440,12 +445,16 @@ def train_start_view(request):
             "metric": "rmse",
         }
 
-        # Nếu ensemble, dùng config mặc định cho base_models
+        # Nếu ensemble, dùng config mặc định cho base_models + params
         if model_type == "ensemble":
             default_cfg = _load_existing_config()
-            ensemble_params = default_cfg.get("model", {}).get("params", {})
+            default_model = default_cfg.get("model", {})
+            ensemble_params = default_model.get("params", {})
+            base_models = default_model.get("base_models", [])
             if ensemble_params:
                 config["model"]["params"] = ensemble_params
+            if base_models:
+                config["model"]["base_models"] = base_models
 
     # Validate
     if not config.get("data", {}).get("folder_key"):
