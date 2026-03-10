@@ -142,6 +142,13 @@
                         </div>
                     </div>
                     <div class="info-chip">
+                        <span class="info-chip__icon">🔮</span>
+                        <div>
+                            <div class="info-chip__label">{% t "predict.forecast_horizon" %}</div>
+                            <div class="info-chip__value">{{ model_info.forecast_horizon|default:"0" }}h</div>
+                        </div>
+                    </div>
+                    <div class="info-chip">
                         <span class="info-chip__icon">📊</span>
                         <div>
                             <div class="info-chip__label">Test R²</div>
@@ -216,8 +223,8 @@
                     <button type="button" class="predict-tab predict-tab--active" data-tab="forecast-now">
                         <span class="predict-tab__icon">⚡</span>
                         <span class="predict-tab__text">
-                            <span class="predict-tab__label">Dự báo ngay</span>
-                            <span class="predict-tab__sub">Crawl dữ liệu mới → Dự báo tức thì</span>
+                            <span class="predict-tab__label">{% t "predict.forecast_now_tab" %}</span>
+                            <span class="predict-tab__sub">{% t "predict.forecast_now_tab_sub" %}</span>
                         </span>
                     </button>
                     <button type="button" class="predict-tab" data-tab="dataset">
@@ -247,16 +254,18 @@
                 <div class="predict-panel predict-panel--active" data-panel="forecast-now">
                     <div class="manual-intro">
                         <p class="card__desc">
-                            ⚡ <strong>Dự báo thời tiết ngay lập tức</strong> — hệ thống sẽ tự động thu thập dữ liệu thời tiết mới nhất
-                            từ tất cả các trạm quan trắc trên toàn quốc, sau đó chạy mô hình AI để dự báo.
+                            ⚡ <strong>{% t "predict.forecast_now_title" %}</strong> — {% t "predict.forecast_now_desc" %}
                         </p>
-                        <p class="card__desc" style="color:#9ca3af; font-size:13px; margin-top:8px;">
-                            ⏱️ Quá trình có thể mất vài phút do cần crawl dữ liệu từ API thời tiết.
+                        <p class="card__desc" style="color:#a78bfa; font-size:13px; margin-top:8px;">
+                            🔮 {% t "predict.forecast_now_horizon" %}
+                        </p>
+                        <p class="card__desc" style="color:#9ca3af; font-size:13px; margin-top:4px;">
+                            ⏱️ {% t "predict.forecast_now_note" %}
                         </p>
                     </div>
                     <div class="form__actions">
                         <button type="button" class="btn btn--primary btn--lg" id="btnForecastNow">
-                            ⚡ Dự báo ngay
+                            ⚡ {% t "predict.btn_forecast_now" %}
                         </button>
                     </div>
                 </div>

@@ -754,6 +754,248 @@ body.page {
   z-index: 2;
 }
 
+.btn[disabled]{ opacity: 0.65; cursor: not-allowed; transform: none; }
+
+/* ── Auto-crawl panel ─────────────────────────────────────── */
+.auto-crawl {
+  margin-top: 20px;
+  padding: 14px 16px 16px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(99,102,241,.08), transparent 60%),
+    rgba(2,6,23,.55);
+  border: 1px solid rgba(99,102,241,.22);
+  box-shadow: 0 8px 28px rgba(2,6,23,.45);
+  transition: border-color .3s, box-shadow .3s;
+}
+.auto-crawl.auto-crawl--active {
+  border-color: rgba(139,92,246,.50);
+  box-shadow:
+    0 0 0 1px rgba(139,92,246,.18) inset,
+    0 8px 32px rgba(99,102,241,.22);
+}
+
+/* head row */
+.auto-crawl .auto-crawl__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.auto-crawl .auto-crawl__head-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.auto-crawl .auto-crawl__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.auto-crawl h3.auto-crawl__title {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c4b5fd;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  border: none;
+  background: none;
+}
+
+/* status badge */
+.auto-crawl .auto-crawl__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  background: rgba(15,23,42,.6);
+  border: 1px solid rgba(148,163,184,.18);
+  transition: all .3s;
+}
+.auto-crawl .auto-crawl__status-dot {
+  width: 7px; height: 7px;
+  border-radius: 999px;
+  background: #6b7280;
+  transition: background .3s, box-shadow .3s;
+}
+.auto-crawl .auto-crawl__status--active {
+  color: #c4b5fd;
+  border-color: rgba(139,92,246,.35);
+  background: rgba(99,102,241,.12);
+}
+.auto-crawl .auto-crawl__status--active .auto-crawl__status-dot {
+  background: #a78bfa;
+  box-shadow: 0 0 8px rgba(167,139,250,.7);
+  animation: pulse-dot 1.4s ease infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{ opacity:1; box-shadow:0 0 8px rgba(167,139,250,.7); }
+  50%{ opacity:.45; box-shadow:0 0 4px rgba(167,139,250,.3); }
+}
+
+/* controls row */
+.auto-crawl .auto-crawl__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.auto-crawl .auto-crawl__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.auto-crawl .auto-crawl__label {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* input group wrapper */
+.auto-crawl .auto-crawl__input-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(99,102,241,.28);
+  background: rgba(2,6,23,.7);
+  transition: border-color .2s, box-shadow .2s;
+}
+.auto-crawl .auto-crawl__input-group:focus-within {
+  border-color: rgba(139,92,246,.55);
+  box-shadow: 0 0 0 2px rgba(139,92,246,.12);
+}
+
+/* number input */
+.auto-crawl input[type="number"].auto-crawl__input {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+  width: 52px;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+}
+.auto-crawl input[type="number"].auto-crawl__input::-webkit-inner-spin-button,
+.auto-crawl input[type="number"].auto-crawl__input::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 22px;
+  filter: invert(.85);
+}
+
+/* select dropdown */
+.auto-crawl select.auto-crawl__select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 7px 26px 7px 10px;
+  border: none;
+  border-left: 1px solid rgba(99,102,241,.22);
+  background: transparent
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23a78bfa'/%3E%3C/svg%3E")
+    no-repeat right 8px center / 10px 6px;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.auto-crawl select.auto-crawl__select option {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* buttons */
+.auto-crawl .auto-crawl__actions {
+  display: flex;
+  gap: 6px;
+}
+.auto-crawl .btn.btn--auto-start {
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(99,102,241,.30);
+  transition: box-shadow .2s, transform .15s;
+}
+.auto-crawl .btn.btn--auto-start:hover:not([disabled]) {
+  box-shadow: 0 8px 24px rgba(99,102,241,.45);
+  transform: translateY(-1px);
+}
+.auto-crawl .btn.btn--auto-stop {
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(239,68,68,.08);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,.28);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.auto-crawl .btn.btn--auto-stop:hover:not([disabled]) {
+  background: rgba(239,68,68,.16);
+  border-color: rgba(239,68,68,.45);
+}
+.auto-crawl .auto-crawl__round {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a78bfa;
+  opacity: .85;
+}
+
+/* progress bar */
+.auto-crawl .auto-crawl__progress {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.auto-crawl .auto-crawl__progress-bar {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(99,102,241,.12);
+  overflow: hidden;
+}
+.auto-crawl .auto-crawl__progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #a78bfa);
+  box-shadow: 0 0 10px rgba(99,102,241,.40);
+  transition: width 1s linear;
+}
+.auto-crawl .auto-crawl__countdown {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a78bfa;
+  min-width: 48px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .wx-layer{
   position: fixed;
   inset: 0;

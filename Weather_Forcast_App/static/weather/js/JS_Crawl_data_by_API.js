@@ -214,4 +214,166 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  // ============================================================
+  // AUTO-CRAWL: TỰ ĐỘNG LẶP LẠI THU THẬP THEO CHU KỲ
+  // ============================================================
+  const autoCrawlPanel = document.getElementById("autoCrawlPanel");
+  const btnAutoStart = document.getElementById("btnAutoStart");
+  const btnAutoStop = document.getElementById("btnAutoStop");
+  const autoCrawlInterval = document.getElementById("autoCrawlInterval");
+  const autoCrawlUnit = document.getElementById("autoCrawlUnit");
+  const autoCrawlStatus = document.getElementById("autoCrawlStatus");
+  const autoCrawlStatusText = document.getElementById("autoCrawlStatusText");
+  const autoCrawlProgress = document.getElementById("autoCrawlProgress");
+  const autoCrawlProgressFill = document.getElementById("autoCrawlProgressFill");
+  const autoCrawlCountdown = document.getElementById("autoCrawlCountdown");
+  const autoCrawlRound = document.getElementById("autoCrawlRound");
+
+  let autoActive = false;
+  let autoRound = 0;
+  let autoCountdownTimer = null;
+  let autoWaitTimer = null;
+
+  function getIntervalMs() {
+    const val = Math.max(1, parseInt(autoCrawlInterval.value, 10) || 5);
+    const unit = autoCrawlUnit.value;
+    return unit === "hours" ? val * 3600000 : val * 60000;
+  }
+
+  function formatCountdown(ms) {
+    const totalSec = Math.max(0, Math.ceil(ms / 1000));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m > 0 ? `${m}m ${String(s).padStart(2, "0")}s` : `${s}s`;
+  }
+
+  function setAutoUI(active) {
+    if (btnAutoStart) btnAutoStart.disabled = active;
+    if (btnAutoStop) btnAutoStop.disabled = !active;
+    if (autoCrawlInterval) autoCrawlInterval.disabled = active;
+    if (autoCrawlUnit) autoCrawlUnit.disabled = active;
+    if (autoCrawlPanel) {
+      autoCrawlPanel.classList.toggle("auto-crawl--active", active);
+    }
+    if (autoCrawlStatus) {
+      autoCrawlStatus.className = active
+        ? "auto-crawl__status auto-crawl__status--active"
+        : "auto-crawl__status";
+    }
+  }
+
+  function startAutoCountdown(callback) {
+    const totalMs = getIntervalMs();
+    let remaining = totalMs;
+    const started = Date.now();
+
+    if (autoCrawlProgress) autoCrawlProgress.style.display = "flex";
+    if (autoCrawlProgressFill) autoCrawlProgressFill.style.width = "0%";
+
+    autoCountdownTimer = setInterval(function () {
+      remaining = totalMs - (Date.now() - started);
+      if (remaining <= 0) {
+        clearInterval(autoCountdownTimer);
+        autoCountdownTimer = null;
+        if (autoCrawlProgressFill) autoCrawlProgressFill.style.width = "100%";
+        if (autoCrawlCountdown) autoCrawlCountdown.textContent = "0s";
+        callback();
+        return;
+      }
+      const pct = ((totalMs - remaining) / totalMs) * 100;
+      if (autoCrawlProgressFill) autoCrawlProgressFill.style.width = pct.toFixed(1) + "%";
+      if (autoCrawlCountdown) autoCrawlCountdown.textContent = formatCountdown(remaining);
+    }, 1000);
+
+    if (autoCrawlCountdown) autoCrawlCountdown.textContent = formatCountdown(totalMs);
+  }
+
+  function waitForJobDone(callback) {
+    autoWaitTimer = setInterval(function () {
+      if (!startBtn || !startBtn.disabled) {
+        clearInterval(autoWaitTimer);
+        autoWaitTimer = null;
+        callback();
+      }
+    }, 500);
+  }
+
+  function runAutoRound() {
+    if (!autoActive) return;
+    autoRound++;
+    if (autoCrawlRound) autoCrawlRound.textContent = "(#" + autoRound + ")";
+    if (autoCrawlStatusText) autoCrawlStatusText.textContent = "🔄 Đang thu thập...";
+    if (autoCrawlProgress) autoCrawlProgress.style.display = "none";
+
+    // Build FormData from the form and trigger submit programmatically
+    const formData = new FormData(form);
+    formData.set("action", "start");
+
+    if (startBtn) {
+      startBtn.disabled = true;
+      startBtn.textContent = "⏳ Đang chạy... vui lòng chờ";
+    }
+    if (pollTimer) clearInterval(pollTimer);
+
+    startJob(formData).then(function () {
+      return fetchLogs();
+    }).then(function (first) {
+      const sizeEl = document.getElementById("lastFileSize");
+      if (sizeEl && first.csv_size_mb != null) sizeEl.textContent = first.csv_size_mb + " MB";
+      setLog(first.logs);
+
+      pollTimer = setInterval(async function () {
+        try {
+          const d = await fetchLogs();
+          setLog(d.logs);
+          if (!d.is_running) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+            if (startBtn) {
+              startBtn.disabled = false;
+              startBtn.textContent = "🚀 Bắt đầu crawl ngay";
+            }
+          }
+        } catch (err) {
+          setLog(["[ERROR] " + err.message]);
+        }
+      }, 1000);
+    }).catch(function (err) {
+      setLog(["[ERROR] " + err.message]);
+      if (startBtn) {
+        startBtn.disabled = false;
+        startBtn.textContent = "🚀 Bắt đầu crawl ngay";
+      }
+    });
+
+    waitForJobDone(function () {
+      if (!autoActive) return;
+      if (autoCrawlStatusText) {
+        autoCrawlStatusText.textContent = "⏳ Chờ lần tiếp theo...";
+      }
+      startAutoCountdown(runAutoRound);
+    });
+  }
+
+  function startAuto() {
+    autoActive = true;
+    autoRound = 0;
+    setAutoUI(true);
+    runAutoRound();
+  }
+
+  function stopAuto() {
+    autoActive = false;
+    if (autoCountdownTimer) { clearInterval(autoCountdownTimer); autoCountdownTimer = null; }
+    if (autoWaitTimer) { clearInterval(autoWaitTimer); autoWaitTimer = null; }
+    setAutoUI(false);
+    if (autoCrawlStatusText) autoCrawlStatusText.textContent = "⏸ Đã dừng tự động";
+    if (autoCrawlProgress) autoCrawlProgress.style.display = "none";
+    if (autoCrawlProgressFill) autoCrawlProgressFill.style.width = "0%";
+    if (autoCrawlRound) autoCrawlRound.textContent = "";
+  }
+
+  if (btnAutoStart) btnAutoStart.addEventListener("click", startAuto);
+  if (btnAutoStop) btnAutoStop.addEventListener("click", stopAuto);
 });

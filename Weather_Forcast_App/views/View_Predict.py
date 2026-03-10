@@ -111,6 +111,7 @@ def _load_model_info() -> Dict[str, Any]:
             info["trained_at"] = ti.get("trained_at", "")
             info["model_type"] = ti.get("model", {}).get("type", "")
             info["target_column"] = ti.get("target_column", "rain_total")
+            info["forecast_horizon"] = ti.get("forecast_horizon", 0)
             info["predict_threshold"] = (
                 ti.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
             )

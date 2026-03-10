@@ -761,10 +761,10 @@ def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
                         X_test_raw[fname] = X_test_raw[parts[0]] * X_test_raw[parts[1]]
 
     # --- ANTI-UNDERFIT: Feature selection bằng importance (giảm noise) ---
-    enable_feature_selection = config.get("feature_selection", {}).get("enabled", True)
-    max_features = config.get("feature_selection", {}).get("max_features", 150)
+    enable_feature_selection = config.get("feature_selection", {}).get("enabled", False)
+    max_features = config.get("feature_selection", {}).get("max_features", 0)
     
-    if enable_feature_selection and len(X_train_raw.columns) > max_features:
+    if enable_feature_selection and max_features > 0 and len(X_train_raw.columns) > max_features:
         # Tạm dùng y_train gốc để select features (chưa transform target)
         selected_features = _select_features_by_importance(
             X_train_raw.select_dtypes(include=[np.number]).fillna(0),

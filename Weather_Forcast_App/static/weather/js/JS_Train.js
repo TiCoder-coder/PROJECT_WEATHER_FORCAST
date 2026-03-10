@@ -165,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
           test_size: parseFloat($testSize?.value || 0.15),
           valid_size: parseFloat($validSize?.value || 0.15),
           sort_by_time: document.getElementById('sortByTime')?.checked ?? true,
-          feature_selection_enabled: document.getElementById('featureSelectionEnabled')?.checked ?? true,
+          feature_selection_enabled: document.getElementById('featureSelectionEnabled')?.checked ?? false,
+          forecast_horizon: parseInt(document.getElementById('forecastHorizon')?.value || 24, 10),
           use_default_config: $useDefault?.checked || false,
         };
       }

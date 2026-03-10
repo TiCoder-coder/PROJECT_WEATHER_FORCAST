@@ -66,6 +66,7 @@ Last Updated: 2026-02-06
 import re
 import csv
 import time
+import hashlib
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -116,42 +117,10 @@ def main():
 
     current_crawl_datetime = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M:%S")
 
-    # Danh sách các URL tỉnh thành
+    # Danh sách các URL tỉnh thành - tự động sinh từ ID 1–63
     province_urls = [
-        "https://vrain.vn/20/overview?public_map=windy",
-        "https://vrain.vn/2/overview?public_map=windy",
-        "https://vrain.vn/4/overview?public_map=windy",
-        "https://vrain.vn/5/overview?public_map=windy",
-        "https://vrain.vn/6/overview?public_map=windy",
-        "https://vrain.vn/7/overview?public_map=windy",
-        "https://vrain.vn/8/overview?public_map=windy",
-        "https://vrain.vn/11/overview?public_map=windy",
-        "https://vrain.vn/18/overview?public_map=windy",
-        "https://vrain.vn/12/overview?public_map=windy",
-        "https://vrain.vn/14/overview?public_map=windy",
-        "https://vrain.vn/13/overview?public_map=windy",
-        "https://vrain.vn/17/overview?public_map=windy",
-        "https://vrain.vn/22/overview?public_map=windy",
-        "https://vrain.vn/24/overview?public_map=windy",
-        "https://vrain.vn/27/overview?public_map=windy",
-        "https://vrain.vn/26/overview?public_map=windy",
-        "https://vrain.vn/28/overview?public_map=windy",
-        "https://vrain.vn/30/overview?public_map=windy",
-        "https://vrain.vn/31/overview?public_map=windy",
-        "https://vrain.vn/32/overview?public_map=windy",
-        "https://vrain.vn/34/overview?public_map=windy",
-        "https://vrain.vn/37/overview?public_map=windy",
-        "https://vrain.vn/41/overview?public_map=windy",
-        "https://vrain.vn/42/overview?public_map=windy",
-        "https://vrain.vn/44/overview?public_map=windy",
-        "https://vrain.vn/61/overview?public_map=windy",
-        "https://vrain.vn/45/overview?public_map=windy",
-        "https://vrain.vn/56/overview?public_map=windy",
-        "https://vrain.vn/63/overview?public_map=windy",
-        "https://vrain.vn/54/overview?public_map=windy",
-        "https://vrain.vn/46/overview?public_map=windy",
-        "https://vrain.vn/53/overview?public_map=windy",
-        "https://vrain.vn/52/overview?public_map=windy",
+        f"https://vrain.vn/{pid}/overview?public_map=windy"
+        for pid in range(1, 64)
     ]
 
     # Dynamic path: tự tính từ vị trí project root
@@ -175,6 +144,9 @@ def main():
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
+
+        # Deduplication: theo dõi các trạm đã ghi
+        seen_stations = set()
 
         for url in province_urls:
             try:
@@ -251,9 +223,17 @@ def main():
                         status_match.group(1).strip() if status_match else "Không xác định"
                     )
 
+                    # Deduplication: bỏ qua nếu trạm đã được ghi
+                    unique_key = f"{province_name}_{station_name}".lower()
+                    if unique_key in seen_stations:
+                        continue
+                    seen_stations.add(unique_key)
+
                     writer.writerow(
                         {
-                            "station_id": station_name,  # station_id chưa có, tạm dùng station_name
+                            "station_id": hashlib.md5(
+                                unique_key.encode()
+                            ).hexdigest()[:12],
                             "station_name": station_name,
                             "province": province_name,
                             "district": xa_phuong,
@@ -264,7 +244,7 @@ def main():
                         }
                     )
 
-                print(f"  Đã trích xuất {len(station_blocks)} trạm.")
+                print(f"  Đã trích xuất {len(station_blocks)} trạm (unique: {len(seen_stations)}).")
 
             except Exception as e:
                 print(f"  Lỗi khi xử lý {url}: {e}")

@@ -404,10 +404,12 @@ def train_start_view(request):
         if folder_key and filename:
             config["data"] = {"folder_key": folder_key, "filename": filename}
     else:
+        forecast_horizon = int(body.get("forecast_horizon", 24))
         config = {
             "data": {"folder_key": folder_key, "filename": filename},
             "skip_schema_validation": True,
             "target_column": target_column,
+            "forecast_horizon": forecast_horizon,
             "features": {
                 "input_columns": [],
                 "lag_features": False,
@@ -420,8 +422,8 @@ def train_start_view(request):
             "auto_detect_data_type": True,
             "polynomial_features": {"enabled": True, "degree": 2, "top_k_corr": 8},
             "feature_selection": {
-                "enabled": bool(body.get("feature_selection_enabled", True)),
-                "max_features": int(body.get("max_features", 50)),
+                "enabled": bool(body.get("feature_selection_enabled", False)),
+                "max_features": int(body.get("max_features", 0)),
             },
             "model": {
                 "type": model_type,

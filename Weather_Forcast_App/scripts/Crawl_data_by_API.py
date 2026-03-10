@@ -2,17 +2,18 @@ import requests
 import pandas as pd
 import time
 import json
+import argparse
 from pathlib import Path
 from datetime import datetime, timedelta
 import logging
 import os
 import numpy as np
 import random
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
 import sqlite3
-import os
 
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "").strip()
@@ -450,10 +451,12 @@ class VietnamWeatherDataCrawler:
     def get_data_quality_assessment(self, data_source, data_type):
         """Đánh giá chất lượng dữ liệu dựa trên nguồn"""
         quality_metrics = {
-            "openmeteo": {"weather": "medium"},
-            "openweather": {"weather": "medium"},
+            "openmeteo": {"weather": "high"},
+            "weatherapi": {"weather": "high"},
+            "openweather": {"weather": "high"},
             "simulated": {"weather": "low"},
-            "statistical": {"weather": "medium"},
+            "statistical": {"weather": "low"},
+            "fallback": {"weather": "low"},
         }
 
         return quality_metrics.get(data_source, {}).get(data_type, "low")
@@ -489,7 +492,17 @@ class VietnamWeatherDataCrawler:
     def try_openmeteo_weather(self, lat, lon, province):
         """Thử Open-Meteo API"""
         try:
-            url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,precipitation,pressure_msl,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,relative_humidity_2m,precipitation,pressure_msl,wind_speed_10m,wind_direction_10m&timezone=auto"
+            url = (
+                f"https://api.open-meteo.com/v1/forecast?"
+                f"latitude={lat}&longitude={lon}"
+                f"&current=temperature_2m,relative_humidity_2m,precipitation,"
+                f"pressure_msl,wind_speed_10m,wind_direction_10m,"
+                f"cloud_cover,visibility,weather_code"
+                f"&hourly=temperature_2m,relative_humidity_2m,precipitation,"
+                f"pressure_msl,wind_speed_10m,wind_direction_10m,"
+                f"cloud_cover,visibility"
+                f"&timezone=auto"
+            )
             response = self.session.get(url, timeout=10)
 
             if response.status_code == 200:
@@ -675,6 +688,8 @@ class VietnamWeatherDataCrawler:
         hourly_wind_speeds = []
         hourly_wind_directions = []
         hourly_rains = []
+        hourly_cloud_covers = []
+        hourly_visibilities = []
 
         for hour in range(24):
             hour_temp = base_temp
@@ -683,30 +698,32 @@ class VietnamWeatherDataCrawler:
             elif 12 <= hour <= 14:
                 hour_temp += 3
 
+            h_humidity = random.randint(humidity_range[0], humidity_range[1])
             hourly_temps.append(hour_temp + random.uniform(-2, 2))
-            hourly_humidities.append(
-                random.randint(humidity_range[0], humidity_range[1])
-            )
+            hourly_humidities.append(h_humidity)
             hourly_pressures.append(random.randint(1005, 1020))
             hourly_wind_speeds.append(round(random.uniform(1, 6), 1))
             hourly_wind_directions.append(random.randint(0, 360))
-            hourly_rains.append(
-                round(random.uniform(0, 8) if random.random() < rain_prob else 0, 1)
-            )
+            h_rain = round(random.uniform(0, 8) if random.random() < rain_prob else 0, 1)
+            hourly_rains.append(h_rain)
+            hourly_cloud_covers.append(max(0, min(100, int(h_humidity * 0.8 + random.uniform(-10, 10)))))
+            hourly_visibilities.append(round(max(1000, 24000 - h_humidity * 150 + random.uniform(-2000, 2000))))
+
+        cur_humidity = random.randint(humidity_range[0], humidity_range[1])
+        cur_rain = round(random.uniform(0, 5) if random.random() < rain_prob else 0, 1)
 
         return {
             "current": {
                 "time": current_time.isoformat(),
                 "temperature_2m": round(temperature, 1),
-                "relative_humidity_2m": random.randint(
-                    humidity_range[0], humidity_range[1]
-                ),
+                "relative_humidity_2m": cur_humidity,
                 "pressure_msl": random.randint(1005, 1020),
                 "wind_speed_10m": round(random.uniform(1, 6), 1),
                 "wind_direction_10m": random.randint(0, 360),
-                "precipitation": round(
-                    random.uniform(0, 5) if random.random() < rain_prob else 0, 1
-                ),
+                "precipitation": cur_rain,
+                "cloud_cover": max(0, min(100, int(cur_humidity * 0.8 + random.uniform(-10, 10)))),
+                "visibility": round(max(1000, 24000 - cur_humidity * 150 + random.uniform(-2000, 2000))),
+                "weather_code": 0,
             },
             "hourly": {
                 "time": [
@@ -719,6 +736,8 @@ class VietnamWeatherDataCrawler:
                 "wind_speed_10m": hourly_wind_speeds,
                 "wind_direction_10m": hourly_wind_directions,
                 "precipitation": hourly_rains,
+                "cloud_cover": hourly_cloud_covers,
+                "visibility": hourly_visibilities,
             },
         }
 
@@ -809,9 +828,47 @@ class VietnamWeatherDataCrawler:
         wind_direction_avg = self.calculate_avg_wind_direction(wind_direction_hourly)
 
         rain_max = max(rain_hourly) if rain_hourly else rain_current
-        rain_min = min(rain_hourly) if rain_hourly else rain_current
+        rain_nonzero = [r for r in rain_hourly if r > 0] if rain_hourly else []
+        rain_min = min(rain_nonzero) if rain_nonzero else 0.0
         rain_total = sum(rain_hourly) if rain_hourly else rain_current * 24
         rain_avg = rain_total / 24 if rain_hourly else rain_current
+
+        # Cloud cover from API (fallback to estimation from humidity)
+        cloud_cover_current = current.get("cloud_cover", None)
+        cloud_cover_hourly = hourly.get("cloud_cover", None)
+        if cloud_cover_current is None:
+            cloud_cover_current = max(0, min(100, int(humidity_current * 0.8)))
+        if cloud_cover_hourly:
+            cloud_cover_max = max(cloud_cover_hourly)
+            cloud_cover_min = min(cloud_cover_hourly)
+            cloud_cover_avg = round(sum(cloud_cover_hourly) / len(cloud_cover_hourly), 1)
+        else:
+            cloud_cover_max = cloud_cover_current
+            cloud_cover_min = cloud_cover_current
+            cloud_cover_avg = cloud_cover_current
+
+        # Visibility from API (meters → km, fallback to estimation)
+        visibility_current_raw = current.get("visibility", None)
+        visibility_hourly_raw = hourly.get("visibility", None)
+        if visibility_current_raw is not None:
+            visibility_current = round(visibility_current_raw / 1000, 1)  # m → km
+        else:
+            visibility_current = round(max(1, 20 - humidity_current * 0.15), 1)
+        if visibility_hourly_raw:
+            vis_km = [round(v / 1000, 1) for v in visibility_hourly_raw]
+            visibility_max = max(vis_km)
+            visibility_min = min(vis_km)
+            visibility_avg = round(sum(vis_km) / len(vis_km), 1)
+        else:
+            visibility_max = visibility_current
+            visibility_min = visibility_current
+            visibility_avg = visibility_current
+
+        # Thunder probability from weather_code (WMO codes 95-99 = thunderstorm)
+        weather_code = current.get("weather_code", 0)
+        thunder_probability = self._estimate_thunder_probability(
+            weather_code, rain_current, humidity_current, temp_current
+        )
 
         return {
             "station_id": station_info["station_id"],
@@ -824,6 +881,7 @@ class VietnamWeatherDataCrawler:
             "data_source": source,
             "data_quality": quality,
             "data_time": current.get("time", datetime.now().isoformat()),
+            "error_reason": "",
             "temperature_current": round(temp_current, 1),
             "temperature_max": round(temp_max, 1),
             "temperature_min": round(temp_min, 1),
@@ -847,17 +905,37 @@ class VietnamWeatherDataCrawler:
             "rain_min": round(rain_min, 1),
             "rain_avg": round(rain_avg, 1),
             "rain_total": round(rain_total, 1),
-            "cloud_cover_current": random.randint(20, 80),
-            "cloud_cover_max": random.randint(60, 95),
-            "cloud_cover_min": random.randint(10, 40),
-            "cloud_cover_avg": random.randint(30, 70),
-            "visibility_current": random.randint(5, 15),
-            "visibility_max": random.randint(10, 20),
-            "visibility_min": random.randint(2, 8),
-            "visibility_avg": random.randint(6, 12),
-            "thunder_probability": random.randint(0, 30),
+            "cloud_cover_current": round(cloud_cover_current, 1),
+            "cloud_cover_max": round(cloud_cover_max, 1),
+            "cloud_cover_min": round(cloud_cover_min, 1),
+            "cloud_cover_avg": round(cloud_cover_avg, 1),
+            "visibility_current": round(visibility_current, 1),
+            "visibility_max": round(visibility_max, 1),
+            "visibility_min": round(visibility_min, 1),
+            "visibility_avg": round(visibility_avg, 1),
+            "thunder_probability": thunder_probability,
         }
 
+    def _estimate_thunder_probability(self, weather_code, rain, humidity, temperature):
+        """Ước tính xác suất sấm sét dựa trên WMO weather code và các chỉ số khí tượng."""
+        # WMO codes: 95=slight thunderstorm, 96=thunderstorm+hail, 99=heavy thunderstorm+hail
+        if weather_code >= 95:
+            return min(90, 60 + (weather_code - 95) * 10)
+        # WMO codes 80-82: rain showers (strong convection indicator)
+        prob = 0
+        if weather_code >= 80:
+            prob += 25
+        if rain > 5:
+            prob += 15
+        elif rain > 1:
+            prob += 5
+        if humidity > 85:
+            prob += 10
+        if temperature > 30:
+            prob += 10
+        elif temperature > 25:
+            prob += 5
+        return min(prob, 80)
 
     def calculate_avg_wind_direction(self, directions):
         """Tính hướng gió trung bình"""
@@ -920,38 +998,41 @@ class VietnamWeatherDataCrawler:
             "thunder_probability": 5,
         }
 
-    def crawl_all_locations(self, locations, delay=2.0):
-        """Crawl dữ liệu cho tất cả địa điểm"""
+    def crawl_all_locations(self, locations, delay=1.0, max_workers=5):
+        """Crawl dữ liệu cho tất cả địa điểm (đa luồng)"""
         all_weather_data = []
-
         total_locations = len(locations)
+        completed = 0
+        lock = __import__('threading').Lock()
 
         logging.info(
-            f"🔄 Bắt đầu thu thập dữ liệu cho {total_locations} địa điểm tại Việt Nam"
+            f"🔄 Bắt đầu thu thập dữ liệu cho {total_locations} địa điểm ({max_workers} luồng)"
         )
         logging.info("📊 Sử dụng đa nguồn dữ liệu với đánh giá chất lượng")
 
-        for i, location in enumerate(locations):
-            logging.info(
-                f"📍 Đang xử lý {i + 1}/{total_locations}: {location['station_name']}"
-            )
-
+        def _crawl_one(location):
+            nonlocal completed
             try:
-                # Thu thập dữ liệu thời tiết
+                time.sleep(delay * random.uniform(0.5, 1.5))  # jitter tránh rate-limit
                 weather_data = self.parse_weather_data(location)
-                if weather_data:
-                    all_weather_data.append(weather_data)
-                    # Sử dụng key tiếng Anh/camelCase
-                    logging.info(
-                        f"  ✅ Thời tiết: {weather_data.get('data_source', 'N/A')} ({weather_data.get('data_quality', 'N/A')})"
-                    )
-
-                time.sleep(delay)
-
+                with lock:
+                    completed += 1
+                    if completed % 20 == 0 or completed == total_locations:
+                        logging.info(f"📊 Tiến độ: {completed}/{total_locations}")
+                return weather_data
             except Exception as e:
                 logging.error(f"❌ Lỗi xử lý {location['station_name']}: {e}")
-                continue
+                return None
 
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(_crawl_one, loc): loc for loc in locations}
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    all_weather_data.append(result)
+
+        # Sắp xếp theo province + station_name cho nhất quán
+        all_weather_data.sort(key=lambda r: (r.get('province', ''), r.get('station_name', '')))
         return all_weather_data
 
     def get_data_quality_report(self):
@@ -1120,9 +1201,39 @@ class VietnamWeatherDataCrawler:
             ws_quality.column_dimensions[column_letter].width = adjusted_width
 
         wb.save(excel_file)
-        logging.info(f"💾 Đã lưu dữ liệu vào: {excel_file}")
+        logging.info(f"💾 Đã lưu Excel: {excel_file}")
 
         return excel_file
+
+    def save_to_csv(self, weather_data, output_dir=None):
+        """Lưu dữ liệu ra CSV (nhẹ hơn, nhanh hơn cho ML training)"""
+        if output_dir is None:
+            output_dir = OUTPUT_DIR
+
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        csv_file = output_dir / f"Bao_cao_{timestamp}.csv"
+
+        full_columns = [
+            "station_id", "station_name", "province", "district", "latitude", "longitude",
+            "timestamp", "data_source", "data_quality", "data_time", "error_reason",
+            "temperature_current", "temperature_max", "temperature_min", "temperature_avg",
+            "humidity_current", "humidity_max", "humidity_min", "humidity_avg",
+            "pressure_current", "pressure_max", "pressure_min", "pressure_avg",
+            "wind_speed_current", "wind_speed_max", "wind_speed_min", "wind_speed_avg",
+            "wind_direction_current", "wind_direction_avg",
+            "rain_current", "rain_max", "rain_min", "rain_avg", "rain_total",
+            "cloud_cover_current", "cloud_cover_max", "cloud_cover_min", "cloud_cover_avg",
+            "visibility_current", "visibility_max", "visibility_min", "visibility_avg",
+            "thunder_probability"
+        ]
+        normalized = [{col: row.get(col, None) for col in full_columns} for row in weather_data]
+        df = pd.DataFrame(normalized, columns=full_columns)
+        df.to_csv(csv_file, index=False, encoding="utf-8-sig")
+        logging.info(f"💾 Đã lưu CSV: {csv_file} ({len(df)} rows)")
+        return csv_file
 
     def save_to_sqlite(self, weather_data, locations):
         """Lưu dữ liệu vào SQLite database"""
@@ -5505,31 +5616,82 @@ vietnam_locations = [
 ]
 
 
-def main():
+def parse_args():
+    """CLI arguments cho crawl linh hoạt"""
+    parser = argparse.ArgumentParser(description="Crawl dữ liệu thời tiết Việt Nam")
+    parser.add_argument("--mode", choices=["once", "continuous"], default=None,
+                        help="Chế độ: once (1 lần) hoặc continuous (lặp lại)")
+    parser.add_argument("--limit", type=int, default=0,
+                        help="Giới hạn số địa điểm crawl (0 = tất cả)")
+    parser.add_argument("--province", type=str, default=None,
+                        help="Chỉ crawl 1 tỉnh, VD: --province 'Hà Nội'")
+    parser.add_argument("--delay", type=float, default=1.0,
+                        help="Delay giữa các request (giây, mặc định 1.0)")
+    parser.add_argument("--workers", type=int, default=5,
+                        help="Số luồng đồng thời (mặc định 5)")
+    parser.add_argument("--interval", type=int, default=600,
+                        help="Khoảng cách giữa các lần crawl ở chế độ continuous (giây, mặc định 600)")
+    parser.add_argument("--format", choices=["csv", "excel", "both"], default="both",
+                        help="Định dạng xuất: csv, excel, hoặc both (mặc định both)")
+    parser.add_argument("--no-sqlite", action="store_true",
+                        help="Bỏ qua lưu SQLite")
+    parser.add_argument("--skip-fallback", action="store_true",
+                        help="Bỏ qua dữ liệu statistical/fallback, chỉ giữ dữ liệu API thật")
+    return parser.parse_args()
+
+
+def main(args=None):
     """Hàm chính thực thi"""
     try:
         crawler = VietnamWeatherDataCrawler()
         locations = vietnam_locations
 
+        # Lọc theo tỉnh nếu chỉ định
+        if args and args.province:
+            locations = [loc for loc in locations if args.province.lower() in loc["province"].lower()]
+            if not locations:
+                logging.error(f"❌ Không tìm thấy tỉnh: {args.province}")
+                return
+
+        # Giới hạn số lượng
+        if args and args.limit > 0:
+            locations = locations[:args.limit]
+
+        delay = args.delay if args else 1.0
+        workers = args.workers if args else 5
+        output_format = args.format if args else "both"
+        skip_fallback = args.skip_fallback if args else False
+        no_sqlite = args.no_sqlite if args else False
+
         logging.info("=" * 70)
         logging.info("🌏 HỆ THỐNG THU THẬP DỮ LIỆU THỜI TIẾT VIỆT NAM")
         logging.info("=" * 70)
-        logging.info(
-            "📝 LƯU Ý: Dữ liệu từ các API miễn phí có thể không chính xác tuyệt đối"
-        )
+        logging.info(f"📍 Địa điểm: {len(locations)} | Luồng: {workers} | Delay: {delay}s")
         logging.info("🔍 Đang thu thập từ đa nguồn với đánh giá chất lượng...")
 
         start_time = time.time()
-        weather_data = crawler.crawl_all_locations(locations, delay=2.0)
+        weather_data = crawler.crawl_all_locations(locations, delay=delay, max_workers=workers)
         end_time = time.time()
 
+        # Lọc bỏ dữ liệu fallback/statistical nếu chỉ muốn dữ liệu thật
+        if skip_fallback:
+            before = len(weather_data)
+            weather_data = [
+                r for r in weather_data
+                if r.get("data_source") not in ("statistical", "fallback", "simulated")
+            ]
+            logging.info(f"🔍 Đã lọc: {before} → {len(weather_data)} (bỏ {before - len(weather_data)} fallback)")
+
         if weather_data:
-            excel_file = crawler.save_to_excel(weather_data)
+            if output_format in ("csv", "both"):
+                csv_file = crawler.save_to_csv(weather_data)
+            if output_format in ("excel", "both"):
+                excel_file = crawler.save_to_excel(weather_data)
 
-            sqlite_success = crawler.save_to_sqlite(weather_data, locations)
-
-            if sqlite_success:
-                db_summary = crawler.get_database_summary()
+            if not no_sqlite:
+                sqlite_success = crawler.save_to_sqlite(weather_data, locations)
+                if sqlite_success:
+                    db_summary = crawler.get_database_summary()
 
             quality_report = crawler.get_data_quality_report()
 
@@ -5549,7 +5711,7 @@ def main():
                 f"   ❌ Chất lượng thấp: {w_report['low_quality']}/{w_report['total']} ({w_report['low_percent']}%)"
             )
 
-            if sqlite_success and db_summary:
+            if not no_sqlite and sqlite_success and db_summary:
                 logging.info("=" * 70)
                 logging.info("🗃️  TỔNG QUAN DATABASE")
                 logging.info("=" * 70)
@@ -5559,22 +5721,10 @@ def main():
                 logging.info(
                     f"🏙️  Số tỉnh thành: {db_summary.get('total_provinces', 0)}"
                 )
-                logging.info(
-                    f"🕒 Dữ liệu mới nhất: {db_summary.get('latest_data', 'N/A')}"
-                )
-                if "quality_stats" in db_summary:
-                    logging.info("📈 Chất lượng dữ liệu:")
-                    for quality, count in db_summary["quality_stats"].items():
-                        logging.info(f"   {quality}: {count} bản ghi")
 
             logging.info("=" * 70)
             logging.info(f"⏱️ Thời gian thực hiện: {end_time - start_time:.2f} giây")
-            logging.info(f"📁 File Excel: {excel_file}")
-            logging.info(f"🗄️  Database SQLite: vietnam_weather.db")
-            logging.info(
-                "🎯 LƯU Ý: Để có dữ liệu chính xác hơn, cần sử dụng API có phí hoặc truy cập trực tiếp"
-            )
-            logging.info("   các nguồn dữ liệu chính thức của Việt Nam")
+            logging.info(f"📊 Thu thập được: {len(weather_data)}/{len(locations)} địa điểm")
 
         else:
             logging.warning("❌ Không thu thập được dữ liệu nào")
@@ -5583,24 +5733,26 @@ def main():
         logging.error(f"💥 Lỗi hệ thống: {e}")
 
 
-def run_continuously():
-    """Hàm thường trú để chạy main() lặp lại cứ 10 phút một lần"""
+def run_continuously(args):
+    """Hàm thường trú để chạy main() lặp lại"""
+    interval = args.interval if args else 600
     while True:
         try:
-            main()
-            logging.info("⏳ Đang chờ 10 phút để chạy lần tiếp theo...")
-            time.sleep(600)
+            main(args)
+            logging.info(f"⏳ Đang chờ {interval}s để chạy lần tiếp theo...")
+            time.sleep(interval)
         except Exception as e:
             logging.error(f"💥 Lỗi trong quá trình chạy thường trú: {e}")
-            logging.info("🔄 Thử chạy lại sau 10 phút...")
-            time.sleep(600)
-
+            logging.info(f"🔄 Thử chạy lại sau {interval}s...")
+            time.sleep(interval)
 
 
 if __name__ == "__main__":
-    if CRAWL_MODE == "once":
+    args = parse_args()
+    mode = args.mode or CRAWL_MODE
+    if mode == "once":
         logging.info("🚀 Chạy chế độ 1 lần (once)")
-        main()
+        main(args)
     else:
         logging.info("🔁 Chạy chế độ thường trú (continuous)")
-        run_continuously()
+        run_continuously(args)

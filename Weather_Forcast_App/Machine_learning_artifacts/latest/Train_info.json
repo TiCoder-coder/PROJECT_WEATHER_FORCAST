@@ -1,15 +1,15 @@
 {
-  "trained_at": "2026-03-08 22:04:11",
+  "trained_at": "2026-03-10 14:44:06",
   "project_root": "D:\\PROJECT_WEATHER_FORCAST",
   "ml_model_root": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_historical_hourly_20260308_165309.csv",
+    "filename": "cleaned_merge_merged_all_data_20260310_144022.csv",
     "file_info": "None"
   },
   "schema_report": {
-    "rows_before": 87840,
-    "rows_after": 87840,
+    "rows_before": 110276,
+    "rows_after": 110276,
     "rows_dropped": 0,
     "note": "schema_validation_skipped"
   },
@@ -38,23 +38,23 @@
     "rain_min"
   ],
   "feature_info": {
-    "n_created_features": 272,
-    "n_total_feature_columns": 50,
+    "n_created_features": 40,
+    "n_total_feature_columns": 106,
     "n_static_features_removed": 0,
-    "n_constant_features_removed": 21,
-    "feature_selection_enabled": true,
+    "n_constant_features_removed": 8,
+    "feature_selection_enabled": false,
     "detected_data_type": "mixed",
-    "polynomial_features_added": false
+    "polynomial_features_added": true
   },
   "target_transform": {
     "log1p_applied": true,
-    "target_zero_ratio": 0.9602850495420009
+    "target_zero_ratio": 0.7014345138591922
   },
   "transform": {
     "pipeline_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-08T22:04:04.336059",
+      "fitted_at": "2026-03-10T14:43:16.180619",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -62,7 +62,7 @@
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 50,
+      "n_features": 106,
       "config": {
         "missing_strategy": "median",
         "scaler_type": "standard",
@@ -73,21 +73,7 @@
   },
   "model": {
     "type": "two_stage",
-    "params": {
-      "n_estimators": 300,
-      "learning_rate": 0.10866318080918577,
-      "max_depth": 7,
-      "num_leaves": 38,
-      "min_child_samples": 40,
-      "subsample": 0.857116102762388,
-      "colsample_bytree": 0.721646561343565,
-      "reg_alpha": 0.6400899653736896,
-      "reg_lambda": 7.947957719016305,
-      "tweedie_variance_power": 1.0916812719218079,
-      "rain_threshold": 0.21996921961756769,
-      "predict_threshold": 0.448935197363175,
-      "random_state": 42
-    },
+    "params": {},
     "model_path": "D:\\PROJECT_WEATHER_FORCAST\\Weather_Forcast_App\\Machine_learning_artifacts\\latest\\Model.pkl"
   },
   "artifacts": {

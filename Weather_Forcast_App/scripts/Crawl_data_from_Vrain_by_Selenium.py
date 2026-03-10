@@ -65,6 +65,7 @@ import unicodedata
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+import hashlib
 from pathlib import Path
 
 class VrainCrawlerFinal:
@@ -292,7 +293,10 @@ class VrainCrawlerFinal:
 
         # Thêm các cột còn thiếu
         if "station_id" not in df.columns:
-            df["station_id"] = df["station_name"]
+            df["station_id"] = df.apply(
+                lambda r: hashlib.md5(f"{r['province']}_{r['station_name']}".lower().encode()).hexdigest()[:12],
+                axis=1
+            )
         if "district" not in df.columns:
             df["district"] = ""
         if "status" not in df.columns:
