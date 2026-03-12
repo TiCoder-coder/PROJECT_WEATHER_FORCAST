@@ -1,0 +1,79 @@
+{% load i18n_tags %}
+{% with current=request.resolver_match.url_name %}
+<nav class="sidebar__nav">
+
+  <a href="{% url 'weather:home' %}"
+     class="sidebar__nav-item{% if current == 'home' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🏠</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.home" %}</span>
+      <span class="nav-sub"></span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:crawl_by_api' %}"
+     class="sidebar__nav-item{% if current == 'crawl_by_api' or current == 'crawl_api_weather' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🌐</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.openweather" %}</span>
+      <span class="nav-sub">{% t "nav.openweather_sub" %}</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:crawl_vrain_api' %}"
+     class="sidebar__nav-item{% if current == 'crawl_vrain_api' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🌧️</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.vrain_api" %}</span>
+      <span class="nav-sub">{% t "nav.vrain_api_sub" %}</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:crawl_vrain_selenium' %}"
+     class="sidebar__nav-item{% if current == 'crawl_vrain_selenium' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🧪</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.vrain_selenium" %}</span>
+      <span class="nav-sub">{% t "nav.vrain_selenium_sub" %}</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:crawl_vrain_html' %}"
+     class="sidebar__nav-item{% if current == 'crawl_vrain_html' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🧩</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.vrain_html" %}</span>
+      <span class="nav-sub">{% t "nav.vrain_html_sub" %}</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:datasets' %}"
+     class="sidebar__nav-item{% if current == 'datasets' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">📦</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.datasets" %}</span>
+      <span class="nav-sub">{% t "nav.datasets_sub" %}</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:train' %}"
+     class="sidebar__nav-item{% if current == 'train' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🧠</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.train" %}</span>
+      <span class="nav-sub">{% t "nav.train_sub" %}</span>
+    </span>
+  </a>
+
+  <a href="{% url 'weather:predict' %}"
+     class="sidebar__nav-item{% if current == 'predict' %} sidebar__nav-item--active{% endif %}">
+    <span class="nav-ico">🔮</span>
+    <span class="nav-content">
+      <span class="nav-text">{% t "nav.predict" %}</span>
+      <span class="nav-sub">{% t "nav.predict_sub" %}</span>
+    </span>
+  </a>
+
+</nav>
+{% endwith %}
+
