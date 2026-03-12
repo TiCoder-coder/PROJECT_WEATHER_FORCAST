@@ -1,0 +1,21 @@
+/venv
+Crawl_data_from_image.py
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+db.sqlite3
+media/
+staticfiles/
+
+.env
+.venv/
+.vscode/extensions.json
+.vscode/
+airflow/logs/*
+!airflow/logs/.gitkeep
+
+# Large demo/media artifacts
+Video_demo_product.webm
+*.webm

@@ -1,0 +1,596 @@
+{% load static i18n_tags %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% t "train.page_title" %}</title>
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Train.css' %}?v=20260303">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body class="page">
+    <div class="layout">
+        <!-- ═══════════ SIDEBAR ═══════════ -->
+        <aside class="sidebar">
+            <div class="sidebar__logo">
+                <div class="sidebar__logo-circle">WF</div>
+                <div class="sidebar__logo-text">
+                    <span class="sidebar__logo-title">{% t "app.title" %}</span>
+                    <span class="sidebar__logo-sub">{% t "train.logo_sub" %}</span>
+                </div>
+            </div>
+            {% include 'weather/Sidebar_nav.html' %}
+        </aside>
+
+        <!-- ═══════════ MAIN ═══════════ -->
+        <main class="main">
+            <!-- ── Hero Banner ── -->
+            <header class="hero">
+                <div class="hero__content">
+                    <div class="hero__badge">
+                        <span class="hero__badge-dot"></span>
+                        Machine Learning Training
+                    </div>
+                    <h1 class="hero__title">
+                        <span class="hero__icon">🧠</span>
+                        {% t "train.title" %}
+                    </h1>
+                    <p class="hero__desc">
+                        {% t "train.subtitle" %}
+                        <code>Machine_learning_artifacts/latest/</code>
+                    </p>
+                </div>
+
+                {% if active_job %}
+                <div class="run-panel" id="runPanel">
+                    <div class="run-panel__row">
+                        <span class="run-panel__spinner"></span>
+                        <div>
+                            <div class="run-panel__title">{% t "train.training_running" %}</div>
+                            <div class="run-panel__desc">Job ID: {{ active_job.job_id }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </header>
+
+            <!-- ═══════ HƯỚNG DẪN SỬ DỤNG ═══════ -->
+            <section class="card card--guide" id="sectionGuide">
+                <div class="card__header card__header--toggle" id="guideHeaderToggle">
+                    <h2 class="card__title">📖 {% t "train.guide_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleGuide">{% t "train.collapse" %}</button>
+                </div>
+                <div class="guide-body" id="guideBody">
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <div class="guide-step__number">1</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">{% t "train.guide_step1_title" %}</h3>
+                                <p class="guide-step__desc">
+                                    {% t "train.guide_step1_desc_p1" %}
+                                    {% t "train.guide_step1_desc_p2" %}
+                                    {% t "train.guide_step1_desc_p3" %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step__number">2</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">{% t "train.guide_step2_title" %}</h3>
+                                <p class="guide-step__desc">{% t "train.guide_step2_desc_p1" %}</p>
+                                <ul class="guide-step__list">
+                                    <li>{% t "train.guide_step2_desc_quick" %}</li>
+                                    <li>{% t "train.guide_step2_desc_advanced" %}</li>
+                                </ul>
+                                <p class="guide-step__desc" style="margin-top:6px;">
+                                    {% t "train.guide_step2_desc_p2" %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step__number">3</div>
+                            <div class="guide-step__content">
+                                <h3 class="guide-step__title">{% t "train.guide_step3_title" %}</h3>
+                                <p class="guide-step__desc">
+                                    {% t "train.guide_step3_desc_p1" %}
+                                    {% t "train.guide_step3_desc_p2" %}
+                                    {% t "train.guide_step3_desc_p3" %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="guide-tips">
+                        <h4 class="guide-tips__title">{% t "train.tips_title" %}</h4>
+                        <ul class="guide-tips__list">
+                            <li>{% t "train.tips_tip1" %}</li>
+                            <li>{% t "train.tips_tip2" %}</li>
+                            <li>{% t "train.tips_tip3" %}</li>
+                            <li>{% t "train.tips_tip4" %}</li>
+                            <li>{% t "train.tips_tip5" %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ ARTIFACTS (kết quả gần nhất) ═══════ -->
+            {% if artifacts.metrics %}
+            <section class="card card--artifacts" id="sectionArtifacts">
+                <div class="card__header">
+                    <h2 class="card__title">📊 {% t "train.results_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleArtifacts">{% t "train.collapse" %}</button>
+                </div>
+                <div class="artifacts-body" id="artifactsBody">
+                    <div class="metrics-grid">
+                        <!-- Train metrics -->
+                        <div class="metric-card metric-card--train">
+                            <div class="metric-card__label">TRAIN</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value metric-value--good">
+                                        {{ artifacts.metrics.train.R2|floatformat:4 }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.train.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.train.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if artifacts.metrics.train.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value metric-value--accent">
+                                        {{ artifacts.metrics.train.Rain_Detection_Accuracy|floatformat:4 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Valid metrics -->
+                        <div class="metric-card metric-card--valid">
+                            <div class="metric-card__label">VALIDATION</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.R2|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if artifacts.metrics.valid.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value">{{ artifacts.metrics.valid.Rain_Detection_Accuracy|floatformat:4 }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Test metrics -->
+                        <div class="metric-card metric-card--test">
+                            <div class="metric-card__label">TEST</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value metric-value--good">
+                                        {{ artifacts.metrics.test.R2|floatformat:4 }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.test.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ artifacts.metrics.test.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if artifacts.metrics.test.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value metric-value--accent">
+                                        {{ artifacts.metrics.test.Rain_Detection_Accuracy|floatformat:4 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Diagnostics -->
+                        {% if artifacts.metrics.diagnostics %}
+                        <div class="metric-card metric-card--diag">
+                            <div class="metric-card__label">DIAGNOSTICS</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">Generalization</span>
+                                    <span class="metric-value metric-badge
+                                        {% if artifacts.metrics.diagnostics.overfit_status == 'good' %}metric-badge--good
+                                        {% elif artifacts.metrics.diagnostics.overfit_status == 'overfit' %}metric-badge--warn
+                                        {% else %}metric-badge--bad{% endif %}">
+                                        {{ artifacts.metrics.diagnostics.overfit_status|upper }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Quality</span>
+                                    <span class="metric-value metric-badge
+                                        {% if artifacts.metrics.diagnostics.model_quality == 'excellent' %}metric-badge--good
+                                        {% elif artifacts.metrics.diagnostics.model_quality == 'good' %}metric-badge--good
+                                        {% elif artifacts.metrics.diagnostics.model_quality == 'fair' %}metric-badge--warn
+                                        {% else %}metric-badge--bad{% endif %}">
+                                        {{ artifacts.metrics.diagnostics.model_quality|upper }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Features</span>
+                                    <span class="metric-value">{{ artifacts.metrics.diagnostics.n_features_after_selection }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Zero ratio</span>
+                                    <span class="metric-value">{{ artifacts.metrics.diagnostics.target_zero_ratio|floatformat:2 }}</span>
+                                </div>
+                                {% if artifacts.metrics.diagnostics.quality_detail %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Quality metric</span>
+                                    <span class="metric-value" style="font-size:0.85rem;">{{ artifacts.metrics.diagnostics.quality_detail }}</span>
+                                </div>
+                                {% endif %}
+                                {% if artifacts.metrics.diagnostics.overfit_details %}
+                                <div class="metric-item" style="grid-column: 1 / -1;">
+                                    <span class="metric-name">{% t "train.details" %}</span>
+                                    <span class="metric-value" style="font-size:0.8rem; color:#94a3b8;">
+                                        {{ artifacts.metrics.diagnostics.overfit_details }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Thông tin thêm -->
+                    <div class="artifacts-meta">
+                        <span class="artifacts-meta__item">
+                            🕒 {% t "train.trained_at" %}: {{ artifacts.metrics.generated_at }}
+                        </span>
+                        <span class="artifacts-meta__item">
+                            🤖 {% t "train.model" %}: {{ artifacts.metrics.model_type|upper }}
+                        </span>
+                        {% if artifacts.model_exists %}
+                        <span class="artifacts-meta__item">
+                            💾 {% t "train.model_size" %}: {{ artifacts.model_size_mb }} MB
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="card__desc" style="margin-top:12px; background:rgba(15,23,42,0.45); border:1px solid rgba(148,163,184,0.2); border-radius:10px; padding:12px;">
+                        <h4 style="margin:0 0 8px; color:#e2e8f0;">{% t "train.metrics_explain_title" %}</h4>
+                        <p style="margin:0 0 8px;">{% t "train.metrics_explain_intro" %}</p>
+                        <ul style="margin:0 0 8px 16px; padding:0; display:grid; gap:6px;">
+                            <li><strong>{% t "train.metrics_explain_r2_label" %}</strong> {% t "train.metrics_explain_r2_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_rmse_label" %}</strong> {% t "train.metrics_explain_rmse_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_mae_label" %}</strong> {% t "train.metrics_explain_mae_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_rain_acc_label" %}</strong> {% t "train.metrics_explain_rain_acc_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_overfit_label" %}</strong> {% t "train.metrics_explain_overfit_desc" %}</li>
+                            <li><strong>{% t "train.metrics_explain_zero_ratio_label" %}</strong> {% t "train.metrics_explain_zero_ratio_desc" %}</li>
+                        </ul>
+                        <p style="margin:0; color:#94a3b8;">{% t "train.metrics_explain_tip" %}</p>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- ═══════ BEST PARAMS (Optuna) ═══════ -->
+            {% if best_params %}
+            <section class="card card--artifacts" id="sectionBestParams">
+                <div class="card__header">
+                    <h2 class="card__title">🏆 {% t "train.best_params_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleBestParams">{% t "train.collapse" %}</button>
+                </div>
+                <div id="bestParamsBody">
+                    <div class="artifacts-meta" style="margin-bottom:8px;">
+                        <span class="artifacts-meta__item">🎯 {% t "train.best_params_metric" %}: {{ best_params.optimized_metric|upper }}</span>
+                        <span class="artifacts-meta__item">
+                            🏅 {% t "train.best_params_value" %}:
+                            <strong style="color:#34d399;">{{ best_params.best_value|floatformat:6 }}</strong>
+                        </span>
+                        <span class="artifacts-meta__item">🔁 {% t "train.best_params_trials" %}: {{ best_params.n_trials }}</span>
+                        <span class="artifacts-meta__item">⏱️ {% t "train.time_elapsed" %}: {{ best_params.elapsed_seconds|floatformat:1 }}s</span>
+                    </div>
+                    <div class="metrics-grid">
+                        {% for key, val in best_params.best_params.items %}
+                        <div class="metric-item" style="padding:4px 8px; background:rgba(255,255,255,0.04); border-radius:6px;">
+                            <span class="metric-name" style="font-size:0.75rem;">{{ key }}</span>
+                            <span class="metric-value" style="font-size:0.85rem; color:#a78bfa;">{{ val }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="card__desc" style="margin-top:12px; background:rgba(15,23,42,0.45); border:1px solid rgba(148,163,184,0.2); border-radius:10px; padding:12px;">
+                        <h4 style="margin:0 0 8px; color:#e2e8f0;">{% t "train.best_params_explain_title" %}</h4>
+                        <p style="margin:0 0 8px;">{% t "train.best_params_explain_intro" %}</p>
+                        <ul style="margin:0 0 8px 16px; padding:0; display:grid; gap:6px;">
+                            <li>{% t "train.best_params_explain_trials" %}</li>
+                            <li>{% t "train.best_params_explain_metric_value" %}</li>
+                            <li>{% t "train.best_params_explain_learning_rate" %}</li>
+                            <li>{% t "train.best_params_explain_n_estimators" %}</li>
+                            <li>{% t "train.best_params_explain_max_depth_num_leaves" %}</li>
+                            <li>{% t "train.best_params_explain_min_child_samples" %}</li>
+                            <li>{% t "train.best_params_explain_subsample_colsample" %}</li>
+                            <li>{% t "train.best_params_explain_reg_alpha_lambda" %}</li>
+                            <li>{% t "train.best_params_explain_rain_threshold" %}</li>
+                            <li>{% t "train.best_params_explain_predict_threshold" %}</li>
+                            <li>{% t "train.best_params_explain_tweedie_variance_power" %}</li>
+                        </ul>
+                        <p style="margin:0; color:#94a3b8;">{% t "train.best_params_explain_adjust_tip" %}</p>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- ═══════ TỐI ƯU SIÊU THAM SỐ (Optuna) ═══════ -->
+            <section class="card" id="sectionTune">
+                <div class="card__header">
+                    <h2 class="card__title">🔬 {% t "train.optuna_title" %}</h2>
+                    <button type="button" class="pill small" id="btnToggleTune">{% t "train.collapse" %}</button>
+                </div>
+                <div id="tuneBody">
+                    <p class="card__desc">{% t "train.optuna_desc" %}</p>
+                    <div class="form__grid" style="margin-bottom:12px;">
+                        <div class="form__group">
+                            <label class="form__label">{% t "train.optuna_trials_label" %}</label>
+                            <input type="number" id="tuneTrials" class="form__input" value="100" min="5" max="500" step="5">
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label">{% t "train.optuna_metric_label" %}</label>
+                            <select id="tuneMetric" class="form__select">
+                                <option value="rain_acc" selected>{% t "train.optuna_metric_rain_acc" %}</option>
+                                <option value="rmse">RMSE</option>
+                                <option value="mae">MAE</option>
+                                <option value="r2">R²</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form__group form__group--check" style="margin-bottom:12px;">
+                        <label class="form__check-label">
+                            <input type="checkbox" id="tuneAutoApply" checked>
+                            <span>{% t "train.optuna_auto_apply" %}</span>
+                        </label>
+                    </div>
+                    <div class="form__actions" style="margin-bottom:12px;">
+                        <button type="button" id="btnStartTune" class="btn btn--primary">
+                            {% t "train.optuna_start_btn" %}
+                        </button>
+                    </div>
+                    <!-- Tune progress -->
+                    <div id="tuneProgressWrap" style="display:none;">
+                        <div class="progress-wrap" style="margin-bottom:8px;">
+                            <div class="progress-bar">
+                                <div class="progress-bar__fill" id="tuneProgressFill" style="width:0%"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="tuneProgressPercent">0%</span>
+                                <span id="tuneProgressStep">{% t "train.optuna_progress_init" %}</span>
+                            </div>
+                        </div>
+                        <div class="log-output" style="max-height:200px; overflow-y:auto;">
+                            <pre id="tuneLogPre" style="font-size:0.75rem;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════ CẤU HÌNH TRAINING ═══════ -->
+            <section class="card" id="sectionConfig">
+                <h2 class="card__title">⚙️ {% t "train.config_title" %}</h2>
+                <p class="card__desc">{% t "train.config_desc" %}</p>
+
+                <form id="trainForm" class="form">
+                    {% csrf_token %}
+
+                    <!-- Tabs: Quick / Advanced -->
+                    <div class="config-tabs">
+                        <button type="button" class="config-tab config-tab--active" data-tab="quick">
+                            {% t "train.config_quick" %}
+                        </button>
+                        <button type="button" class="config-tab" data-tab="advanced">
+                            {% t "train.config_advanced" %}
+                        </button>
+                    </div>
+
+                    <!-- TAB: Quick Config -->
+                    <div class="config-panel config-panel--active" data-panel="quick">
+                        <div class="form__grid">
+                            <!-- Dataset Source -->
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.folder_label" %}</label>
+                                <select id="folderKey" name="folder_key" class="form__select">
+                                    <option value="">{% t "train.folder_placeholder" %}</option>
+                                    <option value="data_crawl">{% t "train.folder_crawl" %}</option>
+                                    <option value="data_merge">{% t "train.folder_merge" %}</option>
+                                    <option value="cleaned_merge">{% t "train.folder_cleaned_merge" %}</option>
+                                    <option value="cleaned_not_merge">{% t "train.folder_cleaned_not_merge" %}</option>
+                                </select>
+                            </div>
+
+                            <!-- Dataset File -->
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.file_label" %}</label>
+                                <select id="fileName" name="filename" class="form__select">
+                                    <option value="">{% t "train.file_placeholder" %}</option>
+                                </select>
+                            </div>
+
+                            <!-- Model Type -->
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.model_type_label" %}</label>
+                                <select id="modelType" name="model_type" class="form__select">
+                                    {% for mt in model_types %}
+                                    <option value="{{ mt.value }}"
+                                        {% if mt.value == "ensemble" %}selected{% endif %}>
+                                        {{ mt.label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Target Column -->
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.target_label" %}</label>
+                                <input type="text" id="targetColumn" name="target_column"
+                                       class="form__input" value="rain_total"
+                                       placeholder="{% t 'train.target_placeholder' %}">
+                            </div>
+
+                            <!-- Split ratios -->
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.test_size_label" %}</label>
+                                <input type="number" id="testSize" name="test_size"
+                                       class="form__input" value="0.15" step="0.05" min="0.05" max="0.4">
+                            </div>
+
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.valid_size_label" %}</label>
+                                <input type="number" id="validSize" name="valid_size"
+                                       class="form__input" value="0.15" step="0.05" min="0.05" max="0.4">
+                            </div>
+
+                            <!-- Forecast horizon -->
+                            <div class="form__group">
+                                <label class="form__label">{% t "train.forecast_horizon_label" %}</label>
+                                <input type="number" id="forecastHorizon" name="forecast_horizon"
+                                       class="form__input" value="24" step="1" min="0" max="168"
+                                       placeholder="{% t 'train.forecast_horizon_placeholder' %}">
+                                <span class="form__hint">{% t "train.forecast_horizon_hint" %}</span>
+                            </div>
+                        </div>
+
+                        <!-- Options checkboxes -->
+                        <div class="form__group form__group--check">
+                            <label class="form__check-label">
+                                <input type="checkbox" id="sortByTime" name="sort_by_time" checked>
+                                <span>{% t "train.sort_by_time_label" %}</span>
+                            </label>
+                        </div>
+                        <div class="form__group form__group--check">
+                            <label class="form__check-label">
+                                <input type="checkbox" id="featureSelectionEnabled" name="feature_selection_enabled">
+                                <span>{% t "train.feature_selection_label" %}</span>
+                            </label>
+                        </div>
+                        <!-- Use default config checkbox -->
+                        <div class="form__group form__group--check">
+                            <label class="form__check-label">
+                                <input type="checkbox" id="useDefaultConfig" name="use_default_config">
+                                <span>{% t "train.use_default_config" %}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- TAB: Advanced Config -->
+                    <div class="config-panel" data-panel="advanced">
+                        <div class="form__group">
+                            <label class="form__label">{% t "train.config_json_label" %}</label>
+                            <textarea id="configJson" name="config_json" class="form__textarea"
+                                rows="20" spellcheck="false">{{ default_config }}</textarea>
+                        </div>
+                        <p class="form__hint">
+                            {% t "train.config_json_hint" %}
+                        </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form__actions">
+                        <button type="submit" id="btnStartTrain" class="btn btn--primary btn--lg">
+                            {% t "train.start_training" %}
+                        </button>
+                        <button type="button" id="btnResetForm" class="btn btn--ghost">
+                            {% t "train.btn_reset" %}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ═══════ LOGS / PROGRESS ═══════ -->
+            <section class="card card--log" id="sectionLogs" style="display:none;">
+                <div class="card__header">
+                    <h2 class="card__title">📋 {% t "train.logs_title" %}</h2>
+                    <span class="train-status" id="trainStatus">{% t "train.logs_status_waiting" %}</span>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-bar">
+                        <div class="progress-bar__fill" id="progressFill" style="width:0%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="progressPercent">0%</span>
+                        <span id="progressStep">{% t "train.logs_progress_init" %}</span>
+                    </div>
+                </div>
+
+                <!-- Log output -->
+                <div class="log-output" id="logOutput">
+                    <pre id="logPre"></pre>
+                </div>
+            </section>
+
+            <!-- ═══════ DATASET BROWSER ═══════ -->
+            <section class="card" id="sectionDatasets">
+                <div class="card__header">
+                    <h2 class="card__title">📦 {% t "train.dataset_available" %}</h2>
+                    <button type="button" class="pill small" id="btnRefreshDatasets">{% t "train.dataset_refresh_btn" %}</button>
+                </div>
+                <div class="dataset-table-wrap">
+                    <table class="dataset-table" id="datasetTable">
+                        <thead>
+                            <tr>
+                                <th>{% t "train.dataset_table_folder" %}</th>
+                                <th>{% t "train.dataset_table_file" %}</th>
+                                <th>{% t "train.dataset_table_size" %}</th>
+                                <th>{% t "train.dataset_table_updated" %}</th>
+                                <th>{% t "train.dataset_table_action" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ds in datasets %}
+                            <tr data-folder="{{ ds.folder_key }}" data-file="{{ ds.filename }}">
+                                <td>
+                                    <span class="badge badge--folder">{{ ds.folder_key }}</span>
+                                </td>
+                                <td class="td-filename" title="{{ ds.filename }}">{{ ds.filename }}</td>
+                                <td>{{ ds.size_mb }} MB</td>
+                                <td>{{ ds.mtime }}</td>
+                                <td>
+                                    <button type="button" class="pill small btn-use-dataset"
+                                            data-folder="{{ ds.folder_key }}"
+                                            data-file="{{ ds.filename }}">
+                                        {% t "train.use_dataset" %}
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="td-empty">{% t "train.dataset_table_empty" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    {{ datasets|json_script:"datasets-data" }}
+    <meta name="active-job-id" content="{% if active_job %}{{ active_job.job_id }}{% endif %}">
+    <script src="{% static 'weather/js/JS_Train.js' %}?v=20260310"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "model_type": "xgboost",
+  "train_data": "data/data_crawl/Bao_cao_20260211_173719.csv",
+  "target": "Tổng lượng mưa",
+  "features": [
+    "Tỉnh/Thành phố",
+    "Tên trạm",
+    "Huyện",
+    "Tình trạng",
+    "Dấu thời gian",
+    "Thời gian cập nhập"
+  ],
+  "params": {
+    "n_estimators": 200,
+    "learning_rate": 0.05,
+    "max_depth": 6
+  },
+  "cv_folds": 5,
+  "random_state": 42,
+  "metric": "rmse"
+}

@@ -1,0 +1,31 @@
+/* =====================
+	 Weather App Color Tokens
+	 ===================== */
+:root {
+	/* Nền & card */
+	--color-bg-main: #050816;
+	--color-bg-gradient1: #1f2937;
+	--color-bg-gradient2: #020617;
+	--color-bg-card: #111827;
+	--color-bg-card-glass: rgba(15,23,42,0.78);
+	--color-bg-card-glass2: rgba(2,6,23,0.35);
+
+	/* Accent & trạng thái */
+	--color-accent: #38bdf8;
+	--color-accent-soft: rgba(56,189,248,0.16);
+	--color-accent2: #8b5cf6;
+	--color-good: #22c55e;
+	--color-warn: #f59e0b;
+	--color-error: #ef4444;
+
+	/* Text */
+	--color-text-main: #e5e7eb;
+	--color-text-muted: #9ca3af;
+	--color-text-soft: #dbe8ff;
+
+	/* Border & shadow */
+	--color-border: rgba(148,163,184,0.18);
+	--color-border-accent: rgba(56,189,248,0.18);
+	--color-shadow: 0 24px 70px rgba(0,0,0,0.38);
+	--color-shadow-strong: 0 28px 80px rgba(0,0,0,0.45);
+}

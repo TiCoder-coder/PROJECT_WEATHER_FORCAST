@@ -1,0 +1,187 @@
+{% load static i18n_tags %}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% t "crawl.openweather.page_title" %}</title>
+    <link rel="stylesheet" href="{% static 'weather/css/CSS_Crawl_data_by_API.css' %}?v=972856">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="page">
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar__logo">
+                <div class="sidebar__logo-circle">WF</div>
+                <div class="sidebar__logo-text">
+                    <span class="sidebar__logo-title">{% t "app.title" %}</span>
+                    <span class="sidebar__logo-sub">{% t "crawl.openweather.sidebar_sub" %}</span>
+                </div>
+            </div>
+
+            {% include 'weather/Sidebar_nav.html' %}
+
+        </aside>
+
+        <main class="main">
+            <header class="main__header">
+                <div>
+                    <h1 class="main__title main__title--neon">
+                        {% t "crawl.openweather.title" %}
+                    </h1>
+                </div>
+
+                {% if is_running %}
+                <div class="run-panel">
+                    <div class="run-panel__row">
+                        <span class="run-panel__spinner"></span>
+                        <div>
+                            <div class="run-panel__title">
+                                {% t "crawl.running_title" %}
+                            </div>
+                            <div class="run-panel__desc">
+                                {% t "crawl.running_desc" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </header>
+
+            <section class="card">
+                <h2 class="card__title">{% t "crawl.config_title" %}</h2>
+
+                <form method="post" class="form">
+                    {% csrf_token %}
+
+                    <div class="form__grid">
+                        <div class="form__group">
+                            <label class="form__label">{% t "crawl.mode_label" %}</label>
+                            <select name="mode" class="form__select">
+                                <option value="full" selected>{% t "crawl.mode_full" %}</option>
+                                <option value="sample">{% t "crawl.mode_sample" %}</option>
+                            </select>
+                        </div>
+
+                        <div class="form__group">
+                            <label class="form__label">{% t "crawl.verbose_label" %}</label>
+                            <div class="form__toggle">
+                                <input type="checkbox" id="verbose" name="verbose" checked>
+                                <label for="verbose">{% t "crawl.verbose_enable" %}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form__actions">
+                        <button type="submit" name="action" value="start" class="btn btn--primary">
+                            {% t "crawl.start_now" %}
+                        </button>
+                    </div>
+                </form>
+
+                <div class="auto-crawl" id="autoCrawlPanel">
+                    <div class="auto-crawl__head">
+                        <div class="auto-crawl__head-left">
+                            <span class="auto-crawl__icon">⏱</span>
+                            <h3 class="auto-crawl__title">{% t "crawl.auto.title" %}</h3>
+                        </div>
+                        <div class="auto-crawl__status" id="autoCrawlStatus">
+                            <span class="auto-crawl__status-dot" id="autoCrawlDot"></span>
+                            <span id="autoCrawlStatusText">{% t "crawl.auto.status_idle" %}</span>
+                        </div>
+                    </div>
+
+                    <div class="auto-crawl__row">
+                        <div class="auto-crawl__field">
+                            <span class="auto-crawl__label">{% t "crawl.auto.interval_label" %}</span>
+                            <div class="auto-crawl__input-group">
+                                <input type="number" id="autoCrawlInterval" class="auto-crawl__input" min="1" max="1440" value="5" />
+                                <select id="autoCrawlUnit" class="auto-crawl__select">
+                                    <option value="minutes">{% t "crawl.auto.unit_minutes" %}</option>
+                                    <option value="hours">{% t "crawl.auto.unit_hours" %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="auto-crawl__actions">
+                            <button id="btnAutoStart" class="btn btn--auto-start">{% t "crawl.auto.btn_start" %}</button>
+                            <button id="btnAutoStop" class="btn btn--auto-stop" disabled>{% t "crawl.auto.btn_stop" %}</button>
+                        </div>
+                        <span class="auto-crawl__round" id="autoCrawlRound"></span>
+                    </div>
+
+                    <div class="auto-crawl__progress" id="autoCrawlProgress" style="display:none">
+                        <div class="auto-crawl__progress-bar">
+                            <div class="auto-crawl__progress-fill" id="autoCrawlProgressFill"></div>
+                        </div>
+                        <span class="auto-crawl__countdown" id="autoCrawlCountdown"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2 class="card__title">{% t "crawl.last_result_title" %}</h2>
+
+                <div class="summary">
+                    <div class="summary__item">
+                        <span class="summary__label">{% t "crawl.output_file" %}</span>
+                        <span class="summary__value">
+                            {% if last_csv_name %}
+                                <a class="summary__link" href="/media/{{ last_csv_name }}" target="_blank">
+                                    {{ last_csv_name }}
+                                </a>
+                            {% else %}
+                                {% t "crawl.no_file" %}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="summary__item">
+                        <span class="summary__label">{% t "crawl.file_size" %}</span>
+                        <span class="summary__value" id="lastFileSize">
+                            {% if csv_size_mb %}
+                                {{ csv_size_mb }} MB
+                            {% else %}
+                                –
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card card--log">
+                <div class="card__header">
+                    <h2 class="card__title">{% t "crawl.log_title" %}</h2>
+                    <button type="button" class="btn btn--ghost" onclick="clearLog()">
+                        {% t "crawl.clear_log" %}
+                    </button>
+                </div>
+
+                <div id="log-container" class="log log--top">
+                    {% if logs %}
+                        {% for line in logs %}
+                            <div class="log__line">{{ line }}</div>
+                        {% endfor %}
+                    {% else %}
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function clearLog() {
+            const log = document.getElementById('log-container');
+            if (log) {
+                log.innerHTML = '<div class="log__line log__line--muted">{% t "crawl.log_cleared" %}</div>';
+            }
+        }
+    </script>
+
+    <script src="{% static 'weather/js/JS_Crawl_data_by_API.js' %}?v=87738513380"></script>
+
+    <div class="wx-layer wx-clouds" aria-hidden="true"></div>
+    <div class="wx-layer wind-layer" aria-hidden="true"></div>
+    <div class="wx-layer wx-rain" aria-hidden="true"></div>
+    <div class="wx-layer wx-lightning" aria-hidden="true"></div>
+</body>
+</html>
