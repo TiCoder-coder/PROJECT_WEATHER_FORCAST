@@ -1,0 +1,10 @@
+[
+  {
+    "file": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/data/data_clean/data_merge_clean/cleaned_merge_merged_vrain_data_20260216_121532.csv",
+    "rows_total": 7356,
+    "rows_train": 5884,
+    "rows_validate": 735,
+    "rows_test": 737,
+    "out_dir": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge"
+  }
+]

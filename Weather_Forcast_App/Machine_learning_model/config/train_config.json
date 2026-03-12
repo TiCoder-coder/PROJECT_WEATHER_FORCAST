@@ -1,0 +1,168 @@
+{
+  "data": {
+    "folder_key": "cleaned_merge",
+    "filename": "cleaned_merge_historical_hourly_20260308_165309.csv"
+  },
+  "skip_schema_validation": true,
+  "target_column": "rain_total",
+  "forecast_horizon": 24,
+  "leaked_columns": [
+    "rain_current",
+    "rain_avg",
+    "rain_max",
+    "rain_min"
+  ],
+  "features": {
+    "input_columns": [
+      "latitude",
+      "longitude",
+      "timestamp",
+      "data_quality",
+      "data_time",
+      "temperature_current",
+      "temperature_max",
+      "temperature_min",
+      "temperature_avg",
+      "humidity_current",
+      "humidity_max",
+      "humidity_min",
+      "humidity_avg",
+      "pressure_current",
+      "pressure_max",
+      "pressure_min",
+      "pressure_avg",
+      "wind_speed_current",
+      "wind_speed_max",
+      "wind_speed_min",
+      "wind_speed_avg",
+      "wind_direction_current",
+      "wind_direction_avg",
+      "rain_current",
+      "rain_max",
+      "rain_min",
+      "rain_avg",
+      "cloud_cover_current",
+      "cloud_cover_max",
+      "cloud_cover_min",
+      "cloud_cover_avg",
+      "visibility_current",
+      "visibility_max",
+      "visibility_min",
+      "visibility_avg",
+      "thunder_probability"
+    ],
+    "lag_features": true,
+    "rolling_features": {
+      "enabled": true,
+      "windows": [
+        6,
+        24
+      ],
+      "functions": [
+        "mean",
+        "std"
+      ],
+      "columns": [
+        "temperature_current",
+        "temperature_avg",
+        "humidity_current",
+        "humidity_avg",
+        "pressure_current",
+        "pressure_avg",
+        "wind_speed_current",
+        "wind_speed_avg",
+        "cloud_cover_current",
+        "cloud_cover_avg",
+        "visibility_current",
+        "visibility_avg",
+        "thunder_probability",
+        "rain_total"
+      ]
+    },
+    "difference_features": true,
+    "time_features": true,
+    "location_features": true,
+    "interaction_features": true
+  },
+  "auto_detect_data_type": true,
+  "polynomial_features": {
+    "enabled": true,
+    "degree": 2,
+    "top_k_corr": 5
+  },
+  "feature_selection": {
+    "enabled": true,
+    "max_features": 120
+  },
+  "model": {
+    "type": "ensemble",
+    "params": {
+      "rain_threshold": 0.22,
+      "predict_threshold": 0.45,
+      "random_state": 42
+    },
+    "base_models": [
+      {
+        "type": "xgboost",
+        "params": {
+          "n_estimators": 437,
+          "learning_rate": 0.19019214697557332,
+          "max_depth": 8,
+          "subsample": 0.5780093202212182,
+          "colsample_bytree": 0.5779972601681014,
+          "reg_alpha": 0.11616722433639892,
+          "reg_lambda": 1.7323522915498704,
+          "min_child_weight": 5,
+          "random_state": 42
+        }
+      },
+      {
+        "type": "lightgbm",
+        "params": {
+          "n_estimators": 437,
+          "learning_rate": 0.19019214697557332,
+          "max_depth": 9,
+          "num_leaves": 115,
+          "min_child_samples": 24,
+          "subsample": 0.5779972601681014,
+          "colsample_bytree": 0.5290418060840998,
+          "reg_alpha": 1.7323522915498704,
+          "reg_lambda": 1.2022300234864176,
+          "random_state": 42
+        }
+      },
+      {
+        "type": "catboost",
+        "params": {
+          "iterations": 437,
+          "learning_rate": 0.19019214697557332,
+          "depth": 8,
+          "l2_leaf_reg": 6,
+          "random_seed": 42,
+          "verbose": 0,
+          "max_depth": 9,
+          "subsample": 0.5780093202212182
+        }
+      },
+      {
+        "type": "random_forest",
+        "params": {
+          "n_estimators": 218,
+          "max_depth": 29,
+          "min_samples_leaf": 6,
+          "min_samples_split": 15,
+          "random_state": 42
+        }
+      }
+    ]
+  },
+  "split": {
+    "test_size": 0.1,
+    "valid_size": 0.1,
+    "shuffle": false,
+    "sort_by_time": true
+  },
+  "cv_folds": 5,
+  "random_state": 42,
+  "metric": "rmse"
+}
