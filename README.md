@@ -72,7 +72,7 @@
 - 🔮 **Weather Forecasting**: Generate multi-day weather predictions with confidence intervals
 - 📊 **Interactive Dashboard**: Real-time metrics, visualization, and dataset management
 - 🎨 **Modern UX**: Glassmorphism design with weather-themed animations
-- 🌍 **Multilingual**: Full Vietnamese and English localization
+- 🌍 **Multilingual**: Full Vietnamese and English localization.
 
 ---
 
