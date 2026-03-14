@@ -2,7 +2,7 @@
 
 # 🌦️ VN WEATHER HUB: NỀN TẢNG WEB THUTHẬP - CHUẨN HOÁ - HỢP NHẤT DỮ LIỆU THỜI TIẾT ĐA NGUỒN VÀ DỰ BÁO NGẮN HẠN CHO VIỆT NAM BẰNG MÔ HÌNH ENSEMBLE
 
-**Full-stack Django application** for **weather data collection** → **processing** → **machine learning** → **forecasting** with beautiful glassmorphism UI and multilingual support.
+**Ứng dụng web Django đầy đủ tính năng** cho **thu thập dữ liệu thời tiết** → **xử lý** → **học máy** → **dự báo** với giao diện glassmorphism hiện đại và hỗ trợ đa ngôn ngữ.
 
 <br/>
 
@@ -18,7 +18,7 @@
 <img alt="i18n" src="https://img.shields.io/badge/i18n-VI%20%7C%20EN-22C55E">
 
 <br/>
-<sub>🌐 Multi-source crawling • 🔗 Smart merging • 🧹 Data cleaning • 🧠 ML training • 🔮 Forecasting • 📊 Dashboard • 🎨 Modern UI • 🌍 Bilingual</sub>
+<sub>🌐 Thu thập đa nguồn • 🔗 Gộp thông minh • 🧹 Làm sạch dữ liệu • 🧠 Huấn luyện ML • 🔮 Dự báo • 📊 Dashboard • 🎨 Giao diện hiện đại • 🌍 Song ngữ</sub>
 
 </div>
 
@@ -28,7 +28,7 @@
   
 ![VN Weather Hub Dashboard](https://nub.news/api/image/681000/article.png)
 
-*Enterprise-grade weather data pipeline with modern glassmorphism interface*
+*Pipeline xử lý dữ liệu thời tiết cấp doanh nghiệp với giao diện glassmorphism hiện đại*
 
 </div>
 
@@ -37,46 +37,46 @@
 ## 📌 Table of Contents
 
 <details open>
-<summary><b>📚 Navigation</b></summary>
+<summary><b>📚 Điều hướng</b></summary>
 
-- [🎯 Overview](#-overview)
-- [✨ Key Features](#-key-features)
-- [🧠 Machine Learning Pipeline](#-machine-learning-pipeline)
-- [🌍 Internationalization (i18n)](#-internationalization-i18n)
-- [🎨 UI/UX Features](#-uiux-features)
-- [🔐 Authentication System](#-authentication-system)
-- [📊 Data Pipeline](#-data-pipeline)
-- [� Airflow — Automated Scheduling](#-airflow--automated-scheduling)
-- [�🗂️ Project Structure](#️-project-structure)
-- [🚀 Installation & Setup](#-installation--setup)
-- [📖 User Guide](#-user-guide)
-- [🔧 Configuration](#-configuration)
-- [🐛 Troubleshooting](#-troubleshooting)
-- [🗺️ Roadmap](#️-roadmap)
-- [👥 Team](#-team)
+- [🎯 Tổng quan](#-overview)
+- [✨ Tính năng chính](#-key-features)
+- [🧠 Pipeline Học Máy](#-machine-learning-pipeline)
+- [🌍 Đa ngôn ngữ (i18n)](#-internationalization-i18n)
+- [🎨 Tính năng UI/UX](#-uiux-features)
+- [🔐 Hệ thống Xác thực](#-authentication-system)
+- [📊 Pipeline Dữ liệu](#-data-pipeline)
+- [✈️ Airflow — Lập lịch tự động](#-airflow--automated-scheduling)
+- [🗂️ Cấu trúc Dự án](#️-project-structure)
+- [🚀 Cài đặt & Khởi chạy](#-installation--setup)
+- [📖 Hướng dẫn Sử dụng](#-user-guide)
+- [🔧 Cấu hình](#-configuration)
+- [🐛 Xử lý Lỗi](#-troubleshooting)
+- [🗺️ Lộ trình Phát triển](#️-roadmap)
+- [👥 Đội ngũ](#-team)
 
 </details>
 
 ---
 
-## 🎯 Overview
+## 🎯 Tổng quan
 
-**VN Weather Hub** is a comprehensive **Django-based weather intelligence platform** that provides end-to-end data pipeline capabilities—from multi-source data collection to advanced machine learning forecasting. Built with modern web technologies, it features a stunning glassmorphism UI, bilingual support (Vietnamese/English), and enterprise-grade security.
+**VN Weather Hub** là nền tảng dự báo thời tiết **dựa trên Django** toàn diện, cung cấp khả năng pipeline dữ liệu đầu cuối — từ thu thập dữ liệu đa nguồn đến dự báo bằng học máy nâng cao. Được xây dựng với công nghệ web hiện đại, tích hợp giao diện glassmorphism ấn tượng, hỗ trợ song ngữ (Tiếng Việt/Tiếng Anh) và bảo mật cấp doanh nghiệp.
 
-### 🎯 Core Objectives
+### 🎯 Mục tiêu chính
 
-- 🌐 **Multi-Source Data Collection**: Crawl weather data from OpenWeather API, Vrain API, Selenium scraping, and HTML parsing
-- 🔗 **Intelligent Data Integration**: Merge heterogeneous datasets with conflict resolution and schema validation
-- 🧹 **Advanced Data Cleaning**: Automated cleaning wizard with customizable pipelines
-- 🧠 **Machine Learning**: Train and deploy forecasting models (Ensemble, XGBoost, LightGBM, CatBoost, RandomForest)
-- 🔮 **Weather Forecasting**: Generate multi-day weather predictions with confidence intervals
-- 📊 **Interactive Dashboard**: Real-time metrics, visualization, and dataset management
-- 🎨 **Modern UX**: Glassmorphism design with weather-themed animations
-- 🌍 **Multilingual**: Full Vietnamese and English localization.
+- 🌐 **Thu thập dữ liệu đa nguồn**: Crawl dữ liệu thời tiết từ OpenWeather API, Vrain API, Selenium và phân tích HTML
+- 🔗 **Tích hợp dữ liệu thông minh**: Gộp các tập dữ liệu không đồng nhất với cơ chế xử lý xung đột và kiểm tra schema
+- 🧹 **Làm sạch dữ liệu nâng cao**: Trình hướng dẫn làm sạch tự động với pipeline tùy chỉnh
+- 🧠 **Học máy**: Huấn luyện và triển khai các mô hình dự báo (Ensemble, XGBoost, LightGBM, CatBoost, RandomForest)
+- 🔮 **Dự báo thời tiết**: Tạo dự báo thời tiết nhiều ngày kèm khoảng tin cậy
+- 📊 **Dashboard tương tác**: Số liệu theo thời gian thực, trực quan hóa và quản lý dataset
+- 🎨 **UX hiện đại**: Thiết kế glassmorphism với hiệu ứng hoạt ảnh theo chủ đề thời tiết
+- 🌍 **Đa ngôn ngữ**: Hỗ trợ đầy đủ tiếng Việt và tiếng Anh.
 
 ---
 
-### 🏗️ System Architecture
+### 🏗️ Kiến trúc Hệ thống
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -152,66 +152,66 @@ Trang Home được chia thành **3 sections chính**:
 
 ### 📊 Data Management
 
-| Feature | Description |
+| Tính năng | Mô tả |
 |---------|-------------|
-| 🌐 **Multi-source crawling** | OpenWeather API, Vrain API/Selenium/HTML parser |
-| 🔗 **Smart merging** | Automatic schema alignment, conflict resolution, duplicate removal |
-| 🧹 **Cleaning wizard** | Step-by-step guided cleaning with preview and validation |
-| 👁️ **Dataset preview** | In-browser CSV/Excel/JSON/TXT preview with pagination |
-| ⬇️ **Export** | Download in multiple formats (CSV, XLSX, JSON, TXT) |
-| 📈 **Statistics** | Real-time metrics, file counts, dataset sizes |
+| 🌐 **Thu thập đa nguồn** | OpenWeather API, Vrain API/Selenium/HTML parser |
+| 🔗 **Gộp thông minh** | Tự động căn chỉnh schema, giải quyết xung đột, loại bỏ trùng lặp |
+| 🧹 **Trình hướng dẫn làm sạch** | Làm sạch theo bước có hướng dẫn kèm xem trước và kiểm tra |
+| 👁️ **Xem trước dataset** | Xem CSV/Excel/JSON/TXT trực tiếp trên trình duyệt với phân trang |
+| ⬇️ **Xuất file** | Tải xuống nhiều định dạng (CSV, XLSX, JSON, TXT) |
+| 📈 **Thống kê** | Số liệu thời gian thực, số lượng file, kích thước dataset |
 
 ### 🧠 Machine Learning
 
-| Feature | Description |
+| Tính năng | Mô tả |
 |---------|-------------|
-| 🏗️ **Model training** | Support for 5 algorithms: Ensemble, XGBoost, LightGBM, CatBoost, RandomForest |
-| 🔮 **Forecasting** | Multi-day weather prediction with rain detection |
-| 📊 **Evaluation** | Comprehensive metrics: MAE, RMSE, MAPE, R², Rain Accuracy |
-| 🎛️ **Hyperparameter tuning** | Grid search, random search, Optuna integration |
-| 💾 **Model versioning** | Automatic artifact management and versioning |
-| 📓 **Notebook pipeline** | Jupyter notebook for entire ML workflow (31 cells) |
+| 🏗️ **Huấn luyện mô hình** | Hỗ trợ 5 thuật toán: Ensemble, XGBoost, LightGBM, CatBoost, RandomForest |
+| 🔮 **Dự báo** | Dự báo thời tiết nhiều ngày có phát hiện mưa |
+| 📊 **Đánh giá** | Chỉ số toàn diện: MAE, RMSE, MAPE, R², Rain Accuracy |
+| 🎛️ **Tinh chỉnh hyperparameter** | Grid search, random search, tích hợp Optuna |
+| 💾 **Phân phiên bản model** | Quản lý artifacts tự động và phân phiên bản |
+| 📓 **Pipeline notebook** | Jupyter notebook cho toàn bộ quy trình ML (31 cells) |
 
-### 🌍 Internationalization
+### 🌍 Đa ngôn ngữ
 
-| Feature | Description |
+| Tính năng | Mô tả |
 |---------|-------------|
-| 🇻🇳 **Vietnamese** | Full Vietnamese localization (default) |
-| 🇬🇧 **English** | Complete English translation |
-| 🔄 **Live switching** | Toggle language without page reload |
-| 🎨 **Context-aware** | Dynamic translations with template tags |
-| 📝 **250+ strings** | Comprehensive coverage of all UI elements |
+| 🇻🇳 **Tiếng Việt** | Bản địa hóa tiếng Việt đầy đủ (mặc định) |
+| 🇬🇧 **Tiếng Anh** | Bản dịch tiếng Anh hoàn chỉnh |
+| 🔄 **Chuyển đổi trực tiếp** | Đổi ngôn ngữ không cần reload trang |
+| 🎨 **Ngữ cảnh động** | Bản dịch động qua template tags |
+| 📝 **250+ chuỗi** | Bảo phủ toàn bộ các phần tử UI |
 
-### 🔐 Security & Authentication
+### 🔐 Bảo mật & Xác thực
 
-| Feature | Description |
+| Tính năng | Mô tả |
 |---------|-------------|
-| 🔑 **Login** | Username or email login with JWT tokens |
-| 📝 **Registration** | Email OTP verification before account creation |
-| 🔄 **Password reset** | Secure OTP-based password recovery |
-| 🛡️ **Account lockout** | Auto-lock after 5 failed attempts (5 min) |
-| 📧 **Email validation** | MX record check, disposable email blocking |
-| 🔐 **Password security** | Pepper + hash, strength validation |
-| 👤 **Profile** | User profile management and settings |
+| 🔑 **Đăng nhập** | Đăng nhập bằng tên người dùng hoặc email kèm JWT token |
+| 📝 **Đăng ký** | Xác minh email bằng OTP trước khi tạo tài khoản |
+| 🔄 **Đặt lại mật khẩu** | Khôi phục bảo mật qua OTP 3 bước |
+| 🛡️ **Khóa tài khoản** | Tự động khóa sau 5 lần đăng nhập sai (5 phút) |
+| 📧 **Kiểm tra email** | Xác minh MX record, chặn email disposable |
+| 🔐 **Bảo mật mật khẩu** | Pepper + hash, kiểm tra độ mạnh tối thiểu |
+| 👤 **Hồ sơ** | Quản lý thông tin cá nhân và cài đặt tài khoản |
 
-### 🎨 UI/UX Excellence
+### 🎨 UI/UX nổi bật
 
-| Feature | Description |
+| Tính năng | Mô tả |
 |---------|-------------|
-| 🪟 **Glassmorphism** | Modern frosted glass design with blur effects |
-| 🌧️ **Weather animations** | Rain, wind, lightning, mist, aurora effects |
-| 🎭 **Responsive** | Mobile-first design, works on all devices |
-| 🎨 **Theme effects** | Dynamic gradient backgrounds, neon accents |
-| ⚡ **Performance** | Optimized animations with reduced-motion support |
-| 🎯 **Accessibility** | ARIA labels, keyboard navigation, screen reader support |
+| 🪟 **Glassmorphism** | Thiết kế kính mờ hiện đại với hiệu ứng blur |
+| 🌧️ **Hoạt ảnh thời tiết** | Hiệu ứng mưa, gió, sấm sét, sương mù, aurora |
+| 🎭 **Responsive** | Thiết kế mobile-first, hoạt động trên mọi thiết bị |
+| 🎨 **Hiệu ứng nền** | Gradient động, nhấn mạnh neon |
+| ⚡ **Hiệu năng** | Hoạt ảnh tối ưu với hỗ trợ reduced-motion |
+| 🎯 **Accessibility** | ARIA labels, điều hướng bàn phím, hỗ trợ screen reader |
 
 ---
 
-## 🧠 Machine Learning Pipeline
+## 🧠 Pipeline Học Máy
 
-### 📋 Complete ML Workflow (6 Phases)
+### 📋 Quy trình ML đầy đủ (6 giai đoạn)
 
-The platform includes a comprehensive Jupyter notebook (`tremblingProcess.ipynb`) that orchestrates the entire ML pipeline:
+Hệ thống tích hợp một Jupyter notebook toàn diện (`tremblingProcess.ipynb`) điều phối toàn bộ pipeline ML:
 
 ```mermaid
 graph TD
@@ -227,46 +227,46 @@ graph TD
     D -->|Model.pkl| G
 ```
 
-### 🔄 Phase Details
+### 🔄 Chi tiết từng giai đoạn
 
-#### Phase 1: Data Collection
-- Run crawling scripts (API/Selenium/HTML)
-- Output: Raw CSV files in `data/data_crawl/`
-- Sources: OpenWeather, Vrain (multiple methods)
+#### Giai đoạn 1: Thu thập dữ liệu
+- Chạy các script crawl (API/Selenium/HTML)
+- Đầu ra: File CSV thô trong `data/data_crawl/`
+- Nguồn: OpenWeather, Vrain (nhiều phương thức)
 
-#### Phase 2: Data Merging
-- Execute `scripts/merge_csv.py`
-- Align schemas, resolve conflicts
-- Output: Merged file in `data/data_merge/`
+#### Giai đoạn 2: Gộp dữ liệu
+- Thực thi `scripts/merge_csv.py`
+- Căn chỉnh schema, giải quyết xung đột
+- Đầu ra: File đã gộp trong `data/data_merge/`
 
-#### Phase 3: Data Cleaning (4 steps)
-1. ~~Column renaming~~ → **SKIPPED** (handled by Cleardata)
-2. Run `Cleardata.py` (main cleaning)
-3. ~~Additional cleaning~~ → **SKIPPED** (duplicate)
-4. Clean NaN datetime with `clean_datetime_nan.py`
+#### Giai đoạn 3: Làm sạch dữ liệu (4 bước)
+1. ~~Đổi tên cột~~ → **BỎ QUA** (xử lý bởi Cleardata)
+2. Chạy `Cleardata.py` (làm sạch chính)
+3. ~~Làm sạch bổ sung~~ → **BỎ QUA** (trùng lặp)
+4. Làm sạch datetime NaN bằng `clean_datetime_nan.py`
 
-#### Phase 4: Model Training
-- Update `train_config.json` with latest dataset
-- Run `manage.py train_model`
-- Generates 4 artifacts:
-  - `Feature_list.json` — Feature schema for predictions
-  - `Metrics.json` — Model performance metrics
-  - `Train_info.json` — Training configuration metadata
-  - `Model.pkl` — Serialized trained model
+#### Giai đoạn 4: Huấn luyện mô hình
+- Cập nhật `train_config.json` với dataset mới nhất
+- Chạy `manage.py train_model`
+- Tạo ra 4 artifacts:
+  - `Feature_list.json` — Schema features dùng cho dự báo
+  - `Metrics.json` — Chỉ số hiệu suất mô hình
+  - `Train_info.json` — Metadata cấu hình huấn luyện
+  - `Model.pkl` — Mô hình đã serialized
 
-#### Phase 5: Weather Forecasting
+#### Giai đoạn 5: Dự báo thời tiết
 - Sử dụng trang **Predict** trên web hoặc gọi `WeatherPredictor.from_artifacts().predict(df)`
 - Output: file `predictions.csv` lưu tại `Weather_Forcast_App/runtime/`
 - Kết quả bao gồm cột `y_pred` (lượng mưa dự báo) và `status` (Mưa/Không mưa)
 
-#### Phase 6: Diagnostics
-- Run `scripts/run_diagnostics.py`
-- Generate health check reports
-- Validate data quality
+#### Giai đoạn 6: Chẩn đoán
+- Chạy `scripts/run_diagnostics.py`
+- Tạo báo cáo kiểm tra sức khỏe hệ thống
+- Kiểm tra chất lượng dữ liệu
 
-### 🎯 Supported Machine Learning Models
+### 🎯 Các mô hình học máy được hỗ trợ
 
-| Model | Technology | Use Case | Ghi chú |
+| Mô hình | Công nghệ | Mục đích | Ghi chú |
 |-------|-----------|----------|---------|
 | **RandomForest** | Scikit-learn | Baseline, đánh giá tầm quan trọng feature | Ổn định, dễ diễn giải |
 | **XGBoost** | XGBoost 3.2 | Gradient boosting hiệu năng cao | Tốc độ nhanh, chống overfitting |
@@ -297,23 +297,23 @@ graph TD
 
 > **Lưu ý:** target `rain_total` được áp dụng log1p transform trước khi train. MAE/RMSE tính trên không gian log.
 
-### 🗂️ ML Artifacts Structure
+### 🗂️ Cấu trúc ML Artifacts
 
 ```
 Machine_learning_artifacts/
-├── latest/                        # Current production model
-│   ├── Feature_list.json          # Feature schema (120 features)
-│   ├── Metrics.json               # Performance metrics
-│   ├── Train_info.json            # Training metadata
-│   ├── Model.pkl                  # Trained model (serialized)
-│   └── Transform_pipeline.pkl    # Feature transform pipeline
-└── old_model/                     # Previous version backup
+├── latest/                        # Model production hiện tại
+│   ├── Feature_list.json          # Schema features (120 features)
+│   ├── Metrics.json               # Chỉ số hiệu suất
+│   ├── Train_info.json            # Metadata huấn luyện
+│   ├── Model.pkl                  # Mô hình đã serialized
+│   └── Transform_pipeline.pkl    # Pipeline transform features
+└── old_model/                     # Bản sao lưu phiên bản cũ
     ├── Feature_list.json
     ├── Metrics.json
     └── Train_info.json
 ```
 
-### 🔧 Training Configuration
+### 🔧 Cấu hình huấn luyện
 
 **File:** `config/train_config.json`
 
@@ -341,32 +341,32 @@ Machine_learning_artifacts/
 }
 ```
 
-### 🚀 Training a Model
+### 🚀 Cách huấn luyện mô hình
 
-#### Via Django Management Command
+#### Qua lệnh Django Management Command
 ```bash
 python manage.py train_model
 ```
 
-#### Via Direct Script
+#### Qua script trực tiếp
 ```bash
 python Weather_Forcast_App/Machine_learning_model/trainning/train.py \
   --config Weather_Forcast_App/Machine_learning_model/config/train_config.json
 ```
 
-#### Via Jupyter Notebook
+#### Qua Jupyter Notebook
 ```bash
 jupyter notebook Weather_Forcast_App/Evaluate_accuracy/tremblingProcess.ipynb
 ```
 
-### 🔮 Making Predictions
+### 🔮 Thực hiện dự báo
 
-#### Via Web Interface
-1. Navigate to **🔮 Weather Forecast** page
-2. Select date range and location
-3. View predictions with confidence intervals
+#### Qua giao diện web
+1. Điều hướng đến trang **🔮 Dự báo thời tiết**
+2. Chọn khoảng thời gian và vị trí
+3. Xem kết quả dự báo kèm khoảng tin cậy
 
-#### Via Python Script
+#### Qua script Python
 ```python
 from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
 
@@ -377,36 +377,37 @@ print(f"Predicted rain: {predictions['rain_total']} mm")
 
 ---
 
-## 🌍 Internationalization (i18n)
+## 🌍 Đa ngôn ngữ (i18n)
 
-### 🔄 Language Support
+### 🔄 Hỗ trợ ngôn ngữ
 
-VN Weather Hub provides comprehensive bilingual support with seamless language switching.
+VN Weather Hub cung cấp hỗ trợ song ngữ toàn diện với tính năng chuyển đổi ngôn ngữ liền mạch.
 
-#### Supported Languages
-- 🇻🇳 **Tiếng Việt** (Vietnamese) — Default
-- 🇬🇧 **English** — Full translation
+#### Ngôn ngữ được hỗ trợ
+- 🇻🇳 **Tiếng Việt** — Mặc định
+- 🇬🇧 **Tiếng Anh** — Bản dịch đầy đủ
 
-#### Features
-- ✅ **250+ translated strings** covering all UI elements
-- ✅ **Live switching** without page reload
-- ✅ **Context-aware** translations via custom template tags
-- ✅ **URL persistence** — language preference saved in URL
-- ✅ **Session storage** — remembers user language choice
+#### Tính năng
+- ✅ **250+ chuỗi dịch** bảo phủ toàn bộ phần tử UI
+- ✅ **Chuyển đổi trực tiếp** không cần reload trang
+- ✅ **Dịch theo ngữ cảnh** qua custom template tags
+- ✅ **Lưu URL** — lưu ngôn ngữ vào URL
+- ✅ **Session storage** — ghi nhớ lựa chọn ngôn ngữ của người dùng
 
-### 📂 Translation Files
+### 📂 Các file dịch
 
 ```
+Weather_Forcast_App/locales/
+├── vi.json                  # Bản dịch tiếng Việt
+└── en.json                  # Bản dịch tiếng Anh
+
 Weather_Forcast_App/i18n/
-├── locales/
-│   ├── vi.json                  # Vietnamese translations
-│   └── en.json                  # English translations
-├── context_processor.py         # Django context processor
-├── middleware.py                # Language detection middleware
-└── hooks.ts / index.ts          # Frontend i18n utilities
+├── context_processor.py     # Django context processor
+├── middleware.py            # Middleware phát hiện ngôn ngữ
+└── hooks.ts / index.ts      # Tiện ích i18n phía frontend
 ```
 
-### 🔧 Usage in Templates
+### 🔧 Sử dụng trong Templates
 
 ```html
 {% load i18n_tags %}
@@ -425,9 +426,9 @@ Weather_Forcast_App/i18n/
 {% endif %}
 ```
 
-### 📝 Translation Keys (Examples)
+### 📝 Khóa dịch (Ví dụ)
 
-#### Homepage (`home.*`)
+#### Trang chủ (`home.*`)
 ```json
 {
   "home.hero_title": "Vietnam Weather Data in Real Time",
@@ -439,7 +440,7 @@ Weather_Forcast_App/i18n/
 }
 ```
 
-#### Datasets Page (`datasets.*`)
+#### Trang Datasets (`datasets.*`)
 ```json
 {
   "datasets.tab_recent": "Recent Raw Data",
@@ -451,7 +452,7 @@ Weather_Forcast_App/i18n/
 }
 ```
 
-#### Authentication (`auth.*`)
+#### Xác thực (`auth.*`)
 ```json
 {
   "auth.login_title": "Login to Your Account",
@@ -462,9 +463,9 @@ Weather_Forcast_App/i18n/
 }
 ```
 
-### 🌐 Adding New Translations
+### 🌐 Thêm nội dung dịch mới
 
-1. **Add key to JSON files:**
+1. **Thêm khóa vào file JSON:**
 ```json
 // locales/vi.json
 {
@@ -477,30 +478,30 @@ Weather_Forcast_App/i18n/
 }
 ```
 
-2. **Use in template:**
+2. **Dùng trong template:**
 ```html
 {% load i18n_tags %}
 <p>{% t "feature.new_key" %}</p>
 ```
 
-3. **Restart Django server** to reload translations
+3. **Khởi động lại Django server** để tải lại bản dịch
 
 ---
 
-## 🎨 UI/UX Features
+## 🎨 Tính năng UI/UX
 
-### 🪟 Glassmorphism Design System
+### 🪟 Hệ thống thiết kế Glassmorphism
 
-The platform uses a modern glassmorphism design language inspired by Apple's design philosophy:
+Nền tảng sử dụng ngôn ngữ thiết kế glassmorphism hiện đại lấy cảm hứng từ triết học thiết kế của Apple:
 
-#### Visual Elements
-- **Frosted glass cards** with backdrop-filter blur
-- **Semi-transparent backgrounds** with gradient overlays
-- **Neon accent colors** for CTAs and highlights
-- **Soft shadows** with multiple layers
-- **Smooth transitions** on all interactive elements
+#### Các yếu tố trực quan
+- **Thẻ kính mờ** với backdrop-filter blur
+- **Nền bán trong suốt** với lớp phủ gradient
+- **Màu nhấn neon** cho CTA và điểm nổi bật
+- **Bóng đổ nhẹ** với nhiều lớp
+- **Chuyển đổi mượt mà** trên tất cả các phần tử tương tác
 
-#### Color Palette
+#### Bảng màu
 ```css
 /* Primary Colors */
 --cyan: #22d3ee;           /* Accent cyan */
@@ -518,21 +519,21 @@ The platform uses a modern glassmorphism design language inspired by Apple's des
 --muted: #94a3b8;          /* Muted text (slate) */
 ```
 
-### 🌧️ Weather-Themed Animations
+### 🌧️ Hoạt ảnh chủ đề thời tiết
 
-#### Background Effects (CSS-based)
-- **Rain effect** — Vertical rain streaks with shimmer animation
-- **Wind blow** — Horizontal gradient sweep
-- **Mist/Fog** — Floating radial gradients
-- **Aurora shimmer** — Large-scale color rotation
-- **Lightning flash** — Periodic brightness pulses
-- **Wave ripple** — Horizontal sine-wave patterns
+#### Hiệu ứng nền (dựa trên CSS)
+- **Hiệu ứng mưa** — Vệt mưa dọc với hoạt ảnh lấp lánh
+- **Gió thổi** — Quét gradient ngang
+- **Sương mù** — Gradient hướng tâm nổi lên
+- **Ánh bắc cực** — Xoay màu quy mô lớn
+- **Chớp sét** — Nhấp nháy độ sáng định kỳ
+- **Sóng gợn** — Mẫu hình sin nằm ngang
 
-#### Interactive Animations
-- **Button hover effects** — Scale + glow + lift transforms
-- **Card entrance** — Fade-in with slide-up
-- **Logo pulse** — Breathing animation with color cycle
-- **Floating orbs** — Particle system drifting across viewport
+#### Hoạt ảnh tương tác
+- **Hiệu ứng hover nút** — Transform scale + glow + nâng lên
+- **Thẻ xuất hiện** — Fade-in kết hợp trượt lên
+- **Logo đập nhịp** — Hoạt ảnh thở với chu kỳ màu sắc
+- **Hạt nổi** — Hệ thống hạt trôi qua khung nhìn
 
 #### Accessibility
 ```css
@@ -545,17 +546,17 @@ The platform uses a modern glassmorphism design language inspired by Apple's des
 }
 ```
 
-### 📱 Responsive Design
+### 📱 Thiết kế Responsive
 
-| Breakpoint | Device | Adjustments |
+| Breakpoint | Thiết bị | Điều chỉnh |
 |-----------|--------|-------------|
-| `>1200px` | Desktop | Full 3-column grid, side-by-side panels |
-| `768px-1200px` | Tablet | 2-column grid, collapsible sidebar |
-| `<768px` | Mobile | Single column, stacked layout, bottom nav |
+| `>1200px` | Desktop | Lưới 3 cột đầy đủ, bảng cạnh nhau |
+| `768px-1200px` | Tablet | Lưới 2 cột, thanh bên thu gọn |
+| `<768px` | Mobile | Một cột, bố cục xếp chồng, điều hướng dưới |
 
-### ✨ Enhanced Button System
+### ✨ Hệ thống nút cải tiến
 
-#### Primary Button (Main Actions)
+#### Nút chính (Hành động chính)
 ```css
 .btn.primary {
   background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
@@ -575,96 +576,96 @@ The platform uses a modern glassmorphism design language inspired by Apple's des
 }
 ```
 
-#### Features
-- **Gradient backgrounds** with smooth color transitions
-- **Multi-layer shadows** for depth perception
-- **Scale transforms** on hover (1.02x)
-- **Lift effect** with translateY(-3px)
-- **Pulse animation** on primary CTAs
+#### Tính năng
+- **Nền gradient** với chuyển đổi màu sắc mượt mà
+- **Bóng đổ nhiều lớp** tạo cảm giác chiều sâu
+- **Scale transform** khi hover (1.02x)
+- **Hiệu ứng nâng** với translateY(-3px)
+- **Hoạt ảnh nhịp đập** trên các CTA chính
 
 ---
 
-## 🔐 Authentication System
+## 🔐 Hệ thống Xác thực
 
-### 📋 Features Overview
+### 📋 Tổng quan tính năng
 
-| Feature | Description |
+| Tính năng | Mô tả |
 |---------|-------------|
-| 🔑 **Login** | Username or email login with JWT tokens |
-| 📝 **Registration** | Two-step process with email OTP verification |
-| 🔄 **Password Reset** | Three-step OTP-based recovery |
-| 🛡️ **Account Lockout** | Auto-lock after 5 failed attempts (5 minutes) |
-| 📧 **Email Security** | MX record validation, disposable email blocking |
-| 🔐 **Password Strength** | Min 8 chars, uppercase, lowercase, number, special char |
-| 👤 **Profile Management** | Update name, email, view activity |
+| 🔑 **Đăng nhập** | Đăng nhập bằng tên người dùng hoặc email kèm JWT token |
+| 📝 **Đăng ký** | Quy trình 2 bước với xác minh email qua OTP |
+| 🔄 **Đặt lại mật khẩu** | Khôi phục 3 bước qua OTP |
+| 🛡️ **Khóa tài khoản** | Tự động khóa sau 5 lần thất bại (5 phút) |
+| 📧 **Bảo mật email** | Xác minh MX record, chặn email disposable |
+| 🔐 **Độ mạnh mật khẩu** | Tối thiểu 8 ký tự, hoa, thường, số, ký tự đặc biệt |
+| 👤 **Quản lý hồ sơ** | Cập nhật tên, email, xem hoạt động |
 
-### 🔑 Login Flow
+### 🔑 Luồng đăng nhập
 
 ```
-User Input (username/email + password)
+Người dùng nhập (tên đăng nhập/email + mật khẩu)
         ↓
-Find account in MongoDB (username OR email)
+Tìm tài khoản trong MongoDB (tên đăng nhập HOẶC email)
         ↓
-Check account locked? → Yes: Show lockout message
-        ↓ No
-Check account active? → No: Show activation message
-        ↓ Yes
-Verify password (hash + pepper)
+Kiểm tra tài khoản bị khóa? → Có: Hiển thị thông báo khóa
+        ↓ Không
+Kiểm tra tài khoản hoạt động? → Không: Hiển thị thông báo kích hoạt
+        ↓ Có
+Xác minh mật khẩu (hash + pepper)
         ↓
-Create JWT token (role, manager_id)
+Tạo JWT token (role, manager_id)
         ↓
-Save to session + Set cookie
+Lưu vào session + Đặt cookie
         ↓
-Redirect to Home page ✅
+Chuyển hướng đến trang Chủ ✅
 ```
 
-#### Security Features
-- **Pepper-enhanced hashing:** `hash(password + PEPPER_SECRET)`
-- **Failed attempt tracking:** Counter increments on wrong password
-- **Auto-lockout:** 5 attempts → lock for 5 minutes
-- **JWT tokens:** Stateless authentication with expiry
-- **Session management:** Secure session storage
+#### Tính năng bảo mật
+- **Hashing tăng cường pepper:** `hash(password + PEPPER_SECRET)`
+- **Theo dõi lần thất bại:** Bộ đếm tăng khi sai mật khẩu
+- **Tự động khóa:** 5 lần thất bại → khóa 5 phút
+- **JWT tokens:** Xác thực không trạng thái có hạn dùng
+- **Quản lý session:** Lưu trữ session bảo mật
 
-### 📝 Registration Flow (2 Steps)
+### 📝 Luồng đăng ký (2 bước)
 
-#### Step 1: Register Form
+#### Bước 1: Form đăng ký
 ```
-Input: First/Last Name, Username, Email, Password
+Nhập: Tên/Họ, Tên đăng nhập, Email, Mật khẩu
         ↓
-Validation:
-├── Email format + MX records check
-├── Block disposable emails (tempmail, guerrilla, etc.)
-├── Username unique check
-├── Email not already registered
-├── Password strength validation
+Kiểm tra:
+├── Định dạng email + kiểm tra MX records
+├── Chặn email disposable (tempmail, guerrilla, v.v.)
+├── Tên đăng nhập chưa tồn tại
+├── Email chưa được đăng ký
+├── Kiểm tra độ mạnh mật khẩu
         ↓
-Generate 5-digit OTP
+Tạo OTP 5 chữ số
         ↓
-Send OTP email (Gmail SMTP / Resend API)
+Gửi email OTP (Gmail SMTP / Resend API)
         ↓
-Save registration data to session (temporary)
+Lưu dữ liệu đăng ký vào session (tạm thời)
         ↓
-Redirect to OTP verification page
-```
-
-#### Step 2: OTP Verification
-```
-Input: 5-digit OTP code
-        ↓
-Verify OTP hash (SHA-256 + salt)
-        ↓
-Check expiry (10 minutes TTL)
-        ↓
-Check attempts (max 5)
-        ↓
-Create account in MongoDB
-        ↓
-Auto-login with JWT
-        ↓
-Redirect to Home ✅
+Chuyển hướng đến trang xác minh OTP
 ```
 
-#### Password Requirements
+#### Bước 2: Xác minh OTP
+```
+Nhập: Mã OTP 5 chữ số
+        ↓
+Xác minh hash OTP (SHA-256 + salt)
+        ↓
+Kiểm tra hết hạn (TTL 10 phút)
+        ↓
+Kiểm tra số lần thử (tối đa 5)
+        ↓
+Tạo tài khoản trong MongoDB
+        ↓
+Tự động đăng nhập bằng JWT
+        ↓
+Chuyển hướng về trang Chủ ✅
+```
+
+#### Yêu cầu mật khẩu
 ```
 ✅ Minimum 8 characters
 ✅ At least 1 lowercase letter (a-z)
@@ -682,64 +683,64 @@ Redirect to Home ✅
 | **Disposable** | Block tempmail, mailinator, guerrillamail, etc. |
 | **Trusted Domains** | Skip MX check for gmail.com, yahoo.com, outlook.com |
 
-### 🔄 Password Reset Flow (3 Steps)
+### 🔄 Luồng đặt lại mật khẩu (3 bước)
 
-#### Step 1: Request Reset
+#### Bước 1: Yêu cầu đặt lại
 ```
-Input: Email address
+Nhập: Địa chỉ email
         ↓
-Check email exists in database
+Kiểm tra email tồn tại trong cơ sở dữ liệu
         ↓
-Generate 5-digit OTP
+Tạo OTP 5 chữ số
         ↓
-Send OTP email
+Gửi email OTP
         ↓
-Redirect to OTP verification
-```
-
-#### Step 2: Verify OTP
-```
-Input: 5-digit OTP
-        ↓
-Verify OTP hash + expiry + attempts
-        ↓
-Mark OTP as verified
-        ↓
-Redirect to password reset form
+Chuyển hướng đến trang xác minh OTP
 ```
 
-#### Step 3: Set New Password
+#### Bước 2: Xác minh OTP
 ```
-Input: New password + Confirm password
+Nhập: OTP 5 chữ số
         ↓
-Validate password strength
+Xác minh hash OTP + hết hạn + số lần thử
         ↓
-Check passwords match
+Đánh dấu OTP đã xác minh
         ↓
-Update password in database (hash + pepper)
-        ↓
-Invalidate all existing OTPs
-        ↓
-Redirect to Login ✅
+Chuyển hướng đến form đặt lại mật khẩu
 ```
 
-### 📧 Email OTP System
+#### Bước 3: Đặt mật khẩu mới
+```
+Nhập: Mật khẩu mới + Xác nhận mật khẩu
+        ↓
+Kiểm tra độ mạnh mật khẩu
+        ↓
+Kiểm tra hai mật khẩu khớp nhau
+        ↓
+Cập nhật mật khẩu trong cơ sở dữ liệu (hash + pepper)
+        ↓
+Vô hiệu hóa tất cả OTP hiện có
+        ↓
+Chuyển hướng về trang Đăng nhập ✅
+```
 
-#### OTP Security
-| Feature | Implementation |
+### 📧 Hệ thống OTP qua Email
+
+#### Bảo mật OTP
+| Tính năng | Hiện thực |
 |---------|----------------|
-| **Generation** | `secrets.randbelow(100000)` (cryptographically secure) |
-| **Storage** | SHA-256 hash(otp + salt + secret_key), never plain text |
-| **Expiry** | 10 minutes TTL (MongoDB TTL index auto-delete) |
-| **Attempts** | Max 5 attempts, then request new OTP |
-| **Invalidation** | Old OTPs invalidated when new one generated |
+| **Tạo mã** | `secrets.randbelow(100000)` (bảo mật mật mã) |
+| **Lưu trữ** | SHA-256 hash(otp + salt + secret_key), không bao giờ lưu dạng thô |
+| **Hết hạn** | TTL 10 phút (MongoDB TTL index tự xóa) |
+| **Số lần thử** | Tối đa 5 lần, sau đó yêu cầu OTP mới |
+| **Vô hiệu hóa** | OTP cũ bị vô hiệu khi tạo OTP mới |
 
-#### Email Providers (Priority Order)
-1. **Gmail SMTP** (recommended) — Most reliable
-2. **Resend API** — If RESEND_API_KEY configured
-3. **Console Mode** — Development fallback (prints to terminal)
+#### Nhà cung cấp email (thứ tự ưu tiên)
+1. **Gmail SMTP** (khuyến nghị) — Đáng tin cậy nhất
+2. **Resend API** — Nếu đã cấu hình RESEND_API_KEY
+3. **Console Mode** — Fallback cho môi trường dev (in ra terminal)
 
-#### Gmail SMTP Configuration
+#### Cấu hình Gmail SMTP
 ```env
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.gmail.com
@@ -750,24 +751,24 @@ EMAIL_USE_TLS=True
 DEFAULT_FROM_EMAIL=VN Weather Hub <your_email@gmail.com>
 ```
 
-**How to get Gmail App Password:**
-1. Go to [Google Account](https://myaccount.google.com/)
-2. Enable **2-Step Verification** (Security section)
-3. Generate **App Password** for Mail app
-4. Copy 16-character password to `EMAIL_HOST_PASSWORD`
+**Cách lấy Gmail App Password:**
+1. Truy cập [Google Account](https://myaccount.google.com/)
+2. Bật **Xác minh 2 bước** (mục Bảo mật)
+3. Tạo **App Password** cho ứng dụng Mail
+4. Sao chép mật khẩu 16 ký tự vào `EMAIL_HOST_PASSWORD`
 
-### 👤 Profile Management
+### 👤 Quản lý hồ sơ
 
 **Route:** `/profile/`
 
-#### Features
-- View account details (name, username, email, role)
-- Update first/last name
-- Update email (with uniqueness check)
-- View registration date and last login
-- See account role (Staff/Manager/Admin)
+#### Tính năng
+- Xem thông tin tài khoản (tên, tên đăng nhập, email, vai trò)
+- Cập nhật họ/tên
+- Cập nhật email (có kiểm tra tính duy nhất)
+- Xem ngày đăng ký và lần đăng nhập cuối
+- Xem vai trò tài khoản (Staff/Manager/Admin)
 
-### 🗄️ MongoDB Collections
+### 🗄️ Các collection MongoDB
 
 #### Collection: `logins`
 ```javascript
@@ -819,9 +820,9 @@ DEFAULT_FROM_EMAIL=VN Weather Hub <your_email@gmail.com>
 
 ---
 
-## 📊 Data Pipeline
+## 📊 Pipeline Dữ liệu
 
-### 🗂️ Directory Structure
+### 🗂️ Cấu trúc thư mục
 
 ```
 data/
@@ -843,7 +844,7 @@ data/
 
 ```
 
-### 🔄 Data Flow
+### 🔄 Luồng dữ liệu
 
 ```mermaid
 flowchart LR
@@ -868,16 +869,16 @@ flowchart LR
 | **Vrain Selenium** | Web scraping | HTML → CSV | On-demand |
 | **Vrain HTML Parser** | Static parsing | HTML → CSV | On-demand |
 
-### 🔗 Merge Process
+### 🔗 Quá trình gộp dữ liệu
 
-#### Features
-- **Schema alignment**: Automatically align column names and types
-- **Conflict resolution**: Handle duplicate timestamps with configurable strategies
-- **Deduplication**: Remove exact duplicate rows
-- **Validation**: Check data integrity before/after merge
-- **Logging**: Detailed merge log with file info and statistics
+#### Tính năng
+- **Căn chỉnh schema**: Tự động căn chỉnh tên cột và kiểu dữ liệu
+- **Giải quyết xung đột**: Xử lý timestamp trùng lặp với chiến lược cấu hình được
+- **Loại bỏ trùng lặp**: Xóa các dòng hoàn toàn giống nhau
+- **Kiểm tra**: Xác minh tính toàn vẹn dữ liệu trước/sau khi gộp
+- **Ghi nhật ký**: Nhật ký gộp chi tiết với thông tin file và thống kê
 
-#### Merge Strategies
+#### Chiến lược gộp
 ```python
 # Configuration in merge script
 MERGE_CONFIG = {
@@ -888,54 +889,54 @@ MERGE_CONFIG = {
 }
 ```
 
-### 🧹 Clean Process
+### 🧹 Quá trình làm sạch
 
-#### Cleaning Pipeline (4 Steps)
+#### Pipeline làm sạch (4 bước)
 
-**Step 1:** Column Renaming (Skipped - handled by Cleardata)
+**Bước 1:** Đổi tên cột (Bỏ qua - được xử lý bởi Cleardata)
 
-**Step 2:** Main Cleaning (`Cleardata.py`)
-- Remove duplicate rows
-- Handle missing values (fill/drop)
-- Standardize datetime formats
-- Remove outliers
-- Normalize units (e.g., temperature °C/°F, pressure hPa/mmHg)
-- Validate data ranges
+**Bước 2:** Làm sạch chính (`Cleardata.py`)
+- Xóa các dòng trùng lặp
+- Xử lý giá trị thiếu (điền/xóa)
+- Chuẩn hóa định dạng datetime
+- Loại bỏ ngoại lệ (outlier)
+- Chuẩn hóa đơn vị (vd: nhiệt độ °C/°F, áp suất hPa/mmHg)
+- Kiểm tra phạm vi dữ liệu
 
-**Step 3:** Additional Cleaning (Skipped - duplicate of Step 2)
+**Bước 3:** Làm sạch bổ sung (Bỏ qua - trùng lặp Bước 2)
 
-**Step 4:** DateTime NaN Cleaning (`clean_datetime_nan.py`)
-- Fix invalid datetime values
-- Fill missing dates with interpolation
-- Remove rows with critical datetime errors
+**Bước 4:** Làm sạch DateTime NaN (`clean_datetime_nan.py`)
+- Sửa các giá trị datetime không hợp lệ
+- Điền các ngày thiếu bằng nội suy
+- Xóa các dòng có lỗi datetime nghiêm trọng
 
-#### Clean Wizard UI (3 Steps)
+#### Giao diện Clean Wizard (3 bước)
 
 ```
-Step 1: Select Source
-├── 🔗 Merged data (from data_merge/)
-└── 📦 Raw data (from data_crawl/)
+Bước 1: Chọn nguồn
+├── 🔗 Dữ liệu đã gộp (từ data_merge/)
+└── 📦 Dữ liệu thô (từ data_crawl/)
         ↓
-Step 2: Choose File
-├── Search/filter files
-├── View file metadata (size, date)
-└── Select file to clean
+Bước 2: Chọn file
+├── Tìm kiếm/lọc file
+├── Xem metadata file (kích thước, ngày)
+└── Chọn file cần làm sạch
         ↓
-Step 3: Track Progress
-├── Real-time log output
-├── Progress percentage
-├── Error/warning messages
-└── Download cleaned file ✅
+Bước 3: Theo dõi tiến trình
+├── Đầu ra log theo thời gian thực
+├── Phần trăm tiến độ
+├── Thông báo lỗi/cảnh báo
+└── Tải file đã làm sạch ✅
 ```
 
-### 👁️ Dataset Preview
+### 👁️ Xem trước Dataset
 
-#### CSV/Excel (Table Mode)
-- **Pagination**: 50 rows per page
-- **Sortable columns**: Click header to sort
-- **Search**: Filter by any column value
-- **Metadata**: Row count, column count, file size
-- **Export**: Download as CSV/XLSX/JSON
+#### CSV/Excel (Chế độ bảng)
+- **Phân trang**: 50 dòng mỗi trang
+- **Cột sắp xếp được**: Nhấp tiêu đề để sắp xếp
+- **Tìm kiếm**: Lọc theo bất kỳ giá trị cột nào
+- **Metadata**: Số dòng, số cột, kích thước file
+- **Xuất**: Tải xuống dạng CSV/XLSX/JSON
 
 #### JSON (Syntax Highlighted)
 ```json
@@ -957,14 +958,14 @@ Humidity: 75%
 Rain: 12.3mm
 ```
 
-### ⬇️ Download Options
+### ⬇️ Tùy chọn tải xuống
 
-| Format | Use Case | Features |
+| Định dạng | Mục đích | Đặc điểm |
 |--------|----------|----------|
-| **CSV** | Data analysis, Excel | UTF-8 BOM, comma-delimited |
-| **XLSX** | Business reports | Formatted headers, auto-width |
-| **JSON** | API integration | Pretty-printed, indented |
-| **TXT** | Logs, debugging | Plain text, line-delimited |
+| **CSV** | Phân tích dữ liệu, Excel | UTF-8 BOM, phân tách bằng dấu phẩy |
+| **XLSX** | Báo cáo kinh doanh | Tiêu đề được định dạng, tự động điều chỉnh độ rộng |
+| **JSON** | Tích hợp API | In đẹp, thụt đầu dòng |
+| **TXT** | Nhật ký, gỡ lỗi | Văn bản thuần, mỗi dòng một mục |
 
 ---
 
@@ -1227,57 +1228,57 @@ PROJECT_WEATHER_FORECAST/
 └── debug_top50_errors.csv          # Error diagnostics
 ```
 
-### 📦 Key Directories Explained
+### 📦 Giải thích các thư mục chính
 
 #### `Machine_learning_artifacts/`
-Stores trained model artifacts separated by version:
-- `latest/` — Current production model
-- `old_model/` — Previous version backup
+Lưu trữ artifacts mô hình đã huấn luyện theo từng phiên bản:
+- `latest/` — Model production hiện tại
+- `old_model/` — Bản sao lưu phiên bản trước
 
-**Never commit** `.pkl` files to git (large binary files). Use `.gitignore`.
+**Không commit** file `.pkl` lên git (file nhị phân lớn). Dùng `.gitignore`.
 
 #### `Machine_learning_model/`
-Complete ML pipeline with modular architecture:
-- **data/**: Loading, validation, splitting
-- **features/**: Engineering, transformation
-- **Models/**: Algorithm implementations
-- **trainning/**: Training orchestration
-- **interface/**: Prediction API
-- **evaluation/**: Metrics and reporting
+Pipeline ML đầy đủ với kiến trúc module:
+- **data/**: Tải, kiểm tra, phân tách
+- **features/**: Kỹ thuật đặc trưng, biến đổi
+- **Models/**: Hiện thực các thuật toán
+- **trainning/**: Điều phối huấn luyện
+- **interface/**: API dự báo
+- **evaluation/**: Chỉ số và báo cáo
 
-#### `i18n/`
-Internationalization system:
-- **locales/**: JSON translation files (vi.json, en.json)
-- **middleware.py**: Auto-detect language from URL/session
-- **context_processor.py**: Inject `{% t %}` template tag
+#### `i18n/` và `locales/`
+Hệ thống đa ngôn ngữ:
+- **locales/**: File dịch JSON (vi.json, en.json) — trong `Weather_Forcast_App/locales/`
+- **middleware.py**: Tự động phát hiện ngôn ngữ từ URL/session
+- **context_processor.py**: Cung cấp template tag `{% t %}`
 
 #### `static/weather/`
-Frontend assets with design system:
-- **css/**: Organized by page + theme system
-- **js/**: Vanilla JavaScript modules (no framework)
-- **theme/**: Centralized design tokens (colors, shadows, spacing)
+Tài nguyên frontend với hệ thống thiết kế:
+- **css/**: Tổ chức theo trang + hệ thống theme
+- **js/**: Module JavaScript thuần (không framework)
+- **theme/**: Design tokens tập trung (màu sắc, bóng đổ, khoảng cách)
 
 #### `templates/weather/`
-Django templates with template tags:
-- Server-side rendering for SEO
-- `{% load i18n_tags %}` for translations
-- `{% load static %}` for asset URLs
+Django templates với template tags:
+- Render phía server (cho SEO)
+- `{% load i18n_tags %}` để dịch nội dung
+- `{% load static %}` để lấy URL tài nguyên
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Cài đặt & Khởi chạy
 
-### 📋 Requirements
+### 📋 Yêu cầu hệ thống
 
-| Requirement | Version | Purpose |
+| Yêu cầu | Phiên bản | Mục đích |
 |------------|---------|---------|
-| **Python** | 3.11+ | Core runtime |
+| **Python** | 3.11+ | Môi trường chạy chính |
 | **Django** | 6.0.1 | Web framework |
-| **MongoDB** | 7.0+ | User database |
-| **pip** | 24+ | Package manager |
-| **virtualenv** | 20+ | Environment isolation |
+| **MongoDB** | 7.0+ | Cơ sở dữ liệu người dùng |
+| **pip** | 24+ | Quản lý gói |
+| **virtualenv** | 20+ | Cô lập môi trường |
 
-### 🔧 Step-by-Step Installation
+### 🔧 Hướng dẫn cài đặt từng bước
 
 #### 1️⃣ Clone Repository
 ```bash
@@ -1285,26 +1286,26 @@ git clone https://github.com/TiCoder-coder/PROJECT_WEATHER_FORCAST.git
 cd PROJECT_WEATHER_FORCAST
 ```
 
-#### 2️⃣ Create Virtual Environment
+#### 2️⃣ Tạo môi trường ảo (Virtual Environment)
 ```bash
-# Create venv
+# Tạo venv
 python3 -m venv .venv
 
-# Activate venv
+# Kích hoạt venv
 source .venv/bin/activate  # Linux/macOS
 .venv\Scripts\activate     # Windows
 ```
 
-#### 3️⃣ Install Dependencies
+#### 3️⃣ Cài đặt dependencies
 ```bash
-# Install Python packages
+# Cài các gói Python
 pip install -r requirements.txt
 
-# Verify installation
+# Xác minh cài đặt
 pip list
 ```
 
-**Key packages:**
+**Các gói chính:**
 ```txt
 Django==6.0.1
 pymongo==4.16.0
@@ -1323,9 +1324,9 @@ python-decouple==3.8
 resend==2.19.0
 ```
 
-#### 4️⃣ Configure Environment Variables
+#### 4️⃣ Cấu hình biến môi trường
 
-Create `.env` file in project root:
+Tạo file `.env` ở thư mục gốc dự án:
 
 ```env
 # Django Settings
@@ -1374,82 +1375,82 @@ ADMIN_PASSWORD=Admin@2026
 ADMIN_EMAIL=admin@vnweatherhub.com
 ```
 
-#### 5️⃣ Set Up MongoDB
+#### 5️⃣ Cài đặt MongoDB
 
-**Option A: MongoDB Atlas (Cloud)**
-1. Create free cluster at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-2. Get connection string
-3. Update `DB_HOST` in `.env`
+**Tùy chọn A: MongoDB Atlas (Cloud)**
+1. Tạo cluster miễn phí tại [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. Lấy connection string
+3. Cập nhật `DB_HOST` trong `.env`
 
-**Option B: Local MongoDB**
+**Tùy chọn B: MongoDB cục bộ**
 ```bash
-# Install MongoDB
+# Cài MongoDB
 # Ubuntu
 sudo apt install mongodb
 
 # macOS
 brew install mongodb-community
 
-# Start MongoDB
+# Khởi động MongoDB
 sudo systemctl start mongodb  # Linux
 brew services start mongodb-community  # macOS
 
-# Verify running
+# Xác minh đang chạy
 mongosh --eval "db.version()"
 ```
 
-#### 6️⃣ Initialize Database
+#### 6️⃣ Khởi tạo cơ sở dữ liệu
 ```bash
-# Run Django migrations (creates SQLite tables)
+# Chạy Django migrations (tạo bảng SQLite)
 python manage.py migrate
 
-# Create first admin user (inserts to MongoDB)
+# Tạo tài khoản admin đầu tiên (chèn vào MongoDB)
 python manage.py insert_first_data
 
-# Verify MongoDB collections
+# Xác minh collections MongoDB
 mongosh
 > use Login
 > db.logins.find()
 ```
 
-#### 7️⃣ Run Development Server
+#### 7️⃣ Chạy server phát triển
 ```bash
 python manage.py runserver
 
-# Server starts at http://127.0.0.1:8000
+# Server khởi động tại http://127.0.0.1:8000
 ```
 
-#### 8️⃣ Access Application
-Open browser and navigate to:
-- **Homepage**: http://127.0.0.1:8000/
-- **Login**: http://127.0.0.1:8000/login/
-- **Register**: http://127.0.0.1:8000/register/
+#### 8️⃣ Truy cập ứng dụng
+Mở trình duyệt và điều hướng đến:
+- **Trang chủ**: http://127.0.0.1:8000/
+- **Đăng nhập**: http://127.0.0.1:8000/login/
+- **Đăng ký**: http://127.0.0.1:8000/register/
 - **Datasets**: http://127.0.0.1:8000/datasets/
-- **Admin**: http://127.0.0.1:8000/admin/ (use admin credentials)
+- **Admin**: http://127.0.0.1:8000/admin/ (dùng thông tin admin)
 
 ---
 
-### 🎯 Quick Start Commands
+### 🎯 Lệnh khởi động nhanh
 
 ```bash
-# Development workflow
-python manage.py runserver           # Start dev server
-python manage.py check               # Check Django configuration
-python manage.py showurls            # List all URL patterns (if installed)
+# Phát triển
+python manage.py runserver           # Khởi động server dev
+python manage.py check               # Kiểm tra cấu hình Django
+python manage.py showurls            # Liệt kê tất cả URL patterns (nếu đã cài)
 
-# ML commands
-python manage.py train_model         # Train ML model
+# Lệnh ML
+python manage.py train_model         # Huấn luyện mô hình ML
 python Weather_Forcast_App/Machine_learning_model/trainning/train.py \
   --config Weather_Forcast_App/Machine_learning_model/config/train_config.json
 
-# Database commands
-python manage.py makemigrations      # Create migration files
-python manage.py migrate             # Apply migrations
-python manage.py insert_first_data   # Insert admin user
+# Lệnh cơ sở dữ liệu
+python manage.py makemigrations      # Tạo file migration
+python manage.py migrate             # Áp dụng migrations
+python manage.py insert_first_data   # Chèn tài khoản admin
 
-# Utility commands
-python manage.py collectstatic       # Collect static files for production
-python manage.py createsuperuser     # Create Django admin superuser
+# Lệnh tiện ích
+python manage.py collectstatic       # Thu thập file tĩnh cho môi trường production
+python manage.py createsuperuser     # Tạo Django admin superuser
 ```
 
 ---
@@ -1753,13 +1754,13 @@ Quên mật khẩu → OTP Email → Đặt lại mật khẩu
 
 ---
 
-## 🔧 Configuration
+## 🔧 Cấu hình
 
-### ⚙️ Django Settings
+### ⚙️ Cài đặt Django
 
 **File:** `WeatherForcast/settings.py`
 
-#### Key Configurations
+#### Các cấu hình chính
 
 ```python
 # Application definition
@@ -1820,7 +1821,7 @@ CSRF_COOKIE_SECURE = False  # Set True in production
 
 ### 🔐 Security Settings
 
-#### Production Checklist
+#### Kiểm tra trước khi đưa lên production
 ```python
 # settings.py (production overrides)
 DEBUG = False
@@ -1836,7 +1837,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 ```
 
-### 📊 ML Training Configuration
+### 📊 Cấu hình huấn luyện ML
 
 **File:** `config/train_config.json`
 
@@ -1879,18 +1880,18 @@ X_FRAME_OPTIONS = 'DENY'
 
 ---
 
-## 🐛 Troubleshooting
+## 🐛 Xử lý Lỗi
 
-### ❌ Common Errors
+### ❌ Các lỗi thường gặp
 
-#### 1. `UnicodeEncodeError` on Windows
-**Error:**
+#### 1. `UnicodeEncodeError` trên Windows
+**Lỗi:**
 ```
 UnicodeEncodeError: 'charmap' codec can't encode character '\u2500'
 ```
 
-**Solution:**
-Set console encoding to UTF-8:
+**Giải pháp:**
+Đặt encoding console sang UTF-8:
 ```python
 # Add to top of script
 import sys
@@ -1898,47 +1899,47 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 ```
 
-Or use ASCII characters instead of Unicode:
+Hoặc dùng ký tự ASCII thay cho Unicode:
 ```python
-# Before
-print("──────")  # Box-drawing characters
-# After
-print("------")  # ASCII hyphens
+# Trước
+print("──────")  # Ký tự vẽ khung
+# Sau
+print("------")  # Dấu gạch ngang ASCII
 ```
 
-#### 2. MongoDB Connection Failed
-**Error:**
+#### 2. Lỗi kết nối MongoDB
+**Lỗi:**
 ```
 pymongo.errors.ServerSelectionTimeoutError: localhost:27017: [Errno 111] Connection refused
 ```
 
-**Solutions:**
+**Giải pháp:**
 ```bash
-# Check if MongoDB is running
+# Kiểm tra MongoDB có đang chạy không
 sudo systemctl status mongodb  # Linux
 brew services list             # macOS
 
-# Start MongoDB
+# Khởi động MongoDB
 sudo systemctl start mongodb   # Linux
 brew services start mongodb-community  # macOS
 
-# Verify connection string in .env
+# Xác minh connection string trong .env
 MONGO_URI=mongodb://localhost:27017/Login?directConnection=true
 ```
 
-#### 3. Email OTP Not Sending
-**Error:**
+#### 3. Không gửi được OTP qua Email
+**Lỗi:**
 ```
 SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted')
 ```
 
-**Solutions:**
-1. **Check Gmail App Password:**
-   - Go to Google Account → Security → 2-Step Verification → App passwords
-   - Generate new app password
-   - Update `EMAIL_HOST_PASSWORD` in `.env`
+**Giải pháp:**
+1. **Kiểm tra Gmail App Password:**
+   - Vào Google Account → Bảo mật → Xác minh 2 bước → Mật khẩu ứng dụng
+   - Tạo mật khẩu ứng dụng mới
+   - Cập nhật `EMAIL_HOST_PASSWORD` trong `.env`
 
-2. **Verify settings:**
+2. **Xác minh cài đặt:**
    ```env
    EMAIL_HOST=smtp.gmail.com
    EMAIL_PORT=587
@@ -1947,111 +1948,111 @@ SMTPAuthenticationError: (535, b'5.7.8 Username and Password not accepted')
    EMAIL_HOST_PASSWORD=16_char_app_password
    ```
 
-3. **Use console backend for testing:**
+3. **Dùng console backend để kiểm thử:**
    ```env
    EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
    ```
 
-#### 4. 404 on Static Files
-**Error:**
+#### 4. Lỗi 404 File tĩnh
+**Lỗi:**
 ```
 Not Found: /static/weather/css/Home.css
 ```
 
-**Solutions:**
+**Giải pháp:**
 ```bash
-# Collect static files
+# Thu thập file tĩnh
 python manage.py collectstatic
 
-# Verify STATIC_URL in settings.py
+# Xác minh STATIC_URL trong settings.py
 STATIC_URL = '/static/'
 
-# Check file exists
+# Kiểm tra file tồn tại
 ls Weather_Forcast_App/static/weather/css/Home.css
 ```
 
-#### 5. Import Error: `ModuleNotFoundError`
-**Error:**
+#### 5. Lỗi import: `ModuleNotFoundError`
+**Lỗi:**
 ```
 ModuleNotFoundError: No module named 'xgboost'
 ```
 
-**Solution:**
+**Giải pháp:**
 ```bash
-# Activate virtual environment
+# Kích hoạt môi trường ảo
 source .venv/bin/activate
 
-# Install missing package
+# Cài gói còn thiếu
 pip install xgboost
 
-# Or reinstall all requirements
+# Hoặc cài lại tất cả requirements
 pip install -r requirements.txt
 ```
 
-#### 6. Model Training Fails
-**Error:**
+#### 6. Lỗi huấn luyện mô hình
+**Lỗi:**
 ```
 KeyError: 'rain_total'
 ```
 
-**Solutions:**
-1. **Check dataset has target column:**
+**Giải pháp:**
+1. **Kiểm tra dataset có cột target:**
    ```python
    import pandas as pd
    df = pd.read_csv('data.csv')
    print(df.columns)
    ```
 
-2. **Update `train_config.json`:**
+2. **Cập nhật `train_config.json`:**
    ```json
    {
      "data": {
-       "target_column": "rain_total"  // Must match column name exactly
+       "target_column": "rain_total"  // Phải khớp chính xác tên cột
      }
    }
    ```
 
-3. **Verify cleaned data:**
-   - Open cleaned CSV file
-   - Confirm column exists and has data
+3. **Kiểm tra dữ liệu đã làm sạch:**
+   - Mở file CSV đã làm sạch
+   - Xác nhận cột tồn tại và có dữ liệu
 
-#### 7. JWT Token Expires Too Quickly
-**Problem:**
-User gets logged out after a few minutes.
+#### 7. JWT Token hết hạn quá nhanh
+**Vấn đề:**
+Người dùng bị đăng xuất sau vài phút.
 
-**Solution:**
-Increase token TTL in `.env`:
+**Giải pháp:**
+Tăng thời hạn token trong `.env`:
 ```env
-# Access token (default: 3 hours)
+# Access token (mặc định: 3 giờ)
 ACCESS_TOKEN_EXPIRE_HOURS=8
 
-# Refresh token (default: 1 day)
+# Refresh token (mặc định: 1 ngày)
 REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
-#### 8. Language Not Switching
-**Problem:**
-Clicking language button doesn't change UI text.
+#### 8. Không chuyển được ngôn ngữ
+**Vấn đề:**
+Nhấn nút ngôn ngữ nhưng giao diện không thay đổi.
 
-**Solutions:**
-1. **Check translations exist:**
+**Giải pháp:**
+1. **Kiểm tra file dịch tồn tại:**
    ```bash
    cat Weather_Forcast_App/i18n/locales/en.json
    cat Weather_Forcast_App/i18n/locales/vi.json
    ```
 
-2. **Verify template tag:**
+2. **Xác minh template tag:**
    ```html
    {% load i18n_tags %}
    {% t "home.hero_title" %}
    ```
 
-3. **Clear browser cache:**
+3. **Xóa cache trình duyệt:**
    ```
    Ctrl+Shift+Delete (Chrome/Firefox)
    ```
 
-4. **Restart Django server:**
+4. **Khởi động lại Django server:**
    ```bash
    python manage.py runserver
    ```
@@ -2089,84 +2090,84 @@ docker compose restart airflow-scheduler
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Lộ trình Phát triển
 
-### 🔜 Short-term (Q1-Q2 2026)
+### 🔜 Ngắn hạn (Q1-Q2 2026)
 
-- [ ] 📈 **Enhanced Dashboard**
-  - Interactive charts with Chart.js/D3.js
-  - Real-time metrics updates via WebSocket
-  - Export dashboard as PDF report
+- [ ] 📈 **Dashboard nâng cao**
+  - Biểu đồ tương tác với Chart.js/D3.js
+  - Cập nhật metrics realtime qua WebSocket
+  - Xuất dashboard thành báo cáo PDF
 
-- [ ] 🔐 **Advanced Authentication**
-  - OAuth2 integration (Google, Facebook, GitHub)
-  - Two-factor authentication (2FA)
-  - Role-based access control (RBAC)
-  - Activity logging and audit trail
+- [ ] 🔐 **Xác thực nâng cao**
+  - Tích hợp OAuth2 (Google, Facebook, GitHub)
+  - Xác thực hai yếu tố (2FA)
+  - Phân quyền theo vai trò (RBAC)
+  - Ghi log hoạt động và kiểm tra
 
-- [ ] ✅ **Robust Data Validation**
-  - JSON Schema validation for all datasets
-  - Auto-fix common data issues
-  - Data quality score dashboard
-  - Anomaly detection in raw data
+- [ ] ✅ **Kiểm tra dữ liệu mạnh mẽ**
+  - Xác thực JSON Schema cho tất cả dataset
+  - Tự động sửa các lỗi dữ liệu phổ biến
+  - Dashboard điểm chất lượng dữ liệu
+  - Phát hiện bất thường trong dữ liệu thô
 
-- [ ] 🧠 **ML Model Improvements**
-  - AutoML with Optuna hyperparameter tuning
-  - Model explainability with SHAP values
-  - A/B testing framework for models
-  - Online learning capabilities
+- [ ] 🧠 **Cải thiện mô hình ML**
+  - AutoML với Optuna tối ưu siêu tham số
+  - Giải thích mô hình với SHAP values
+  - Framework A/B testing cho các mô hình
+  - Tính năng học trực tuyến (online learning)
 
-### 🚀 Medium-term (Q3-Q4 2026)
+### 🚀 Trung hạn (Q3-Q4 2026)
 
 - [ ] 🌐 **RESTful API**
-  - Complete REST API for all features
-  - API authentication with API keys
-  - Rate limiting and quota management
-  - Interactive Swagger/OpenAPI documentation
+  - API REST đầy đủ cho tất cả tính năng
+  - Xác thực API bằng API keys
+  - Giới hạn tốc độ và quản lý quota
+  - Tài liệu Swagger/OpenAPI tương tác
 
-- [ ] 🐳 **Containerization & Deployment**
-  - Docker Compose setup for development
-  - Kubernetes manifests for production
-  - CI/CD pipeline with GitHub Actions
-  - Automated testing suite
+- [ ] 🐳 **Container hóa & Triển khai**
+  - Cấu hình Docker Compose cho phát triển
+  - Kubernetes manifests cho production
+  - CI/CD pipeline với GitHub Actions
+  - Bộ kiểm thử tự động
 
-- [ ] 💾 **Data Storage Enhancements**
-  - S3/MinIO for large file storage
-  - Redis caching for frequently accessed data
-  - PostgreSQL for relational data
-  - Automated backup and restore
+- [ ] 💾 **Nâng cấp lưu trữ dữ liệu**
+  - S3/MinIO cho lưu trữ file lớn
+  - Redis caching cho dữ liệu truy cập thường xuyên
+  - PostgreSQL cho dữ liệu quan hệ
+  - Sao lưu và khôi phục tự động
 
-- [ ] 📱 **Mobile App**
-  - React Native mobile application
-  - Push notifications for forecast alerts
-  - Offline mode with data sync
-  - Mobile-optimized UI
+- [ ] 📱 **Ứng dụng Mobile**
+  - Ứng dụng React Native
+  - Thông báo đẩy cho cảnh báo thời tiết
+  - Chế độ ngoại tuyến với đồng bộ dữ liệu
+  - Giao diện tối ưu cho di động
 
-### 🌟 Long-term (2027+)
+### 🌟 Dài hạn (2027+)
 
-- [ ] 🧪 **Advanced ML Pipelines**
-  - Deep learning models (LSTM, Transformer)
-  - Ensemble stacking with meta-learner
-  - Transfer learning from global weather models
-  - Multi-task learning (temperature + rain + wind)
+- [ ] 🧪 **Pipeline ML nâng cao**
+  - Mô hình deep learning (LSTM, Transformer)
+  - Ensemble stacking với meta-learner
+  - Transfer learning từ mô hình thời tiết toàn cầu
+  - Multi-task learning (nhiệt độ + mưa + gió)
 
-- [ ] 🌍 **Geographic Expansion**
-  - Support for multiple countries/regions
-  - Multi-language support (10+ languages)
-  - Timezone handling for global users
-  - Regional weather pattern analysis
+- [ ] 🌍 **Mở rộng địa lý**
+  - Hỗ trợ nhiều quốc gia/vùng lãnh thổ
+  - Đa ngôn ngữ (10+ ngôn ngữ)
+  - Xử lý múi giờ cho người dùng toàn cầu
+  - Phân tích mô hình thời tiết khu vực
 
-- [ ] 🔬 **Research Features**
-  - Climate change trend analysis
-  - Extreme weather event prediction
-  - Integration with satellite data
-  - Collaboration with meteorological agencies
+- [ ] 🔬 **Tính năng nghiên cứu**
+  - Phân tích xu hướng biến đổi khí hậu
+  - Dự báo các hiện tượng thời tiết cực đoan
+  - Tích hợp dữ liệu vệ tinh
+  - Hợp tác với các cơ quan khí tượng thủy văn
 
-- [ ] 🎨 **UI/UX Enhancements**
-  - Dark mode with system preference detection
-  - Customizable dashboard layouts
-  - Accessibility compliance (WCAG 2.1 AA)
-  - Interactive data visualization playground
+- [ ] 🎨 **Nâng cấp UI/UX**
+  - Dark mode tự động theo cài đặt hệ thống
+  - Bố cục dashboard tùy chỉnh
+  - Tuân thủ khả năng tiếp cận (WCAG 2.1 AA)
+  - Sân chơi trực quan hóa dữ liệu tương tác
 
 ---
 
@@ -2204,39 +2205,39 @@ docker compose restart airflow-scheduler
 
 ### 🎓 Institution
 **Ho Chi Minh city University of Transport (UTH)**  
-*Computer Science Department*
+*Khoa Công nghệ Thông tin*
 
-### 📅 Project Timeline
-- **Started:** January 2026
-- **Last Updated:** March 2026
-- **Status:** Active Development
+### 📅 Mốc thời gian dự án
+- **Bắt đầu:** Tháng 1 năm 2026
+- **Cập nhật lần cuối:** Tháng 3 năm 2026
+- **Trạng thái:** Đang phát triển
 
 ---
 
-## 📜 License & Acknowledgments
+## 📜 Giấy phép & Ghi nhận
 
-### 📄 License
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+### 📄 Giấy phép
+Dự án này được cấp phép theo **Giấy phép MIT** — xem file [LICENSE](LICENSE) để biết chi tiết.
 
-### 🙏 Acknowledgments
+### 🙏 Lời cảm ơn
 
-#### Data Sources
-- **OpenWeather** — [openweathermap.org](https://openweathermap.org) — Free weather API
-- **Vrain** — Vietnamese weather data provider
+#### Nguồn dữ liệu
+- **OpenWeather** — [openweathermap.org](https://openweathermap.org) — API thời tiết miễn phí
+- **Vrain** — Nhà cung cấp dữ liệu thời tiết Việt Nam
 
-#### Technologies & Frameworks
-- **Django** — Web framework by Django Software Foundation
-- **MongoDB** — NoSQL database by MongoDB Inc.
-- **Scikit-learn** — Machine learning library
-- **XGBoost** — Gradient boosting framework by DMLC
-- **LightGBM** — Fast gradient boosting by Microsoft
-- **CatBoost** — Gradient boosting by Yandex
-- **Pandas** — Data manipulation library
-- **NumPy** — Numerical computing library
+#### Công nghệ & Framework
+- **Django** — Web framework bởi Django Software Foundation
+- **MongoDB** — Cơ sở dữ liệu NoSQL bởi MongoDB Inc.
+- **Scikit-learn** — Thư viện học máy
+- **XGBoost** — Framework gradient boosting bởi DMLC
+- **LightGBM** — Gradient boosting nhanh bởi Microsoft
+- **CatBoost** — Gradient boosting bởi Yandex
+- **Pandas** — Thư viện xử lý dữ liệu
+- **NumPy** — Thư viện tính toán số học
 
-#### Design Inspiration
-- **Glassmorphism** — Design trend by Michal Malewicz
-- **Meteorological UI** — Inspired by Weather.com and Apple Weather
+#### Cảm hứng thiết kế
+- **Glassmorphism** — Xu hướng thiết kế bởi Michal Malewicz
+- **Meteorological UI** — Lấy cảm hứng từ Weather.com và Apple Weather
 
 ---
 
@@ -2244,12 +2245,12 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ### 🌦️ VN Weather Hub
 
-**Making Weather Data Accessible Through Technology**
+**Ứng dụng Công nghệ để Tiếp cận Dữ liệu Thời tiết**
 
 ---
 
 <sub>
-Made with ☕ + ⛈️ by VN Weather Hub Team  
+Được tạo với ☕ + ⛈️ bởi nhóm VN Weather Hub  
 © 2026 Ho Chi Minh city University of Transport (UTH)
 </sub>
 
