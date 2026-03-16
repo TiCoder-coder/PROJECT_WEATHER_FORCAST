@@ -1,15 +1,15 @@
 {
-  "trained_at": "2026-03-12 09:40:12",
+  "trained_at": "2026-03-14 16:16:43",
   "project_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST",
   "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_merged_vrain_data_20260312_093602.csv",
+    "filename": "cleaned_merge_merged_vrain_data_20260314_161544.csv",
     "file_info": "None"
   },
   "schema_report": {
-    "rows_before": 72931,
-    "rows_after": 72931,
+    "rows_before": 94128,
+    "rows_after": 94128,
     "rows_dropped": 0,
     "note": "schema_validation_skipped"
   },
@@ -38,23 +38,23 @@
     "rain_min"
   ],
   "feature_info": {
-    "n_created_features": 544,
-    "n_total_feature_columns": 120,
+    "n_created_features": 40,
+    "n_total_feature_columns": 93,
     "n_static_features_removed": 0,
-    "n_constant_features_removed": 43,
-    "feature_selection_enabled": true,
+    "n_constant_features_removed": 13,
+    "feature_selection_enabled": false,
     "detected_data_type": "mixed",
     "polynomial_features_added": true
   },
   "target_transform": {
     "log1p_applied": true,
-    "target_zero_ratio": 0.7097736625514404
+    "target_zero_ratio": 0.7119477138074869
   },
   "transform": {
     "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-12T09:37:20.189066",
+      "fitted_at": "2026-03-14T16:16:36.910093",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -62,7 +62,7 @@
         "CategoricalEncoder",
         "WeatherScaler"
       ],
-      "n_features": 120,
+      "n_features": 93,
       "config": {
         "missing_strategy": "median",
         "scaler_type": "standard",
@@ -85,73 +85,10 @@
     "metrics": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/latest/Metrics.json"
   },
   "feature_builder_config": {
-    "input_columns": [
-      "latitude",
-      "longitude",
-      "timestamp",
-      "data_quality",
-      "data_time",
-      "temperature_current",
-      "temperature_max",
-      "temperature_min",
-      "temperature_avg",
-      "humidity_current",
-      "humidity_max",
-      "humidity_min",
-      "humidity_avg",
-      "pressure_current",
-      "pressure_max",
-      "pressure_min",
-      "pressure_avg",
-      "wind_speed_current",
-      "wind_speed_max",
-      "wind_speed_min",
-      "wind_speed_avg",
-      "wind_direction_current",
-      "wind_direction_avg",
-      "rain_current",
-      "rain_max",
-      "rain_min",
-      "rain_avg",
-      "cloud_cover_current",
-      "cloud_cover_max",
-      "cloud_cover_min",
-      "cloud_cover_avg",
-      "visibility_current",
-      "visibility_max",
-      "visibility_min",
-      "visibility_avg",
-      "thunder_probability"
-    ],
-    "lag_features": true,
-    "rolling_features": {
-      "enabled": true,
-      "windows": [
-        6,
-        24
-      ],
-      "functions": [
-        "mean",
-        "std"
-      ],
-      "columns": [
-        "temperature_current",
-        "temperature_avg",
-        "humidity_current",
-        "humidity_avg",
-        "pressure_current",
-        "pressure_avg",
-        "wind_speed_current",
-        "wind_speed_avg",
-        "cloud_cover_current",
-        "cloud_cover_avg",
-        "visibility_current",
-        "visibility_avg",
-        "thunder_probability",
-        "rain_total"
-      ]
-    },
-    "difference_features": true,
+    "input_columns": [],
+    "lag_features": false,
+    "rolling_features": false,
+    "difference_features": false,
     "time_features": true,
     "location_features": true,
     "interaction_features": true

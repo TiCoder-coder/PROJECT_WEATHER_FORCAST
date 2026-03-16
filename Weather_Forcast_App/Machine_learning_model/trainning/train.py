@@ -30,14 +30,10 @@ Chạy gợi ý:
 Hoặc chạy trực tiếp:
     python /.../Weather_Forcast_App/Machine_learning_model/trainning/train.py --config config/train_config.json
 """
-# ======================================================================================
-# (1) FIX IMPORT PATH: chạy trực tiếp file vẫn import được Weather_Forcast_App.*
-# ======================================================================================
+
 THIS_FILE = Path(__file__).resolve()
-# .../Weather_Forcast_App/Machine_learning_model/trainning/train.py
-# project_root = .../PROJECT_WEATHER_FORECAST
+
 project_root = THIS_FILE
-# đi lên tới thư mục chứa Weather_Forcast_App
 for _ in range(5):
     if (project_root / "Weather_Forcast_App").exists():
         break
@@ -46,7 +42,6 @@ for _ in range(5):
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-# Now import _load_df_via_loader (after sys.path is set)
 from Weather_Forcast_App.Machine_learning_model.trainning.tuning import _load_df_via_loader
 
 import argparse
@@ -60,7 +55,7 @@ import pandas as pd
 import numpy as np
 
 # ======================================================================================
-# (2) IMPORT CÁC MODULE BẠN ĐÃ CÓ
+# (2) IMPORT CÁC MODULE
 # ======================================================================================
 from Weather_Forcast_App.Machine_learning_model.data.Loader import DataLoader
 from Weather_Forcast_App.Machine_learning_model.data.Schema import validate_weather_dataframe
@@ -69,10 +64,8 @@ from Weather_Forcast_App.Machine_learning_model.data.Split import SplitConfig, s
 from Weather_Forcast_App.Machine_learning_model.features.Build_transfer import WeatherFeatureBuilder
 from Weather_Forcast_App.Machine_learning_model.features.Transformers import WeatherTransformPipeline
 
-# Evaluation metrics - sử dụng module đã có thay vì import trực tiếp từ sklearn
 from Weather_Forcast_App.Machine_learning_model.evaluation.metrics import calculate_all_metrics
 
-# Model wrappers - sử dụng dict để giảm code
 MODEL_REGISTRY = {
     "rf": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
     "random_forest": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
@@ -102,9 +95,8 @@ def _load_config(path: Path) -> Dict[str, Any]:
         return json.loads(path.read_text(encoding="utf-8"))
 
     if ext in [".yml", ".yaml"]:
-        # Không ép bạn cài pyyaml, nhưng nếu có thì đọc được
         try:
-            import yaml  # type: ignore
+            import yaml
             return yaml.safe_load(path.read_text(encoding="utf-8"))
         except Exception as e:
             raise RuntimeError("Config is YAML but PyYAML not installed. Install pyyaml or use JSON.") from e

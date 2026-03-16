@@ -1,0 +1,21 @@
+{
+  "model_type": "lightgbm",
+  "best_params": {
+    "n_estimators": 437,
+    "learning_rate": 0.19019214697557332,
+    "num_leaves": 115,
+    "max_depth": 9,
+    "min_child_samples": 24,
+    "subsample": 0.5779972601681014,
+    "colsample_bytree": 0.5290418060840998,
+    "reg_alpha": 1.7323522915498704,
+    "reg_lambda": 1.2022300234864176
+  },
+  "best_score": -Infinity,
+  "cv_mean": -Infinity,
+  "cv_std": 0.0,
+  "n_iter": 25,
+  "tuning_time": 0.201794,
+  "method": "optuna",
+  "timestamp": "2026-03-14T16:15:56.844347"
+}
