@@ -17,17 +17,8 @@ class WeatherEnsembleModel:
     - Lưu metrics (mse/rmse/mae/r2) cho từng model + ensemble.
     - Ensemble prediction: mean hoặc weighted_mean (ổn định & dễ kiểm soát).
 
-    base_models config ví dụ:
-    [
-      {"type": "lightgbm", "params": {...}},
-      {"type": "xgboost",  "params": {...}, "X_val": X_val, "y_val": y_val},
-    ]
 
-    model_registry ví dụ:
-    {
-      "lightgbm": "your_pkg.models.WeatherLightGBM",
-      "xgboost":  "your_pkg.models.WeatherXGBoost",
-    }
+
     """
 
     def __init__(

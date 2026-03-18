@@ -20,9 +20,10 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--font-main);
-  background: radial-gradient(circle at top, var(--color-bg-gradient1) 0, var(--color-bg-gradient2) 45%, var(--color-bg-gradient2) 100%);
+  font-family: var(--font-main, 'Inter', 'Segoe UI', system-ui, sans-serif);
+  background: radial-gradient(ellipse at 20% 30%, #101e34 0%, #0a1624 50%, #0d1520 100%);
   color: var(--text-main);
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -217,73 +218,14 @@ body {
   background: rgba(2, 6, 23, 0.45);
   box-shadow: 0 22px 55px rgba(0,0,0,0.45);
   backdrop-filter: blur(10px);
-  overflow: hidden;
 }
 
 .hero-content::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(
-    from 0deg,
-    #ff0080, #ff7700, #ffff00,
-    #00ff00, #00ffff, #0080ff,
-    #7700ff, #ff0080
-  );
-  animation: led-color-spin 8s linear infinite;
-  border-radius: 18px;
-  z-index: -1;
+  content: none;
 }
 
 .hero-content::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(2, 6, 23, 0.75) 0%,
-    rgba(2, 6, 23, 0.85) 50%,
-    rgba(2, 6, 23, 0.75) 100%
-  );
-  border-radius: 18px;
-  pointer-events: none;
-  z-index: -1;
-}
-
-@keyframes led-color-spin {
-  0% {
-    transform: rotate(0deg);
-    filter: drop-shadow(0 0 15px rgba(255, 0, 128, 0.8)) 
-            drop-shadow(0 0 25px rgba(255, 119, 0, 0.6));
-  }
-  25% {
-    filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.8)) 
-            drop-shadow(0 0 25px rgba(0, 255, 0, 0.6));
-  }
-  50% {
-    filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.8)) 
-            drop-shadow(0 0 25px rgba(0, 128, 255, 0.6));
-  }
-  75% {
-    filter: drop-shadow(0 0 15px rgba(119, 0, 255, 0.8)) 
-            drop-shadow(0 0 25px rgba(255, 0, 128, 0.6));
-  }
-  100% {
-    transform: rotate(360deg);
-    filter: drop-shadow(0 0 15px rgba(255, 0, 128, 0.8)) 
-            drop-shadow(0 0 25px rgba(255, 119, 0, 0.6));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-content::before {
-    animation: none !important;
-  }
+  content: none;
 }
 
 .hero h1 {
@@ -1168,13 +1110,7 @@ body.no-scroll {
 .hero-overlay { z-index: 1; }
 
 .weather-fx {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  /* GPU acceleration for smooth animations */
-  will-change: transform;
-  transform: translateZ(0);
+  display: none;
 }
 
 .fx-aurora{
@@ -1513,13 +1449,7 @@ body.no-scroll {
 }
 
 .wind-layer{
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-
-  opacity: .85;
-  mix-blend-mode: screen;
+  display: none; /* Tạm tắt hiệu ứng đường sọc chéo */
 }
 
 .wind{
@@ -1966,11 +1896,7 @@ body.no-scroll {
 }
 
 .lightning-layer{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  z-index: 4;
-  mix-blend-mode: screen;
+  display: none;
 }
 
 .lightning-layer::before{
@@ -2987,10 +2913,7 @@ body{
 }
 
 .wx-layer{
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
+  display: none; /* Tạm tắt toàn bộ hiệu ứng background */
 }
 
 .wx-clouds{
@@ -3016,8 +2939,7 @@ body{
 }
 
 .wx-rain{
-  opacity: .18;
-  mix-blend-mode: screen;
+  display: none; /* Tạm tắt hiệu ứng sọc */
 }
 .wx-rain::before{
   content:"";

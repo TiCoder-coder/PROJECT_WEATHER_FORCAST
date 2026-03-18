@@ -16,12 +16,12 @@
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
 body.home-page{
-  background: radial-gradient(1000px 600px at 12% 10%, var(--color-accent-soft), transparent 55%),
-              radial-gradient(900px 600px at 85% 20%, var(--color-accent2), transparent 55%),
-              linear-gradient(135deg, var(--bg0) 0%, var(--bg1) 100%);
+  background: radial-gradient(ellipse at top left, #0b1628 0%, #020617 55%, #0a0f1e 100%);
   color: var(--text);
-  font-family: var(--font-main);
+  font-family: var(--font-main, 'Inter', 'Segoe UI', system-ui, sans-serif);
   margin:0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 .datasets-wrap{
@@ -922,13 +922,7 @@ body.home-page{
   }
 }
 .wind-layer{
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-
-  opacity: .85;
-  mix-blend-mode: screen;
+  display: none; /* Tạm tắt hiệu ứng đường sọc chéo */
 }
 
 .wind{
@@ -1066,12 +1060,7 @@ body.home-page::after{
 }
 
 .wind-layer{
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0;
-  mix-blend-mode: screen;
+  display: none; /* Tạm tắt hiệu ứng đường sọc chéo */
 }
 .wind{
   animation: none !important;
@@ -1218,10 +1207,7 @@ body.home-page::after{
 }
 
 .wx-layer{
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
+  display: none; /* Tạm tắt toàn bộ hiệu ứng background */
 }
 
 .wx-clouds{
@@ -1247,9 +1233,7 @@ body.home-page::after{
 }
 
 .wind-layer{
-  opacity: .26;
-  mix-blend-mode: screen;
-  filter: blur(.35px);
+  display: none; /* Tạm tắt hiệu ứng đường sọc chéo */
 }
 .wind-layer::before,
 .wind-layer::after{
@@ -1275,8 +1259,7 @@ body.home-page::after{
 @keyframes wxWindB{ to { transform: translate3d(24%, 14%, 0); } }
 
 .wx-rain{
-  opacity: .18;
-  mix-blend-mode: screen;
+  display: none; /* Tạm tắt hiệu ứng sọc */
 }
 .wx-rain::before{
   content:"";
