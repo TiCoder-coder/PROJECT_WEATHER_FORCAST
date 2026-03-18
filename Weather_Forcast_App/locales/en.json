@@ -47,6 +47,7 @@
   "home": {
     "title": "Weather Forecast Dashboard",
     "page_title": "Weather Forecast Dashboard",
+    "logo_sub": "Dashboard",
     "nav_intro": "About",
     "nav_logout": "Logout",
     "nav_login": "Login",
