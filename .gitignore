@@ -17,5 +17,3 @@ airflow/logs/*
 !airflow/logs/.gitkeep
 
 # Large demo/media artifacts
-Video_demo_product.webm
-*.webm
