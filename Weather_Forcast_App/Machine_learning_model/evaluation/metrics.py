@@ -12,6 +12,9 @@ import numpy as np
 from typing import Dict, Union, Optional, List
 from dataclasses import dataclass
 
+# Ngưỡng mưa chuẩn cho toàn hệ thống (dùng chung train.py + metrics.py)
+RAIN_THRESHOLD: float = 0.1  # mm — >= RAIN_THRESHOLD là có mưa
+
 
 # =============================================================================
 # 📦 DATA CLASSES
@@ -471,12 +474,60 @@ def bias_score(
 # 🔧 UTILITY FUNCTIONS - Hàm tiện ích
 # =============================================================================
 
+def roc_auc_score_rain(
+    y_true: np.ndarray,
+    y_pred_continuous: np.ndarray,
+    threshold: float = RAIN_THRESHOLD,
+) -> float:
+    """
+    ROC-AUC cho bài toán phân loại mưa/không mưa.
+
+    Dùng y_pred_continuous (lượng mưa mm dự báo bởi regressor) làm score,
+    so với nhãn binary y_true > threshold.
+
+    ROC-AUC = 1.0 → phân biệt hoàn hảo | 0.5 → random | < 0.5 → tệ hơn random.
+    Không nhạy cảm với ngưỡng threshold như Precision/Recall → tốt để so sánh models.
+    """
+    try:
+        from sklearn.metrics import roc_auc_score
+        y_true_bin = (np.asarray(y_true).flatten() > threshold).astype(int)
+        y_score = np.asarray(y_pred_continuous).flatten()
+        # Cần ít nhất 2 lớp
+        if len(np.unique(y_true_bin)) < 2:
+            return float("nan")
+        return float(roc_auc_score(y_true_bin, y_score))
+    except Exception:
+        return float("nan")
+
+
+def pr_auc_score_rain(
+    y_true: np.ndarray,
+    y_pred_continuous: np.ndarray,
+    threshold: float = RAIN_THRESHOLD,
+) -> float:
+    """
+    PR-AUC (Area Under Precision-Recall Curve) cho bài toán mưa/không mưa.
+
+    Quan trọng hơn ROC-AUC khi dữ liệu mất cân bằng (nhiều ngày không mưa).
+    PR-AUC cao → model giỏi phát hiện ngày mưa mà không báo nhầm nhiều.
+    """
+    try:
+        from sklearn.metrics import average_precision_score
+        y_true_bin = (np.asarray(y_true).flatten() > threshold).astype(int)
+        y_score = np.asarray(y_pred_continuous).flatten()
+        if len(np.unique(y_true_bin)) < 2:
+            return float("nan")
+        return float(average_precision_score(y_true_bin, y_score))
+    except Exception:
+        return float("nan")
+
+
 def calculate_all_metrics(
     y_true: np.ndarray, 
     y_pred: np.ndarray,
     n_features: Optional[int] = None,
     include_weather_metrics: bool = True,
-    rain_threshold: float = 0.1
+    rain_threshold: float = RAIN_THRESHOLD,
 ) -> Dict[str, float]:
     """
     Tính tất cả metrics một lần
@@ -519,6 +570,10 @@ def calculate_all_metrics(
         results["Rain_Precision"] = pr_metrics["precision"]
         results["Rain_Recall"] = pr_metrics["recall"]
         results["Rain_F1"] = pr_metrics["f1_score"]
+
+        # ROC-AUC và PR-AUC — quan trọng cho bài toán mưa mất cân bằng
+        results["ROC_AUC"] = roc_auc_score_rain(y_true, y_pred, rain_threshold)
+        results["PR_AUC"] = pr_auc_score_rain(y_true, y_pred, rain_threshold)
 
         # Metrics theo ngưỡng mưa nặng (chuẩn WMO)
         # Light: < 2.5mm | Moderate: 2.5-7.5mm | Heavy: 7.5-25mm | Very Heavy: > 25mm

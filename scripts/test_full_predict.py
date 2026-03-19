@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 # Use the full predictor pipeline
-from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
+from Weather_Forcast_App.Machine_learning_model.interface.predictor_by_ensemble_average import WeatherPredictor
 from Weather_Forcast_App.paths import ML_ARTIFACTS_LATEST
 
 print("Loading predictor from artifacts...")

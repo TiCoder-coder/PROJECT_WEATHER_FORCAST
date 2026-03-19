@@ -111,20 +111,38 @@
                 <div class="card__header">
                     <h2 class="card__title">🤖 {% t "predict.model_info_title" %}</h2>
                 </div>
+
+                <!-- Model availability - compact inline -->
+                <div class="model-status-bar">
+                    <div class="model-status-item {% if stacking_available %}model-status-item--ready{% else %}model-status-item--missing{% endif %}">
+                        <span>🔥</span>
+                        <strong>{% t "predict.stacking_name" %}</strong>
+                        {% if stacking_available %}
+                            <span class="model-status-badge model-status-badge--ok">✅ {% t "predict.status_ready" %}</span>
+                            {% if model_info.stacking_trained_at %}<span class="model-status-meta">{{ model_info.stacking_trained_at }}</span>{% endif %}
+                        {% else %}
+                            <span class="model-status-badge model-status-badge--warn">⚠️ {% t "predict.status_not_trained" %}</span>
+                        {% endif %}
+                    </div>
+                    <div class="model-status-item {% if ensemble_available %}model-status-item--ready{% else %}model-status-item--missing{% endif %}">
+                        <span>⭐</span>
+                        <strong>{% t "predict.ensemble_name" %}</strong>
+                        {% if ensemble_available %}
+                            <span class="model-status-badge model-status-badge--ok">✅ {% t "predict.status_ready" %}</span>
+                            {% if model_info.trained_at %}<span class="model-status-meta">{{ model_info.trained_at }}</span>{% endif %}
+                        {% else %}
+                            <span class="model-status-badge model-status-badge--warn">⚠️ {% t "predict.status_not_trained" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if model_info.loaded %}
                 <div class="model-info-grid">
-                    {% if model_info.loaded %}
                     <div class="info-chip info-chip--ok">
                         <span class="info-chip__icon">✅</span>
                         <div>
                             <div class="info-chip__label">{% t "predict.model_status" %}</div>
                             <div class="info-chip__value">{% t "predict.status_ready" %}</div>
-                        </div>
-                    </div>
-                    <div class="info-chip">
-                        <span class="info-chip__icon">🧠</span>
-                        <div>
-                            <div class="info-chip__label">{% t "predict.model_type" %}</div>
-                            <div class="info-chip__value">{{ model_info.model_type|upper }}</div>
                         </div>
                     </div>
                     <div class="info-chip">
@@ -148,35 +166,48 @@
                             <div class="info-chip__value">{{ model_info.forecast_horizon|default:"0" }}h</div>
                         </div>
                     </div>
+                    {% if model_info.stacking_test_r2 %}
+                    <div class="info-chip info-chip--stacking">
+                        <span class="info-chip__icon">🔥</span>
+                        <div>
+                            <div class="info-chip__label">{% t "predict.stacking_r2_label" %}</div>
+                            <div class="info-chip__value">{{ model_info.stacking_test_r2|floatformat:4 }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if model_info.stacking_test_rmse %}
+                    <div class="info-chip info-chip--stacking">
+                        <span class="info-chip__icon">📏</span>
+                        <div>
+                            <div class="info-chip__label">{% t "predict.stacking_rmse_label" %}</div>
+                            <div class="info-chip__value">{{ model_info.stacking_test_rmse|floatformat:4 }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if model_info.test_r2 %}
                     <div class="info-chip">
                         <span class="info-chip__icon">📊</span>
                         <div>
-                            <div class="info-chip__label">Test R²</div>
+                            <div class="info-chip__label">{% t "predict.ensemble_r2_label" %}</div>
                             <div class="info-chip__value">{{ model_info.test_r2|floatformat:4 }}</div>
                         </div>
                     </div>
+                    {% endif %}
+                    {% if model_info.test_rmse %}
                     <div class="info-chip">
                         <span class="info-chip__icon">📏</span>
                         <div>
-                            <div class="info-chip__label">Test RMSE</div>
+                            <div class="info-chip__label">{% t "predict.ensemble_rmse_label" %}</div>
                             <div class="info-chip__value">{{ model_info.test_rmse|floatformat:4 }}</div>
                         </div>
                     </div>
+                    {% endif %}
                     {% if model_info.test_rain_acc %}
                     <div class="info-chip">
                         <span class="info-chip__icon">🌧️</span>
                         <div>
-                            <div class="info-chip__label">Rain Acc</div>
+                            <div class="info-chip__label">{% t "predict.rain_acc_label" %}</div>
                             <div class="info-chip__value">{{ model_info.test_rain_acc|floatformat:4 }}</div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if model_info.predict_threshold %}
-                    <div class="info-chip">
-                        <span class="info-chip__icon">🎚️</span>
-                        <div>
-                            <div class="info-chip__label">Predict Threshold</div>
-                            <div class="info-chip__value">{{ model_info.predict_threshold }}</div>
                         </div>
                     </div>
                     {% endif %}
@@ -184,26 +215,14 @@
                     <div class="info-chip">
                         <span class="info-chip__icon">🔍</span>
                         <div>
-                            <div class="info-chip__label">Overfit Status</div>
+                            <div class="info-chip__label">{% t "predict.overfit_status_label" %}</div>
                             <div class="info-chip__value">{{ model_info.diag_status|upper }}</div>
                         </div>
                     </div>
                     {% endif %}
-                    <div class="info-chip">
-                        <span class="info-chip__icon">💾</span>
-                        <div>
-                            <div class="info-chip__label">{% t "predict.model_size" %}</div>
-                            <div class="info-chip__value">{{ model_info.model_size_mb }} MB</div>
-                        </div>
-                    </div>
-                    <div class="info-chip">
-                        <span class="info-chip__icon">🕒</span>
-                        <div>
-                            <div class="info-chip__label">{% t "predict.trained_at" %}</div>
-                            <div class="info-chip__value">{{ model_info.trained_at }}</div>
-                        </div>
-                    </div>
-                    {% else %}
+                </div>
+                {% else %}
+                <div class="model-info-grid">
                     <div class="info-chip info-chip--warn" style="grid-column: 1 / -1;">
                         <span class="info-chip__icon">⚠️</span>
                         <div>
@@ -211,13 +230,36 @@
                             <div class="info-chip__value">{% t "predict.status_not_loaded" %}</div>
                         </div>
                     </div>
-                    {% endif %}
                 </div>
+                {% endif %}
             </section>
 
             <!-- ═══════ TABS: Chọn phương thức dự báo ═══════ -->
             <section class="card card--predict" id="sectionPredict">
                 <h2 class="card__title">{% t "predict.run_title" %}</h2>
+
+                <!-- ════ MODEL SELECTOR (compact dropdown) ════ -->
+                <div class="predict-model-selector" id="predictModelSelector">
+                    <label class="predict-model-selector__label" for="predictModelTypeSelect">
+                        🤖 {% t "predict.model_selector_title" %}
+                    </label>
+                    <div class="predict-model-recommend-hint">
+                        {% t "predict.model_selector_recommend" %}
+                    </div>
+                    <div class="predict-model-dropdown-wrapper">
+                        <select id="predictModelTypeSelect" name="predict_model_type" class="form__select predict-model-dropdown">
+                            <option value="auto" selected>
+                                {% t "predict.model_auto_label" %} — {% t "predict.model_auto_desc" %}
+                            </option>
+                            <option value="stacking" {% if not stacking_available %}disabled{% endif %}>
+                                {% t "predict.model_stacking_label" %} — {% t "predict.model_stacking_desc" %}{% if not stacking_available %} ({% t "predict.model_not_trained" %}){% endif %}
+                            </option>
+                            <option value="ensemble_average" {% if not ensemble_available %}disabled{% endif %}>
+                                {% t "predict.model_ensemble_label" %} — {% t "predict.model_ensemble_desc" %}{% if not ensemble_available %} ({% t "predict.model_not_trained" %}){% endif %}
+                            </option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="predict-tabs">
                     <button type="button" class="predict-tab predict-tab--active" data-tab="forecast-now">

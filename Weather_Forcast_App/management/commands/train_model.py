@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
         # ── Import train module ───────────────────────────────────── #
         try:
-            from Weather_Forcast_App.Machine_learning_model.trainning.train import (
+            from Weather_Forcast_App.Machine_learning_model.trainning.train_ensemble_average import (
                 _load_config,
                 run_training,
             )

@@ -1,0 +1,224 @@
+{
+  "trained_at": "2026-03-20 00:28:13",
+  "model_type": "stacking_ensemble",
+  "project_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST",
+  "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model",
+  "input": {
+    "folder_key": "cleaned_merge",
+    "filename": "cleaned_merge_merged_vrain_data_20260320_002218.csv"
+  },
+  "schema_report": {
+    "rows_before": 361445,
+    "rows_after": 361445,
+    "rows_dropped": 0,
+    "note": "schema_validation_skipped"
+  },
+  "split_config": {
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "shuffle": false,
+    "sort_by_time_if_possible": true,
+    "time_col_candidates": [
+      "timestamp"
+    ]
+  },
+  "split_saved_paths": {
+    "train": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_train.csv",
+    "valid": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_valid.csv",
+    "test": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge/merge_test.csv"
+  },
+  "target_column": "rain_total",
+  "group_by": null,
+  "forecast_horizon": 24,
+  "leaked_columns_removed": [
+    "rain_current",
+    "rain_avg",
+    "rain_max",
+    "rain_min"
+  ],
+  "feature_info": {
+    "n_created_features": 40,
+    "n_total_feature_columns": 71,
+    "n_static_features_removed": 0,
+    "n_constant_features_removed": 15,
+    "feature_selection_enabled": true,
+    "detected_data_type": "cross_sectional",
+    "polynomial_features_added": true
+  },
+  "target_info": {
+    "zero_ratio": 0.37054355795968624,
+    "rain_threshold": 0.1,
+    "note": "StackingEnsemble handles log1p internally. No external log transform applied."
+  },
+  "transform": {
+    "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl",
+    "pipeline_info": {
+      "is_fitted": true,
+      "fitted_at": "2026-03-20T00:25:04.633587",
+      "n_steps": 4,
+      "steps": [
+        "MissingValueHandler",
+        "OutlierHandler",
+        "CategoricalEncoder",
+        "WeatherScaler"
+      ],
+      "n_features": 71,
+      "config": {
+        "missing_strategy": "median",
+        "scaler_type": "standard",
+        "encoding_type": "label",
+        "handle_outliers": true
+      }
+    }
+  },
+  "stacking_config": {
+    "n_splits": 8,
+    "predict_threshold": 0.4,
+    "rain_threshold": 0.1,
+    "seed": 42,
+    "n_cls_oof_samples": 289132,
+    "n_reg_oof_samples": 154771,
+    "cls_model_names": [
+      "xgb_cls",
+      "rf_cls",
+      "cat_cls",
+      "lgbm_cls"
+    ],
+    "reg_model_names": [
+      "xgb_reg",
+      "rf_reg",
+      "cat_reg",
+      "lgbm_reg"
+    ]
+  },
+  "artifacts": {
+    "model_joblib": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260320_002811.joblib",
+    "model_pkl": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Model.pkl",
+    "pipeline": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl",
+    "feature_list": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Feature_list.json",
+    "metrics": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Metrics.json",
+    "train_info": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Train_info.json",
+    "schema_model_bank": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/schema_model_bank"
+  },
+  "schema_bank_routing": {
+    "overall": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    },
+    "rain_intensity": {
+      "no_rain": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "light": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      }
+    },
+    "season": {
+      "rainy_season": {
+        "cls": "xgb_cls",
+        "reg": "lgbm_reg"
+      },
+      "dry_season": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      }
+    },
+    "time_fold": {
+      "fold_0": {
+        "cls": "cat_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_1": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_2": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_3": {
+        "cls": "lgbm_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_4": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_5": {
+        "cls": "xgb_cls",
+        "reg": "lgbm_reg"
+      },
+      "fold_6": {
+        "cls": "xgb_cls",
+        "reg": "lgbm_reg"
+      },
+      "fold_7": {
+        "cls": "lgbm_cls",
+        "reg": "lgbm_reg"
+      }
+    }
+  },
+  "diagnostics": {
+    "overfit_status": "good",
+    "overfit_details": "F1 consistent across splits — Train F1=0.882 / Valid F1=0.842 / Test F1=0.8643",
+    "model_quality": "excellent",
+    "quality_detail": "Rain cls_f1 avg=0.862",
+    "target_zero_ratio": 0.37054355795968624,
+    "detected_data_type": "cross_sectional",
+    "n_features_after_selection": 71,
+    "n_static_features_removed": 0,
+    "n_constant_features_removed": 15,
+    "polynomial_features_added": true,
+    "predict_threshold": 0.4,
+    "n_splits": 8
+  },
+  "feature_builder_config": {
+    "input_columns": [
+      "latitude",
+      "longitude",
+      "timestamp",
+      "data_quality",
+      "data_time",
+      "temperature_current",
+      "temperature_max",
+      "temperature_min",
+      "temperature_avg",
+      "humidity_current",
+      "humidity_max",
+      "humidity_min",
+      "humidity_avg",
+      "pressure_current",
+      "pressure_max",
+      "pressure_min",
+      "pressure_avg",
+      "wind_speed_current",
+      "wind_speed_max",
+      "wind_speed_min",
+      "wind_speed_avg",
+      "wind_direction_current",
+      "wind_direction_avg",
+      "rain_current",
+      "rain_max",
+      "rain_min",
+      "rain_avg",
+      "cloud_cover_current",
+      "cloud_cover_max",
+      "cloud_cover_min",
+      "cloud_cover_avg",
+      "visibility_current",
+      "visibility_max",
+      "visibility_min",
+      "visibility_avg",
+      "thunder_probability"
+    ],
+    "lag_features": false,
+    "rolling_features": false,
+    "difference_features": false,
+    "time_features": true,
+    "location_features": true,
+    "interaction_features": true
+  }
+}

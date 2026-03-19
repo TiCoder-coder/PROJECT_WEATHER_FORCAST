@@ -37,8 +37,10 @@
   // ============================================================
   let since = 0;
   // since: mốc "offset/cursor" để tail log incremental
-  // - Backend sẽ trả log mới kể từ since và trả next_since
-  // - Giúp tiết kiệm băng thông: không tải toàn bộ log mỗi lần
+
+  let currentJobId = null;
+  // currentJobId: lưu job_id trả về từ backend sau khi start job
+  // Dùng để pollLogs gắn đúng job_id vào request
 
   let timer = null;
   // timer: lưu id của setInterval để stop polling khi job kết thúc hoặc restart job
@@ -76,6 +78,12 @@
     if (spinner) spinner.style.display = isRunning ? "inline-block" : "none";
     if (statusValue) statusValue.textContent = isRunning ? "🔄 Đang chạy..." : "✅ Sẵn sàng";
     if (btn) btn.disabled = isRunning;
+  }
+
+  function setQueuedUI(queuePosition) {
+    if (spinner) spinner.style.display = "inline-block";
+    if (statusValue) statusValue.textContent = `🕐 Đang đợi trong hàng — vị trí #${queuePosition}`;
+    if (btn) btn.disabled = true;
   }
 
   // ============================================================
@@ -157,7 +165,9 @@
         throw new Error(txt || ("HTTP " + res.status));
       }
 
-      // Start thành công -> reset cursor logs
+      // Start thành công -> lưu job_id và reset cursor
+      const data = await res.json().catch(() => ({}));
+      currentJobId = data.job_id || null;
       since = 0;
 
       // Clear log box và show placeholder muted
@@ -205,45 +215,36 @@
       // Tạo URL object để set query params dễ dàng
       const url = new URL(cfg.tailUrl, window.location.origin);
 
-      // since là cursor offset để backend trả log incremental
       url.searchParams.set("since", String(since));
+      if (currentJobId) url.searchParams.set("job_id", currentJobId);
 
-      // GET logs
       const res = await fetch(url.toString(), {
         method: "GET",
-        credentials: "same-origin", // gửi cookie/session
+        credentials: "same-origin",
       });
-      if (!res.ok) return; // nếu lỗi HTTP -> im lặng return
+      if (!res.ok) return;
 
-      // Parse JSON
       const data = await res.json();
-
-      // Convention backend:
-      // - data.ok: true/false
-      // - nếu ok=false thì bỏ qua (không update UI)
       if (!data.ok) return;
 
-      // Append log mới
-      appendLines(data.lines || []);
+      // Nếu job đang xếp hàng -> show vị trí và tiếp tục poll
+      if (data.is_queued) {
+        setQueuedUI(data.queue_position || 0);
+        return;
+      }
 
-      // Cập nhật cursor cho lần poll tiếp theo
+      appendLines(data.lines || []);
       since = data.next_since ?? since;
 
-      // Update UI info "last crawl time"
       if (data.last_crawl_time && lastCrawlTime) lastCrawlTime.textContent = data.last_crawl_time;
-
-      // Update UI "last file size"
       if (typeof data.last_size_mb !== "undefined" && lastFileSize) {
-        // Nếu có size -> show "<mb> MB"
-        // Nếu không có/0/null -> show "–"
         lastFileSize.textContent = data.last_size_mb ? `${data.last_size_mb} MB` : "–";
       }
 
-      // Update UI running theo backend trả về
       setRunningUI(!!data.is_running);
 
-      // Nếu job đã kết thúc -> dừng polling
-      if (!data.is_running && timer) {
+      // Dừng polling khi job không còn chạy và không còn xếp hàng
+      if (!data.is_running && !data.is_queued && timer) {
         clearInterval(timer);
         timer = null;
       }

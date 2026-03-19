@@ -30,29 +30,32 @@ document.addEventListener("DOMContentLoaded", () => {
   // - Dùng để dừng polling khi job kết thúc hoặc khi start mới
   let pollTimer = null;
 
+  let currentJobId = null;
+  // currentJobId: lưu job_id trả về từ backend sau khi start job
+
+  let since = 0;
+  // since: mốc cursor để tail log incremental (chỉ lấy log mới)
+
   // ============================================================
-  // KHỐI 3: HÀM HIỂN THỊ LOGS LÊN UI
+  // KHỐI 3: HÀM HIỂN THỊ LOGS LÊN UI (INCREMENTAL)
   // ============================================================
-  // setLog(lines):
-  // - Xóa log cũ trong logContainer
-  // - Render mỗi dòng log thành 1 <div class="log__line">
+  // appendLines(lines):
+  // - Thêm dòng log MỚI vào cuối logContainer (không xóa log cũ)
   // - Auto scroll xuống cuối để user luôn thấy log mới nhất
-  function setLog(lines) {
-    // Nếu không có container log thì khỏi làm gì (tránh lỗi null)
-    if (!logContainer) return;
+  function appendLines(lines) {
+    if (!logContainer || !lines || lines.length === 0) return;
 
-    // Xóa toàn bộ log hiện tại
-    logContainer.innerHTML = "";
+    // Xoá placeholder "muted" nếu tồn tại
+    const muted = logContainer.querySelector(".log__line--muted");
+    if (muted) muted.remove();
 
-    // lines || []:
-    // - Nếu lines null/undefined thì dùng mảng rỗng để tránh lỗi forEach
-    (lines || []).forEach((line) => {
-      // Tạo 1 dòng log
+    // Append từng dòng log thành 1 div
+    for (const line of lines) {
       const div = document.createElement("div");
-      div.className = "log__line";  // class này dùng để CSS style từng dòng
-      div.textContent = line;       // textContent an toàn (không inject HTML)
+      div.className = "log__line";
+      div.textContent = line;
       logContainer.appendChild(div);
-    });
+    }
 
     // Auto scroll đến cuối để luôn thấy log mới
     logContainer.scrollTop = logContainer.scrollHeight;
@@ -67,7 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // - Nếu backend trả HTML (ví dụ bị redirect, lỗi 500, trả template)
   //   => throw Error để setLog hiển thị lỗi rõ ràng
   async function fetchLogs() {
-    const res = await fetch(LOGS_URL, {
+    const url = new URL(LOGS_URL, window.location.origin);
+    url.searchParams.set("since", String(since));
+    if (currentJobId) url.searchParams.set("job_id", currentJobId);
+
+    const res = await fetch(url.toString(), {
       // Header này giúp backend biết đây là request AJAX
       // (Django hay check X-Requested-With để trả JSON thay vì render template)
       headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -154,10 +161,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pollTimer) clearInterval(pollTimer);
 
     try {
-      // ============================================================
-      // 1) START JOB TRÊN BACKEND
-      // ============================================================
-      await startJob(formData);
+      // Lưu job_id để truyền vào fetchLogs
+      const startData = await startJob(formData);
+      currentJobId = startData.job_id || null;
+      since = 0;
+
+      // Clear log box và show placeholder
+      if (logContainer) {
+        logContainer.innerHTML =
+          '<div class="log__line log__line--muted">Đang chạy… log sẽ cập nhật realtime.</div>';
+      }
 
       // ============================================================
       // 2) FETCH LOGS LẦN ĐẦU ĐỂ HIỂN THỊ NGAY
@@ -165,12 +178,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const first = await fetchLogs();
 
       // (Cố gắng cập nhật size file CSV mới nhất lên UI)
-      // - sizeEl: element id="lastFileSize"
       const sizeEl = document.getElementById("lastFileSize");
       if (sizeEl && first.csv_size_mb != null) sizeEl.textContent = `${first.csv_size_mb} MB`;
 
-      // Render logs lần đầu
-      setLog(first.logs);
+      // Render logs lần đầu (incremental)
+      appendLines(first.lines || []);
+      since = first.next_since ?? since;
 
       // ============================================================
       // 3) BẮT ĐẦU POLLING LOGS MỖI 1 GIÂY
@@ -181,11 +194,20 @@ document.addEventListener("DOMContentLoaded", () => {
       // - khi backend báo is_running=false thì stop polling + enable nút start lại
       pollTimer = setInterval(async () => {
         try {
-          const d = await fetchLogs(); // d: object logs backend trả về
-          setLog(d.logs);              // render logs mới
+          const d = await fetchLogs();
 
-          // Nếu job đã kết thúc (backend báo is_running = false)
-          if (!d.is_running) {
+          // Nếu job đang xếp hàng -> show vị trí và tiếp tục poll
+          if (d.is_queued) {
+            const pos = d.queue_position || 0;
+            const statusEl = document.getElementById("statusValue");
+            if (statusEl) statusEl.textContent = `🕐 Đang đợi trong hàng — vị trí #${pos}`;
+            return;
+          }
+
+          appendLines(d.lines || []);
+          since = d.next_since ?? since;
+
+          if (!d.is_running && !d.is_queued) {
             // dừng polling
             clearInterval(pollTimer);
             pollTimer = null;
@@ -199,13 +221,13 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
           // Nếu fetchLogs lỗi (mất mạng, backend lỗi, trả html...)
           // -> hiển thị 1 dòng lỗi lên log UI
-          setLog([`[ERROR] ${err.message}`]);
+          appendLines([`[ERROR] ${err.message}`]);
         }
       }, 1000); // 1000ms = 1 giây
     } catch (err) {
       // Nếu startJob lỗi (hoặc bước trước đó lỗi):
       // - hiển thị lỗi lên UI log
-      setLog([`[ERROR] ${err.message}`]);
+      appendLines([`[ERROR] ${err.message}`]);
 
       // - enable lại nút start để user thử lại
       if (startBtn) {
@@ -315,19 +337,37 @@ document.addEventListener("DOMContentLoaded", () => {
       startBtn.textContent = "⏳ Đang chạy... vui lòng chờ";
     }
     if (pollTimer) clearInterval(pollTimer);
+    since = 0;
 
-    startJob(formData).then(function () {
+    // Clear log box cho round mới
+    if (logContainer) {
+      logContainer.innerHTML =
+        '<div class="log__line log__line--muted">Đang chạy… log sẽ cập nhật realtime.</div>';
+    }
+
+    startJob(formData).then(function (startData) {
+      currentJobId = startData.job_id || null;
       return fetchLogs();
     }).then(function (first) {
       const sizeEl = document.getElementById("lastFileSize");
       if (sizeEl && first.csv_size_mb != null) sizeEl.textContent = first.csv_size_mb + " MB";
-      setLog(first.logs);
+      appendLines(first.lines || []);
+      since = first.next_since ?? since;
 
       pollTimer = setInterval(async function () {
         try {
           const d = await fetchLogs();
-          setLog(d.logs);
-          if (!d.is_running) {
+
+          if (d.is_queued) {
+            const pos = d.queue_position || 0;
+            const statusEl = document.getElementById("statusValue");
+            if (statusEl) statusEl.textContent = `🕐 Đang đợi trong hàng — vị trí #${pos}`;
+            return;
+          }
+
+          appendLines(d.lines || []);
+          since = d.next_since ?? since;
+          if (!d.is_running && !d.is_queued) {
             clearInterval(pollTimer);
             pollTimer = null;
             if (startBtn) {
@@ -336,11 +376,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         } catch (err) {
-          setLog(["[ERROR] " + err.message]);
+          appendLines(["[ERROR] " + err.message]);
         }
       }, 1000);
     }).catch(function (err) {
-      setLog(["[ERROR] " + err.message]);
+      appendLines(["[ERROR] " + err.message]);
       if (startBtn) {
         startBtn.disabled = false;
         startBtn.textContent = "🚀 Bắt đầu crawl ngay";

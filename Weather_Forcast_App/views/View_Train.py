@@ -32,7 +32,7 @@ from Weather_Forcast_App.paths import (
     APP_ROOT, PROJECT_ROOT,
     DATA_CRAWL_DIR, DATA_MERGE_DIR,
     DATA_CLEAN_ROOT, DATA_CLEAN_MERGE_DIR, DATA_CLEAN_NOT_MERGE_DIR,
-    ML_MODEL_ROOT, ML_ARTIFACTS_LATEST,
+    ML_MODEL_ROOT, ML_ARTIFACTS_LATEST, ML_STACKING_ARTIFACTS,
 )
 
 # ────────────────────────────────────────────────────────────────
@@ -129,12 +129,13 @@ def _load_existing_config() -> Dict[str, Any]:
     return {}
 
 
-def _load_artifacts() -> Dict[str, Any]:
-    """Load thông tin artifacts gần nhất."""
+def _load_artifacts(artifacts_dir: Optional[Path] = None) -> Dict[str, Any]:
+    """Load thông tin artifacts từ thư mục chỉ định (mặc định: ML_ARTIFACTS_LATEST)."""
+    base = artifacts_dir if artifacts_dir is not None else ML_ARTIFACTS_LATEST
     result: Dict[str, Any] = {}
-    metrics_path = ML_ARTIFACTS_LATEST / "Metrics.json"
-    train_info_path = ML_ARTIFACTS_LATEST / "Train_info.json"
-    feature_list_path = ML_ARTIFACTS_LATEST / "Feature_list.json"
+    metrics_path = base / "Metrics.json"
+    train_info_path = base / "Train_info.json"
+    feature_list_path = base / "Feature_list.json"
 
     for key, path in [("metrics", metrics_path), ("train_info", train_info_path),
                        ("feature_list", feature_list_path)]:
@@ -147,7 +148,7 @@ def _load_artifacts() -> Dict[str, Any]:
             result[key] = None
 
     # Check model file
-    model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
+    model_path = base / "Model.pkl"
     result["model_exists"] = model_path.exists()
     if model_path.exists():
         result["model_size_mb"] = f"{model_path.stat().st_size / 1024 / 1024:.2f}"
@@ -182,15 +183,23 @@ def _training_worker(job_id: str, config: Dict[str, Any]) -> None:
         sys.stdout = _LogCapture(job_id)
 
         _push(job_id, f"📂 Dataset: {config.get('data', {}).get('filename', 'N/A')}")
-        _push(job_id, f"🤖 Model: {config.get('model', {}).get('type', 'N/A')}")
+        _model_type_log = config.get("model", {}).get("type", "N/A")
+        _push(job_id, f"🤖 Model: {_model_type_log}")
         _set_progress(job_id, 10, "Loading training module")
 
-        # Import & run training
-        from Weather_Forcast_App.Machine_learning_model.trainning.train import run_training
-
-        _set_progress(job_id, 15, "Đang huấn luyện...")
-
-        train_info = run_training(config)
+        # Route tới script huấn luyện phù hợp
+        if _model_type_log == "stacking_ensemble":
+            from Weather_Forcast_App.Machine_learning_model.trainning.train_stacking_ensemble import run_stacking_training
+            _artifacts_dir = ML_STACKING_ARTIFACTS
+            _push(job_id, "🔥 Chế độ: Stacking Ensemble (đa tầng meta-learning)")
+            _set_progress(job_id, 15, "Đang huấn luyện Stacking Ensemble...")
+            train_info = run_stacking_training(config)
+        else:
+            from Weather_Forcast_App.Machine_learning_model.trainning.train_ensemble_average import run_training
+            _artifacts_dir = ML_ARTIFACTS_LATEST
+            _push(job_id, "⭐ Chế độ: Ensemble Average")
+            _set_progress(job_id, 15, "Đang huấn luyện...")
+            train_info = run_training(config)
 
         _set_progress(job_id, 95, "Lưu kết quả")
 
@@ -200,7 +209,7 @@ def _training_worker(job_id: str, config: Dict[str, Any]) -> None:
         _push(job_id, "✅ Huấn luyện hoàn tất!")
 
         # Trích xuất metrics
-        metrics_path = ML_ARTIFACTS_LATEST / "Metrics.json"
+        metrics_path = _artifacts_dir / "Metrics.json"
         if metrics_path.exists():
             metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
             test_metrics = metrics.get("test", {})
@@ -358,19 +367,25 @@ def train_view(request):
     # Serialize datasets thành JSON string cho JS
     datasets_json = json.dumps(datasets, ensure_ascii=False)
 
+    stacking_artifacts = _load_artifacts(ML_STACKING_ARTIFACTS)
+
     context = {
         "datasets": datasets,
         "datasets_json": datasets_json,
         "default_config": json.dumps(default_config, ensure_ascii=False, indent=2),
         "default_config_dict": default_config,
         "artifacts": artifacts,
+        "stacking_artifacts": stacking_artifacts,
+        "stacking_available": stacking_artifacts.get("model_exists", False),
+        "ensemble_available": artifacts.get("model_exists", False),
         "active_job": active_job,
         "model_types": [
-            {"value": "ensemble",      "label": "⭐ Ensemble (Khuyen nghị)"},
-            {"value": "xgboost",       "label": "XGBoost"},
-            {"value": "random_forest", "label": "Random Forest"},
-            {"value": "lightgbm",      "label": "LightGBM"},
-            {"value": "catboost",      "label": "CatBoost"},
+            {"value": "ensemble",          "label": "⭐ Ensemble Average (Nhanh, ổn định)"},
+            {"value": "stacking_ensemble", "label": "🔥 Stacking Ensemble (Độ chính xác cao nhất)"},
+            {"value": "xgboost",           "label": "XGBoost (Đơn lẻ)"},
+            {"value": "random_forest",     "label": "Random Forest (Đơn lẻ)"},
+            {"value": "lightgbm",          "label": "LightGBM (Đơn lẻ)"},
+            {"value": "catboost",          "label": "CatBoost (Đơn lẻ)"},
         ],
         "best_params": _load_best_params(),
     }
@@ -408,6 +423,9 @@ def train_start_view(request):
         # Override dataset nếu user chọn
         if folder_key and filename:
             config["data"] = {"folder_key": folder_key, "filename": filename}
+        # Override model_type nếu user chọn cụ thể
+        if model_type:
+            config.setdefault("model", {})["type"] = model_type
     else:
         forecast_horizon = int(body.get("forecast_horizon", 24))
         config = {
@@ -445,7 +463,7 @@ def train_start_view(request):
             "metric": "rmse",
         }
 
-        # Nếu ensemble, dùng config mặc định cho base_models + params
+        # Nếu ensemble average, dùng config mặc định cho base_models + params
         if model_type == "ensemble":
             default_cfg = _load_existing_config()
             default_model = default_cfg.get("model", {})
@@ -455,6 +473,25 @@ def train_start_view(request):
                 config["model"]["params"] = ensemble_params
             if base_models:
                 config["model"]["base_models"] = base_models
+
+        # Nếu stacking ensemble, thêm stacking config
+        if model_type == "stacking_ensemble":
+            try:
+                stacking_n_splits = int(body.get("stacking_n_splits", 5))
+                stacking_predict_threshold = float(body.get("stacking_predict_threshold", 0.40))
+                stacking_rain_threshold = float(body.get("stacking_rain_threshold", 0.10))
+                stacking_seed = int(body.get("stacking_seed", 42))
+            except (TypeError, ValueError):
+                stacking_n_splits = 5
+                stacking_predict_threshold = 0.40
+                stacking_rain_threshold = 0.10
+                stacking_seed = 42
+            config["stacking"] = {
+                "n_splits": stacking_n_splits,
+                "predict_threshold": stacking_predict_threshold,
+                "rain_threshold": stacking_rain_threshold,
+                "seed": stacking_seed,
+            }
 
     # Validate
     if not config.get("data", {}).get("folder_key"):
@@ -522,8 +559,12 @@ def train_configs_view(request):
 
 @require_http_methods(["GET"])
 def train_artifacts_view(request):
-    """API: trả về kết quả artifacts mới nhất."""
-    artifacts = _load_artifacts()
+    """API: trả về kết quả artifacts mới nhất. ?type=stacking để lấy stacking artifacts."""
+    artifact_type = request.GET.get("type", "ensemble")
+    if artifact_type == "stacking":
+        artifacts = _load_artifacts(ML_STACKING_ARTIFACTS)
+    else:
+        artifacts = _load_artifacts()
     return JsonResponse({
         "ok": True,
         "artifacts": artifacts,

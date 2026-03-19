@@ -15,5 +15,3 @@ staticfiles/
 .vscode/
 airflow/logs/*
 !airflow/logs/.gitkeep
-
-# Large demo/media artifacts

@@ -13,7 +13,7 @@ Cách sử dụng:
 
     # Validate dữ liệu
     schema = WeatherDataSchema(**data_dict)
-    validated_data = schema.dict()
+    validated_data = schema.model_dump()
 
     # Hoặc từ DataFrame
     df = pd.DataFrame(...)
@@ -27,7 +27,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 
 import pandas as pd
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -133,28 +133,29 @@ class WeatherDataSchema(BaseModel):
     # Chỉ số thời tiết
     metrics: WeatherMetricsSchema = Field(..., description="Các chỉ số thời tiết")
 
-    class Config:
-        """Cấu hình Pydantic."""
-        allow_population_by_field_name = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
+    model_config = ConfigDict(
+        validate_by_name=True,
+        json_encoders={datetime: lambda v: v.isoformat()},
+    )
 
-    @validator('timestamp', 'data_time', pre=True, check_fields=False)
+    @field_validator('timestamp', 'data_time', mode='before')
+    @classmethod
     def parse_datetime(cls, v):
         """Parse datetime từ string nếu cần."""
         if isinstance(v, str):
             return datetime.fromisoformat(v.replace('Z', '+00:00'))
         return v
 
-    @validator('data_source', pre=True, check_fields=False)
+    @field_validator('data_source', mode='before')
+    @classmethod
     def parse_data_source(cls, v):
         """Parse data source từ string."""
         if isinstance(v, str):
             return DataSource(v.lower())
         return v
 
-    @validator('data_quality', pre=True, check_fields=False)
+    @field_validator('data_quality', mode='before')
+    @classmethod
     def parse_data_quality(cls, v):
         """Parse data quality từ string."""
         if isinstance(v, str):
@@ -163,7 +164,7 @@ class WeatherDataSchema(BaseModel):
 
     def to_flat_dict(self) -> Dict[str, Any]:
         """Chuyển đổi thành dict phẳng để tương thích với DataFrame."""
-        data = self.dict()
+        data = self.model_dump()
         location = data.pop('location')
         metrics = data.pop('metrics')
 
@@ -230,5 +231,5 @@ def validate_weather_dataframe(df: pd.DataFrame) -> List[WeatherDataSchema]:
 
 def get_schema_fields() -> Dict[str, Dict[str, Any]]:
     """Lấy thông tin các trường trong schema."""
-    schema = WeatherDataSchema.schema()
-    return schema['properties']
+    schema = WeatherDataSchema.model_json_schema()
+    return schema.get('properties', {})

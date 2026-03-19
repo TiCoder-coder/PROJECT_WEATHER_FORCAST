@@ -50,17 +50,13 @@ function getCookie(name) {
   // BIẾN TRẠNG THÁI CHO CƠ CHẾ POLLING LOGS
   // ============================================================
   let since = 0;
-  // since:
-  // - dùng để "tail" log incremental
-  // - backend sẽ trả:
-  //   + lines: các dòng log mới kể từ since
-  //   + next_since: mốc mới để lần sau fetch tiếp
-  //
-  // Tương tự kiểu offset / cursor để không phải tải toàn bộ log mỗi lần.
+  // since: mốc cursor để tail log incremental
+
+  let currentJobId = null;
+  // currentJobId: lưu job_id trả về từ backend sau khi start job
 
   let timer = null;
-  // timer:
-  // - lưu id của setInterval để stop polling khi job kết thúc hoặc start lại
+  // timer: lưu id của setInterval để stop polling khi job kết thúc hoặc restart job
 
   // ============================================================
   // setRunningUI(isRunning): CẬP NHẬT UI THEO TRẠNG THÁI JOB
@@ -77,6 +73,12 @@ function getCookie(name) {
     if (spinner) spinner.style.display = isRunning ? "inline-block" : "none";
     if (statusValue) statusValue.textContent = isRunning ? "🔄 Đang chạy..." : "✅ Sẵn sàng";
     if (btn) btn.disabled = isRunning;
+  }
+
+  function setQueuedUI(queuePosition) {
+    if (spinner) spinner.style.display = "inline-block";
+    if (statusValue) statusValue.textContent = `🕐 Đang đợi trong hàng — vị trí #${queuePosition}`;
+    if (btn) btn.disabled = true;
   }
 
   // ============================================================
@@ -144,13 +146,15 @@ function getCookie(name) {
         body: JSON.stringify({}),
       });
 
-      // Nếu HTTP không OK (4xx/5xx) -> đọc text để show lỗi rõ
+      // Nếu HTTP không OK — đọc text để show lỗi rõ
       if (!res.ok) {
         const txt = await res.text();
         throw new Error(txt || ("HTTP " + res.status));
       }
 
-      // Reset since về 0 để lần poll đầu lấy log từ đầu (hoặc theo logic backend)
+      // Lưu job_id và reset cursor
+      const data = await res.json().catch(() => ({}));
+      currentJobId = data.job_id || null;
       since = 0;
 
       // Clear log box và show placeholder muted
@@ -196,44 +200,32 @@ function getCookie(name) {
 
       // since=<mốc offset>: backend dùng để trả log mới kể từ mốc này
       url.searchParams.set("since", String(since));
+      if (currentJobId) url.searchParams.set("job_id", currentJobId);
 
-      // Fetch logs (GET)
       const res = await fetch(url.toString(), { method: "GET" });
-      if (!res.ok) return; // nếu lỗi HTTP thì im lặng return (không phá UI)
+      if (!res.ok) return;
 
-      // Parse JSON từ backend
       const data = await res.json();
-
-      // Backend convention:
-      // - data.ok = true/false
-      // - nếu ok=false -> return im lặng
       if (!data.ok) return;
 
-      // Append các dòng log mới vào UI
-      appendLines(data.lines || []);
+      // Nếu job đang xếp hàng -> show vị trí và tiếp tục poll
+      if (data.is_queued) {
+        setQueuedUI(data.queue_position || 0);
+        return;
+      }
 
-      // Cập nhật since theo next_since backend trả về
-      // - dùng ?? để nếu next_since null/undefined thì giữ nguyên since cũ
+      appendLines(data.lines || []);
       since = data.next_since ?? since;
 
-      // Cập nhật thời gian crawl gần nhất nếu backend có trả
       if (data.last_crawl_time && lastCrawlTime) lastCrawlTime.textContent = data.last_crawl_time;
-
-      // Cập nhật size file (MB) nếu backend có trả last_size_mb
-      // - typeof !== "undefined" để phân biệt trường hợp backend không gửi field này
       if (typeof data.last_size_mb !== "undefined" && lastFileSize) {
-        // Nếu last_size_mb truthy -> hiển thị "<mb> MB"
-        // Nếu falsy (0/null/""...) -> hiển thị "–"
         lastFileSize.textContent = data.last_size_mb ? `${data.last_size_mb} MB` : "–";
       }
 
-      // Update UI running theo data.is_running từ backend
-      // - !! ép về boolean
       setRunningUI(!!data.is_running);
 
-      // Nếu job đã kết thúc:
-      // - stop polling để tiết kiệm request
-      if (!data.is_running && timer) {
+      // Dừng polling khi job không còn chạy và không còn xếp hàng
+      if (!data.is_running && !data.is_queued && timer) {
         clearInterval(timer);
         timer = null;
       }
