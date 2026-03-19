@@ -2,108 +2,82 @@
 CRAWL_DATA_FROM_VRAIN_BY_SELENIUM.PY
 ====================================
 
-Script crawl dữ liệu thời tiết từ VRAIN.VN bằng Selenium (trình duyệt tự động)
+Crawl lượng mưa VRAIN bằng Selenium (parse element) cho 5 tỉnh ĐBSCL.
 
-Mục đích:
-    - Lấy dữ liệu từ các trạm đo VRAIN qua giao diện web
-    - Sử dụng Selenium để điều khiển Chrome headless (tự động nhấp chuột, scroll, v.v.)
-    - Phù hợp khi API không sẵn hoặc cấu trúc HTML phức tạp
+Đầu ra:
+    1) File tổng: data/data_crawl/Bao_cao_YYYYMMDD_HHMMSS.csv
+    2) File theo tỉnh tại data/data_crawl/Bao_cao_vrain_DBSCL:
+       - Bao_cao_<Tinh>_YYYYMMDD_HHMMSS.csv
+       - Bao_cao_<Tinh>_YYYYMMDD_HHMMSS.xlsx
 
-Đặc điểm:
-    - Sử dụng Selenium + Chrome headless (không cần giao diện đồ họa)
-    - Đa luồng (ThreadPoolExecutor) để crawl 64 tỉnh song song
-    - Xử lý timeout, lỗi kết nối, retry tự động
-    - Chuẩn hóa dữ liệu Tiếng Việt (Unicode normalization)
-    - Xuất Excel với định dạng đẹp
-
-Cách sử dụng:
-    python Crawl_data_from_Vrain_by_Selenium.py
-    
-    # Hoặc từ Django view:
-    crawler = VrainCrawlerFinal(headless=True, max_workers=5)
-    crawler.run()
-
-Dữ liệu được lưu:
-    - Excel: output/Bao_cao_YYYYMMDD_HHMMSS.xlsx
-    - Ghi log chi tiết vào console + file
-
-Biến cấu hình:
-    - headless: True = chạy trong background, False = hiển thị browser
-    - max_workers: số luồng (5-10 hợp lý, tránh quá tải server VRAIN)
-    - max_retries: số lần retry nếu kết nối thất bại
-
-Lưu ý:
-    - Cần cài ChromeDriver phù hợp với phiên bản Chrome hiện tại
-    - Cần thư mục output/ có sẵn
-    - Selenium chậm hơn API/requests nhưng linh hoạt hơn
-
-Dependencies:
-    - selenium: điều khiển trình duyệt
-    - pandas: xử lý dữ liệu
-    - openpyxl: xuất Excel
-    - beautifulsoup4: parse HTML
-    - threading: đa luồng
-    - unicodedata: xử lý Tiếng Việt
-
-Author: Weather Forecast Team
-Version: 1.0
-Last Updated: 2026-02-06
+Ghi chú:
+    - Mỗi lần crawl sẽ merge dữ liệu cũ + mới theo từng tỉnh.
+    - Sau khi merge chỉ giữ bộ file mới nhất (timestamp hiện tại).
 """
 
+import csv
+import re
+import time
+import unicodedata
+import threading
+from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from openpyxl import Workbook
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, WebDriverException
-import pandas as pd
-import time
-import json
-import os
-import re
-import unicodedata
-from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
-import hashlib
-from pathlib import Path
+
+VN_TZ = ZoneInfo("Asia/Bangkok")
+
+DBSCL_PROVINCES = {
+    "an giang": "An_Giang",
+    "ca mau": "Ca_Mau",
+    "can tho": "Can_Tho",
+    "dong thap": "Dong_Thap",
+    "vinh long": "Vinh_Long",
+}
+
+# Thứ tự theo yêu cầu
+URL_PROVINCE_MAP = {
+    "https://vrain.vn/63/overview?public_map=windy": "Vĩnh Long",
+    "https://vrain.vn/54/overview?public_map=windy": "Đồng Tháp",
+    "https://vrain.vn/46/overview?public_map=windy": "An Giang",
+    "https://vrain.vn/53/overview?public_map=windy": "Cần Thơ",
+    "https://vrain.vn/52/overview?public_map=windy": "Cà Mau",
+}
+
 
 class VrainCrawlerFinal:
-    def __init__(self, headless=True, max_workers=8, max_retries=3):
-        self.base_url = "https://www.vrain.vn"
-        self.all_rainfall_data = []
+    def __init__(self, headless=True, max_workers=5, max_retries=2):
         self.headless = headless
         self.max_workers = max_workers
         self.max_retries = max_retries
         self.data_lock = threading.Lock()
-        self.unique_stations = {}
-        self.failed_provinces = []
-        self._thread_local = threading.local()
+        self.all_rainfall_data = []
 
     def _get_chrome_options(self):
-        chrome_options = Options()
+        options = Options()
         if self.headless:
-            chrome_options.add_argument("--headless=new")
-
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--disable-logging")
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--disable-notifications")
-        chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-        chrome_options.add_argument("--window-size=1280,720")
-        chrome_options.add_experimental_option(
-            "prefs", {
-                "profile.default_content_setting_values": {"images": 2},
-                "profile.managed_default_content_settings.javascript": 1,
-            }
-        )
-        chrome_options.page_load_strategy = "eager"
-        return chrome_options
+            options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-logging")
+        options.add_argument("--disable-infobars")
+        options.add_argument("--disable-notifications")
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument("--blink-settings=imagesEnabled=false")
+        options.add_argument("--window-size=1280,720")
+        options.page_load_strategy = "eager"
+        return options
 
     def create_driver(self):
         driver = webdriver.Chrome(options=self._get_chrome_options())
@@ -111,259 +85,271 @@ class VrainCrawlerFinal:
         driver.implicitly_wait(3)
         return driver
 
-    def _get_thread_driver(self):
-        """Lấy hoặc tạo driver cho thread hiện tại (tái sử dụng)"""
-        if not hasattr(self._thread_local, 'driver') or self._thread_local.driver is None:
-            self._thread_local.driver = self.create_driver()
-        return self._thread_local.driver
-
-    def _close_thread_driver(self):
-        """Đóng driver của thread hiện tại"""
-        if hasattr(self._thread_local, 'driver') and self._thread_local.driver is not None:
-            try:
-                self._thread_local.driver.quit()
-            except Exception:
-                pass
-            self._thread_local.driver = None
-
-    def normalize_string(self, text):
-        """Chuẩn hóa tiếng Việt và loại bỏ khoảng trắng thừa"""
+    @staticmethod
+    def normalize_string(text):
         if not text:
             return ""
-        text = unicodedata.normalize("NFC", text)
+        text = unicodedata.normalize("NFC", str(text))
         return " ".join(text.strip().split())
 
-    def extract_rainfall(self, text):
-        """Trích xuất số từ chuỗi '12.5 mm'"""
+    @staticmethod
+    def normalize_ascii_text(value):
+        if not value:
+            return ""
+        text = unicodedata.normalize("NFKD", str(value))
+        text = "".join(ch for ch in text if not unicodedata.combining(ch))
+        text = text.replace("đ", "d").replace("Đ", "D").lower().strip()
+        text = re.sub(r"\b(tinh|tp\.?|thanh pho)\b", "", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+
+    @staticmethod
+    def extract_rainfall(text):
         match = re.search(r"(\d+[\.,]?\d*)", text)
-        return match.group(1).replace(",", ".") if match else "0"
+        return match.group(1).replace(",", ".") if match else "0.0"
 
-    def get_province_name(self, driver):
-        """Lấy tên tỉnh từ các selector khác nhau"""
-        selectors = [
-            "span[_ngcontent-ng-c641299110]",
-            "span[_ngcontent-serverapp-c641299110]",
-            "span[class*='ng-']",
-            ".app-title span",
-            "h1 span",
-            ".province-name",
-            "h1",
-            "title",
-        ]
+    def canonical_dbscl_province(self, raw_name):
+        key = self.normalize_ascii_text(raw_name)
+        return DBSCL_PROVINCES.get(key)
 
-        for selector in selectors:
-            try:
-                element = driver.find_element(By.CSS_SELECTOR, selector)
-                text = element.text.strip()
-                if text and len(text) > 1:
-                    text = re.sub(r"(VRAIN|Lượng mưa.*|[-|])", "", text).strip()
-                    if text and not any(
-                        x in text.lower() for x in ["tại các trạm", "ngày"]
-                    ):
-                        return self.normalize_string(text)
-            except:
+    @staticmethod
+    def _read_csv_rows(csv_path, fieldnames):
+        rows = []
+        if not csv_path.exists():
+            return rows
+        try:
+            with open(csv_path, "r", newline="", encoding="utf-8-sig") as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    rows.append({col: row.get(col, "") for col in fieldnames})
+        except Exception as e:
+            print(f"  Cảnh báo: không đọc được file cũ {csv_path.name}: {e}")
+        return rows
+
+    @staticmethod
+    def _merge_rows(existing_rows, new_rows, fieldnames):
+        merged = []
+        seen = set()
+        for row in existing_rows + new_rows:
+            normalized = {col: str(row.get(col, "")).strip() for col in fieldnames}
+            row_key = tuple(normalized[col] for col in fieldnames)
+            if row_key in seen:
                 continue
+            seen.add(row_key)
+            merged.append(normalized)
+        return merged
 
-        try:
-            title = driver.title
-            if title and "VRAIN" in title:
-                text = title.replace("VRAIN", "").replace("-", "").strip()
-                if text:
-                    return self.normalize_string(text)
-        except:
-            pass
+    @staticmethod
+    def _write_csv_rows(csv_path, rows, fieldnames):
+        with open(csv_path, "w", newline="", encoding="utf-8-sig") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in rows:
+                writer.writerow(row)
 
-        return None
+    @staticmethod
+    def _write_xlsx_rows(xlsx_path, rows, fieldnames):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "rain_data"
+        ws.append(fieldnames)
+        for row in rows:
+            ws.append([row.get(col, "") for col in fieldnames])
+        wb.save(xlsx_path)
 
-    def crawl_province(self, province_id, retry_count=0):
-        """Crawl một tỉnh với cơ chế retry"""
+    def get_unified_datetime(self):
+        for attempt in range(self.max_retries + 1):
+            driver = None
+            try:
+                driver = self.create_driver()
+                print("Đang truy cập trang chủ để lấy ngày và giờ cập nhật...")
+                driver.get("https://vrain.vn/landing")
+                time.sleep(3)
+                all_text = driver.find_element(By.TAG_NAME, "body").text
+
+                date_match = re.search(r"ngày\s*(\d{1,2}/\d{1,2})", all_text)
+                hour_match = re.search(r"Tính từ\s*(\d{1,2})h", all_text)
+
+                if date_match and hour_match:
+                    current_year = datetime.now(VN_TZ).strftime("%Y")
+                    return f"{date_match.group(1)}/{current_year} {hour_match.group(1)}:00"
+                if date_match:
+                    current_year = datetime.now(VN_TZ).strftime("%Y")
+                    return f"{date_match.group(1)}/{current_year}"
+                return datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+            except Exception as e:
+                if attempt < self.max_retries:
+                    print(f"  ⚠️ Lỗi lấy datetime (lần {attempt+1}): {str(e)[:50]} - thử lại...")
+                    time.sleep(2)
+                else:
+                    print(f"  ⚠️ Không lấy được datetime từ website, dùng giờ hệ thống")
+                    return datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+            finally:
+                if driver:
+                    try:
+                        driver.quit()
+                    except Exception:
+                        pass
+
+    def crawl_province(self, url, province_override, unified_datetime_info, crawl_datetime, retry_count=0):
         driver = None
+        rows = []
         try:
-            driver = self._get_thread_driver()
-            url = f"{self.base_url}/{province_id}/overview?public_map=windy"
+            driver = self.create_driver()
+            print(f"\nĐang truy cập: {url}")
             driver.get(url)
 
-            wait = WebDriverWait(driver, 20)
+            # Chờ Angular hydrate - tăng timeout lên 45 giây
             try:
-                wait.until(EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, "div[class*='station'], table tbody tr, .landing-content")
-                ))
+                WebDriverWait(driver, 45).until(
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, "div[class*='group'], div[class*='station'], span[class*='max-w-70']")
+                    )
+                )
             except TimeoutException:
-                pass
-            time.sleep(1.5)
+                print(f"  ⚠️ Timeout selector {url} - tiếp tục với dữ liệu có sẵn")
 
-            province_name = self.get_province_name(driver)
-
-            if not province_name:
-                province_name = f"ID_{province_id}"
-
-            found_count = 0
-            crawl_time = datetime.now().strftime("%d/%m/%Y %H:%M")
+            # Tăng sleep để đảm bảo render hoàn toàn
+            time.sleep(5)
 
             selectors = [
-                "div[class*='station-row']",
+                "div[class*='group']",
                 "div[class*='station']",
+                "div[class*='station-row']",
                 "tr.station-item",
-                ".station-list-item",
                 "table tbody tr",
-                "table tr",
-                ".data-row",
             ]
 
             elements = []
             for selector in selectors:
                 elements = driver.find_elements(By.CSS_SELECTOR, selector)
-                if len(elements) > 2:
+                if len(elements) > 0:
                     break
 
+            print(f"  Tỉnh: {province_override}")
+            print(f"  Tìm thấy {len(elements)} phần tử trạm")
+
+            seen_station_names = set()
             for el in elements:
                 try:
                     text_content = el.text.strip()
                     if not text_content or "Lượng mưa" in text_content:
                         continue
 
-                    lines = [
-                        line.strip()
-                        for line in text_content.split("\n")
-                        if line.strip()
-                    ]
+                    station_name = ""
+                    district = ""
+                    rain_total = "0.0"
+                    status = "Không xác định"
 
-                    if len(lines) >= 2:
+                    # Ưu tiên lấy station_name từ span class max-w-70
+                    station_name_nodes = el.find_elements(By.CSS_SELECTOR, "span[class*='max-w-70']")
+                    if station_name_nodes:
+                        station_name = self.normalize_string(station_name_nodes[0].text)
+
+                    # Fallback từ text dòng đầu
+                    if not station_name:
+                        lines = [line.strip() for line in text_content.split("\n") if line.strip()]
+                        if not lines:
+                            continue
                         station_name = self.normalize_string(lines[0])
-                        rainfall_val = self.extract_rainfall(lines[-1])
 
-                        unique_key = f"{province_name}_{station_name}".lower()
+                    if not station_name or station_name in seen_station_names:
+                        continue
+                    seen_station_names.add(station_name)
 
-                        with self.data_lock:
-                            if unique_key not in self.unique_stations:
-                                record = {
-                                    "province_id": province_id,
-                                    "tinh": province_name,
-                                    "tram": station_name,
-                                    "luong_mua": float(rainfall_val),
-                                    "thoi_gian": crawl_time,
-                                }
-                                self.unique_stations[unique_key] = record
-                                found_count += 1
-                except:
+                    # district
+                    district_nodes = el.find_elements(By.CSS_SELECTOR, "div[class*='sub-title']")
+                    if district_nodes:
+                        district = self.normalize_string(district_nodes[0].text)
+
+                    # rain_total
+                    rainfall_nodes = el.find_elements(By.CSS_SELECTOR, "span[class*='font-size-18px']")
+                    if rainfall_nodes:
+                        rain_total = self.extract_rainfall(rainfall_nodes[0].text)
+                    else:
+                        rain_total = self.extract_rainfall(text_content)
+
+                    # status
+                    status_nodes = el.find_elements(By.CSS_SELECTOR, "div[class*='level'] span")
+                    if status_nodes:
+                        status = self.normalize_string(status_nodes[0].text)
+
+                    rows.append(
+                        {
+                            "station_id": station_name,
+                            "station_name": station_name,
+                            "province": province_override,
+                            "district": district,
+                            "rain_total": rain_total,
+                            "status": status,
+                            "timestamp": unified_datetime_info,
+                            "data_time": crawl_datetime,
+                        }
+                    )
+                except Exception:
                     continue
 
-            if found_count == 0 or province_name.startswith("ID_"):
-                if retry_count < self.max_retries:
-                    print(
-                        f"⚠️  ID {province_id}: {province_name} - Không có dữ liệu, thử lại lần {retry_count + 1}..."
-                    )
-                    self._close_thread_driver()
-                    time.sleep(1)
-                    return self.crawl_province(province_id, retry_count + 1)
-                else:
-                    print(
-                        f"❌ ID {province_id}: Thất bại sau {self.max_retries} lần thử"
-                    )
-                    with self.data_lock:
-                        self.failed_provinces.append(province_id)
-                    return 0
-
-            print(f"✅ ID {province_id}: {province_name} - Lấy được {found_count} trạm")
-            return found_count
+            print(f"  Đã trích xuất {len(rows)} trạm từ {province_override}")
+            return rows
 
         except (TimeoutException, WebDriverException) as e:
-            self._close_thread_driver()
             if retry_count < self.max_retries:
-                print(
-                    f"⚠️  ID {province_id} lỗi: {str(e)[:30]} - Thử lại lần {retry_count + 1}..."
-                )
+                print(f"  ⚠️  Lỗi {url}: {str(e)[:80]} | retry {retry_count + 1}")
                 time.sleep(1)
-                return self.crawl_province(province_id, retry_count + 1)
-            else:
-                print(
-                    f"❌ Lỗi ID {province_id} sau {self.max_retries} lần thử: {str(e)[:50]}"
+                return self.crawl_province(
+                    url,
+                    province_override,
+                    unified_datetime_info,
+                    crawl_datetime,
+                    retry_count + 1,
                 )
-                with self.data_lock:
-                    self.failed_provinces.append(province_id)
-                return 0
-        except Exception as e:
-            self._close_thread_driver()
-            print(f"❌ Lỗi không xác định ID {province_id}: {str(e)[:50]}")
-            with self.data_lock:
-                self.failed_provinces.append(province_id)
-            return 0
+            print(f"  ❌ Bỏ qua {url} sau {self.max_retries} lần thử")
+            return []
+        finally:
+            if driver:
+                try:
+                    driver.quit()
+                except Exception:
+                    pass
 
-    def _crawl_and_cleanup(self, province_id):
-        """Wrapper crawl 1 tỉnh, đóng driver khi pool kết thúc"""
-        return self.crawl_province(province_id)
+    def run(self):
+        unified_datetime_info = self.get_unified_datetime()
+        crawl_datetime = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M:%S")
+        timestamp = datetime.now(VN_TZ).strftime("%Y%m%d_%H%M%S")
 
-    def run(self, start_id=1, end_id=63):
-        print(f"🚀 Bắt đầu crawl từ ID {start_id} đến {end_id}...")
-        print(f"🔄 Số luồng: {self.max_workers} | Retry tối đa: {self.max_retries}")
+        province_pairs = list(URL_PROVINCE_MAP.items())
+        print(f"\n🚀 Bắt đầu crawl {len(province_pairs)} tỉnh với {self.max_workers} workers...")
 
-        province_ids = list(range(start_id, end_id + 1))
-
-        def _worker(pid):
-            try:
-                return self.crawl_province(pid)
-            finally:
-                pass  # driver stays alive for reuse in the same thread
-
+        results = []
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = {executor.submit(_worker, pid): pid for pid in province_ids}
+            futures = {
+                executor.submit(
+                    self.crawl_province,
+                    url,
+                    province_name,
+                    unified_datetime_info,
+                    crawl_datetime,
+                ): (url, province_name)
+                for url, province_name in province_pairs
+            }
             for future in as_completed(futures):
                 try:
-                    future.result()
+                    rows = future.result()
+                    with self.data_lock:
+                        results.extend(rows)
                 except Exception as e:
-                    pid = futures[future]
-                    print(f"❌ Thread exception ID {pid}: {e}")
+                    url, province_name = futures[future]
+                    print(f"❌ Thread exception {province_name} ({url}): {e}")
 
-        if self.failed_provinces:
-            print(f"\n🔄 Đang retry {len(self.failed_provinces)} tỉnh thất bại...")
-            retry_failed = []
-            for province_id in list(self.failed_provinces):
-                self._close_thread_driver()
-                time.sleep(0.5)
-                result = self.crawl_province(province_id, 0)
-                if result == 0:
-                    retry_failed.append(province_id)
-                self._close_thread_driver()
+        self.all_rainfall_data = results
+        self.export(timestamp)
 
-            self.failed_provinces = retry_failed
-
-        # Cleanup thread-local drivers
-        self._close_thread_driver()
-
-        self.all_rainfall_data = list(self.unique_stations.values())
-        self.all_rainfall_data.sort(key=lambda x: (x["province_id"], x["tram"]))
-
-    def export(self):
+    def export(self, timestamp):
         if not self.all_rainfall_data:
             print("⚠️ Không có dữ liệu để xuất!")
             return
 
-        df = pd.DataFrame(self.all_rainfall_data)
-        df = df.drop(columns=["province_id"], errors="ignore")
-
-        # Đồng bộ tên cột chuẩn schema
-        df = df.rename(columns={
-            "tinh": "province",
-            "tram": "station_name",
-            "luong_mua": "rain_total",
-            "thoi_gian": "timestamp",
-        })
-
-        # Thêm các cột còn thiếu
-        if "station_id" not in df.columns:
-            df["station_id"] = df.apply(
-                lambda r: hashlib.md5(f"{r['province']}_{r['station_name']}".lower().encode()).hexdigest()[:12],
-                axis=1
-            )
-        if "district" not in df.columns:
-            df["district"] = ""
-        if "status" not in df.columns:
-            df["status"] = ""
-        if "data_time" not in df.columns:
-            df["data_time"] = df["timestamp"]
-
-        # Sắp xếp và chọn đúng thứ tự cột
-        schema_columns = [
+        fieldnames = [
             "station_id",
             "station_name",
             "province",
@@ -371,35 +357,62 @@ class VrainCrawlerFinal:
             "rain_total",
             "status",
             "timestamp",
-            "data_time"
+            "data_time",
         ]
-        df = df[schema_columns]
 
-        # Dynamic path: tự tính từ vị trí project root
-        _project_root = Path(__file__).resolve().parents[2]
-        output_dir = str(_project_root / "data" / "data_crawl")
-        os.makedirs(output_dir, exist_ok=True)
+        project_root = Path(__file__).resolve().parents[2]
+        output_dir = project_root / "data" / "data_crawl"
+        output_dir.mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        excel_path = os.path.join(output_dir, f"Bao_cao_{timestamp}.xlsx")
-        df.to_excel(excel_path, index=False)
+        # file tổng
+        total_csv = output_dir / f"Bao_cao_{timestamp}.csv"
+        self._write_csv_rows(total_csv, self.all_rainfall_data, fieldnames)
 
-        print(f"\n{'=' * 60}")
-        print(f"📊 TỔNG KẾT:")
-        print(f"📍 Tổng số trạm thu thập: {len(df)}")
+        # file theo tỉnh
+        dbscl_output_dir = output_dir / "Bao_cao_vrain_DBSCL"
+        dbscl_output_dir.mkdir(parents=True, exist_ok=True)
 
-        if self.failed_provinces:
-            print(
-                f"❌ Các ID vẫn thất bại: {', '.join(map(str, self.failed_provinces))}"
-            )
-        else:
-            print(f"✅ Tất cả tỉnh đều lấy dữ liệu thành công!")
+        rows_by_province = defaultdict(list)
+        for row in self.all_rainfall_data:
+            province_std = self.canonical_dbscl_province(row.get("province", ""))
+            if not province_std:
+                continue
+            row_copy = row.copy()
+            row_copy["province"] = province_std
+            rows_by_province[province_std].append(row_copy)
 
-        print(f"📄 File đã lưu tại: {excel_path}")
-        print(f"{'=' * 60}")
+        for province_name, province_rows in sorted(rows_by_province.items()):
+            old_csv_files = sorted(dbscl_output_dir.glob(f"Bao_cao_{province_name}_*.csv"))
+            old_xlsx_files = sorted(dbscl_output_dir.glob(f"Bao_cao_{province_name}_*.xlsx"))
+            legacy_csv = dbscl_output_dir / f"{province_name}.csv"
+            legacy_xlsx = dbscl_output_dir / f"{province_name}.xlsx"
+
+            existing_rows = []
+            for old_csv in old_csv_files:
+                existing_rows.extend(self._read_csv_rows(old_csv, fieldnames))
+            existing_rows.extend(self._read_csv_rows(legacy_csv, fieldnames))
+
+            merged_rows = self._merge_rows(existing_rows, province_rows, fieldnames)
+
+            for old_csv in old_csv_files:
+                old_csv.unlink(missing_ok=True)
+            for old_xlsx in old_xlsx_files:
+                old_xlsx.unlink(missing_ok=True)
+            legacy_csv.unlink(missing_ok=True)
+            legacy_xlsx.unlink(missing_ok=True)
+
+            province_csv = dbscl_output_dir / f"Bao_cao_{province_name}_{timestamp}.csv"
+            province_xlsx = dbscl_output_dir / f"Bao_cao_{province_name}_{timestamp}.xlsx"
+            self._write_csv_rows(province_csv, merged_rows, fieldnames)
+            self._write_xlsx_rows(province_xlsx, merged_rows, fieldnames)
+
+        print("\n" + "=" * 60)
+        print(f"📍 Tổng số trạm thu thập: {len(self.all_rainfall_data)}")
+        print(f"📄 File tổng: {total_csv}")
+        print(f"📄 File theo tỉnh: {dbscl_output_dir}")
+        print("=" * 60)
 
 
 if __name__ == "__main__":
-    crawler = VrainCrawlerFinal(headless=True, max_workers=8, max_retries=3)
-    crawler.run(start_id=1, end_id=63)
-    crawler.export()
+    crawler = VrainCrawlerFinal(headless=True, max_workers=5, max_retries=2)
+    crawler.run()
