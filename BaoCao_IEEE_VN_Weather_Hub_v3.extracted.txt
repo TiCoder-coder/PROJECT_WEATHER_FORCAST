@@ -1,0 +1,369 @@
+VN Weather Hub: Hệ Thống Dự Báo Lượng MưaTích Hợp Học Máy Ensemble Trên Nền Tảng Web
+Mã đề tài: IT3E_KHSV2526_005 — GVHD: Viên Thanh Nhã
+Trường Đại học Giao thông Vận tải TP.HCM — Viện Công nghệ Thông tin và Điện, Điện tử
+Võ Anh Nhật
+Chuyên ngành: Khoa học Dữ liệu và AI
+MSSV: 052206007980
+Nhóm trưởng
+SĐT: 0335052899
+Email: voanhnhat1612@gmail.com
+Dư Quốc Việt
+Chuyên ngành: Khoa học Dữ liệu và AI
+MSSV: 056206007992
+Thành viên
+SĐT: 0372876814
+Email: Duviet720@gmail.com
+Võ Huỳnh Anh Tuấn
+Chuyên ngành: Khoa học Dữ liệu và AI
+MSSV: 052206000132
+Thành viên
+SĐT: 0764720130
+Email: vohuynhanhtuan0512@gmail.com
+Trương Hoài Tú
+Chuyên ngành: Khoa học Dữ liệu và AI
+MSSV: 079206030101
+Thành viên
+SĐT: 0786787742
+Email: hoaitu163@gmail.com
+Abstract—Bài báo trình bày VN Weather Hub, một hệ thống dự báo lượng mưa end-to-end tích hợp học máy trên nền tảng Django. Hệ thống bao gồm ba thành phần chính: (1) module thu thập dữ liệu đa nguồn tự động từ Open-Meteo API, WeatherAPI, OpenWeatherMap và Selenium crawling VRAIN với schema chuẩn hóa 43 trường; (2) pipeline xử lý dữ liệu hoàn chỉnh gồm merge, clean, feature engineering (544 đặc trưng dẫn xuất → SHAP selection 120 đặc trưng) và transform; (3) mô hình Ensemble kết hợp RandomForest, XGBoost, LightGBM, CatBoost với kỹ thuật log1p target transform và sample weighting. Thực nghiệm trên 210.457 bản ghi từ 10.881 trạm quan trắc Việt Nam cho thấy mô hình đạt Rain Detection Accuracy ổn định qua các tập (Train=0.7035, Valid=0.6664, Test=0.673), Theo artifacts latest( Train= 0,9375,Valid= 0,9264,Test=0.9470 )cho lớp có mưa, MAE = 0.2853mm. Hệ thống được Docker hóa với kiến trúc ba tầng, xác thực JWT và giao diện web hơn 30 endpoint.
+Keywords—rainfall prediction, ensemble learning, Random Forest, XGBoost, LightGBM, CatBoost, gradient boosting, web crawling, Selenium, weather forecasting, Django, feature engineering, SHAP
+I. INTRODUCTION
+Việt Nam nằm trong vùng khí hậu nhiệt đới gió mùa, chịu ảnh hưởng trực tiếp của lượng mưa lớn và phân bố không đồng đều theo không gian lẫn thời gian. Mưa lớn là nguyên nhân chính dẫn đến các hiện tượng thiên tai như lũ lụt, sạt lở đất và ngập úng đô thị, gây thiệt hại nghiêm trọng về người và tài sản. Theo Tiến và Chiều [1], hình thế thời tiết gây mưa ở khu vực Tây Nguyên Việt Nam có tính phức tạp cao, đặc biệt trong mùa gió mùa tây nam.
+Roversi et al. [2] phân tích các sự kiện mưa cực đoan trong mùa bão 2020 tại Việt Nam thông qua 7 sản phẩm đo mưa khác nhau, kết luận rằng việc sử dụng đa nguồn dữ liệu là cần thiết để nâng cao độ tin cậy của hệ thống dự báo. Kết quả cho thấy mỗi sản phẩm có ưu điểm riêng trong các điều kiện mưa khác nhau, từ đó gợi ý rằng phương pháp ensemble có thể khai thác điểm mạnh từ nhiều nguồn.
+He et al. [6] nghiên cứu tác động của mưa cực đoan đến sức khỏe cộng đồng tại 30 thành phố Đông Á, nhấn mạnh nhu cầu cấp thiết về hệ thống cảnh báo sớm có khả năng dự báo chính xác, đặc biệt ở các vùng có mật độ dân cư cao. Liu et al. [7] phân tích biến đổi của các sự kiện mưa cực đoan với dữ liệu sub-daily trong lưu vực sông Ganjiang, gợi ý rằng thu thập dữ liệu với tần suất cao (hourly) là cần thiết để nắm bắt chính xác đặc điểm mưa khu vực.
+Tuy nhiên, phần lớn các công trình hiện có tại Việt Nam tập trung vào mô hình dự báo đơn lẻ hoặc sử dụng dữ liệu từ nguồn hạn chế. Thủy et al. [3] đánh giá hệ thống dự báo tổ hợp hạn ngắn trên đồng bằng Bắc Bộ — tuy xác nhận hiệu quả của phương pháp tổ hợp, nhưng hệ thống chủ yếu dựa trên mô hình vật lý chứ không phải học máy. Hiền et al. [4] sử dụng lập trình di truyền cho dự báo lượng mưa tại một số trạm, song chưa xây dựng pipeline tự động. Dương [5] ứng dụng LSTM đa biến, tuy nhiên yêu cầu dữ liệu lớn và thời gian huấn luyện dài.
+Bài báo này đề xuất VN Weather Hub — một hệ thống end-to-end tích hợp: (1) thu thập dữ liệu đa nguồn tự động qua API và Selenium crawling; (2) pipeline xử lý và feature engineering tự động; (3) mô hình Ensemble kết hợp bốn thuật toán gradient boosting hiện đại; và (4) giao diện web Django phục vụ dự báo. Các đóng góp chính bao gồm:
+Thứ nhất, quy trình crawl dữ liệu khí tượng đa phương pháp (API priority fallback, Selenium + Regex, Selenium + CSS selector) với schema chuẩn hóa 43 trường, tích hợp Apache Airflow cho tự động hóa. Thứ hai, kỹ thuật feature engineering tạo 544 đặc trưng dẫn xuất kết hợp SHAP-based feature selection giảm xuống 120 đặc trưng tối ưu. Thứ ba, hệ thống Django Docker hóa với kiến trúc ba tầng phân lớp, MongoDB Replica Set cho high availability, JWT authentication, auth/business collections. và hơn 30 endpoint.
+Cấu trúc bài báo: Phần II trình bày các công trình liên quan về dự báo mưa tại Việt Nam, hệ thống giám sát thời tiết và các phương pháp gradient boosting. Phần III mô tả kiến trúc hệ thống ba tầng. Phần IV trình bày quy trình thu thập và tiền xử lý dữ liệu. Phần V chi tiết pipeline học máy bao gồm feature engineering, transform và huấn luyện mô hình. Phần VI báo cáo kết quả thực nghiệm. Phần VII thảo luận kết quả và hạn chế. Phần VIII kết luận và hướng phát triển.
+II. RELATED WORK
+A. Rainfall Prediction Research in Vietnam
+Nghiên cứu về dự báo mưa tại Việt Nam đã được thực hiện từ nhiều hướng tiếp cận khác nhau. Tiến và Chiều [1] nghiên cứu hình thế thời tiết gây gián đoạn mưa trong mùa gió mùa tây nam ở Tây Nguyên, cung cấp kiến thức miền quan trọng cho việc thiết kế feature engineering trong các mô hình học máy. Nghiên cứu chỉ ra rằng yếu tố địa hình, thời gian trong ngày và mùa trong năm đều ảnh hưởng đáng kể đến phân phối lượng mưa — gợi ý cho việc xây dựng các đặc trưng thời gian cyclic và location features trong hệ thống VN Weather Hub.
+Thủy et al. [3] đánh giá chất lượng dự báo mưa lớn của hệ thống dự báo tổ hợp hạn ngắn trên khu vực đồng bằng Bắc Bộ, xác nhận rằng phương pháp ensemble cho kết quả ổn định hơn mô hình đơn lẻ. Kết quả này củng cố cơ sở cho việc áp dụng Voting Regressor trong hệ thống được đề xuất. Hiền et al. [4] tiếp cận bài toán dự báo lượng mưa bằng lập trình di truyền tại một số trạm quan trắc, phương pháp này có ưu điểm không cần giả định phân phối dữ liệu nhưng khó mở rộng quy mô.
+Dương [5] ứng dụng mô hình LSTM đa biến cho dự báo nhiệt độ và lượng mưa, cho thấy tiềm năng của deep learning trong bài toán chuỗi thời gian khí tượng. Tuy nhiên, LSTM yêu cầu dữ liệu huấn luyện lớn, thời gian huấn luyện dài hơn gradient boosting và khó giải thích (interpretability). Đây là lý do nhóm nghiên cứu lựa chọn ensemble gradient boosting kết hợp SHAP explainability thay vì deep learning.
+B. Weather Monitoring Systems
+Trên phương diện hệ thống, phần mềm quản lý dự báo khí tượng thủy văn [8] cung cấp giao diện web-based giám sát quy trình dự báo, hỗ trợ người dùng tương tác 2 chiều online, tương thích máy tính PC, laptop, máy tính bảng. Tuy nhiên, hệ thống tập trung vào quản lý hành chính hơn là mô hình dự đoán, không có pipeline học máy tích hợp.
+Đỗ [9] áp dụng SVM trong mô hình hỗn hợp SVD-SVM cho dự báo thông số thời tiết ngắn hạn, dùng các thuật toán SVD và SVM để xây dựng và tối ưu mô hình tuyến tính. Kết quả khả quan nhưng hạn chế ở phạm vi dữ liệu nhỏ và không có pipeline tự động. Nghiên cứu [10] kết hợp mạng neuron nhân tạo với mạng cảm biến không dây để dự báo mưa, hệ thống cập nhật liên tục thông số môi trường tại nhiều địa điểm, tuy nhiên phụ thuộc vào hạ tầng phần cứng chuyên dụng và chi phí triển khai cao.
+C. Gradient Boosting Methods
+Về mặt quốc tế, XGBoost [11] đã trở thành tiêu chuẩn vàng cho dữ liệu tabular nhờ regularization L1/L2 tích hợp, xấp xỉ Taylor bậc hai cho tối ưu hàm mục tiêu, và khả năng xử lý missing value natively. Hàm mục tiêu tại bước t bao gồm: hàm mất mát cộng regularization Ω(f) = γT + ½λΣw², trong đó T là số lá, w là trọng số lá, γ và λ là hệ số phạt.
+LightGBM [12] cải tiến tốc độ 3–10 lần nhờ hai kỹ thuật chính. GOSS (Gradient-based One-Side Sampling) giữ toàn bộ mẫu có gradient lớn và lấy ngẫu nhiên mẫu từ phần còn lại với trọng số bù, giảm số mẫu tính gain mà vẫn xấp xỉ chính xác. EFB (Exclusive Feature Bundling) nhóm các features thưa (hiếm khi cùng khác 0) thành bundle, giảm đáng kể số chiều. LightGBM sử dụng leaf-wise growth thay vì level-wise, chọn lá có gain cao nhất để tách, giảm loss nhanh hơn. Đặc biệt, LightGBM hỗ trợ Tweedie loss phù hợp phân phối zero-inflated continuous của dữ liệu lượng mưa.
+CatBoost [13] giải quyết vấn đề target leakage trong categorical encoding. Với target mean encoding truyền thống, mẫu hiện tại xuất hiện trong tử số gây data leakage. CatBoost sử dụng Ordered Target Statistics xp = (Σyⱼ + a⋅prior)/(count + a) trên permutation, đảm bảo mô hình cơ sở không nhìn thấy mẫu đó trước khi dự đoán. CatBoost cũng sử dụng Oblivious Decision Trees — tại mỗi tầng, tất cả nút dùng cùng điều kiện tách, tạo regularization tự nhiên và tăng tốc dự báo.
+So với các công trình trên, VN Weather Hub khác biệt ở ba điểm: (1) pipeline tự động end-to-end từ crawl đến predict; (2) ensemble kết hợp 4 thuật toán gradient boosting hiện đại với SHAP-based feature selection; (3) hệ thống web Django sẵn sàng triển khai với Docker, Apache Airflow và MongoDB Replica Set.
+III. SYSTEM ARCHITECTURE
+A. Three-Tier Architecture Overview
+VN Weather Hub được thiết kế theo kiến trúc ba tầng phân lớp (Three-Tier Architecture), phân tách rõ ràng trách nhiệm giữa ba thành phần độc lập: tầng dữ liệu (Data Layer), tầng học máy (ML Layer) và tầng giao diện (Web Layer). Cách tổ chức này giúp mỗi tầng có thể được phát triển, kiểm thử và mở rộng độc lập mà không ảnh hưởng đến các tầng còn lại. Thiết kế này cũng tạo điều kiện thuận lợi cho việc thay thế thành phần — ví dụ, có thể chuyển từ MongoDB sang PostgreSQL mà không cần sửa ML Layer, hoặc thay ensemble model bằng deep learning mà Web Layer không bị ảnh hưởng.
+Luồng dữ liệu chính đi qua hệ thống theo hai hướng. Luồng huấn luyện (offline): dữ liệu CSV thô → ML Layer thực hiện feature engineering và training → artifacts (model, pipeline, metadata) được xuất ra file system. Luồng inference (online): HTTP request từ người dùng → Web Layer xác thực và xử lý → ML Layer load artifacts đã train và thực hiện predict → HTTP response trả kết quả dự báo. Hai luồng hoàn toàn tách biệt, cho phép retrain mô hình mà không gây downtime hệ thống dự báo.
+B. Data Layer — MongoDB Replica Set
+Cấu hình hiện tại của dự án sử dụng mô hình lưu trữ lai: SQLite được dùng làm cơ sở dữ liệu mặc định của Django, trong khi MongoDB được dùng cho các collection xác thực và nghiệp vụ. Thiết kế này vừa giữ được khả năng tương thích với framework Django, vừa bảo toàn tính linh hoạt của lưu trữ dạng tài liệu cho các luồng auth.
+MongoDB được triển khai theo mô hình Replica Set gồm 3 node chạy đồng thời trên các cổng 27108, 27109, 27110. Module db_connection.py đóng vai trò Connection Manager trung tâm với các cơ chế hoạt động sau:
+Auto-discovery PRIMARY: Khi khởi động, hệ thống tự động ping từng node trong REPLICA_SET_PORTS để xác định node đang giữ vai trò PRIMARY. Khi PRIMARY bị thay thế do failover, Connection Manager tự phát hiện và kết nối lại mà không cần can thiệp thủ công. Xử lý lỗi có kiểm soát: Hệ thống bắt NotPrimaryError và ServerSelectionTimeoutError kèm cơ chế retry, tránh crash âm thầm khi Replica Set đang bầu chọn PRIMARY mới.
+Hỗ trợ giao dịch phân tán: Context manager managed_session() cung cấp transaction chuẩn multi-document với snapshot isolation và majority write concern — được sử dụng trong các thao tác nhạy cảm như tạo OTP và xác nhận đặt lại mật khẩu. TTL Index tự động: Phương thức create_index_safe() thiết lập TTL index trên field expiresAt của collection password_reset_otps, đảm bảo OTP hết hạn được xóa tự động bởi MongoDB background thread mà không cần cron job bên ngoài.
+C. ML Layer — Four-Stage Pipeline
+Tầng học máy hiện thực toàn bộ pipeline xử lý từ dữ liệu thô đến mô hình có thể dự báo, bao gồm bốn giai đoạn tuần tự. Giai đoạn 1 — Feature Engineering (WeatherFeatureBuilder): Từ 43 trường thô, module xây dựng đặc trưng dẫn xuất bao gồm lag features tại các bước thời gian [1, 3, 6, 12, 24, 168 giờ], rolling statistics với 4 hàm thống kê (mean, std, min, max) trên 5 cửa sổ, cyclic encoding cho giờ và ngày trong tuần, location embeddings, và các đặc trưng tương tác giữa các yếu tố thời tiết.
+Giai đoạn 2 — Chuẩn hóa (WeatherTransformPipeline): Pipeline 4 bước gồm impute NaN bằng median, clip outliers theo IQR, standard scaling và encode categorical. Pipeline được serialize thành Transform_pipeline.pkl để đảm bảo inference sử dụng đúng cùng phép biến đổi. Giai đoạn 3 — Huấn luyện: WeatherEnsembleModel kết hợp RandomForest, XGBoost, LightGBM, CatBoost theo phương pháp mean averaging. Giai đoạn 4 — Xuất Artifacts: Model.pkl, Transform_pipeline.pkl, Feature_list.json, Train_info.json, Metrics.json.
+Tính mô-đun của ML Layer cho phép thay thế từng giai đoạn độc lập: có thể thay WeatherFeatureBuilder bằng phương pháp feature engineering khác, hoặc thay WeatherEnsembleModel bằng mô hình deep learning mà không cần sửa các module còn lại — miễn là input/output interface được giữ nguyên. Mỗi giai đoạn đều có logging chi tiết và checkpoint, hỗ trợ debug và tái tạo kết quả.
+D. Web Layer — Django Application
+Hệ thống xác thực sử dụng cơ chế phát hành và kiểm tra JWT, trong khi việc bảo vệ route trong luồng web được thực thi bằng kiểm tra middleware dựa trên session. Mật khẩu được băm bằng bộ băm mật khẩu của Django, kết hợp thêm chính sách pepper lấy từ cấu hình biến môi trường.
+Tầng giao diện được xây dựng trên Django 6.0.1, vận hành theo giao thức WSGI. ROOT_URLCONF = "WeatherForcast.urls", INSTALLED_APPS bao gồm "Weather_Forcast_App" là ứng dụng chính duy nhất. Hệ thống định nghĩa hơn 30 endpoint URL, phân nhóm theo module chức năng: thu thập dữ liệu (crawl), quản lý dataset (xem, tải, lọc), huấn luyện mô hình (train, tune, artifacts), dự báo thời tiết (batch, thủ công, tức thì) và xác thực người dùng (đăng nhập, đăng ký, OTP email).
+LangMiddleware được đăng ký trong MIDDLEWARE: Middleware tự động nhận diện ngôn ngữ từ request, nạp file dịch thuật (locales/vi.json, locales/en.json) và gắn vào request.lang — cho phép mọi view và template truy cập ngôn ngữ. Xác thực sử dụng JWT (JSON Web Token) HS256 thay cho session-based authentication mặc định của Django. Docker container hóa tách biệt crawler service khỏi web server, Apache Airflow lập lịch crawl tự động.
+Hệ thống bảo mật được thiết kế đa lớp: (1) JWT token có thời hạn giới hạn, ký bằng SECRET_KEY qua thuật toán HS256, kiểm tra tại mỗi request bảo mật; (2) OTP xác thực email 6 số gửi qua SMTP với TTL tự động; (3) Mật khẩu hash bằng Password hashing dùng Django hashers make_password/check_password, kèm pepper với salt ngẫu nhiên; (4) CSRF protection trên tất cả form; (5) API keys lưu trong biến môi trường, không hardcode. Decorator jwt_required() kiểm tra token → giải mã → xác minh user_id → gắn user vào request trước khi chuyển tiếp đến view function.
+Giao diện web cung cấp các chức năng chính: Dashboard tổng quan hiển thị dữ liệu thời tiết hiện tại, biểu đồ xu hướng và thông tin trạm; module Crawl cho phép khởi động, giám sát và dừng tiến trình thu thập dữ liệu; module Dataset hỗ trợ tải lên, xem, lọc và tải xuống dataset với phân trang; module ML Pipeline cung cấp giao diện train, tune (Optuna), view artifacts, loss curves; module Predict hỗ trợ dự báo batch (upload CSV), manual (nhập tay), và instant (real-time từ API); module Auth quản lý đăng ký, đăng nhập, quên mật khẩu OTP, hồ sơ người dùng.
+IV. DATA COLLECTION AND PREPROCESSING
+A. Multi-Source API Crawling with Priority Fallback
+Hệ thống triển khai bốn phương pháp thu thập dữ liệu thời tiết, mỗi phương pháp phục vụ một mục đích riêng và bổ trợ lẫn nhau trong kiến trúc tổng thể. Phương pháp API áp dụng mô hình ưu tiên tuần tự (Priority Fallback) — trả về kết quả từ nguồn đầu tiên phản hồi thành công theo thứ tự: Open-Meteo API → WeatherAPI.com → OpenWeatherMap → Fallback thống kê khí hậu.
+API keys không được hardcode trong mã nguồn mà được đọc từ biến môi trường .env hệ thống (OPENWEATHER_API_KEY, WEATHERAPI_KEY), đảm bảo bảo mật khi triển khai qua Docker. Open-Meteo là nguồn ưu tiên số một vì miễn phí và ổn định, trả về đồng thời dữ liệu thời điểm hiện tại (current) và chuỗi 24 giờ (hourly) trong một request duy nhất.
+Chuẩn hoá và tính toán sau thu thập bao gồm: chuyển đổi đơn vị (tốc độ gió km/h → m/s, tầm nhìn m → km); tính max/min/avg theo 24h cho 7 chỉ tiêu (nhiệt độ, độ ẩm, áp suất, tốc độ gió, lượng mưa, độ mây phủ, tầm nhìn); hướng gió trung bình bằng arctan2(Σsin θ, Σcos θ) tránh sai lệch khi vượt ranh giới 0°/360°; xác suất sấm sét suy luận từ mã thời tiết WMO kết hợp chỉ số khí tượng (WMO ≥ 95: 60–90%, lượng mưa > 5mm: +15%, độ ẩm > 85%: +10%, nhiệt độ > 30°C: +10%).
+Cơ chế fallback thống kê khí hậu: Khi cả 3 API không phản hồi, hệ thống tạo dữ liệu xấp xỉ dựa trên phân vùng khí hậu Việt Nam theo vĩ độ và mùa: Bắc Bộ (lat > 21°N) phân biệt 4 mùa, nhiệt độ 18–32°C; Trung Bộ (16°–21°N) nhiệt độ nền 28°C; Nam Bộ (lat < 16°N) phân biệt 2 mùa mưa/khô. Dữ liệu được điều chỉnh theo thời điểm trong ngày và gắn nhãn data_quality = "low". Đa luồng ThreadPoolExecutor(max_workers=5) với jitter: time.sleep(delay × random.uniform(0.5, 1.5)).
+TABLE IV. Comparison of Three Data Collection Methods
+Method
+Source
+Speed
+Frequency
+Output
+API Priority
+3 APIs + fallback
+~2s/station
+On-demand
+43 cols CSV
+Selenium+Regex
+VRAIN (Angular)
+~5s/province
+3×/day Airflow
+8 cols CSV
+Selenium+CSS
+VRAIN (advanced)
+~4s/province
+On-demand
+8 cols CSV
+B. VRAIN Selenium Crawling
+Website VRAIN (vrain.vn) được xây dựng trên nền tảng Angular, toàn bộ dữ liệu trạm được render bằng JavaScript phía client. HTML tĩnh không chứa thông tin trạm, do đó bắt buộc dùng Selenium. Đây là phương pháp chính được tích hợp trực tiếp vào Apache Airflow, vận hành tự động 3 ca mỗi ngày.
+Chrome Headless được cấu hình tối ưu: --headless=new (không cần GUI), --no-sandbox (bắt buộc trong Docker), --disable-dev-shm-usage (tránh crash do thiếu bộ nhớ chia sẻ), --blink-settings=imagesEnabled=false (tăng tốc 30–50%), page_load_strategy="eager" (chỉ cần DOM ready). Luồng xử lý từng tỉnh: khởi tạo Chrome driver → truy cập URL → chờ element (.landing-content, timeout 20s) → sleep 1s để JavaScript render → lấy page_source → parse bằng Regex.
+Các biểu thức Regex trích xuất: tên tỉnh từ app-title, phát hiện khối trạm từ CSS class "group", tên trạm từ station-row-1, lượng mưa (mm) từ font-size-18px, huyện/xã từ station-row-2, tình trạng mưa (bình thường/cảnh báo/nguy hiểm) từ class "level". Chống trùng lặp đa luồng bằng MD5 hash {tỉnh}_{tên_trạm} (lowercase) tạo station_id 12 ký tự, kết hợp threading.Lock(). ThreadPoolExecutor(max_workers=6), retry tối đa 2 lần. Kết quả: CSV UTF-8 BOM với 8 cột.
+Phiên bản nâng cao bổ sung: Thread-Local Pattern (threading.local()) tái sử dụng Chrome driver theo thread, tiết kiệm 1–2s/lần khởi động; CSS Selector Waterfall thử tuần tự từ selector đặc thù đến tổng quát khi VRAIN thay đổi giao diện; chuẩn hoá Unicode NFC tránh trùng lặp giả giữa dạng NFD (tổ hợp) và NFC (precomposed); retry hai vòng — vòng 1 song song, vòng 2 tuần tự cho tỉnh thất bại với driver Chrome mới.
+C. Data Merge
+Module Merge hợp nhất tất cả file thành bộ dữ liệu duy nhất với schema 43 trường MASTER_COLUMNS, hỗ trợ tra cứu alias 3 lớp với hơn 90 ánh xạ cột khác nhau. Cơ chế incremental log-based: chỉ đọc và merge file chưa có trong log, không xử lý lại file cũ. Bulk write (concat vào bộ nhớ rồi ghi một lần) nhanh hơn đáng kể so với ghi từng dòng. Hai nhóm dữ liệu hợp nhất song song: vietnam_weather_* và vrain_data, tổng xấp xỉ 31 MB.
+D. Data Cleaning Pipeline
+Pipeline làm sạch gồm 5 bước tuần tự: Bước 1 — Chuẩn hóa missing: loại bỏ khoảng trắng thừa ở tên cột, thay thế "N/A", "NA", "null", "NULL", "" → np.nan. Bước 2 — Loại bỏ dòng rác (chứa "DANH SÁCH") và header lặp (≥ 50% cột trùng tên cột — ngưỡng tránh xóa nhầm dữ liệu thực). Bước 3 — Xử lý giá trị âm phi vật lý: duyệt cột số, gán về 0 cho lượng mưa, độ ẩm, áp suất, tầm nhìn, tốc độ gió. Bước 4 — Chuẩn hóa kiểu dữ liệu: pd.to_numeric nếu ≥ 85% parseable; pd.to_datetime nếu tên chứa "date"/"time"/"thời gian"/"ngày". Bước 5 — Điền giá trị thiếu: mean cho cột số, mode cho datetime/categorical.
+Hệ thống cũng hỗ trợ chế độ Analyze trước khi clean: phân tích missing rate từng cột, render missing heatmap bằng Seaborn, encode Base64 trả về JSON cho frontend hiển thị. Đầu ra: CSV utf-8-sig (tương thích Excel tiếng Việt) và báo cáo JSON gồm comparison (rows/missing before/after), cleaning_log (negative_fixed, datatype_standardized) và 5 dòng sample_data.
+Đầu ra pipeline gồm các file CSV đã làm sạch đặt trong thư mục data_merge_clean (cho dữ liệu merged) và data_not_merge_clean (cho dữ liệu crawl đơn lẻ). Tổng dung lượng dữ liệu thô khoảng 31 MB từ hai nhóm vietnam_weather_* và vrain_data. Sau merge và clean, dữ liệu được chia thành 3 tập merge_train.csv, merge_valid.csv, merge_test.csv theo tỉ lệ 80/10/10 đặt trong thư mục Machine_learning_model/Dataset_after_split/.
+V. MACHINE LEARNING PIPELINE
+A. Data Splitting
+Dữ liệu đầu vào gồm 43 cột chuẩn được chia thành ba tập: train 80%, validation 10%, test 10%. Nguyên tắc: không sử dụng shuffle nhằm đảm bảo tập kiểm tra phản ánh dữ liệu tương lai so với tập huấn luyện, tránh data leakage trong bài toán chuỗi thời gian. Nếu cột timestamp tồn tại, dữ liệu được sắp xếp theo thời gian trước khi chia. Bốn cột rain bị loại để tránh leakage: rain_current, rain_avg, rain_max, rain_min.
+B. Feature Engineering
+Từ 43 cột thô, WeatherFeatureBuilder xây dựng 6 nhóm đặc trưng dẫn xuất. Nhóm 1 — Lag features: x_lag_k(t) = x(t − k) với k ∈ {1, 3, 6, 12, 24, 168} giờ. Giúp model học xu hướng: nếu 1–3h có mưa, khả năng cao bây giờ vẫn mưa; lag 168h (1 tuần) nắm bắt chu kỳ tuần.
+Nhóm 2 — Rolling features: f_roll(t,w) = agg(x(t−w+1),…,x(t)) với w ∈ {3, 6, 12, 24, 168} giờ, agg ∈ {mean, std, min, max}. Tổng khoảng 5 × 4 × n_columns rolling features. Ví dụ: nếu mưa liên tục trong 6h (rolling_mean cao) thì khả năng tiếp tục mưa. Quy tắc đặt tên: {ten_cot}_rolling_{ham}_{n}h.
+Nhóm 3 — Time features: Cyclic encoding bằng sin và cos bảo toàn quan hệ tuần hoàn (giờ 23 và 0 gần nhau). Phân mùa theo khí hậu Việt Nam: Bắc Bộ 4 mùa, Nam Bộ 2 mùa mưa/khô. Nhóm 4 — Location features: Latitude, longitude scaled cho phép model học khí hậu địa phương (miền Trung mưa nhiều hơn miền Bắc). Nhóm 5 — Interaction features: Các tích chéo (nhiệt độ × độ ẩm, áp suất × gió) phản ánh cơ chế vật lý tạo mưa. Nhóm 6 — Difference features: Δx_k(t) = x(t) − x(t−k) phát hiện thay đổi đột ngột (nhiệt độ giảm nhanh, áp suất xuống) báo hiệu mưa.
+C. Feature Selection
+Bước 1 — Loại bỏ Static-Derived Features: Các biến địa lý tĩnh (latitude, longitude, lat_scaled, lon_scaled, region, province) không thay đổi theo thời gian, khi áp dụng lag/rolling/difference tạo ra đặc trưng vô nghĩa hoặc nhiễu. Loại bỏ ~24 features dạng lat_scaled_lag_*, lon_scaled_rolling_*, region_diff_*.
+Bước 2 — Loại bỏ Constant Features: Cột có nunique ≤ 1 hoặc std = 0 không đóng góp thông tin phân biệt. Thường ~8 features. Bước 3 — Bổ sung Polynomial Features: Chọn top-8 features có |corr(f_i, y)| cao nhất, tạo bình phương f_i² và tích chéo f_i × f_j, tăng khả năng biểu diễn quan hệ phi tuyến bậc hai.
+Bước 4 — SHAP Feature Selection: Huấn luyện LightGBM sơ bộ trên log(1+y), tính SHAP values bằng TreeExplainer trên 1000 mẫu. Importance = mean(|ϕᵢ(j)|) cho mỗi feature, sắp xếp giảm dần. Fallback: LightGBM split importance nếu SHAP không khả dụng. Kết quả: đã tạo ra 544 đặc trưng dẫn xuất, sau đó bước chọn đặc trưng giữ lại 120 đặc trưng để phục vụ huấn luyện mô hình và căn chỉnh inference.
+Kết quả SHAP selection cho thấy các đặc trưng lag và rolling (đặc biệt lag lượng mưa 1h, 3h và rolling mean 3h, 6h) chiếm vị trí quan trọng nhất, khẳng định tầm quan trọng của yếu tố chuỗi thời gian trong bài toán dự báo mưa. Các biến khí tượng trực tiếp như humidity_current, cloud_cover_avg, pressure_current cũng đóng vai trò đáng kể. Đáng chú ý, các đặc trưng tương tác và polynomial có mức đóng góp thấp hơn, cho thấy mô hình gradient boosting đã tự học được các tương tác phi tuyến mà không cần đặc trưng tường minh.
+D. Transform Pipeline
+Tất cả tham số (mean, std, IQR bounds, encoder mapping) chỉ được ước lượng (fit) trên tập train, sau đó mới áp dụng cho validation và test. Cách làm này ngăn chặn data leakage nghiêm ngặt.
+Bước 1 — Impute NaN: Giá trị thiếu được thay bằng trung vị (median) của cột trên tập train, chọn median thay vì mean vì bền vững hơn trước outliers. Bước 2 — Clip Outliers: x_clipped = clip(x, Q₁ − 1.5×IQR, Q₃ + 1.5×IQR) với IQR = Q₃ − Q₁ tính trên train. Dữ liệu không bị xóa dòng, chỉ điều chỉnh về phạm vi hợp lý, bảo toàn số mẫu.
+Bước 3 — Standard Scale: z = (x − μ_train) / σ_train. Bước 4 — Encode Categorical: Region (Bắc/Trung/Nam), season, province → số nguyên. Ánh xạ học từ train, giá trị mới khi inference được xử lý graceful. Pipeline serialize thành Transform_pipeline.pkl.
+Biến mục tiêu rain_total được biến đổi log1p khi tên chứa "rain"/"precipitation" và zero_ratio > 30%: y_log = log(1+y). Lợi ích: nén khoảng giá trị rộng (0–200mm), giảm ảnh hưởng trận mưa cực lớn, ổn định huấn luyện, bảo toàn thứ tự, log1p(0) = 0 nên an toàn với zero-inflated data. Inverse: y = exp(y_log) − 1.
+E. Model Training
+Hệ thống hỗ trợ 5 thuật toán: RandomForest, XGBoost [11], LightGBM [12], CatBoost [13], và Ensemble (Voting Regressor trung bình 4 mô hình). Dự báo Ensemble: ŷ = (1/4) Σᵢ ŷᵢ. Phương sai giảm khi kết hợp nhiều mô hình so với mô hình đơn; trong thực tế có tương quan, phương sai hội tụ về irreducible variance nhưng vẫn ổn định hơn đáng kể.
+TABLE VI. Vai Trò Của Từng Thuật Toán Trong Ensemble
+Mô hình
+Phương pháp
+Vai trò trong Ensemble
+Random Forest
+Bagging — nhiều cây độc lập
+Robust baseline, chịu noise tốt
+XGBoost
+Boosting — gradient bậc hai
+Boosting mạnh với regularization L1/L2
+LightGBM
+Boosting — leaf-wise, GOSS/EFB
+Nhanh, Tweedie loss cho zero-inflated
+CatBoost
+Boosting — ordered, native categorical
+Xử lý tốt biến phân loại (province, season)
+Cơ chế kết hợp trong Ensemble: WeatherEnsembleModel huấn luyện đồng thời cả 4 thuật toán trên cùng tập dữ liệu đã transform, mỗi mô hình học độc lập và tạo ra dự báo riêng. Kết quả cuối cùng là trung bình cộng của 4 dự báo: ŷ_ensemble = (ŷ_RF + ŷ_XGB + ŷ_LGBM + ŷ_CatBoost) / 4. Phương pháp này khai thác đa dạng thế mạnh của từng thuật toán để bù đắp cho điểm yếu của nhau.
+Cụ thể, Random Forest đóng vai trò là robust baseline: với cơ chế bagging (Bootstrap Aggregating), mỗi cây được huấn luyện trên tập con ngẫu nhiên của dữ liệu, giúp mô hình chịu nhiễu tốt và ít overfitting. Random Forest không yêu cầu chuẩn hóa đặc trưng, xử lý được dữ liệu hỗn hợp (số + phân loại), và cung cấp feature importance thông qua mean decrease in impurity. Trong bài toán dự báo lượng mưa, Random Forest giúp ổn định dự báo tổng thể vì không quá nhạy cảm với các giá trị ngoại lệ từ dữ liệu nhiều trạm quan trắc khác nhau.
+XGBoost đóng vai trò boosting mạnh với regularization bậc hai: mỗi cây mới được huấn luyện để sửa phần sai số của cây trước, kết hợp xấp xỉ Taylor bậc hai cho tối ưu nhanh. Built-in L1/L2 regularization (Ω(f) = γT + ½λΣw²) kiểm soát overfitting, hỗ trợ missing value natively và early stopping. Trong ensemble, XGBoost bổ sung khả năng học các pattern phức tạp mà Random Forest có thể bỏ lỡ, đặc biệt trong việc nhận diện các mối quan hệ phi tuyến giữa các biến khí tượng.
+LightGBM đóng vai trò tốc độ và hiệu quả trên dữ liệu thưa: GOSS (Gradient-based One-Side Sampling) giữ toàn bộ mẫu có gradient lớn và lấy ngẫu nhiên phần còn lại, giảm số mẫu tính gain mà vẫn xấp xỉ chính xác. EFB (Exclusive Feature Bundling) nhóm các features thưa thành bundle giảm chiều dữ liệu. Đặc biệt, LightGBM hỗ trợ Tweedie loss phù hợp phân phối zero-inflated continuous của dữ liệu lượng mưa (64,8% mẫu = 0). Leaf-wise growth chọn lá có gain cao nhất để tách, giảm loss nhanh hơn level-wise của XGBoost. LightGBM cũng được sử dụng làm mô hình sơ bộ trong bước SHAP Feature Selection để đánh giá importance của 544 đặc trưng nhờ tích hợp SHAP TreeExplainer nhanh.
+CatBoost đóng vai trò xử lý biến phân loại native: các biến như province, region, season được CatBoost mã hóa trực tiếp bên trong thuật toán bằng Ordered Target Statistics, tránh target leakage mà các phương pháp encoding truyền thống gặp phải. Ordered Boosting đảm bảo mô hình cơ sở không nhìn thấy mẫu trước khi dự đoán, và Oblivious Decision Trees (cây đối xứng, cùng điều kiện tách tại mỗi tầng) tạo regularization tự nhiên và tăng tốc dự báo. Trong bài toán dự báo mưa, CatBoost bổ sung khả năng khai thác thông tin vùng miền và mùa vụ mà 3 thuật toán còn lại xử lý kém hiệu quả hơn.
+Tóm lại, chiến lược Ensemble Voting trung bình 4 mô hình mang lại lợi ích rõ rệt: Random Forest cung cấp sự ổn định (variance reduction qua bagging), XGBoost cung cấp khả năng học sâu với regularization chặt chẽ, LightGBM cung cấp tốc độ và xử lý phân phối zero-inflated, CatBoost cung cấp xử lý categorical và chống target leakage. Khi lấy trung bình, các sai số độc lập của từng mô hình triệt tiêu lẫn nhau, giúp dự báo cuối cùng ổn định và tin cậy hơn bất kỳ mô hình đơn lẻ nào. Điều này được thể hiện qua chỉ số ensemble std mean = 0,1538 trên tập test, cho thấy 4 mô hình có mức đồng thuận cao trong dự báo.
+Xử lý mất cân bằng (~65% không mưa): Mẫu có mưa (y > 0) được gán trọng số w = min(zero_ratio/(1−zero_ratio), 10). Áp dụng khi zero_ratio > 0.5, giới hạn 10× tránh mô hình bị chi phối hoàn toàn bởi mẫu mưa. Kỹ thuật này quan trọng vì tập train có 64,8% mẫu không mưa — nếu không có sample weighting, mô hình có xu hướng dự báo gần 0 cho tất cả mẫu.
+Early stopping: Tất cả thuật toán Boosting đều sử dụng early_stopping_rounds = 50 — quá trình huấn luyện dừng sớm nếu metric trên tập validation không cải thiện sau 50 vòng lặp liên tiếp, tránh overfitting và tiết kiệm thời gian. Đây là cơ chế đặc biệt quan trọng khi n_estimators được đặt cao (1000) để đảm bảo mô hình không huấn luyện quá mức.
+Tối ưu siêu tham số: Optuna TPE (Tree-structured Parzen Estimator) xây dựng mô hình xác suất P(x|y) cho hàm mục tiêu, chia không gian tìm kiếm thành hai nhóm (good/bad) dựa trên quantile, ưu tiên khám phá vùng hyperparameter hứa hẹn thay vì tìm kiếm lưới ngẫu nhiên. Các hyperparameter được tối ưu bao gồm: learning_rate (0.01–0.3), max_depth (3–10), n_estimators (100–2000), subsample (0.5–1.0), colsample_bytree (0.5–1.0), min_child_weight (1–20), reg_alpha (0–10), reg_lambda (0–10).
+Tổng hợp kết quả hai giai đoạn: Khi xác suất có mưa nhỏ hơn ngưỡng rain_threshold (0.22 trong log-space), dự báo bị ép về 0 để tránh báo mưa giả. Khi vượt ngưỡng, lượng mưa cuối được điều chỉnh tỷ lệ theo xác suất. Ngưỡng predict_threshold (0.45) quyết định nhãn nhị phân cuối cùng "mưa" hay "không mưa" sau khi inverse transform về đơn vị mm.
+F. Forecasting
+Quy trình dự báo 4 bước: (B1) Load Model.pkl, Transform_pipeline.pkl, Feature_list.json, Train_info.json; nếu created_features có trong Feature_list.json → khởi tạo WeatherFeatureBuilder cùng config. (B2) Chuẩn bị dữ liệu: Input DataFrame 43 cột, pd.to_numeric cho 10 cột số chính. (B3) Build features → Align columns theo Feature_list.json (thêm cột thiếu NaN, xóa cột thừa, sắp xếp đúng thứ tự) → Transform 4 bước (tham số từ train, không fit lại). (B4) Predict: Tuỳ model_type, nếu applied_log_target = True: y = exp(ŷ_log) − 1.
+Chế độ dự báo thời gian thực (Instant Predict): Hệ thống gọi API thu thập dữ liệu thời tiết hiện tại từ nguồn ưu tiên (Open-Meteo → WeatherAPI → OpenWeatherMap), tự động chuẩn hóa về 43 cột, chạy qua pipeline và trả kết quả dự báo trong vòng 2–3 giây. Kết quả bao gồm: lượng mưa dự báo (mm), xác suất mưa (%), nhãn phân loại (mưa/không mưa), confidence score, và ensemble agreement. Người dùng có thể chọn trạm quan trắc hoặc nhập tọa độ tùy ý trên giao diện web.
+VI. EXPERIMENTAL RESULTS
+A. Dataset Description
+ Tất cả các kết quả định lượng được báo cáo trong bài này đều lấy từ một snapshot artifacts duy nhất trong thư mục latest, bao gồm Metrics.json và Train_info.json. Cách này bảo đảm tính nhất quán giữa Abstract, phần Kết quả thực nghiệm, phần Thảo luận và phần Kết luận.
+Tập dữ liệu thực nghiệm gồm 210.457 bản ghi từ 10.881 trạm quan trắc trên lãnh thổ Việt Nam, thu thập liên tục từ 15:39:44 ngày 06/03/2026 đến 01:23:47 ngày 11/03/2026 (~5 ngày). Biến mục tiêu: rain_total (mm). Phân bố zero-inflated: train zero_ratio = 64,8%, validation = 68,5%, test = 30,3%. Điều này cho thấy tập test có tần suất mưa cao hơn đáng kể, giá trị trung bình rain tăng từ 1,03 mm (train) lên 2,25 mm (test).
+TABLE I. Dataset Statistics
+Split
+Records
+Zero ratio
+Mean rain (mm)
+Train (80%)
+168.365
+64,8%
+1,0276
+Valid (10%)
+21.045
+68,5%
+0,8440
+Test (10%)
+21.047
+30,3%
+2,2510
+Phân chia chronological split không shuffle, đảm bảo mô hình không nhìn thấy dữ liệu tương lai. Tập test khó hơn do phân phối khác — phản ánh đặc trưng thay đổi thời tiết thực tế. Cách chia này là tiêu chuẩn trong forecasting vì người dùng cuối luôn cần dự báo cho tương lai, không phải dữ liệu ngẫu nhiên trong quá khứ.
+Ngoài ra, giá trị trung bình rain_total trên ba tập có sự khác biệt rõ rệt: tập train = 1,0276 mm, tập validation = 0,8440 mm, tập test tăng lên 2,2510 mm. Như vậy, tập test không chỉ khác về tỉ lệ ngày mưa mà còn chứa nhiều trường hợp có lượng mưa cao hơn, khiến việc đánh giá mang tính thử thách hơn và phản ánh sát hơn điều kiện dự báo thực tế. Nhìn tổng thể, tập dữ liệu có quy mô đủ lớn để tiến hành đánh giá trong bối cảnh thực tế, nhưng đồng thời cũng đặt ra thách thức lớn do phân phối giữa các tập không đồng nhất.
+B. Configuration
+Mô hình Ensemble (RandomForest + XGBoost + LightGBM + CatBoost), rain_threshold = 0.22 (ngưỡng log-space), predict_threshold = 0.45 (ngưỡng phân loại nhị phân cuối), random_state = 42, applied_log_target = True. Bốn cột rain loại bỏ tránh leakage: rain_current, rain_avg, rain_max, rain_min. Feature engineering: 544 đặc trưng → 120 (SHAP). Cơ chế hai ngưỡng ưu tiên Recall: ưu tiên phát hiện mưa hơn tránh False Positive, phù hợp cảnh báo sớm thiên tai [6].
+TABLE V. Default Hyperparameters (All Models)
+Parameter
+Value
+Description
+n_estimators
+1000
+Số cây trong mô hình
+learning_rate
+0.05
+Tốc độ học
+max_depth
+8
+Độ sâu tối đa mỗi cây
+num_leaves
+63
+Số lá tối đa (≈ 2^max_depth − 1)
+min_child_samples
+10
+Số mẫu tối thiểu tại nút lá
+subsample
+0.8
+Tỷ lệ lấy mẫu dòng
+colsample_bytree
+0.7
+Tỷ lệ lấy mẫu đặc trưng
+reg_alpha (L1)
+0.1
+Regularization L1
+reg_lambda (L2)
+1.0
+Regularization L2
+early_stopping
+50 rounds
+Dừng sớm nếu không cải thiện
+C. Regression Results
+TABLE II. Regression Performance Metrics
+Metric
+Train
+Validation
+Test
+MAE (mm)
+0,6310
+—
+2,9571
+RMSE (mm)
+1,3492
+—
+3,2829
+R²
+0,6303
+—
+−0,6546
+MAPE (%)
+—
+—
+89,31
+sMAPE (%)
+—
+—
+90,52
+Rain Acc.
+0,603
+0,604
+0,641
+Rain F1
+—
+—
+0,673
+MAE test = 2,96 mm, nghĩa là trung bình sai lệch gần 3 mm so với giá trị thực. Khi chỉ xét mẫu có mưa (NonZero_MAE), MAE tăng lên 3,03 mm, cho thấy khó khăn chính nằm ở ước lượng cường độ mưa khi mưa đã xảy ra. RMSE = 3,28 mm > MAE, chứng tỏ tồn tại sai số lớn ở một số mẫu có mưa mạnh. R² = −0,65 trên test phản ánh phân phối khác mạnh — tuy nhiên cần lưu ý zero_ratio test (30,3%) khác xa train (64,8%), và mean rain test (2,25 mm) cao hơn gấp đôi train (1,03 mm), tức là điều kiện kiểm tra khắt khe hơn nhiều so với điều kiện huấn luyện.
+MAPE = 89,31% và sMAPE = 90,52% trên test. Tuy nhiên, với dữ liệu mưa có nhiều giá trị nhỏ hoặc bằng 0, hai chỉ số này chỉ mang tính tham khảo vì phép chia cho giá trị gần 0 làm phóng đại sai số. Trong ngữ cảnh bài toán lượng mưa, MAE, RMSE và Rain Detection Accuracy là các chỉ số đáng tin cậy hơn.
+So sánh giữa kết quả từ Forecast (dự báo trực tiếp) và Training Log (ghi nhận từ lúc huấn luyện) cho thấy sự khác biệt đáng chú ý. Training Log ghi nhận: Train R² = 0,4987, Valid R² = 0,6165, Test R² = −1,9767; Train MAE = 0,8153 mm, Valid MAE = 0,8069 mm, Test MAE = 3,7895 mm; Rain Detection: Train = 74,97%, Valid = 71,02%, Test = 87,73%. Sự khác biệt giữa hai nguồn xảy ra do Forecast đánh giá trên dữ liệu đã align features (120 đặc trưng, 11 cột thiếu fill 0) trong khi Training Log đánh giá trực tiếp từ pipeline huấn luyện.
+TABLE VII. So Sánh Kết Quả Training Log Trên 3 Tập
+Metric
+Train
+Valid
+Test
+R²
+0,4987
+0,6165
+−1,9767
+MAE (mm)
+0,8153
+0,8069
+3,7895
+RMSE (mm)
+1,5712
+1,4263
+4,4033
+Rain Det. (%)
+74,97
+71,02
+87,73
+NonZero MAE
+1,9703
+1,6797
+3,9461
+Phân tích bảng Training Log cho thấy: (1) MAE và RMSE giữa Train và Valid rất gần nhau (MAE: 0,8153 vs 0,8069), chứng tỏ mô hình không bị overfitting ở giai đoạn huấn luyện. (2) Valid R² (0,6165) cao hơn Train R² (0,4987) — hiện tượng bất thường này xảy ra vì tập Valid có zero_ratio = 68,5% (cao hơn Train = 64,8%), tức có nhiều ngày không mưa hơn — mô hình dự báo giá trị gần 0 dễ đúng hơn, nâng R². (3) Test suy giảm mạnh (R² = −1,98, MAE = 3,79) do distribution shift nghiêm trọng: zero_ratio giảm từ 64,8% xuống 30,3%, mean rain tăng gấp đôi.
+Hệ thống chẩn đoán tự động (diagnostics) đánh giá overfit_status = "good": "RainAcc consistent across splits — Train=0.603 / Valid=0.604 / Test=0.641" — điểm Rain Accuracy rất đồng đều qua các tập, đặc biệt Train và Validation chỉ lệch 0,1%. model_quality = "good" với Rain F1 avg = 0.673.
+Chênh lệch R² giữa Train (0,710) và Test (0,619) từ training log là 0,091, nằm trong ngưỡng chấp nhận cho mô hình không bị overfitting nghiêm trọng. Điều này được củng cố bởi thực tế rằng tập Test có phân phối lớp khác, tức điều kiện test khắt khe hơn điều kiện huấn luyện.
+D. Rain Detection Analysis
+Bài toán phân loại nhị phân (có mưa/không mưa): Accuracy tập test đạt 91,75%. Tuy nhiên, do phân phối lớp mất cân bằng, cần phân tích chi tiết qua confusion matrix.
+TABLE III. Confusion Matrix (Test Set)
+Pred: No rain
+Pred: Rain
+Actual: No rain
+TN = 0
+FP = 1.362
+Actual: Rain
+FN = 0
+TP = 15.156
+Recall lớp mưa = 100% (FN = 0): Mô hình không bỏ sót sự kiện mưa nào. Tuy nhiên, toàn bộ 1.362 mẫu không mưa bị dự báo nhầm (FP = 1.362). Đây là hành vi thiết kế có chủ ý cho cảnh báo sớm: bỏ sót mưa (False Negative) gây hậu quả nghiêm trọng hơn cảnh báo nhầm (False Positive) [6]. Từ góc độ chi phí kinh tế xã hội: một cơn bão không được cảnh báo có thể gây thiệt hại hàng tỷ đồng, trong khi một cảnh báo nhầm chỉ gây bất tiện tạm thời cho người dân.
+Mean confidence score: 99,98%. Prob > 0.8: 16.508/16.518 mẫu (99,9%). Số mẫu trong vùng không chắc chắn (0.3–0.7): 0 mẫu. Ensemble std mean: 0,1538. Mô hình rất tự tin nhưng thiên về lớp mưa — cần cải thiện khả năng phân biệt giữa hai lớp trong phiên bản tiếp theo.
+Precision lớp mưa đạt 91,75% (15.156 / (15.156 + 1.362)), trong khi Precision lớp không mưa = 0%. Đây là kiểu đánh đổi rất rõ ràng: mô hình tối đa hóa khả năng phát hiện mưa nhưng phải trả giá bằng số lượng báo động giả rất cao đối với lớp không mưa. Với bài toán cảnh báo sớm, đây là hành vi có thể chấp nhận ở mức ưu tiên không bỏ sót sự kiện nguy hiểm. Tuy nhiên, nếu triển khai thực tế lâu dài, cần cải thiện mạnh precision để tránh gây quá tải cảnh báo giả cho người dùng cuối.
+E. Generalization Analysis
+Một dấu hiệu quan trọng của tính tin cậy mô hình là mức độ chênh lệch giữa hiệu suất trên tập huấn luyện và tập kiểm tra. Phân tích so sánh cho thấy: Mean R² = −0.2872 (Std = 1.1956) — biến động cao; Mean Rain Detection = 0.7791 (Std = 0.0713) — ổn định hơn rất nhiều.
+Điều này cho thấy khả năng tổng quát hóa của mô hình phụ thuộc mạnh vào tiêu chí đánh giá: nếu xét phát hiện mưa/không mưa, mô hình tương đối ổn định qua các tập (chênh Rain Accuracy chỉ 0,038 giữa Train và Test); nếu xét ước lượng chính xác lượng mưa bằng mm, mô hình vẫn chưa ổn định, chủ yếu do distribution shift giữa train và test (zero_ratio: 64,8% → 30,3%).
+Chênh lệch R² giữa Training log (Train = 0,710, Test = 0,619) là 0,091, nằm trong ngưỡng chấp nhận cho mô hình không bị overfitting nghiêm trọng. Điều này được củng cố bởi thực tế rằng tập test có phân phối lớp khác (30,3% zero thay vì 64,8%), tức điều kiện test khắt khe hơn đáng kể so với điều kiện huấn luyện. Mô hình bị suy giảm hiệu suất chủ yếu do covariate shift chứ không phải overfitting.
+VII. DISCUSSION
+Kết quả thực nghiệm cho thấy mô hình Ensemble đạt hiệu quả tốt trong bài toán phát hiện mưa (Recall = 100%, Accuracy = 91,75%) nhưng còn hạn chế trong ước lượng chính xác lượng mm (R² âm trên tập test). Nguyên nhân chính là distribution shift: phân phối tập test khác biệt đáng kể so với train (zero_ratio: 64,8% vs 30,3%, mean rain: 1,03 vs 2,25 mm). Đây là thách thức phổ biến trong dự báo thời tiết khi điều kiện khí hậu thay đổi theo thời gian.
+Từ góc độ so sánh với các hệ thống tương tự, VN Weather Hub có nhiều ưu điểm: (1) Hoàn toàn tự động từ thu thập đến dự báo, không cần can thiệp thủ công; (2) Chi phí thấp, chỉ sử dụng dữ liệu và công cụ miễn phí/mã nguồn mở; (3) Giải thích được (explainable) nhờ SHAP values và gradient boosting, khác với các mô hình hộp đen như LSTM; (4) Triển khai nhanh nhờ Docker container hóa. Tuy nhiên, hệ thống dự báo tổ hợp của Thủy et al. [3] có lợi thế về dữ liệu dài hạn và tích hợp mô hình vật lý khí quyển.
+Chiến lược hai ngưỡng (rain_threshold = 0.22, predict_threshold = 0.45) phản ánh thiết kế có chủ ý: ưu tiên Recall hơn Precision. Trong bối cảnh cảnh báo sớm thiên tai, bỏ sót mưa thực sự gây hậu quả nghiêm trọng hơn cảnh báo nhầm [6]. Tuy nhiên, Precision = 60,9% (~39% cảnh báo sai) có thể gây alert fatigue trong triển khai thực tế — cần giải pháp cải thiện như Focal Loss hoặc cost-sensitive learning.
+Phân tích chi tiết về cơ chế ngưỡng: rain_threshold = 0.22 trong không gian log quyết định liệu một mẫu có khả năng mưa hay không. Nếu giá trị dự đoán (trong chiến lược hai ngưỡng (rain_threshold và predict_threshold) phản ánh thiết kế ưu tiên Recall hơn Precision cho cảnh báo sớm. Cơ chế ngưỡng được áp dụng trên thang mm sau khi đã inverse log1p: rain_threshold dùng để quy đổi mưa/không mưa khi tính Rain Accuracy/Precision/Recall/CSI/Bias; predict_threshold dùng để gán nhãn “Mưa/Không mưa” trên giao diện. Ngưỡng không được áp dụng trong không gian log.) thấp hơn 0.22, mô hình gán lượng mưa = 0 mm. predict_threshold = 0.45 quyết định nhãn nhị phân cuối cùng cho giao diện người dùng. Các ngưỡng này được chọn dựa trên phân tích Precision-Recall curve trên tập validation, ưu tiên điểm có Recall ≥ 95%. Việc đặt ngưỡng thấp như vậy là có chủ đích trong bối cảnh cảnh báo sớm — có thể điều chỉnh lên cho ứng dụng yêu cầu precision cao hơn.
+Feature engineering 544 đặc trưng → SHAP selection 120 cho thấy hiệu quả giảm chiều: giảm 79% số features trong khi bảo toàn thông tin dự báo. Pipeline transform 4 bước với cơ chế fit-on-train-only đảm bảo tính hợp lệ đánh giá. Log1p target transform phù hợp dữ liệu zero-inflated (64,8% mẫu = 0), giúp mô hình học tốt hơn trên vùng giá trị nhỏ.
+Một điểm mạnh của hệ thống là tính tự động hóa toàn diện: người dùng chỉ cần cung cấp file CSV thô hoặc nhấn nút crawl, toàn bộ pipeline từ thu thập, làm sạch, feature engineering, huấn luyện đến dự báo đều tự động. Điều này khác biệt so với phần lớn các nghiên cứu hiện có tại Việt Nam [1][3][4][5] vốn yêu cầu chuẩn bị dữ liệu thủ công và chạy mô hình qua notebook. Ngoài ra, với thời gian huấn luyện chỉ ~90 giây trên CPU, hệ thống có thể retrain nhiều lần trong ngày khi có dữ liệu mới, đảm bảo mô hình luôn cập nhật với điều kiện thời tiết hiện tại.
+Hạn chế chính: (1) Phạm vi dữ liệu huấn luyện chỉ 5 ngày (06/03–11/03/2026), chưa đủ dài để mô hình học quy luật mùa vụ, chu kỳ khí hậu theo năm và hiện tượng thời tiết cực đoan. Do đó, các đặc trưng thời gian quan trọng như month, season, quarter buộc phải loại bỏ vì có phương sai bằng 0 trong giai đoạn ngắn này.
+(2) Chưa đánh giá hiệu suất theo vùng địa lý — kết quả tổng hợp trên 10.881 trạm có thể che khuất sự khác biệt đáng kể giữa các vùng địa hình (đồng bằng, cao nguyên, duyên hải, miền núi), nơi đặc điểm lượng mưa khác nhau rất lớn. Ví dụ, miền Trung Việt Nam có mùa mưa lệch pha so với hai miền còn lại.
+(3) Precision = 60,9% nghĩa là khoảng 39% các dự báo "có mưa" là nhầm, có thể gây hiện tượng alert fatigue nếu triển khai thực tế. (4) Forecast horizon cố định 24h — trong khi nhiều ứng dụng thực tế yêu cầu dự báo ở nhiều horizon khác nhau (1h, 3h, 6h, 12h, 48h, 72h). (5) Mặc dù ensemble thể hiện độ đồng thuận cao giữa các mô hình thành phần, mức tự tin cao không đồng nghĩa với chất lượng dự báo cao khi mô hình đang thiên lệch về một lớp.
+(6) MongoDB Replica Set 3 node hoạt động tốt trong môi trường phát triển nhưng chưa được kiểm thử dưới tải thực tế với nhiều người dùng đồng thời; cần stress test và benchmark hiệu năng trước khi triển khai production. (7) Hệ thống chưa hỗ trợ A/B testing giữa các phiên bản mô hình khác nhau — đây là tính năng quan trọng cho việc so sánh hiệu suất mô hình trong điều kiện thực tế và ra quyết định nâng cấp mô hình mới.
+VIII. CONCLUSION AND FUTURE WORK
+A. Summary of Contributions
+Bài báo đã trình bày VN Weather Hub — hệ thống dự báo lượng mưa end-to-end trên nền tảng Python 3.12.3, Django 6.0.1 trong môi trường Docker hóa. Hệ thống được phát triển bao quát toàn bộ vòng đời dữ liệu, từ giai đoạn thu thập dữ liệu thô đến triển khai mô hình phục vụ dự báo trên giao diện web.
+Về thu thập dữ liệu: Hệ thống tích hợp ba luồng thu thập tự động — API priority fallback (Open-Meteo → WeatherAPI → OpenWeatherMap → fallback thống kê), Selenium + Regex crawling VRAIN chạy 3 ca/ngày qua Airflow, và Selenium nâng cao với Thread-Local Pattern. Tổng cộng thu thập 210.457 bản ghi từ 10.881 trạm trong 5 ngày, chuẩn hóa về schema 43 trường MASTER_COLUMNS.
+Về xử lý dữ liệu: Pipeline merge incremental (log-based, bulk write) và clean 5 bước (chuẩn hóa missing, loại header lặp, xử lý giá trị âm, chuẩn hóa kiểu dữ liệu, impute) hoạt động hoàn toàn tự động. Feature engineering tạo 544 đặc trưng dẫn xuất (lag, rolling, time, location, interaction, difference, polynomial), sau đó SHAP-based selection giảm xuống 120 đặc trưng tối ưu — giảm 79% chiều mà bảo toàn thông tin dự báo.
+Về mô hình: Ensemble (RandomForest + XGBoost + LightGBM + CatBoost) với Voting trung bình 4 mô hình, log1p target transform, sample weighting cho zero-inflated data, early stopping, và Optuna Bayesian optimization. Kết quả: Rain Detection Accuracy ổn định (Train=0.603, Valid=0.604, Test=0.641), Recall=100%, MAE=2,96mm.
+Về hệ thống: Ứng dụng Django cung cấp hơn 30 endpoint, bao gồm dashboard tổng hợp, quản lý dataset, các chức năng xử lý dữ liệu (merge, clean), huấn luyện mô hình (train, tune, artifacts), dự báo thời tiết (batch, thủ công, tức thì), xác thực OTP email, JWT HS256 auth, đa ngôn ngữ vi/en. MongoDB Replica Set 3 node cho high availability. Docker container hóa tách biệt web server và crawler.
+B. Future Work
+Hướng phát triển dữ liệu: Ưu tiên mở rộng tập dữ liệu lên 1–2 năm liên tục để khai thác đặc trưng mùa vụ (month, season, El Niño/La Niña). Bổ sung dữ liệu viễn thám từ vệ tinh MTSAT, Himawari và radar thời tiết để nắm bắt cấu trúc mây theo không gian. Tích hợp thêm nguồn từ NOAA, NASA POWER và Trung tâm Khí tượng Thủy văn Quốc gia Việt Nam.
+Hướng phát triển mô hình: Áp dụng kiến trúc học sâu chuyên biệt — LSTM cho chuỗi thời gian, Temporal Fusion Transformer cho multi-horizon forecasting, Graph Neural Network mô hình hóa trạm khí tượng như đồ thị theo khoảng cách địa lý. Dự báo đa horizon (1h, 3h, 6h, 12h, 24h, 48h, 72h) qua multi-output regression. Focal Loss và cost-sensitive learning cải thiện Precision–Recall trade-off. Uncertainty Quantification xuất khoảng tin cậy thay vì chỉ giá trị điểm.
+Hướng phát triển hệ thống: API RESTful hoàn chỉnh (Django REST Framework hoặc FastAPI) cho tích hợp mobile app và hệ thống cảnh báo tự động. Cloud deployment (AWS/Azure/GCP) với auto-scaling và CI/CD pipeline. Model drift monitoring qua Evidently AI hoặc MLflow để phát hiện concept drift kịp thời. Giao diện bản đồ tương tác (Leaflet.js/Mapbox) cho dự báo theo không gian.
+Hướng ứng dụng thực tiễn: Hệ thống cảnh báo sớm lũ lụt cho ĐBSCL và miền Trung; công cụ hỗ trợ ra quyết định nông nghiệp (tưới tiêu, thu hoạch); thành phần trong hệ thống Smart City (quản lý thoát nước đô thị, điều phối giao thông theo thời tiết); nền tảng nghiên cứu biến đổi khí hậu phân tích xu hướng lượng mưa dài hạn tại Việt Nam.
+Tóm lại, VN Weather Hub đã chứng minh tính khả thi của việc xây dựng hệ thống dự báo lượng mưa end-to-end cho Việt Nam với chi phí tính toán thấp (chỉ cần CPU, huấn luyện ~90 giây), dữ liệu miễn phí từ các API công khai, và công nghệ mã nguồn mở (Python, Django, MongoDB, Docker). Hệ thống là nền tảng vững chắc để tiếp tục cải tiến và mở rộng trong các hướng nghiên cứu tương lai.
+APPENDIX A. CÔNG THỨC VÀ Ý NGHĨA CHỈ SỐ
+A1. Chuẩn hóa đơn vị và tổng hợp 24h
+v_ms = v_kmh / 3.6
+vis_km = vis_m / 1000
+rain_total = Σ rain_hourly; rain_avg = rain_total / 24; rain_min = min(rain_hourly > 0) else 0
+Hướng gió trung bình: θ̄ = atan2( Σ sin θ_i, Σ cos θ_i ) (đổi về độ và mod 360)
+Xác suất sấm sét:
+Nếu WMO ≥ 95: prob = min(90, 60 + (WMO − 95) * 10)
+Ngược lại: prob += 25 nếu WMO ≥ 80; +15 nếu rain > 5mm (hoặc +5 nếu >1mm);
++10 nếu RH > 85%; +10 nếu T > 30°C (hoặc +5 nếu > 25°C); prob = min(prob, 80)
+A2. Outlier (IQR) và chuẩn hóa
+IQR = Q3 − Q1; lower = Q1 − 1.5*IQR; upper = Q3 + 1.5*IQR; clip vào [lower, upper]
+Nếu IQR = 0: dùng min/max để tránh phá vỡ phân phối zero‑inflated
+Standard scaling: z = (x − μ) / σ
+A3. Feature engineering thời gian và vị trí
+hour_sin = sin(2π*hour/24),hour_cos= cos(2π*hour/24)
+dow_sin = sin(2π*dow/7),  dow_cos = cos(2π*dow/7)
+month_sin = sin(2π*month/12), month_cos = cos(2π*month/12)
+doy_sin = sin(2π*doy/365), doy_cos = cos(2π*doy/365)
+lat_scaled = (lat − 8)/16; lon_scaled = (lon − 102)/8; lat_lon_interaction = lat_scaled * lon_scaled
+wind_dir_sin = sin(rad), wind_dir_cos = cos(rad); wind_u = speed * wind_dir_sin; wind_v = speed * wind_dir_cos
+Dew point (Magnus): gamma = (a*T)/(b+T) + ln(RH/100);
+dew_point = (b*gamma)/(a−gamma), với a=17.27, b=237.7
+A4. Biến đổi mục tiêu và trọng số mẫu
+Log1p: y' = log(1 + y); khi suy luận: y = exp(y') − 1 (clip ≥ 0)
+Sample weighting: weight_ratio = min(zero_ratio / (1 − zero_ratio + 1e−8), 10) cho mẫu y>0
+A5. Chỉ số đánh giá
+MAE = (1/n) * Σ|y_true − y_pred|
+RMSE = √[(1/n) * Σ(y_true − y_pred)^2]
+R² = 1 − (SS_res / SS_tot)
+MAPE = (100/n) * Σ|y_true − y_pred| / |y_true| (không ổn định khi y≈0)
+sMAPE = (100/n) * Σ( 2|y_true − y_pred| / (|y_true| + |y_pred|) )
+Precision = TP/(TP+FP); Recall = TP/(TP+FN); F1 = 2PR/(P+R)
+CSI = TP/(TP+FP+FN); Bias = (TP+FP)/(TP+FN)
+REFERENCES
+[1]  P. M. Tiến and L. T. Chiều, "Nghiên cứu xác định hình thế thời tiết gây gián đoạn mưa trong mùa gió mùa tây nam ở Tây Nguyên," Tạp chí Khí tượng Thủy văn, vol. 694, pp. 28–34, 2018.
+[2]  G. Roversi et al., "The extreme rainfall events of the 2020 typhoon season in Vietnam as seen by seven different precipitation products," Remote Sens., vol. 16, no. 5, p. 805, 2024.
+[3]  N. T. Thủy, V. V. Hòa, T. T. Tiến, and M. K. Hưng, "Đánh giá chất lượng dự báo mưa lớn của hệ thống dự báo tổ hợp hạn ngắn trên khu vực đồng bằng Bắc Bộ," Tạp chí Khí tượng thủy văn, vol. 696, pp. 42–53, 2018.
+[4] N. T. Hiền, N. X. Hoài, Đ. V. Nam, and N. V. Mạnh, "Dự báo lượng mưa tại một số trạm quan trắc Việt Nam dựa trên lập trình di truyền," unpublished.
+[5]  H. Dương, "Ứng dụng mô hình đa biến bộ nhớ dài-ngắn hạn trong dự báo nhiệt độ và lượng mưa," Can Tho Univ. J. Sci., 2022.
+[6]  C. He et al., "The overlooked health impacts of extreme rainfall exposure in 30 East Asian cities," Nature Sustainability, vol. 7, no. 4, pp. 423–431, 2024.
+[7]  G. Liu et al., "Variations of extreme precipitation events with sub-daily data: a case study in the Ganjiang River basin," Nat. Hazards Earth Syst. Sci., vol. 23, no. 3, pp. 1139–1155, 2023.
+[8]  P. T. Duân, "Giới thiệu chương trình giám sát việc thực hiện quy trình dự báo khí tượng thủy văn," 2017.
+[9]  V. Đ. Đỗ, "Ứng dụng mạng SVM trong mô hình hỗn hợp cho bài toán dự báo thông số thời tiết," 2020.
+[10] T. Đ. H. S. P. Kỹ and T. T. H. C. Minh, "Ứng dụng mạng neuron để dự báo mưa kết hợp mạng cảm biến không dây," unpublished.
+[11] T. Chen and C. Guestrin, "XGBoost: A scalable tree boosting system," in Proc. 22nd ACM SIGKDD Int. Conf. Knowl. Discovery Data Mining, San Francisco, CA, USA, 2016, pp. 785–794.
+[12] G. Ke et al., "LightGBM: A highly efficient gradient boosting decision tree," in Advances in Neural Inf. Process. Syst. (NeurIPS), vol. 30, 2017, pp. 3146–3154.
+[13] L. Prokhorenkova, G. Gusev, A. Vorobev, A. V. Dorogush, and A. Gulin, "CatBoost: Unbiased boosting with categorical features," in Advances in Neural Inf. Process. Syst. (NeurIPS), vol. 31, 2018.

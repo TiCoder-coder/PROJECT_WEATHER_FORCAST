@@ -3,6 +3,7 @@ from __future__ import annotations
 import pendulum
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.timetables.trigger import CronTriggerTimetable
 
 
@@ -42,15 +43,21 @@ def build_crawl_dag(dag_id: str, schedule: str, description: str) -> DAG:
             ),
         )
 
-        crawl_vrain_html >> list_latest_outputs
+        trigger_dedupe = TriggerDagRunOperator(
+            task_id="trigger_dedupe_crawl",
+            trigger_dag_id="weather_dedupe_crawl",
+            wait_for_completion=False,
+        )
+
+        crawl_vrain_html >> list_latest_outputs >> trigger_dedupe
         return dag
 
 
-# Sang som: 05h-07h, moi 1 gio
+# Sang som: 05h-07h, moi 1 gio, them 11h
 weather_crawl_morning = build_crawl_dag(
     dag_id="weather_crawl_morning",
-    schedule="0 5-7 * * *",
-    description="Morning crawl window: every 1 hour from 05:00 to 07:00",
+    schedule="0 5-7,11 * * *",
+    description="Morning crawl window: every 1 hour from 05:00 to 07:00, plus 11:00",
 )
 
 # Buoi trua: 12h-14h, moi 45 phut
