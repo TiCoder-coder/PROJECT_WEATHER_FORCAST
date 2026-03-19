@@ -1,0 +1,16 @@
+{
+  "method": "temporal_fold_proxy",
+  "rainy_fold_ids": [
+    4,
+    5,
+    6,
+    7
+  ],
+  "dry_fold_ids": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "note": "Routing dùng temporal fold proxy. Gọi update_season_centroids(X_train, feature_names) để dùng month_sin/month_cos centroid routing chính xác hơn."
+}

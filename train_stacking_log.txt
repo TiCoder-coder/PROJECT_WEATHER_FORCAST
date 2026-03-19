@@ -1,0 +1,312 @@
+2026-03-19 14:35:07,929 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - 🚀 Bắt đầu build features...
+2026-03-19 14:35:07,944 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo time features từ cột 'timestamp'
+2026-03-19 14:35:07,944 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo location features
+2026-03-19 14:35:08,036 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 256 lag features
+2026-03-19 14:35:08,092 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 56 rolling features
+2026-03-19 14:35:08,584 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 192 difference features
+2026-03-19 14:35:08,597 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - Interaction features created
+2026-03-19 14:35:10,042 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Hoàn thành! Tổng cộng 544 features mới được tạo
+2026-03-19 14:35:10,042 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - 📊 Shape: (75302, 586)
+2026-03-19 14:35:10,308 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - 🚀 Bắt đầu build features...
+2026-03-19 14:35:10,313 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo time features từ cột 'timestamp'
+2026-03-19 14:35:10,313 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo location features
+2026-03-19 14:35:10,345 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 256 lag features
+2026-03-19 14:35:10,359 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 56 rolling features
+2026-03-19 14:35:10,417 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 192 difference features
+2026-03-19 14:35:10,423 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - Interaction features created
+2026-03-19 14:35:10,560 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Hoàn thành! Tổng cộng 544 features mới được tạo
+2026-03-19 14:35:10,560 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - 📊 Shape: (9412, 586)
+2026-03-19 14:35:10,589 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - 🚀 Bắt đầu build features...
+2026-03-19 14:35:10,594 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo time features từ cột 'timestamp'
+2026-03-19 14:35:10,594 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo location features
+2026-03-19 14:35:10,626 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 256 lag features
+2026-03-19 14:35:10,641 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 56 rolling features
+2026-03-19 14:35:10,698 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Đã tạo 192 difference features
+2026-03-19 14:35:10,704 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - Interaction features created
+2026-03-19 14:35:10,879 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - ✅ Hoàn thành! Tổng cộng 544 features mới được tạo
+2026-03-19 14:35:10,879 - Weather_Forcast_App.Machine_learning_model.features.Build_transfer - INFO - 📊 Shape: (9414, 586)
+2026-03-19 14:35:15,742 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - 🚀 Bắt đầu fit WeatherTransformPipeline...
+2026-03-19 14:35:15,770 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO -    Step 1/4: MissingValueHandler
+2026-03-19 14:35:15,814 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - ✅ MissingValueHandler (median) đã fit 120 numeric, 0 categorical columns
+2026-03-19 14:35:15,844 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO -    Step 2/4: OutlierHandler
+2026-03-19 14:35:15,985 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - ✅ OutlierHandler (iqr) đã fit 120 columns
+2026-03-19 14:35:16,108 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO -    Step 3/4: CategoricalEncoder
+2026-03-19 14:35:16,108 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - Không có categorical columns để encode
+2026-03-19 14:35:16,137 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO -    Step 4/4: WeatherScaler
+2026-03-19 14:35:16,198 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - ✅ WeatherScaler (standard) đã fit 120 columns
+2026-03-19 14:35:16,249 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - ✅ WeatherTransformPipeline đã fit thành công!
+2026-03-19 14:35:16,249 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO -    - Input shape: (75278, 120)
+2026-03-19 14:35:16,249 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO -    - Output shape: (75278, 120)
+2026-03-19 14:35:16,650 - Weather_Forcast_App.Machine_learning_model.features.Transformers - INFO - ✅ Pipeline đã được lưu tại: /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl
+2026-03-19 14:35:16,688 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+======================================================================
+StackingEnsemble.fit  |  n_samples=75278, n_features=120
+======================================================================
+2026-03-19 14:35:16,693 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   Rainy samples : 21619 (28.7%)
+  Dry samples   : 53659 (71.3%)
+  Imbalance ratio (n_neg/n_pos): 2.48
+  rain_threshold: 0.1 mm
+2026-03-19 14:35:16,693 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+────────────────────────────────────────────────────────────
+2026-03-19 14:35:16,693 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - GIAI ĐOẠN 6 — Verify từng base model riêng
+2026-03-19 14:35:16,693 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - ────────────────────────────────────────────────────────────
+2026-03-19 14:35:16,693 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [Stage 6] Verifying classification base models...
+2026-03-19 14:35:19,633 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ xgb_cls: ROC-AUC=0.9124 (2.94s)
+2026-03-19 14:35:22,200 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ rf_cls: ROC-AUC=0.8515 (2.57s)
+2026-03-19 14:35:26,236 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ cat_cls: ROC-AUC=0.8563 (4.04s)
+2026-03-19 14:35:32,997 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ lgbm_cls: ROC-AUC=0.9288 (6.76s)
+2026-03-19 14:35:32,998 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [Stage 6] Verifying regression base models...
+2026-03-19 14:35:37,660 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ xgb_reg: MAE_log1p=0.0545 (4.66s)
+2026-03-19 14:35:38,249 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ rf_reg: MAE_log1p=0.0784 (0.59s)
+2026-03-19 14:35:39,999 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ cat_reg: MAE_log1p=0.0788 (1.75s)
+2026-03-19 14:35:45,851 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ lgbm_reg: MAE_log1p=0.0496 (5.85s)
+2026-03-19 14:35:45,853 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   ✅ Stage 6 done (29.2s)
+2026-03-19 14:35:45,853 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+────────────────────────────────────────────────────────────
+2026-03-19 14:35:45,853 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - GIAI ĐOẠN 7 — OOF Classification Super Learner  (TimeSeriesSplit n_splits=5)
+2026-03-19 14:35:45,853 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - ────────────────────────────────────────────────────────────
+2026-03-19 14:35:45,856 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Fold 1/5: train=12548, val=12546
+2026-03-19 14:35:58,827 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Fold 2/5: train=25094, val=12546
+2026-03-19 14:36:15,474 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Fold 3/5: train=37640, val=12546
+2026-03-19 14:36:31,638 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Fold 4/5: train=50186, val=12546
+2026-03-19 14:37:04,427 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Fold 5/5: train=62732, val=12546
+2026-03-19 14:37:33,863 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Điền 12548 NaN rows bằng column mean
+2026-03-19 14:37:33,863 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 7] Z_cls shape: (75278, 4), model_names: ['xgb_cls', 'rf_cls', 'cat_cls', 'lgbm_cls']
+2026-03-19 14:37:33,867 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [Stage 7] Chia 5 fold — meta-train (folds 1–4): 62732 mẫu | fold-5 holdout (đánh giá): 12546 mẫu
+2026-03-19 14:37:33,911 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   Meta-cls Fold-5 holdout (unbiased): ROC-AUC=0.8129, PR-AUC=0.7046, F1=0.6689, Recall=0.6514
+2026-03-19 14:37:33,911 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   ✅ Stage 7 done (108.1s)
+2026-03-19 14:37:33,911 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+────────────────────────────────────────────────────────────
+2026-03-19 14:37:33,911 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - GIAI ĐOẠN 8 — OOF Regression Super Learner (rainy-only)  (TimeSeriesSplit n_splits=5)
+2026-03-19 14:37:33,911 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - ────────────────────────────────────────────────────────────
+2026-03-19 14:37:33,912 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Fold 1/5: train=3604, val=3603
+2026-03-19 14:37:41,614 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Fold 2/5: train=7207, val=3603
+2026-03-19 14:37:52,502 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Fold 3/5: train=10810, val=3603
+2026-03-19 14:38:04,001 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Fold 4/5: train=14413, val=3603
+2026-03-19 14:38:16,005 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Fold 5/5: train=18016, val=3603
+2026-03-19 14:38:29,298 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Điền 3604 NaN rows bằng column median
+2026-03-19 14:38:29,298 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     [Stage 8] Z_reg shape: (21619, 4), model_names: ['xgb_reg', 'rf_reg', 'cat_reg', 'lgbm_reg']
+2026-03-19 14:38:29,299 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [Stage 8] Chia 5 fold — meta-train (folds 1–4): 18016 mẫu mưa | fold-5 holdout (đánh giá): 3603 mẫu mưa
+2026-03-19 14:38:29,302 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   Meta-reg Fold-5 holdout (rainy-only, unbiased): MAE=0.1288mm, RMSE=0.1801mm, R²=0.1687
+2026-03-19 14:38:29,302 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   ✅ Stage 8 done (55.4s)
+2026-03-19 14:38:29,302 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+────────────────────────────────────────────────────────────
+2026-03-19 14:38:29,302 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - GIAI ĐOẠN 9 — Refit base models trên full train
+2026-03-19 14:38:29,302 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - ────────────────────────────────────────────────────────────
+2026-03-19 14:38:29,302 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [Stage 9] Refit classifiers on full train...
+2026-03-19 14:38:34,141 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ xgb_cls refit (4.8s)
+2026-03-19 14:38:36,913 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ rf_cls refit (2.8s)
+2026-03-19 14:38:41,206 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ cat_cls refit (4.3s)
+2026-03-19 14:38:48,894 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ lgbm_cls refit (7.7s)
+2026-03-19 14:38:48,894 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [Stage 9] Refit regressors on full train_rainy...
+2026-03-19 14:38:53,111 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ xgb_reg refit (4.2s)
+2026-03-19 14:38:53,671 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ rf_reg refit (0.6s)
+2026-03-19 14:38:55,539 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ cat_reg refit (1.9s)
+2026-03-19 14:39:02,589 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -     ✓ lgbm_reg refit (7.0s)
+2026-03-19 14:39:02,589 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   ✅ Stage 9 done (33.3s)
+2026-03-19 14:39:02,589 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+  [Validation Evaluation]
+2026-03-19 14:39:02,910 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [validation] CLS  — ROC-AUC=0.8028, PR-AUC=0.5659, F1=0.5589, Recall=0.5016, Precision=0.6311
+2026-03-19 14:39:02,910 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [validation] REG  — MAE=0.3199mm, RMSE=0.442mm, R²=-3.2158
+2026-03-19 14:39:02,910 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [validation] E2E  — MAE=0.0836mm, RMSE=0.2286mm
+2026-03-19 14:39:02,910 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO - 
+======================================================================
+✅ StackingEnsemble training hoàn tất  |  total=225.9s
+======================================================================
+2026-03-19 14:39:04,624 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [train] CLS  — ROC-AUC=0.9279, PR-AUC=0.8665, F1=0.7924, Recall=0.7524, Precision=0.8368
+2026-03-19 14:39:04,624 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [train] REG  — MAE=0.1951mm, RMSE=0.3331mm, R²=-1.5357
+2026-03-19 14:39:04,624 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [train] E2E  — MAE=0.0831mm, RMSE=0.2228mm
+2026-03-19 14:39:05,952 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [valid] CLS  — ROC-AUC=0.8028, PR-AUC=0.5659, F1=0.5589, Recall=0.5016, Precision=0.6311
+2026-03-19 14:39:05,952 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [valid] REG  — MAE=0.3199mm, RMSE=0.442mm, R²=-3.2158
+
+======================================================================
+[STEP 1] LOAD DATA
+======================================================================
+  Loaded 94128 rows, 43 columns
+
+======================================================================
+[STEP 2] SCHEMA VALIDATION
+======================================================================
+  [SCHEMA] Skipped. Keeping 94128 rows.
+
+======================================================================
+[STEP 3] SPLIT TRAIN / VALID / TEST
+======================================================================
+  Train=75302, Valid=9412, Test=9414
+  Saved to /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/Dataset_after_split/Dataset_merge
+
+======================================================================
+[STEP 4] BUILD FEATURES
+======================================================================
+  [FORECAST] horizon = 24 steps ahead
+  [FORECAST] Shifted target by -24 rows. Remaining: 75278 rows
+  [FORECAST] Removed 4 leaked columns
+  [FORECAST] Shifted target by -24 rows. Remaining: 9388 rows
+  [FORECAST] Removed 4 leaked columns
+  [FORECAST] Shifted target by -24 rows. Remaining: 9390 rows
+  [FORECAST] Removed 4 leaked columns
+  [FEATURE CLEAN] Removed 43 constant features
+  [POLY FEATURES] Added 15 polynomial features from top-5 correlated columns
+  [FEATURE SELECT SHAP] 120/545 features kept
+  [FEATURES] Final count: 120 features  (train shape: (75278, 120))
+
+======================================================================
+[STEP 5] TRANSFORM PIPELINE
+======================================================================
+  Pipeline saved to /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl
+  Feature_list.json saved | 120 features
+
+======================================================================
+[STEP 7] TRAIN StackingEnsemble  (Stages 6 → 7 → 8 → 9)
+======================================================================
+
+======================================================================
+StackingEnsemble.fit  |  n_samples=75278, n_features=120
+======================================================================
+  Rainy samples : 21619 (28.7%)
+  Dry samples   : 53659 (71.3%)
+  Imbalance ratio (n_neg/n_pos): 2.48
+  rain_threshold: 0.1 mm
+
+────────────────────────────────────────────────────────────
+GIAI ĐOẠN 6 — Verify từng base model riêng
+────────────────────────────────────────────────────────────
+  [Stage 6] Verifying classification base models...
+    ✓ xgb_cls: ROC-AUC=0.9124 (2.94s)
+    ✓ rf_cls: ROC-AUC=0.8515 (2.57s)
+    ✓ cat_cls: ROC-AUC=0.8563 (4.04s)
+    ✓ lgbm_cls: ROC-AUC=0.9288 (6.76s)
+  [Stage 6] Verifying regression base models...
+    ✓ xgb_reg: MAE_log1p=0.0545 (4.66s)
+    ✓ rf_reg: MAE_log1p=0.0784 (0.59s)
+    ✓ cat_reg: MAE_log1p=0.0788 (1.75s)
+    ✓ lgbm_reg: MAE_log1p=0.0496 (5.85s)
+  ✅ Stage 6 done (29.2s)
+
+────────────────────────────────────────────────────────────
+GIAI ĐOẠN 7 — OOF Classification Super Learner  (TimeSeriesSplit n_splits=5)
+────────────────────────────────────────────────────────────
+    [Stage 7] Fold 1/5: train=12548, val=12546
+    [Stage 7] Fold 2/5: train=25094, val=12546
+    [Stage 7] Fold 3/5: train=37640, val=12546
+    [Stage 7] Fold 4/5: train=50186, val=12546
+    [Stage 7] Fold 5/5: train=62732, val=12546
+    [Stage 7] Điền 12548 NaN rows bằng column mean
+    [Stage 7] Z_cls shape: (75278, 4), model_names: ['xgb_cls', 'rf_cls', 'cat_cls', 'lgbm_cls']
+  [Stage 7] Chia 5 fold — meta-train (folds 1–4): 62732 mẫu | fold-5 holdout (đánh giá): 12546 mẫu
+  Meta-cls Fold-5 holdout (unbiased): ROC-AUC=0.8129, PR-AUC=0.7046, F1=0.6689, Recall=0.6514
+  ✅ Stage 7 done (108.1s)
+
+────────────────────────────────────────────────────────────
+GIAI ĐOẠN 8 — OOF Regression Super Learner (rainy-only)  (TimeSeriesSplit n_splits=5)
+────────────────────────────────────────────────────────────
+    [Stage 8] Fold 1/5: train=3604, val=3603
+    [Stage 8] Fold 2/5: train=7207, val=3603
+    [Stage 8] Fold 3/5: train=10810, val=3603
+    [Stage 8] Fold 4/5: train=14413, val=3603
+    [Stage 8] Fold 5/5: train=18016, val=3603
+    [Stage 8] Điền 3604 NaN rows bằng column median
+    [Stage 8] Z_reg shape: (21619, 4), model_names: ['xgb_reg', 'rf_reg', 'cat_reg', 'lgbm_reg']
+  [Stage 8] Chia 5 fold — meta-train (folds 1–4): 18016 mẫu mưa | fold-5 holdout (đánh giá): 3603 mẫu mưa
+  Meta-reg Fold-5 holdout (rainy-only, unbiased): MAE=0.1288mm, RMSE=0.1801mm, R²=0.1687
+  ✅ Stage 8 done (55.4s)
+
+────────────────────────────────────────────────────────────
+GIAI ĐOẠN 9 — Refit base models trên full train
+────────────────────────────────────────────────────────────
+  [Stage 9] Refit classifiers on full train...
+    ✓ xgb_cls refit (4.8s)
+    ✓ rf_cls refit (2.8s)
+    ✓ cat_cls refit (4.3s)
+    ✓ lgbm_cls refit (7.7s)
+  [Stage 9] Refit regressors on full train_rainy...
+    ✓ xgb_reg refit (4.2s)
+    ✓ rf_reg refit (0.6s)
+    ✓ cat_reg refit (1.9s)
+    ✓ lgbm_reg refit (7.0s)
+  ✅ Stage 9 done (33.3s)
+
+  [Validation Evaluation]
+  [validation] CLS  — ROC-AUC=0.8028, PR-AUC=0.5659, F1=0.5589, Recall=0.5016, Precision=0.6311
+  [validation] REG  — MAE=0.3199mm, RMSE=0.442mm, R²=-3.2158
+  [validation] E2E  — MAE=0.0836mm, RMSE=0.2286mm
+
+======================================================================
+✅ StackingEnsemble training hoàn tất  |  total=225.9s
+======================================================================
+
+======================================================================
+  StackingEnsemble Summary
+======================================================================
+  is_trained         : True
+  n_splits           : 5
+  predict_threshold  : 0.4
+  rain_threshold     : 0.1 mm
+  seed               : 42
+  OOF cls shape      : (75278, 4)
+  OOF reg shape      : (21619, 4)
+  Classifiers        : ['xgb_cls', 'rf_cls', 'cat_cls', 'lgbm_cls']
+  Regressors         : ['xgb_reg', 'rf_reg', 'cat_reg', 'lgbm_reg']
+  Meta-classifier    : LogisticRegression
+  Meta-regressor     : Ridge
+  OOF ROC-AUC        : n/a
+  OOF PR-AUC         : n/a
+  OOF F1             : n/a
+  OOF Recall         : n/a
+  OOF MAE (mm)       : n/a
+  OOF RMSE (mm)      : n/a
+  OOF R²             : n/a
+  Val ROC-AUC        : 0.8028
+  Val PR-AUC         : 0.5659
+  Val F1             : 0.5589
+  Val MAE (mm)       : 0.3199
+  Val RMSE (mm)      : 0.442
+======================================================================
+
+======================================================================
+[STEP 8] EVALUATE
+======================================================================
+  [train] CLS  — ROC-AUC=0.9279, PR-AUC=0.8665, F1=0.7924, Recall=0.7524, Precision=0.8368
+  [train] REG  — MAE=0.1951mm, RMSE=0.3331mm, R²=-1.5357
+  [train] E2E  — MAE=0.0831mm, RMSE=0.2228mm
+  [valid] CLS  — ROC-AUC=0.8028, PR-AUC=0.5659, F1=0.5589, Recall=0.5016, Precision=0.6311
+  [valid] REG  — MAE=0.3199mm, RMSE=0.442mm, R²=-3.2158
+2026-03-19 14:39:05,952 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [valid] E2E  — MAE=0.0836mm, RMSE=0.2286mm
+2026-03-19 14:39:06,454 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [test] CLS  — ROC-AUC=0.8285, PR-AUC=0.7955, F1=0.773, Recall=0.7856, Precision=0.7608
+2026-03-19 14:39:06,454 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [test] REG  — MAE=0.2471mm, RMSE=0.3471mm, R²=-3.2887
+2026-03-19 14:39:06,454 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   [test] E2E  — MAE=0.1887mm, RMSE=0.32mm
+2026-03-19 14:39:06,862 - Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Stacking_Model - INFO -   ✅ Saved → /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260319_143906.joblib
+  [valid] E2E  — MAE=0.0836mm, RMSE=0.2286mm
+  [test] CLS  — ROC-AUC=0.8285, PR-AUC=0.7955, F1=0.773, Recall=0.7856, Precision=0.7608
+  [test] REG  — MAE=0.2471mm, RMSE=0.3471mm, R²=-3.2887
+  [test] E2E  — MAE=0.1887mm, RMSE=0.32mm
+
+======================================================================
+[STEP 9] DIAGNOSTICS
+======================================================================
+  Overfit status : overfit
+  Details        : F1 Train(0.792) > Valid(0.559) by 0.234 — Train F1=0.792 / Valid F1=0.559 / Test F1=0.773
+  Model quality  : excellent (Rain cls_f1 avg=0.708)
+  Metrics.json saved
+
+======================================================================
+[STEP 10] SAVE ARTIFACTS
+======================================================================
+  ✅ Saved → /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260319_143906.joblib
+  Stacking model : /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260319_143906.joblib
+  Model.pkl (latest): /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Model.pkl
+  Train_info.json saved
+
+======================================================================
+[OK] STACKING ENSEMBLE TRAINING DONE
+  Model (joblib) : /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260319_143906.joblib
+  Model.pkl      : /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Model.pkl
+  Pipeline       : /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl
+  Metrics        : /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Metrics.json
+  Train info     : /media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Train_info.json
+----------------------------------------------------------------------
+  Overfit status : overfit
+  Details        : F1 Train(0.792) > Valid(0.559) by 0.234 — Train F1=0.792 / Valid F1=0.559 / Test F1=0.773
+  Model quality  : excellent — Rain cls_f1 avg=0.708
+======================================================================
+

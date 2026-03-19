@@ -53,6 +53,8 @@ SCRIPT_CLEARDATA = SCRIPTS_DIR / "Cleardata.py"
 ML_MODEL_ROOT = APP_ROOT / "Machine_learning_model"
 ML_DATASET_AFTER_SPLIT = ML_MODEL_ROOT / "Dataset_after_split"
 ML_ARTIFACTS_LATEST = APP_ROOT / "Machine_learning_artifacts" / "latest"
+# Artifacts của StackingEnsemble (train_stacking_ensemble.py)
+ML_STACKING_ARTIFACTS = APP_ROOT / "Machine_learning_artifacts" / "stacking_ensemble" / "latest"
 
 # ============================================================
 # DATABASE

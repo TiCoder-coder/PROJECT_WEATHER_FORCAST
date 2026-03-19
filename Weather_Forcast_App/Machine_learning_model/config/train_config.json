@@ -1,7 +1,99 @@
 {
   "data": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_historical_hourly_20260308_165309.csv"
+    "filename": "merged_vrain_data_cleaned_20260319_225913.clean_final.csv"
+  },
+  "stacking": {
+    "n_splits": 8,
+    "predict_threshold": 0.4,
+    "rain_threshold": 0.1,
+    "seed": 42,
+    "verbose": true,
+    "_comment": "Tăng n_splits 5→8 và thêm regularization mạnh để giảm overfitting (F1 gap 0.233 → <0.10)",
+    "cls_params": {
+      "xgb": {
+        "n_estimators": 250,
+        "max_depth": 4,
+        "min_child_weight": 15,
+        "reg_alpha": 1.0,
+        "reg_lambda": 3.0,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6
+      },
+      "lgbm": {
+        "n_estimators": 250,
+        "max_depth": 4,
+        "num_leaves": 20,
+        "min_child_samples": 80,
+        "reg_alpha": 1.0,
+        "reg_lambda": 3.0,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6
+      },
+      "cat": {
+        "iterations": 200,
+        "depth": 4,
+        "l2_leaf_reg": 15
+      },
+      "rf": {
+        "n_estimators": 200,
+        "max_depth": 6,
+        "min_samples_leaf": 20,
+        "min_samples_split": 30
+      }
+    },
+    "reg_params": {
+      "xgb": {
+        "n_estimators": 250,
+        "max_depth": 4,
+        "min_child_weight": 15,
+        "reg_alpha": 1.0,
+        "reg_lambda": 3.0,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6
+      },
+      "lgbm": {
+        "n_estimators": 250,
+        "max_depth": 4,
+        "num_leaves": 20,
+        "min_child_samples": 80,
+        "reg_alpha": 1.0,
+        "reg_lambda": 3.0,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6
+      },
+      "cat": {
+        "iterations": 200,
+        "depth": 4,
+        "l2_leaf_reg": 15
+      },
+      "rf": {
+        "n_estimators": 200,
+        "max_depth": 6,
+        "min_samples_leaf": 15,
+        "min_samples_split": 25
+      }
+    },
+    "meta_cls_params": {
+      "n_estimators": 60,
+      "num_leaves": 7,
+      "learning_rate": 0.05,
+      "min_child_samples": 100,
+      "reg_alpha": 2.0,
+      "reg_lambda": 5.0,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8
+    },
+    "meta_reg_params": {
+      "n_estimators": 60,
+      "num_leaves": 7,
+      "learning_rate": 0.05,
+      "min_child_samples": 30,
+      "reg_alpha": 2.0,
+      "reg_lambda": 5.0,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8
+    }
   },
   "skip_schema_validation": true,
   "target_column": "rain_total",

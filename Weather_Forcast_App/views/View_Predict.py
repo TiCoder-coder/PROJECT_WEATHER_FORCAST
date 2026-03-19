@@ -34,7 +34,7 @@ from Weather_Forcast_App.paths import (
     APP_ROOT, PROJECT_ROOT,
     DATA_CRAWL_DIR, DATA_MERGE_DIR,
     DATA_CLEAN_ROOT, DATA_CLEAN_MERGE_DIR, DATA_CLEAN_NOT_MERGE_DIR,
-    ML_MODEL_ROOT, ML_ARTIFACTS_LATEST,
+    ML_MODEL_ROOT, ML_ARTIFACTS_LATEST, ML_STACKING_ARTIFACTS,
 )
 
 # ────────────────────────────────────────────────────────────────
@@ -75,6 +75,64 @@ _FOLDER_MAP = {
 _SUPPORTED_EXT = {".csv", ".xlsx", ".xls"}
 
 
+def _aggregate_predictions_by_location(df: pd.DataFrame, cols_to_show: List[str]) -> List[Dict[str, Any]]:
+    """Nhóm kết quả dự báo theo địa điểm (station_name + province + district).
+
+    Mỗi địa điểm chỉ hiển thị 1 dòng tổng hợp:
+      - y_pred: giá trị trung bình
+      - status: trạng thái phổ biến nhất (mode)
+      - forecast_for: thời gian dự báo mới nhất
+      - rain_total: giá trị trung bình (nếu có)
+      - n_rows: số dòng gốc
+    """
+    group_cols = [c for c in ["station_name", "province", "district"] if c in df.columns]
+    if not group_cols:
+        # Không có cột location → trả toàn bộ rows (không group được)
+        rows = []
+        for _, row in df.iterrows():
+            r = {}
+            for c in cols_to_show:
+                val = row.get(c)
+                if isinstance(val, float):
+                    r[c] = round(val, 4) if pd.notna(val) else ""
+                else:
+                    r[c] = str(val) if pd.notna(val) else ""
+            rows.append(r)
+        return rows
+
+    agg_rows = []
+    for group_key, group_df in df.groupby(group_cols, sort=True):
+        r: Dict[str, Any] = {}
+        # Đặt các cột group
+        if isinstance(group_key, str):
+            group_key = (group_key,)
+        for i, gc in enumerate(group_cols):
+            r[gc] = str(group_key[i]) if pd.notna(group_key[i]) else ""
+
+        # Aggregate các cột metric
+        for c in cols_to_show:
+            if c in group_cols:
+                continue
+            if c == "y_pred":
+                vals = group_df[c].dropna()
+                r[c] = round(float(vals.mean()), 4) if len(vals) > 0 else ""
+            elif c == "rain_total" and c in group_df.columns:
+                vals = pd.to_numeric(group_df[c], errors="coerce").dropna()
+                r[c] = round(float(vals.mean()), 4) if len(vals) > 0 else ""
+            elif c == "status" and c in group_df.columns:
+                r[c] = group_df[c].mode().iloc[0] if len(group_df[c].mode()) > 0 else ""
+            elif c == "forecast_for" and c in group_df.columns:
+                r[c] = str(group_df[c].iloc[-1]) if len(group_df) > 0 else ""
+            elif c in group_df.columns:
+                r[c] = str(group_df[c].iloc[-1]) if len(group_df) > 0 and pd.notna(group_df[c].iloc[-1]) else ""
+
+        # Thêm số dòng gốc
+        r["n_rows"] = len(group_df)
+        agg_rows.append(r)
+
+    return agg_rows
+
+
 def _scan_datasets() -> List[Dict[str, str]]:
     """Scan tất cả thư mục data, trả về list dict."""
     results: List[Dict[str, str]] = []
@@ -94,7 +152,7 @@ def _scan_datasets() -> List[Dict[str, str]]:
 
 
 def _load_model_info() -> Dict[str, Any]:
-    """Load thông tin model hiện tại từ artifacts."""
+    """Load thông tin cả hai model (stacking + ensemble)."""
     info: Dict[str, Any] = {
         "loaded": False,
         "model_type": "",
@@ -102,18 +160,53 @@ def _load_model_info() -> Dict[str, Any]:
         "n_features": 0,
         "trained_at": "",
         "model_size_mb": "0",
+        "stacking_available": False,
+        "ensemble_available": False,
     }
+
+    # --- Stacking model ---
+    stacking_model_path = ML_STACKING_ARTIFACTS / "Model.pkl"
+    if stacking_model_path.exists():
+        info["stacking_available"] = True
+        info["loaded"] = True
+        info["stacking_size_mb"] = f"{stacking_model_path.stat().st_size / 1024 / 1024:.2f}"
+        stacking_ti = ML_STACKING_ARTIFACTS / "Train_info.json"
+        if stacking_ti.exists():
+            try:
+                ti = json.loads(stacking_ti.read_text(encoding="utf-8"))
+                info["stacking_trained_at"] = ti.get("trained_at", "")
+                info["stacking_model_type"] = ti.get("model_type", "stacking_ensemble")
+            except Exception:
+                pass
+        stacking_metrics = ML_STACKING_ARTIFACTS / "Metrics.json"
+        if stacking_metrics.exists():
+            try:
+                m = json.loads(stacking_metrics.read_text(encoding="utf-8"))
+                info["stacking_test_r2"] = m.get("test", {}).get("R2")
+                info["stacking_test_rmse"] = m.get("test", {}).get("RMSE")
+                info["stacking_test_rain_acc"] = m.get("test", {}).get("Rain_Detection_Accuracy")
+            except Exception:
+                pass
+
+    # --- Ensemble Average model ---
+    ensemble_model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
+    if ensemble_model_path.exists():
+        info["ensemble_available"] = True
+        info["loaded"] = True
+        info["model_size_mb"] = f"{ensemble_model_path.stat().st_size / 1024 / 1024:.2f}"
+        info["model_exists"] = True
 
     train_info_path = ML_ARTIFACTS_LATEST / "Train_info.json"
     if train_info_path.exists():
         try:
             ti = json.loads(train_info_path.read_text(encoding="utf-8"))
             info["trained_at"] = ti.get("trained_at", "")
-            info["model_type"] = ti.get("model", {}).get("type", "")
+            info["model_type"] = ti.get("model_type", ti.get("model", {}).get("type", ""))
             info["target_column"] = ti.get("target_column", "rain_total")
             info["forecast_horizon"] = ti.get("forecast_horizon", 0)
             info["predict_threshold"] = (
-                ti.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
+                ti.get("stacking_config", {}).get("predict_threshold")
+                or ti.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
             )
         except Exception:
             pass
@@ -139,40 +232,40 @@ def _load_model_info() -> Dict[str, Any]:
         except Exception:
             pass
 
-    model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
-    if model_path.exists():
-        info["loaded"] = True
-        info["model_size_mb"] = f"{model_path.stat().st_size / 1024 / 1024:.2f}"
-
     return info
 
 
 def _load_recent_predictions() -> List[Dict[str, Any]]:
-    """Load toàn bộ kết quả dự báo (nếu có)."""
+    """Load toàn bộ kết quả dự báo (nếu có), nhóm theo địa điểm."""
     pred_path = ML_MODEL_ROOT / "WeatherForcast" / "predictions.csv"
     if not pred_path.exists():
         return []
     try:
         df = pd.read_csv(pred_path)
-        # Support both old (station_name) and new (location_station_name) column names
-        def _get(row, *names, default=""):
-            for n in names:
-                v = row.get(n)
-                if v is not None and pd.notna(v):
-                    return v
-            return default
-        rows = []
-        for _, row in df.iterrows():
-            rows.append({
-                "station_name": str(_get(row, "station_name", "location_station_name")),
-                "province": str(_get(row, "province", "location_province")),
-                "district": str(_get(row, "district", "location_district")),
-                "rain_total": row.get("rain_total", ""),
-                "status": str(row.get("status", "")),
-                "timestamp": str(row.get("forecast_for", row.get("timestamp", ""))),
-                "y_pred": round(float(row.get("y_pred", 0)), 4) if pd.notna(row.get("y_pred")) else "",
-            })
-        return rows
+
+        # Normalize column names — support both old and new naming
+        rename_map = {}
+        if "location_station_name" in df.columns and "station_name" not in df.columns:
+            rename_map["location_station_name"] = "station_name"
+        if "location_province" in df.columns and "province" not in df.columns:
+            rename_map["location_province"] = "province"
+        if "location_district" in df.columns and "district" not in df.columns:
+            rename_map["location_district"] = "district"
+        if "timestamp" in df.columns and "forecast_for" not in df.columns:
+            rename_map["timestamp"] = "forecast_for"
+        if rename_map:
+            df = df.rename(columns=rename_map)
+
+        cols_to_show = ["station_name", "province", "district", "rain_total", "status", "y_pred", "n_rows", "forecast_for"]
+        cols_to_show = [c for c in cols_to_show if c in df.columns or c == "n_rows"]
+
+        agg_rows = _aggregate_predictions_by_location(df, cols_to_show)
+
+        # Đổi key forecast_for → timestamp cho recent predictions template
+        for r in agg_rows:
+            if "forecast_for" in r:
+                r["timestamp"] = r.pop("forecast_for")
+        return agg_rows
     except Exception:
         return []
 
@@ -202,9 +295,43 @@ class _LogCapture(io.TextIOBase):
 
 
 # ────────────────────────────────────────────────────────────────
+# Predictor loader helper
+# ────────────────────────────────────────────────────────────────
+def _select_predictor(model_type: str = "auto"):
+    """Load và trả về predictor dựa trên model_type.
+    - 'stacking'        → WeatherPredictorStacking (bắt buộc dùng stacking)
+    - 'ensemble_average'→ WeatherPredictor (bắt buộc dùng ensemble average)
+    - 'auto' (default)  → thử stacking trước, fallback ensemble average
+    """
+    if model_type == "stacking":
+        from Weather_Forcast_App.Machine_learning_model.interface.predictor_by_stacking_ensemble import WeatherPredictorStacking
+        return WeatherPredictorStacking.from_artifacts(str(ML_STACKING_ARTIFACTS))
+    elif model_type == "ensemble_average":
+        from Weather_Forcast_App.Machine_learning_model.interface.predictor_by_ensemble_average import WeatherPredictor
+        return WeatherPredictor.from_artifacts(str(ML_ARTIFACTS_LATEST))
+    else:  # auto
+        try:
+            from Weather_Forcast_App.Machine_learning_model.interface.predictor_by_stacking_ensemble import WeatherPredictorStacking
+            return WeatherPredictorStacking.from_artifacts(str(ML_STACKING_ARTIFACTS))
+        except Exception:
+            from Weather_Forcast_App.Machine_learning_model.interface.predictor_by_ensemble_average import WeatherPredictor
+            return WeatherPredictor.from_artifacts(str(ML_ARTIFACTS_LATEST))
+
+
+def _model_available(model_type: str = "auto") -> bool:
+    """Kiểm tra model có sẵn cho model_type."""
+    if model_type == "stacking":
+        return (ML_STACKING_ARTIFACTS / "Model.pkl").exists()
+    elif model_type == "ensemble_average":
+        return (ML_ARTIFACTS_LATEST / "Model.pkl").exists()
+    else:
+        return (ML_STACKING_ARTIFACTS / "Model.pkl").exists() or (ML_ARTIFACTS_LATEST / "Model.pkl").exists()
+
+
+# ────────────────────────────────────────────────────────────────
 # Background worker: chạy prediction
 # ────────────────────────────────────────────────────────────────
-def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None) -> None:
+def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None, model_type: str = "auto") -> None:
     """Chạy prediction trong background thread."""
     old_stdout = sys.stdout
     try:
@@ -239,9 +366,8 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
 
         _set_progress(job_id, 20, "Load model")
 
-        # Load predictor
-        from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
-        predictor = WeatherPredictor.from_artifacts(str(ML_ARTIFACTS_LATEST))
+        # Load predictor dựa theo model_type
+        predictor = _select_predictor(model_type)
 
         _push(job_id, f"🤖 Model: {type(predictor.model).__name__}")
         _push(job_id, f"🎯 Target: {predictor.target_column}")
@@ -317,25 +443,16 @@ def _prediction_worker(job_id: str, file_path: str, nrows: Optional[int] = None)
                 rmse = np.sqrt(np.mean((y_true - y_pred_aligned) ** 2))
                 _push(job_id, f"📊 RMSE (so với actual): {rmse:.4f}")
 
-        # Lấy tất cả rows cho preview
-        preview_rows = []
-        preview_df = df
+        # Lấy rows cho preview — nhóm theo địa điểm để không trùng lặp
         cols_to_show = []
-        for c in ["station_name", "province", "district", "rain_total", "status", "y_pred", "forecast_for"]:
-            if c in preview_df.columns:
+        for c in ["station_name", "province", "district", "rain_total", "status", "y_pred", "n_rows", "forecast_for"]:
+            if c in df.columns or c == "n_rows":
                 cols_to_show.append(c)
         if not cols_to_show:
-            cols_to_show = list(preview_df.columns[:7])
+            cols_to_show = list(df.columns[:7])
 
-        for _, row in preview_df.iterrows():
-            r = {}
-            for c in cols_to_show:
-                val = row[c]
-                if isinstance(val, float):
-                    r[c] = round(val, 4) if pd.notna(val) else ""
-                else:
-                    r[c] = str(val) if pd.notna(val) else ""
-            preview_rows.append(r)
+        preview_rows = _aggregate_predictions_by_location(df, cols_to_show)
+        _push(job_id, f"📍 Nhóm theo địa điểm: {len(preview_rows)} vị trí (từ {len(df)} dòng gốc)")
 
         _set_progress(job_id, 100, "Hoàn tất")
         with _LOCK:
@@ -393,6 +510,8 @@ def predict_view(request):
         "recent_preds": recent_preds,
         "recent_preds_json": recent_preds_json,
         "active_job": active_job,
+        "stacking_available": model_info.get("stacking_available", False),
+        "ensemble_available": model_info.get("ensemble_available", False),
     }
     return render(request, "weather/HTML_Predict.html", context)
 
@@ -450,11 +569,12 @@ def predict_run_view(request):
         return JsonResponse({"ok": False, "error": "Chưa chọn file hoặc dataset"}, status=400)
 
     # Kiểm tra model
-    model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
-    if not model_path.exists():
+    model_type = request.POST.get("model_type", "auto")
+    if not _model_available(model_type):
+        model_label = {"stacking": "Stacking Ensemble", "ensemble_average": "Ensemble Average"}.get(model_type, "bất kỳ model")
         return JsonResponse({
             "ok": False,
-            "error": "Chưa có model đã train. Vui lòng huấn luyện trước."
+            "error": f"Chưa có model {model_label} đã train. Vui lòng huấn luyện trước."
         }, status=400)
 
     # Tạo job
@@ -473,7 +593,7 @@ def predict_run_view(request):
             "stats": {},
         }
 
-    t = threading.Thread(target=_prediction_worker, args=(job_id, file_path, nrows), daemon=True)
+    t = threading.Thread(target=_prediction_worker, args=(job_id, file_path, nrows, model_type), daemon=True)
     t.start()
 
     return JsonResponse({"ok": True, "job_id": job_id})
@@ -526,8 +646,8 @@ def predict_manual_view(request):
         return JsonResponse({"ok": False, "error": "Không có dữ liệu đầu vào"}, status=400)
 
     # Kiểm tra model
-    model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
-    if not model_path.exists():
+    model_type = body.get("model_type", "auto")
+    if not _model_available(model_type):
         return JsonResponse({
             "ok": False,
             "error": "Chưa có model đã train. Vui lòng huấn luyện trước."
@@ -552,8 +672,8 @@ def predict_manual_view(request):
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
 
-        from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
-        predictor = WeatherPredictor.from_artifacts(str(ML_ARTIFACTS_LATEST))
+        # Load predictor dựa theo model_type
+        predictor = _select_predictor(model_type)
 
         result = predictor.predict(df)
         predictions = result["predictions"]
@@ -564,18 +684,22 @@ def predict_manual_view(request):
         forecast_dt = now + timedelta(hours=forecast_horizon) if forecast_horizon > 0 else now
         forecast_str = forecast_dt.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Lấy predict_threshold từ model config
-        predict_threshold = predictor.train_info.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
+        # Dùng has_rain từ model (stacking) nếu có; fallback về ngưỡng 0.5mm
+        has_rain_arr = result.get("has_rain")
 
         # Build response
         response_rows = []
         for i, (_, row) in enumerate(df.iterrows()):
             pred_val = float(predictions[i]) if i < len(predictions) else 0
+            if has_rain_arr is not None:
+                is_rain = bool(has_rain_arr[i]) if i < len(has_rain_arr) else (pred_val > 0.5)
+            else:
+                is_rain = pred_val > 0.5
             r = {
                 "station_name": str(row.get("station_name", "Thủ công")),
                 "province": str(row.get("province", "")),
                 "y_pred": round(pred_val, 4),
-                "rain_status": "Mưa" if pred_val > predict_threshold else "Không mưa",
+                "rain_status": "Mưa" if is_rain else "Không mưa",
                 "forecast_for": forecast_str,
             }
             response_rows.append(r)
@@ -620,7 +744,7 @@ def predict_model_info_view(request):
 # FORECAST NOW: Crawl dữ liệu mới → Predict ngay lập tức
 # ────────────────────────────────────────────────────────────────
 
-def _forecast_now_worker(job_id: str) -> None:
+def _forecast_now_worker(job_id: str, model_type: str = "auto") -> None:
     """Crawl fresh data từ API → chạy prediction ngay."""
     old_stdout = sys.stdout
     try:
@@ -658,10 +782,8 @@ def _forecast_now_worker(job_id: str) -> None:
         # Tạo DataFrame từ dữ liệu vừa crawl
         df = pd.DataFrame(weather_data)
 
-        # Load predictor
-        from Weather_Forcast_App.Machine_learning_model.interface.predictor import WeatherPredictor
-        predictor = WeatherPredictor.from_artifacts(str(ML_ARTIFACTS_LATEST))
-
+        # Load predictor dựa theo model_type
+        predictor = _select_predictor(model_type)
         forecast_horizon = predictor.train_info.get("forecast_horizon", 0)
         now = datetime.now()
 
@@ -719,9 +841,12 @@ def _forecast_now_worker(job_id: str) -> None:
         df["forecast_for"] = forecast_str  # Thời điểm dự báo
         df["data_collected_at"] = now_str  # Thời điểm thu thập dữ liệu
 
-        # Thêm cột status dựa trên y_pred (dự báo)
-        predict_threshold = predictor.train_info.get("model", {}).get("params", {}).get("predict_threshold", 0.5)
-        df["status"] = np.where(np.array(predictions) > predict_threshold, "Mưa", "Không mưa")
+        # Thêm cột status — dùng has_rain từ model (stacking) nếu có; fallback ngưỡng 0.5mm
+        has_rain_arr = result.get("has_rain")
+        if has_rain_arr is not None:
+            df["status"] = np.where(np.asarray(has_rain_arr, dtype=bool), "Mưa", "Không mưa")
+        else:
+            df["status"] = np.where(np.array(predictions) > 0.5, "Mưa", "Không mưa")
 
         # Rename location_ columns back to user-friendly names for CSV & display
         _rename_back = {
@@ -748,25 +873,16 @@ def _forecast_now_worker(job_id: str) -> None:
         _push(job_id, f"📊 Std prediction: {np.std(pred_arr):.4f}")
         _push(job_id, f"📊 Min: {np.min(pred_arr):.4f}, Max: {np.max(pred_arr):.4f}")
 
-        # Preview rows (tất cả)
-        preview_rows = []
-        preview_df = df
+        # Lấy rows cho preview — nhóm theo địa điểm để không trùng lặp
         cols_to_show = []
-        for c in ["station_name", "province", "district", "rain_total", "status", "y_pred", "forecast_for"]:
-            if c in preview_df.columns:
+        for c in ["station_name", "province", "district", "rain_total", "status", "y_pred", "n_rows", "forecast_for"]:
+            if c in df.columns or c == "n_rows":
                 cols_to_show.append(c)
         if not cols_to_show:
-            cols_to_show = list(preview_df.columns[:7])
+            cols_to_show = list(df.columns[:7])
 
-        for _, row in preview_df.iterrows():
-            r = {}
-            for c in cols_to_show:
-                val = row[c]
-                if isinstance(val, float):
-                    r[c] = round(val, 4) if pd.notna(val) else ""
-                else:
-                    r[c] = str(val) if pd.notna(val) else ""
-            preview_rows.append(r)
+        preview_rows = _aggregate_predictions_by_location(df, cols_to_show)
+        _push(job_id, f"📍 Nhóm theo địa điểm: {len(preview_rows)} vị trí (từ {len(df)} dòng gốc)")
 
         _set_progress(job_id, 100, "Hoàn tất")
         with _LOCK:
@@ -812,8 +928,13 @@ def predict_forecast_now_view(request):
                 }, status=409)
 
     # Kiểm tra model
-    model_path = ML_ARTIFACTS_LATEST / "Model.pkl"
-    if not model_path.exists():
+    try:
+        body = json.loads(request.body.decode("utf-8")) if request.body else {}
+    except Exception:
+        body = {}
+    model_type = body.get("model_type", "auto")
+
+    if not _model_available(model_type):
         return JsonResponse({
             "ok": False,
             "error": "Chưa có model đã train. Vui lòng huấn luyện trước."
@@ -835,7 +956,7 @@ def predict_forecast_now_view(request):
             "stats": {},
         }
 
-    t = threading.Thread(target=_forecast_now_worker, args=(job_id,), daemon=True)
+    t = threading.Thread(target=_forecast_now_worker, args=(job_id, model_type), daemon=True)
     t.start()
 
     return JsonResponse({"ok": True, "job_id": job_id})

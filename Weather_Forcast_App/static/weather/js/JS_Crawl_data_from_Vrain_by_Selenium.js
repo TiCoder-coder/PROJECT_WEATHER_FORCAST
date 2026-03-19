@@ -65,6 +65,12 @@
     if (btn) btn.disabled = isRunning;
   }
 
+  function setQueuedUI(queuePosition) {
+    if (spinner) spinner.style.display = "inline-block";
+    if (statusValue) statusValue.textContent = `🕐 Đang đợi trong hàng — vị trí #${queuePosition}`;
+    if (btn) btn.disabled = true;
+  }
+
   // ============================================================
   // appendLines(lines): THÊM DÒNG LOG MỚI VÀO UI
   // ============================================================
@@ -215,24 +221,26 @@
       // Append log mới vào UI
       appendLines(data.lines || []);
 
-      // Update offset mới do backend trả về (nếu có)
-      offset = data.offset ?? offset;
+      // Update offset mới (hỗ trợ cả offset (compat) lẫn next_since (mới))
+      offset = data.offset ?? data.next_since ?? offset;
 
-      // Update UI: last crawl time
       if (data.last_crawl_time && lastCrawlTime) lastCrawlTime.textContent = data.last_crawl_time;
-
-      // Update UI: last file size
       if (typeof data.last_size_mb !== "undefined" && lastFileSize) {
         lastFileSize.textContent = data.last_size_mb ? `${data.last_size_mb} MB` : "–";
       }
 
-      // setRunningUI dựa vào data.done:
-      // - done=false => vẫn đang chạy => isRunning=true
-      // - done=true  => job xong => isRunning=false
-      setRunningUI(!data.done);
+      // Nếu job đang xếp hàng -> show vị trí và tiếp tục poll
+      if (data.is_queued) {
+        setQueuedUI(data.queue_position || 0);
+        return;
+      }
 
-      // Nếu job done -> dừng polling
-      if (data.done && timer) {
+      // setRunningUI dựa vào is_running (có compat done từ backend cũ)
+      setRunningUI(!!(data.is_running || (data.done === false)));
+
+      // Dừng polling khi job không còn chạy và không còn xếp hàng
+      const finished = !data.is_running && !data.is_queued;
+      if (finished && timer) {
         clearInterval(timer);
         timer = null;
       }

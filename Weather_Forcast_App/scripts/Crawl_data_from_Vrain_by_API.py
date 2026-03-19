@@ -1162,6 +1162,7 @@ class VrainScraper:
 
         try:
             logging.info("🏢 Bắt đầu thu thập danh sách trạm từ vrain.vn")
+            print("🏢 Bắt đầu thu thập danh sách trạm từ vrain.vn...", flush=True)
 
             # Thử các endpoint API trước
             for endpoint in self.api_endpoints:
@@ -1199,6 +1200,7 @@ class VrainScraper:
             enriched_stations = self.enrich_station_data(all_stations)
 
             logging.info(f"✅ Đã thu thập {len(enriched_stations)} trạm từ vrain.vn")
+            print(f"✅ Đã thu thập {len(enriched_stations)} trạm từ vrain.vn", flush=True)
 
             return enriched_stations
 
@@ -2188,6 +2190,7 @@ class VietnamWeatherCrawler:
     def crawl_all_vrain_data_comprehensive(self):
         """Crawl toàn bộ dữ liệu Vrain với tất cả trạm theo tỉnh"""
         logging.info("🌧️ Bắt đầu thu thập dữ liệu TOÀN DIỆN từ Vrain.vn")
+        print("🌧️ Bắt đầu thu thập dữ liệu TOÀN DIỆN từ Vrain.vn...", flush=True)
 
         try:
             # Thu thập danh sách trạm
@@ -2247,6 +2250,7 @@ class VietnamWeatherCrawler:
             logging.info(
                 f"✅ Đã thu thập {len(combined_data)} trạm từ {len(set(d.get('province', d.get('province_name', '')) for d in combined_data))} tỉnh"
             )
+            print(f"✅ Đã thu thập {len(combined_data)} trạm từ {len(set(d.get('province', d.get('province_name', '')) for d in combined_data))} tỉnh", flush=True)
 
             return {"combined": combined_data, "weather": weather_data}
 
@@ -2394,6 +2398,7 @@ class VietnamWeatherCrawler:
             logging.info(
                 f"💾 Đã lưu {stations_count} trạm, {vrain_count} bản ghi Vrain, {weather_count} bản ghi thời tiết"
             )
+            print(f"💾 Đã lưu {stations_count} trạm, {vrain_count} bản ghi Vrain, {weather_count} bản ghi thời tiết", flush=True)
 
             # Lưu ra Excel
             excel_file = self.save_comprehensive_excel(data["combined"])
@@ -2620,6 +2625,9 @@ class VietnamWeatherCrawler:
 def main_comprehensive():
     """Hàm chính thu thập dữ liệu TOÀN DIỆN từ Vrain.vn"""
     try:
+        print("=" * 80, flush=True)
+        print("🌧️ HỆ THỐNG THU THẬP DỮ LIỆU TOÀN DIỆN TỪ VRAIN.VN", flush=True)
+        print("=" * 80, flush=True)
         logging.info("=" * 80)
         logging.info("🌧️ HỆ THỐNG THU THẬP DỮ LIỆU TOÀN DIỆN TỪ VRAIN.VN")
         logging.info("=" * 80)
@@ -2628,9 +2636,11 @@ def main_comprehensive():
         crawler = VietnamWeatherCrawler()
 
         # Load danh sách tỉnh thành
+        print("🇻🇳 Đang tải danh sách tỉnh thành Việt Nam...", flush=True)
         crawler.load_all_vietnam_provinces()
 
         # Crawl dữ liệu TOÀN DIỆN từ Vrain
+        print("🔄 Đang thu thập dữ liệu từ Vrain.vn...", flush=True)
         start_time = time.time()
         result = crawler.crawl_all_vrain_data_comprehensive()
         crawl_time = time.time() - start_time
@@ -2640,6 +2650,7 @@ def main_comprehensive():
 
         if combined_data:
             # Lưu vào database và Excel
+            print(f"💾 Đang lưu dữ liệu {len(combined_data)} trạm vào database và Excel...", flush=True)
             excel_file = crawler.save_comprehensive_data(result)
 
             # Hiển thị báo cáo chi tiết
@@ -2671,6 +2682,7 @@ def main_comprehensive():
             logging.info(f"   📊 Tổng số trạm: {total_stations}")
             logging.info(f"   🏙️ Số tỉnh có dữ liệu: {total_provinces}/63")
             logging.info(f"   ⏱️ Thời gian thu thập: {crawl_time:.2f} giây")
+            print(f"📊 Tổng số trạm: {total_stations} | Tỉnh: {total_provinces}/63 | Thời gian: {crawl_time:.2f}s", flush=True)
 
             # Hiển thị chi tiết theo tỉnh
             logging.info("🏙️ CHI TIẾT THEO TỈNH:")
@@ -2726,12 +2738,16 @@ def main_comprehensive():
             logging.info("🗄️ Database SQLite: vietnam_weather.db")
             logging.info("🎯 Nguồn dữ liệu: Vrain.vn - Hệ thống giám sát mưa Việt Nam")
             logging.info("=" * 80)
+            print(f"📁 File Excel: {excel_file}", flush=True)
+            print("✅ Hoàn tất thu thập dữ liệu Vrain!", flush=True)
 
         else:
             logging.warning("❌ Không thu thập được dữ liệu từ Vrain.vn")
+            print("❌ Không thu thập được dữ liệu từ Vrain.vn!", flush=True)
 
     except Exception as e:
         logging.error(f"💥 Lỗi hệ thống: {e}")
+        print(f"💥 Lỗi hệ thống: {e}", flush=True)
 
 
 if __name__ == "__main__":

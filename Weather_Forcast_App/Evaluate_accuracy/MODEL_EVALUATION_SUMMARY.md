@@ -1,9 +1,247 @@
 # 🌧️ BÁO CÁO ĐÁNH GIÁ MÔ HÌNH DỰ BÁO LƯỢNG MƯA
 
-> **Ngày cập nhật**: 2026-03-14  
-> **Dữ liệu**: 94,128 bản ghi, 10,539 trạm (data crawl 2026-03-14)  
+> **Ngày cập nhật**: 2026-03-19  
+> **Dữ liệu**: 112,648 bản ghi từ `merged_vrain_data_cleaned_20260319_225913.clean_final.csv`  
 > **Notebook đánh giá**: `Weather_Forcast_App/Evaluate_accuracy/evaluate.ipynb`  
-> **Artifacts**: `Weather_Forcast_App/Machine_learning_artifacts/latest/`
+> **Artifacts**: `Weather_Forcast_App/Machine_learning_artifacts/ensemble_average/latest/` và `stacking_ensemble/latest/`
+
+---
+
+## 📋 Mục lục
+
+1. [Tổng quan](#1-tổng-quan)
+2. [Những gì đã làm](#2-những-gì-đã-làm)
+3. [Kết quả hiện tại — Ensemble Average](#3-kết-quả-hiện-tại--ensemble-average)
+4. [Kết quả hiện tại — Stacking Ensemble](#4-kết-quả-hiện-tại--stacking-ensemble)
+5. [So sánh 2 mô hình](#5-so-sánh-2-mô-hình)
+6. [Cần lưu ý](#6-cần-lưu-ý)
+7. [Lịch sử thí nghiệm](#7-lịch-sử-thí-nghiệm)
+8. [Cấu trúc file quan trọng](#8-cấu-trúc-file-quan-trọng)
+
+---
+
+## 1. Tổng quan
+
+### Kiến trúc mô hình 1: Ensemble Average (`WeatherEnsembleModel`)
+
+```
+Input (68 features) → log1p(target) → Feature Engineering
+     → 4 Regressors: XGBoost + LightGBM + CatBoost + RandomForest
+     → Average(predictions) → expm1(prediction)
+     → Nếu avg ≥ rain_threshold (0.22mm) → báo mưa
+     → Nếu avg <  rain_threshold (0.22mm) → output = 0.0
+```
+
+- **Split**: 80% train / 10% valid / 10% test — **chronological, sort_by_time=True**
+- **Target**: `rain_total` (mm) — log1p transform áp dụng **bên ngoài**
+- **Pipeline**: MissingValueHandler → OutlierHandler (IQR) → CategoricalEncoder → WeatherScaler (StandardScaler)
+- **Thresholds**: `rain_threshold=0.22`, `predict_threshold=0.45`
+
+### Kiến trúc mô hình 2: Stacking Ensemble (`WeatherStackingEnsembleModel`)
+
+```
+Input (68 features, log1p KHÔNG áp dụng bên ngoài)
+    ↓
+Stage 1: 8 Base Models (OOF, n_splits=8)
+    ├── XGB_cls / RF_cls / CatBoost_cls / LightGBM_cls  → P(rain)
+    └── XGB_reg / RF_reg / CatBoost_reg / LightGBM_reg  → amount (log1p space)
+    ↓
+Stage 2: 2 Meta-LightGBM (trained on OOF predictions)
+    ├── meta_cls → P(rain) → threshold 0.4 → binary prediction
+    └── meta_reg → rain amount (mm, expm1 applied)
+    ↓
+Schema Bank Routing (per rain_intensity × season)
+→ Chọn base model phù hợp nhất theo ngữ cảnh
+```
+
+- **OOF samples**: 90,094 (cls) / 47,200 (reg)
+- **Thresholds**: `predict_threshold=0.4`, `rain_threshold=0.1`, `seed=42`
+- **log1p xử lý nội bộ** — không cần transform bên ngoài
+
+---
+
+## 2. Những gì đã làm
+
+### Phase 1 (cũ): Baseline với 7,322 mẫu
+- Model v1–v3 với 7,322 mẫu — xem Lịch sử thí nghiệm
+
+### Phase 2 (2026-03-14): Scale lên 94,128 mẫu
+- Crawl thêm dữ liệu: 94,128 bản ghi từ 10,539 trạm
+- Phát hiện model overfit nặng, Rain Detection < 50% (precision)
+- Thêm: MBE, Pearson r, CSI, Frequency Bias, model size metrics
+- Kết quả: R² test = -0.0673, Rain Detection = 47.45%
+
+### Phase 3 (2026-03-19): Retrain với 112,648 mẫu
+- Dataset mới: `merged_vrain_data_cleaned_20260319_225913.clean_final.csv` (112,648 rows)
+- Giảm features từ 93 → 68 (loại 18 constant features, feature selection)
+- Train **Ensemble Average** → `ensemble_average/latest/`
+- ROC-AUC và PR-AUC cell thêm vào evaluate.ipynb
+
+### Phase 4 (2026-03-19): Stacking Ensemble — đã implement và train
+- Thiết kế `WeatherStackingEnsembleModel` với 8 base + 2 meta-LightGBM
+- OOF cross-validation (n_splits=8) cho calibrated predictions
+- Schema bank routing theo rain_intensity (no_rain/light/moderate/heavy/very_heavy) × season (rainy/dry)
+- Kết quả: **GOOD FIT** — F1 gap train-valid = 0.035 (so với 0.234 trước khi tuning)
+- Artifacts lưu tại `stacking_ensemble/latest/`
+
+---
+
+## 3. Kết quả hiện tại — Ensemble Average
+
+> **Trained**: 2026-03-19 23:00:28 | **Thời gian train**: 15.1s
+
+### 3.1 Regression
+
+| Metric | Train | Valid | Test |
+|--------|-------|-------|------|
+| **R²** | **0.9923** | 0.7447 | 0.5262 |
+| **RMSE (mm)** | 0.3724 | 2.5576 | 3.0413 |
+
+### 3.2 Classification (Rain Detection)
+
+| Metric | Train | Valid | Test |
+|--------|-------|-------|------|
+| **Rain_F1** | **0.9390** | 0.8469 | 0.8380 |
+| **Rain_Detection_Accuracy** | 0.9319 | 0.7723 | 0.7483 |
+| **ROC_AUC** | 0.9976 | 0.8647 | 0.8410 |
+| **PR_AUC** | 0.9973 | 0.9127 | 0.9159 |
+
+### 3.3 Diagnostics
+
+| Trạng thái | Chi tiết |
+|------------|---------|
+| **overfit_status: overfit** | RainAcc Train(0.932) > Valid(0.772) gap = **0.160** |
+
+---
+
+## 4. Kết quả hiện tại — Stacking Ensemble
+
+> **Trained**: 2026-03-19 23:12:06 | **Thời gian train**: 48.82s
+
+### 4.1 Regression
+
+| Metric | Train | Valid | Test |
+|--------|-------|-------|------|
+| **R²** | 0.8194 | 0.7663 | **0.5587** |
+| **RMSE (mm)** | 1.8013 | 2.4472 | **2.9350** |
+
+### 4.2 Classification (Rain Detection)
+
+| Metric | Train | Valid | Test |
+|--------|-------|-------|------|
+| **Rain_F1** | 0.8998 | 0.8647 | **0.8476** |
+| **Rain_Detection_Accuracy** | 0.8884 | 0.8156 | **0.7874** |
+| **ROC_AUC** | 0.8983 | 0.8170 | 0.7875 |
+| **PR_AUC** | 0.8787 | 0.8603 | 0.8579 |
+
+### 4.3 Diagnostics
+
+| Trạng thái | Chi tiết |
+|------------|---------|
+| **overfit_status: good** | Rain_F1 gap train-valid = **0.035** ✅ |
+
+---
+
+## 5. So sánh 2 mô hình
+
+| Metric (Test) | Ensemble Average | Stacking Ensemble | Winner |
+|---------------|-----------------|-------------------|--------|
+| R² | 0.5262 | **0.5587** | Stacking |
+| RMSE (mm) | 3.0413 | **2.9350** | Stacking |
+| Rain_F1 | 0.8380 | **0.8476** | Stacking |
+| Rain_Detection_Acc | 0.7483 | **0.7874** | Stacking |
+| ROC_AUC | **0.8410** | 0.7875 | Ensemble Avg |
+| PR_AUC | **0.9159** | 0.8579 | Ensemble Avg |
+| Thời gian train | **15.1s** | 48.82s | Ensemble Avg |
+| Overfit status | ⚠️ overfit | ✅ **good** | Stacking |
+
+> **Nhận xét**: Stacking Ensemble tốt hơn về độ chính xác dự báo (R², RMSE, Rain_F1, RainAcc) và FIT tốt hơn nhiều (F1 gap 0.035 vs 0.160). Ensemble Average có ROC/PR-AUC cao hơn nhưng dấu hiệu overfit rõ rệt. Stacking là model khuyến nghị cho production.
+
+---
+
+## 6. Cần lưu ý
+
+### 🟡 Ensemble Average
+
+1. **overfit_status = 'overfit'** — Gap RainAcc train-valid = 0.160 (vượt ngưỡng 0.15)
+2. **Test R² = 0.526** — Chưa lý tưởng, còn room cải thiện với feature engineering nâng cao
+3. **log1p applied externally** — Cần nhớ khi gọi predict, pipeline xử lý ngoài
+
+### 🟢 Stacking Ensemble
+
+1. **GOOD FIT** — F1 gap = 0.035, generalization tốt
+2. **log1p xử lý nội bộ** — Không cần transform trước khi gọi predict
+3. **Schema bank routing** — Có thể cần calibration thêm với từng vùng địa lý
+4. **Train chậm hơn** — 48.82s vs 15.1s (do OOF cross-validation n_splits=8)
+
+---
+
+## 7. Lịch sử thí nghiệm
+
+| Version | Dữ liệu | Config | Split | R² Test | Rain_F1 Test | Overfit | Status |
+|---------|---------|--------|-------|---------|--------------|---------|--------|
+| v1 (Baseline) | 7,322 mẫu | 50 trials | 70/15/15 shuffle | ~74% | N/A | ? | Archived |
+| v2 (Optuna 100) | 7,322 mẫu | 100 trials | 70/15/15 shuffle | **81.4%** | 94.8% | ? | Archived |
+| v3-targeted | 7,322 mẫu | Huber+progressive | 70/15/15 shuffle | 77.1% | ~95% | ? | Archived |
+| v4 (94k rows) | 94,128 mẫu | train_config.json | 80/10/10 chrono | -0.067 | 64.23% | overfit | Archived |
+| **v5 — Ensemble Average** ✅ | **112,648 mẫu** | train_config.json | 80/10/10 chrono | **0.526** | **0.838** | ⚠️ overfit | **Active** |
+| **v6 — Stacking Ensemble** ✅ | **112,648 mẫu** | train_config.json (stacking) | 80/10/10 chrono | **0.559** | **0.848** | ✅ good | **Active** |
+
+---
+
+## 8. Cấu trúc file quan trọng
+
+```
+PROJECT_WEATHER_FORCAST/
+├── config/
+│   └── train_config.json                    # Config huấn luyện (ensemble + stacking)
+│
+├── Weather_Forcast_App/
+│   ├── Evaluate_accuracy/
+│   │   ├── evaluate.ipynb                   # Notebook đánh giá (44+ cells)
+│   │   ├── tremblingProcess.ipynb           # Full ML pipeline (crawl→merge→clean→train→forecast)
+│   │   └── MODEL_EVALUATION_SUMMARY.md      # ← File này
+│   │
+│   ├── Machine_learning_model/
+│   │   ├── trainning/train.py               # Training pipeline
+│   │   ├── Models/Ensemble_Average_Model.py # WeatherEnsembleModel (4 sub-models, soft voting)
+│   │   ├── Models/Ensemble_Stacking_Model.py # WeatherStackingEnsembleModel (8 base + 2 meta)
+│   │   └── interface/weather_predictor.py   # WeatherPredictor (load + predict)
+│   │
+│   └── Machine_learning_artifacts/
+│       ├── ensemble_average/latest/
+│       │   ├── Model.pkl                    # Ensemble Average model
+│       │   ├── Feature_list.json            # 68 features
+│       │   ├── Metrics.json                 # Metrics (overfit_status='overfit')
+│       │   └── Train_info.json              # Training metadata
+│       └── stacking_ensemble/latest/
+│           ├── Model.pkl                    # Stacking Ensemble model
+│           ├── Feature_list.json            # 68 features
+│           ├── Metrics.json                 # Metrics (overfit_status='good')
+│           └── Train_info.json              # n_splits=8, predict_threshold=0.4, OOF info
+│
+└── dynamic_measurement.ipynb                # Model size measurement
+```
+
+### Cách train lại model
+
+```bash
+# Ensemble Average
+python manage.py train --config config/train_config.json --model ensemble
+
+# Stacking Ensemble
+python manage.py train --config config/train_config.json --model stacking
+```
+
+### Cách evaluate
+
+Mở `Weather_Forcast_App/Evaluate_accuracy/evaluate.ipynb` → Run All Cells
+
+---
+
+> **Lần cập nhật cuối**: 2026-03-19  
+> **Thay đổi**: Retrain với 112,648 mẫu; thêm Stacking Ensemble (GOOD FIT); cập nhật metrics thực tế cả 2 mô hình
+
 
 ---
 

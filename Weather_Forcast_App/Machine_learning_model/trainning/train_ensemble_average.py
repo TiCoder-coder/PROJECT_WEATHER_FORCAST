@@ -1,0 +1,1253 @@
+
+
+from __future__ import annotations
+import sys
+from pathlib import Path
+# /media/voanhnhat/SDD_OUTSIDE5/PROJECT_WEATHER_FORECAST/Weather_Forcast_App/Machine_learning_model/trainning/train.py
+# ----------------------------- TRAIN "TỔNG CHỈ HUY" -----------------------------------------------------------
+"""
+train.py - Tổng chỉ huy quá trình training
+
+Flow chuẩn:
+    1) Đọc config (json/yaml)
+    2) Load data (Loader.py)
+    3) Validate schema (Schema.py)
+    4) Split train/valid/test (Split.py) + lưu ra Dataset_after_split/...
+    5) Build features (Build_transfer.py)
+    6) Transform pipeline thống nhất train/predict (Transformers.py)
+    7) Train model (RandomForest/XGBoost/LightGBM/CatBoost wrappers)
+    8) Evaluate metrics
+    9) Save artifacts:
+        - Model.pkl
+        - Transform_pipeline.pkl
+        - Feature_list.json
+        - Metrics.json
+        - Train_info.json
+
+Chạy gợi ý:
+    python -m Weather_Forcast_App.Machine_learning_model.trainning.train --config config/train_config.json
+
+Hoặc chạy trực tiếp:
+    python /.../Weather_Forcast_App/Machine_learning_model/trainning/train.py --config config/train_config.json
+"""
+
+THIS_FILE = Path(__file__).resolve()
+
+project_root = THIS_FILE
+for _ in range(5):
+    if (project_root / "Weather_Forcast_App").exists():
+        break
+    project_root = project_root.parent
+
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from Weather_Forcast_App.Machine_learning_model.trainning.tuning import _load_df_via_loader
+
+import argparse
+import importlib
+import json
+import joblib
+from dataclasses import asdict
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+import pandas as pd
+import numpy as np
+
+# ======================================================================================
+# (2) IMPORT CÁC MODULE
+# ======================================================================================
+from Weather_Forcast_App.Machine_learning_model.data.Loader import DataLoader
+from Weather_Forcast_App.Machine_learning_model.data.Schema import validate_weather_dataframe
+from Weather_Forcast_App.Machine_learning_model.data.Split import SplitConfig, split_dataframe
+
+from Weather_Forcast_App.Machine_learning_model.features.Build_transfer import WeatherFeatureBuilder
+from Weather_Forcast_App.Machine_learning_model.features.Transformers import WeatherTransformPipeline
+
+from Weather_Forcast_App.Machine_learning_model.evaluation.metrics import calculate_all_metrics, RAIN_THRESHOLD
+
+MODEL_REGISTRY = {
+    "rf": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
+    "random_forest": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
+    "randomforest": "Weather_Forcast_App.Machine_learning_model.Models.Random_Forest_Model.WeatherRandomForest",
+    "xgb": "Weather_Forcast_App.Machine_learning_model.Models.XGBoost_Model.WeatherXGBoost",
+    "xgboost": "Weather_Forcast_App.Machine_learning_model.Models.XGBoost_Model.WeatherXGBoost",
+    "lgbm": "Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model.WeatherLightGBM",
+    "lightgbm": "Weather_Forcast_App.Machine_learning_model.Models.LightGBM_Model.WeatherLightGBM",
+    "cat": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
+    "catboost": "Weather_Forcast_App.Machine_learning_model.Models.CatBoost_Model.WeatherCatBoost",
+}
+
+
+# ======================================================================================
+# (3) TIỆN ÍCH: load config
+# ======================================================================================
+def _load_config(path: Path) -> Dict[str, Any]:
+    """
+    Load config từ .json hoặc .yaml/.yml.
+    - Nếu bạn chưa dùng yaml thì cứ xài json là OK.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Config not found: {path}")
+
+    ext = path.suffix.lower()
+    if ext == ".json":
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    if ext in [".yml", ".yaml"]:
+        try:
+            import yaml
+            return yaml.safe_load(path.read_text(encoding="utf-8"))
+        except Exception as e:
+            raise RuntimeError("Config is YAML but PyYAML not installed. Install pyyaml or use JSON.") from e
+
+    raise ValueError(f"Unsupported config extension: {ext}")
+
+def _now_tag() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# ======================================================================================
+# DIAGNOSTICS FILTER: Loại bỏ các dòng dữ liệu sai từ debug_top50_errors.csv
+# ======================================================================================
+def _drop_known_bad_rows(df: pd.DataFrame, root_path: Path) -> pd.DataFrame:
+    """
+    Kiểm tra xem file debug_top50_errors.csv (sinh ra bởi scripts/run_diagnostics.py)
+    có tồn tại không. Nếu có, loại bỏ các dòng tương ứng khỏi df trước khi train.
+
+    Cơ chế:
+    - Đọc debug_top50_errors.csv (các dòng mà model dự đoán sai nhất ở lần train trước)
+    - Bỏ các cột diagnostic được thêm bởi run_diagnostics.py (y_true, y_pred, abs_err)
+    - Tạo fingerprint (chuỗi nối các giá trị cột) cho mỗi dòng
+    - So khớp và xóa các dòng trùng trong df
+
+    Nếu debug_top50_errors.csv không tồn tại -> trả về df nguyên vẹn (không làm gì).
+    """
+    diagnostics_path = root_path / "debug_top50_errors.csv"
+    if not diagnostics_path.exists():
+        return df
+
+    try:
+        bad_df = pd.read_csv(diagnostics_path)
+    except Exception as e:
+        print(f"  [DIAGNOSTICS] Warning: could not read {diagnostics_path}: {e}")
+        return df
+
+    # Bỏ các cột được run_diagnostics.py thêm vào (không có trong data gốc)
+    for col in ("y_true", "y_pred", "abs_err"):
+        if col in bad_df.columns:
+            bad_df = bad_df.drop(columns=[col])
+
+    # Chỉ giữ lại các cột có trong cả hai DataFrame
+    common_cols = [c for c in bad_df.columns if c in df.columns]
+    if not common_cols:
+        print("  [DIAGNOSTICS] Warning: no common columns found to match bad rows — skipping filter.")
+        return df
+
+    # Tạo fingerprint dạng chuỗi để so khớp hàng
+    bad_keys = set(
+        bad_df[common_cols].apply(lambda row: "|".join(map(str, row)), axis=1)
+    )
+    mask = df[common_cols].apply(lambda row: "|".join(map(str, row)), axis=1).isin(bad_keys)
+    n_dropped = int(mask.sum())
+
+    if n_dropped > 0:
+        print(f"  [DIAGNOSTICS] Removed {n_dropped} known bad rows from training data "
+              f"(source: {diagnostics_path.name})")
+    else:
+        print(f"  [DIAGNOSTICS] debug_top50_errors.csv found but no matching rows in current dataset.")
+
+    return df[~mask].reset_index(drop=True)
+
+
+# ======================================================================================
+# (4) SAVE HELPERS
+# ======================================================================================
+def _ensure_dir(p: Path) -> None:
+    p.mkdir(parents=True, exist_ok=True)
+
+
+def _save_json(path: Path, data: Dict[str, Any]) -> None:
+    import enum
+    def default(obj):
+        if isinstance(obj, enum.Enum):
+            return obj.value
+        if hasattr(obj, "to_dict"):
+            return obj.to_dict()
+        if hasattr(obj, "__dict__"):
+            return obj.__dict__
+        try:
+            from dataclasses import asdict as dc_asdict
+            if hasattr(obj, "__dataclass_fields__"):
+                return dc_asdict(obj)
+        except Exception:
+            pass
+        return str(obj)
+    _ensure_dir(path.parent)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2, default=default), encoding="utf-8")
+
+
+def _save_split_csvs(
+    out_root: Path,
+    split_name: str,
+    df_train: pd.DataFrame,
+    df_valid: pd.DataFrame,
+    df_test: pd.DataFrame,
+) -> Dict[str, str]:
+    """
+    Lưu 3 file CSV train/valid/test vào Dataset_after_split/<split_name>/
+    """
+    _ensure_dir(out_root)
+    train_path = out_root / f"{split_name}_train.csv"
+    valid_path = out_root / f"{split_name}_valid.csv"
+    test_path = out_root / f"{split_name}_test.csv"
+
+    df_train.to_csv(train_path, index=False, encoding="utf-8-sig")
+    df_valid.to_csv(valid_path, index=False, encoding="utf-8-sig")
+    df_test.to_csv(test_path, index=False, encoding="utf-8-sig")
+
+    return {
+        "train": str(train_path),
+        "valid": str(valid_path),
+        "test": str(test_path),
+    }
+
+
+# ======================================================================================
+# (5) VALIDATE SCHEMA
+# ======================================================================================
+def _validate_schema_keep_valid_rows(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Dùng validate_weather_dataframe(df) của Schema.py.
+    - Hàm này trả về list WeatherDataSchema hợp lệ
+    - Ta rebuild lại DataFrame "valid_df" từ list đó để đảm bảo schema sạch.
+
+    Trả về:
+        valid_df, report
+    """
+    total_before = len(df)
+
+    # validate_weather_dataframe trả về list schema objects hợp lệ
+    schemas = validate_weather_dataframe(df)
+
+    # build lại df từ schema
+    valid_records = [s.to_flat_dict() for s in schemas]
+    valid_df = pd.DataFrame(valid_records)
+
+    report = {
+        "rows_before": int(total_before),
+        "rows_after": int(len(valid_df)),
+        "rows_dropped": int(total_before - len(valid_df)),
+    }
+    return valid_df, report
+
+
+# ======================================================================================
+# (6) BUILD FEATURES + TRANSFORM
+# ======================================================================================
+
+# --- Các cột static KHÔNG nên tạo lag/rolling/diff (chỉ tạo noise) ---
+_STATIC_COL_KEYWORDS = [
+    'location_vi_do', 'location_kinh_do', 'location_ma_tram',
+    'location_tinh_thanh_pho', 'location_huyen',
+    'vi_do', 'kinh_do', 'latitude', 'longitude',
+]
+
+
+def _is_static_derived_feature(col_name: str) -> bool:
+    """Kiểm tra xem feature có phải là lag/rolling/diff trên cột static không."""
+    col_lower = col_name.lower()
+    temporal_suffixes = ['_lag_', '_rolling_', '_diff_', '_pct_change_']
+    for kw in _STATIC_COL_KEYWORDS:
+        if kw in col_lower and any(suf in col_lower for suf in temporal_suffixes):
+            return True
+    return False
+
+
+def _remove_static_derived_features(X: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Loại bỏ features tạo từ cột static (lat/lon lag, rolling, diff).
+    Các features này chỉ tạo noise vì lat/lon không đổi theo thời gian.
+    
+    Returns:
+        (X_cleaned, removed_columns)
+    """
+    remove_cols = [col for col in X.columns if _is_static_derived_feature(col)]
+    if remove_cols:
+        print(f"  [FEATURE CLEAN] Removed {len(remove_cols)} static-derived features (lat/lon lag/rolling/diff)")
+    return X.drop(columns=remove_cols, errors='ignore'), remove_cols
+
+
+def _detect_data_type(df: pd.DataFrame) -> str:
+    """
+    Auto-detect whether data is time-series or cross-sectional.
+    
+    Time-series: many unique timestamps, few stations
+    Cross-sectional: few unique timestamps, many stations/rows
+    
+    Returns: 'time_series' | 'cross_sectional' | 'mixed'
+    """
+    time_cols = [c for c in df.columns if 'time' in c.lower() or 'date' in c.lower() or 'stamp' in c.lower()]
+    if not time_cols:
+        return 'cross_sectional'
+    
+    time_col = time_cols[0]
+    ts = pd.to_datetime(df[time_col], errors='coerce')
+    n_unique_ts = ts.dropna().nunique()
+    n_rows = len(df)
+    
+    # If data has very few timestamps relative to rows, it's cross-sectional
+    ts_ratio = n_unique_ts / max(n_rows, 1)
+    
+    if n_unique_ts <= 5 or ts_ratio < 0.01:
+        return 'cross_sectional'
+    elif ts_ratio > 0.3:
+        return 'time_series'
+    else:
+        return 'mixed'
+
+
+def _remove_constant_features(X: pd.DataFrame, threshold: float = 0.001) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Remove features that are (nearly) constant — they provide no information.
+    
+    Args:
+        X: Feature DataFrame
+        threshold: Minimum ratio of unique values (nunique/nrows) to keep
+    
+    Returns:
+        (X_cleaned, removed_columns)
+    """
+    remove_cols = []
+    n_rows = len(X)
+    for col in X.columns:
+        nunique = X[col].nunique()
+        if nunique <= 1:
+            remove_cols.append(col)
+        elif X[col].dtype in ['float64', 'float32', 'int64', 'int32']:
+            # Check if std is effectively zero
+            col_std = X[col].std()
+            if col_std == 0 or (col_std is not None and np.isnan(col_std)):
+                remove_cols.append(col)
+    
+    if remove_cols:
+        print(f"  [FEATURE CLEAN] Removed {len(remove_cols)} constant/near-constant features: {remove_cols[:10]}...")
+    return X.drop(columns=remove_cols, errors='ignore'), remove_cols
+
+
+def _add_polynomial_features(
+    X: pd.DataFrame, y: pd.Series,
+    top_k: int = 8,
+    degree: int = 2,
+) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Add polynomial interaction features from top correlated columns.
+    Only creates degree-2 interactions (a*b, a^2) for top correlated features.
+    
+    Args:
+        X: Feature DataFrame
+        y: Target series
+        top_k: Number of top correlated features to use
+        degree: Polynomial degree (only 2 supported)
+    
+    Returns:
+        (X_with_poly, new_feature_names)
+    """
+    numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
+    if len(numeric_cols) < 2:
+        return X, []
+    
+    # Find top-k correlated features with target
+    correlations = X[numeric_cols].corrwith(y).abs().dropna().sort_values(ascending=False)
+    top_cols = correlations.head(top_k).index.tolist()
+    
+    new_features = {}
+    new_names = []
+    
+    for i, col_a in enumerate(top_cols):
+        # Squared features
+        fname = f"{col_a}_sq"
+        new_features[fname] = X[col_a] ** 2
+        new_names.append(fname)
+        
+        # Cross-interactions
+        for col_b in top_cols[i+1:]:
+            fname = f"{col_a}_x_{col_b}"
+            new_features[fname] = X[col_a] * X[col_b]
+            new_names.append(fname)
+    
+    if new_features:
+        new_df = pd.DataFrame(new_features, index=X.index)
+        X = pd.concat([X, new_df], axis=1)
+        print(f"  [POLY FEATURES] Added {len(new_names)} polynomial features from top-{top_k} correlated columns")
+    
+    return X, new_names
+
+
+def _select_features_by_importance(
+    X_train: pd.DataFrame, y_train: pd.Series,
+    max_features: int = 50,
+    min_importance: float = 0.0,
+) -> List[str]:
+    """
+    SHAP-based feature selection dùng LightGBM.
+    SHAP mean |phi| chính xác hơn split-based importance vì:
+      - Không bị bias bởi high-cardinality features
+      - Tính contribution thật sự tới prediction (không chỉ tần suất dùng)
+    Fallback sang split importance nếu SHAP không khả dụng.
+
+    Returns:
+        list tên features đã chọn (sorted by SHAP importance desc)
+    """
+    from lightgbm import LGBMRegressor
+
+    # LightGBM nhanh để tính importance — dùng log1p(y+1) cho target zero-inflated
+    y_fit = np.log1p(np.abs(y_train.values.astype(float)))
+    selector = LGBMRegressor(
+        n_estimators=200,
+        max_depth=6,
+        learning_rate=0.05,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        verbose=-1,
+        random_state=42,
+        n_jobs=-1,
+    )
+    selector.fit(X_train, y_fit)
+
+    # ── SHAP (preferred) ────────────────────────────────────────────── #
+    try:
+        import shap
+
+        # Subsample tối đa 1000 hàng để tính nhanh
+        n_sample = min(1000, len(X_train))
+        X_sample = X_train.iloc[:n_sample]
+        explainer  = shap.TreeExplainer(selector)
+        shap_vals  = explainer.shap_values(X_sample)
+        if isinstance(shap_vals, list):
+            # multi-output (hiếm với regression) — lấy trung bình
+            shap_vals = np.abs(np.array(shap_vals)).mean(axis=0)
+        importances = np.abs(shap_vals).mean(axis=0)
+
+        feature_imp = sorted(
+            zip(X_train.columns, importances),
+            key=lambda x: x[1], reverse=True,
+        )
+        selected = [name for name, imp in feature_imp if imp > min_importance][:max_features]
+        if len(selected) < min(10, len(X_train.columns)):
+            selected = [name for name, _ in feature_imp[:max_features]]
+        print(f"  [FEATURE SELECT SHAP] {len(selected)}/{len(X_train.columns)} features kept")
+        return selected
+
+    except Exception as shap_err:
+        print(f"  [FEATURE SELECT] SHAP unavailable ({shap_err}), fallback to LGB importance")
+
+    # ── Fallback: LightGBM split importance ─────────────────────────── #
+    try:
+        importances = selector.feature_importances_
+        feature_imp = sorted(
+            zip(X_train.columns, importances),
+            key=lambda x: x[1], reverse=True,
+        )
+        selected = [name for name, imp in feature_imp if imp > min_importance][:max_features]
+        if len(selected) < min(10, len(X_train.columns)):
+            selected = [name for name, _ in feature_imp[:max_features]]
+        print(f"  [FEATURE SELECT LGB] {len(selected)}/{len(X_train.columns)} features kept")
+        return selected
+    except Exception as e:
+        print(f"  [FEATURE SELECT] Cannot run feature selection: {e}")
+        return X_train.columns.tolist()
+
+
+def _build_features_for_split(
+    builder: WeatherFeatureBuilder,
+    df: pd.DataFrame,
+    target_col: str,
+    group_by: Optional[str] = None,
+    forecast_horizon: int = 0,
+    leaked_columns: Optional[List[str]] = None,
+) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Build features từ raw df.
+    - Giữ target y riêng.
+    - Nếu forecast_horizon > 0: shift target lên (predict tương lai)
+    - Trả về: X_df, y_series
+    """
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in dataframe columns.")
+
+    # Build features (builder tự sort/time/lag/rolling/...)
+    df_feat = builder.build_all_features(df, target_column=target_col, group_by=group_by)
+
+    # Shift target để dự báo tương lai:
+    # shift(-N) nghĩa là: dòng t sẽ có target = rain_total tại t+N
+    # => model học: features hiện tại → rain tương lai
+    if forecast_horizon > 0:
+        if group_by and group_by in df_feat.columns:
+            df_feat[target_col] = df_feat.groupby(group_by)[target_col].shift(-forecast_horizon)
+        else:
+            df_feat[target_col] = df_feat[target_col].shift(-forecast_horizon)
+        # Drop rows cuối cùng (không có target tương lai)
+        df_feat = df_feat.dropna(subset=[target_col])
+        print(f"  [FORECAST] Shifted target by -{forecast_horizon} rows. Remaining: {len(df_feat)} rows")
+
+    # tách y ra khỏi X
+    y = df_feat[target_col].copy()
+    X = df_feat.drop(columns=[target_col])
+
+    # Loại bỏ cột bị "rò rỉ" (leaked) — cùng thời điểm với target
+    if leaked_columns:
+        cols_to_drop = [c for c in leaked_columns if c in X.columns]
+        if cols_to_drop:
+            X = X.drop(columns=cols_to_drop)
+            print(f"  [FORECAST] Removed {len(cols_to_drop)} leaked columns: {cols_to_drop[:5]}...")
+
+    return X, y
+
+
+# ======================================================================================
+# (7) MODEL FACTORY - Đơn giản hóa bằng dynamic import
+# ======================================================================================
+def _create_model(model_type: str, model_config: Dict[str, Any]):
+    """
+    Tạo instance model wrapper theo config.
+    Sử dụng dynamic import để giảm số dòng code.
+    """
+    model_type = (model_type or "").lower().strip()
+
+    # Ensure Django apps are loaded before importing Django-based models
+    import os
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WeatherForcast.settings")
+    import django
+    django.setup()
+
+    if model_type == "ensemble":
+        base_models = model_config.get("base_models", [])
+        from Weather_Forcast_App.Machine_learning_model.Models.Ensemble_Average_Model import WeatherEnsembleModel
+        return WeatherEnsembleModel(base_models=base_models, model_registry=MODEL_REGISTRY)
+    if model_type not in MODEL_REGISTRY:
+        raise ValueError(f"Unsupported model_type='{model_type}'. Use: {list(set(MODEL_REGISTRY.keys()))}")
+    module_path, class_name = MODEL_REGISTRY[model_type].rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    model_class = getattr(module, class_name)
+    return model_class(**model_config)
+
+
+# ======================================================================================
+# (8) MAIN TRAIN FLOW
+# ======================================================================================
+def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Hàm chạy training, trả về Train_info dict (để bạn log/print/ghi file).
+    """
+
+    # --------------------------
+    # Resolve paths
+    # --------------------------
+    # Root: .../Weather_Forcast_App/Machine_learning_model/trainning/train.py
+    ml_model_root = THIS_FILE.parents[1]  # Machine_learning_model
+    app_root = THIS_FILE.parents[2]       # Weather_Forcast_App
+
+    dataset_after_split_root = ml_model_root / "Dataset_after_split"
+    dataset_after_split_merge = dataset_after_split_root / "Dataset_merge"
+    dataset_after_split_not_merge = dataset_after_split_root / "Dataset_not_merge"
+
+    artifacts_latest = app_root / "Machine_learning_artifacts" / "ensemble_average" / "latest"
+    _ensure_dir(artifacts_latest)
+
+    # --------------------------
+    # (1) Read config
+    # --------------------------
+    data_cfg = config.get("data") or {}
+    
+    feature_cfg = config.get("features", {})
+    split_cfg = config.get("split", {})
+    model_cfg = config.get("model", {})
+    transform_cfg = config.get("transform", {})
+
+    target_col = config.get("target_column", "luong_mua_hien_tai")
+    group_by = config.get("group_by")  # ví dụ: "location_ma_tram" hoặc None
+
+    # --------------------------
+    # (2) Load data (Loader.py)
+    # --------------------------
+    folder_key = data_cfg.get("folder_key")
+    filename = data_cfg.get("filename")
+
+    if not folder_key:
+        raise ValueError("Config missing: data.folder_key")
+    if not filename:
+        raise ValueError("Config missing: data.filename")
+
+    # --------------------------
+    # (3) Validate schema (Schema.py)
+    # --------------------------
+    df_raw = _load_df_via_loader(app_root, folder_key, filename)
+    file_info = None  # tuning._load_df_via_loader does not return file_info
+
+    # Loại bỏ các dòng dữ liệu sai đã được nhận diện từ lần chạy diagnostics trước
+    df_raw = _drop_known_bad_rows(df_raw, project_root)
+
+    if len(df_raw) == 0:
+        raise RuntimeError("After loading data: no rows left. Check input data.")
+
+    skip_schema = config.get("skip_schema_validation", False)
+    if skip_schema:
+        # Skip strict schema validation — use raw data with basic cleanup
+        df_valid = df_raw.copy()
+        # Rename raw columns to expected names if needed
+        rename_map = {
+            'station_id': 'location_station_id',
+            'station_name': 'location_station_name',
+            'province': 'location_province',
+            'district': 'location_district',
+            'latitude': 'location_latitude',
+            'longitude': 'location_longitude',
+        }
+        for old, new in rename_map.items():
+            if old in df_valid.columns and new not in df_valid.columns:
+                df_valid = df_valid.rename(columns={old: new})
+        # Drop columns not needed for ML
+        for drop_col in ['status']:
+            if drop_col in df_valid.columns:
+                df_valid = df_valid.drop(columns=[drop_col])
+        # Fill NaN timestamps with a default (to allow time feature building)
+        for tc in ['timestamp', 'data_time']:
+            if tc in df_valid.columns:
+                df_valid[tc] = pd.to_datetime(df_valid[tc], errors='coerce')
+                if df_valid[tc].isna().any():
+                    default_ts = df_valid[tc].dropna().mode()
+                    if len(default_ts) > 0:
+                        df_valid[tc] = df_valid[tc].fillna(default_ts.iloc[0])
+        schema_report = {"rows_before": len(df_raw), "rows_after": len(df_valid),
+                         "rows_dropped": 0, "note": "schema_validation_skipped"}
+        print(f"  [SCHEMA] Skipped strict validation. Keeping {len(df_valid)} rows (was {len(df_raw)}).")
+        # Warn if features lack variation
+        num_cols = df_valid.select_dtypes(include='number').columns
+        n_const = sum(1 for c in num_cols if df_valid[c].nunique() <= 1)
+        if n_const > len(num_cols) * 0.5:
+            print(f"  [WARNING] {n_const}/{len(num_cols)} numeric columns are constant! Data may be a single-snapshot.")
+    else:
+        df_valid, schema_report = _validate_schema_keep_valid_rows(df_raw)
+
+    if len(df_valid) == 0:
+        raise RuntimeError("After schema validation: no valid rows left. Check input data & schema rules.")
+
+    # --------------------------
+    # (4) Split train/valid/test (Split.py) + save to Dataset_after_split/...
+    # --------------------------
+    # Chuyển đổi config sang format của SplitConfig (Split.py)
+    test_ratio = float(split_cfg.get("test_size", split_cfg.get("test_ratio", 0.1)))
+    val_ratio = float(split_cfg.get("valid_size", split_cfg.get("val_ratio", 0.1)))
+    train_ratio = 1.0 - test_ratio - val_ratio
+    
+    split_config = SplitConfig(
+        train_ratio=train_ratio,
+        val_ratio=val_ratio,
+        test_ratio=test_ratio,
+        shuffle=bool(split_cfg.get("shuffle", False)),  # Time series: KHÔNG shuffle
+        sort_by_time_if_possible=bool(split_cfg.get("sort_by_time", True)),
+    )
+
+    df_train, df_valid_split, df_test = split_dataframe(df_valid, split_config)
+
+    # Xác định lưu vào Dataset_merge hay Dataset_not_merge theo folder_key
+    if "merge" in folder_key.lower():
+        split_out_dir = dataset_after_split_merge
+        split_name = "merge"
+    else:
+        split_out_dir = dataset_after_split_not_merge
+        split_name = "not_merge"
+
+    split_paths = _save_split_csvs(
+        out_root=split_out_dir,
+        split_name=split_name,
+        df_train=df_train,
+        df_valid=df_valid_split,
+        df_test=df_test,
+    )
+
+    # --------------------------
+    # (5) Build features (Build_transfer.py)
+    # --------------------------
+    # --- AUTO-DETECT DATA TYPE: time-series vs cross-sectional ---
+    auto_detect = config.get("auto_detect_data_type", False)
+    detected_data_type = _detect_data_type(df_valid) if auto_detect else "unknown"
+    
+    if detected_data_type == "cross_sectional":
+        print(f"  [DATA TYPE] Detected: CROSS-SECTIONAL data (few timestamps, many rows)")
+        print(f"  [DATA TYPE] Disabling temporal features (lag/rolling/diff) - they are noise for this data type")
+        # Override feature config to disable temporal features
+        if feature_cfg is None:
+            feature_cfg = {}
+        feature_cfg['lag_features'] = False
+        feature_cfg['rolling_features'] = False
+        feature_cfg['difference_features'] = False
+    elif detected_data_type == "time_series":
+        print(f"  [DATA TYPE] Detected: TIME-SERIES data")
+    
+    builder = WeatherFeatureBuilder(config=feature_cfg or None)
+
+    # --- FORECAST HORIZON: shift target để dự báo tương lai ---
+    forecast_horizon = int(config.get("forecast_horizon", 0))
+    leaked_columns: List[str] = []
+    if forecast_horizon > 0:
+        print(f"  [FORECAST] forecast_horizon = {forecast_horizon} rows")
+        print(f"  [FORECAST] Model se du bao rain_total sau {forecast_horizon} buoc thoi gian")
+        # Các cột rain cùng thời điểm → rò rỉ thông tin từ tương lai nếu dùng để predict tương lai
+        leaked_columns = config.get("leaked_columns", [
+            "rain_current", "rain_avg", "rain_max", "rain_min",
+        ])
+
+    X_train_raw, y_train = _build_features_for_split(
+        builder, df_train, target_col=target_col, group_by=group_by,
+        forecast_horizon=forecast_horizon, leaked_columns=leaked_columns,
+    )
+    X_valid_raw, y_valid = _build_features_for_split(
+        builder, df_valid_split, target_col=target_col, group_by=group_by,
+        forecast_horizon=forecast_horizon, leaked_columns=leaked_columns,
+    )
+    X_test_raw, y_test = _build_features_for_split(
+        builder, df_test, target_col=target_col, group_by=group_by,
+        forecast_horizon=forecast_horizon, leaked_columns=leaked_columns,
+    )
+
+    # --- ANTI-UNDERFIT: Remove constant/near-constant features ---
+    X_train_raw, removed_const = _remove_constant_features(X_train_raw)
+    if removed_const:
+        X_valid_raw = X_valid_raw.drop(columns=removed_const, errors='ignore')
+        X_test_raw = X_test_raw.drop(columns=removed_const, errors='ignore')
+
+    # --- ANTI-UNDERFIT: Loại bỏ features noise từ cột static (lat/lon lag/rolling/diff) ---
+    X_train_raw, removed_static = _remove_static_derived_features(X_train_raw)
+    if removed_static:
+        X_valid_raw = X_valid_raw.drop(columns=removed_static, errors='ignore')
+        X_test_raw = X_test_raw.drop(columns=removed_static, errors='ignore')
+
+    # --- ANTI-UNDERFIT: Add polynomial/interaction features from top correlated columns ---
+    poly_cfg = config.get("polynomial_features", {})
+    if poly_cfg.get("enabled", False):
+        poly_top_k = poly_cfg.get("top_k_corr", 8)
+        poly_degree = poly_cfg.get("degree", 2)
+        X_train_raw, poly_names = _add_polynomial_features(
+            X_train_raw, y_train, top_k=poly_top_k, degree=poly_degree
+        )
+        if poly_names:
+            # Add the same polynomial features to valid/test using the SAME column pairs
+            for fname in poly_names:
+                if '_sq' in fname:
+                    base_col = fname.replace('_sq', '')
+                    if base_col in X_valid_raw.columns:
+                        X_valid_raw[fname] = X_valid_raw[base_col] ** 2
+                        X_test_raw[fname] = X_test_raw[base_col] ** 2
+                elif '_x_' in fname:
+                    parts = fname.split('_x_')
+                    if len(parts) == 2 and parts[0] in X_valid_raw.columns and parts[1] in X_valid_raw.columns:
+                        X_valid_raw[fname] = X_valid_raw[parts[0]] * X_valid_raw[parts[1]]
+                        X_test_raw[fname] = X_test_raw[parts[0]] * X_test_raw[parts[1]]
+
+    # --- ANTI-UNDERFIT: Feature selection bằng importance (giảm noise) ---
+    enable_feature_selection = config.get("feature_selection", {}).get("enabled", False)
+    max_features = config.get("feature_selection", {}).get("max_features", 0)
+    
+    if enable_feature_selection and max_features > 0 and len(X_train_raw.columns) > max_features:
+        # Tạm dùng y_train gốc để select features (chưa transform target)
+        selected_features = _select_features_by_importance(
+            X_train_raw.select_dtypes(include=[np.number]).fillna(0),
+            y_train.fillna(0),
+            max_features=max_features,
+        )
+        X_train_raw = X_train_raw[[c for c in selected_features if c in X_train_raw.columns]]
+        X_valid_raw = X_valid_raw[[c for c in selected_features if c in X_valid_raw.columns]]
+        X_test_raw = X_test_raw[[c for c in selected_features if c in X_test_raw.columns]]
+
+    print(f"  [FEATURES] Final feature count: {len(X_train_raw.columns)} (train shape: {X_train_raw.shape})")
+
+    # feature list: list các feature mới + toàn bộ cột output (sau build + selection)
+    created_feature_names = builder.get_feature_names()
+    # Exclude non-numeric identifier / datetime columns that are not real features.
+    # They would cause dtype errors during prediction (XGBoost rejects object cols).
+    _non_feature_cols = {'timestamp', 'data_time', 'data_quality',
+                         'location_station_id', 'location_station_name',
+                         'location_province', 'location_district'}
+    all_feature_columns = [c for c in X_train_raw.columns
+                           if c not in _non_feature_cols]
+    # Also strip from the actual DataFrames so pipeline only fits numeric data
+    _drop_existing = [c for c in _non_feature_cols if c in X_train_raw.columns]
+    if _drop_existing:
+        X_train_raw = X_train_raw.drop(columns=_drop_existing)
+        X_valid_raw = X_valid_raw.drop(columns=[c for c in _drop_existing if c in X_valid_raw.columns])
+        X_test_raw  = X_test_raw.drop(columns=[c for c in _drop_existing if c in X_test_raw.columns])
+        print(f"  [FEATURES] Dropped non-feature columns: {_drop_existing}")
+
+    # Save Feature_list.json (để predict giữ đúng columns)
+    feature_list_path = artifacts_latest / "Feature_list.json"
+    _save_json(feature_list_path, {
+        "created_features": created_feature_names,
+        "all_feature_columns": all_feature_columns,
+        "target_column": target_col,
+        "forecast_horizon": forecast_horizon,
+        "generated_at": _now_tag(),
+        "group_by": group_by,
+        "removed_static_features": removed_static,
+        "removed_constant_features": removed_const,
+        "detected_data_type": detected_data_type,
+        "feature_selection_enabled": enable_feature_selection,
+        "polynomial_features_added": poly_cfg.get("enabled", False),
+        "note": "all_feature_columns is the list of X columns after build + feature selection (for prediction alignment)."
+    })
+
+    # --------------------------
+    # (5b) ANTI-UNDERFIT: Log1p target transformation cho zero-inflated targets
+    # --------------------------
+    # Rainfall data thường là zero-inflated (rất nhiều giá trị 0 hoặc gần 0).
+    # Log1p giúp model học tốt hơn vì nén phạm vi giá trị lớn.
+    use_log_target = config.get("transform_target", {}).get("log1p", True)
+    target_is_rain = any(kw in target_col.lower() for kw in ['mua', 'rain', 'precipitation'])
+    
+    # Chỉ tự động bật log1p nếu target liên quan đến mưa VÀ có nhiều giá trị 0
+    zero_ratio = (y_train == 0).mean() if len(y_train) > 0 else 0
+    if use_log_target and target_is_rain and zero_ratio > 0.3:
+        print(f"  [TARGET TRANSFORM] Applied log1p for '{target_col}' (zero_ratio={zero_ratio:.2%})")
+        y_train_model = np.log1p(y_train.clip(lower=0))
+        y_valid_model = np.log1p(y_valid.clip(lower=0))
+        y_test_model = np.log1p(y_test.clip(lower=0))
+        applied_log_target = True
+    else:
+        y_train_model = y_train
+        y_valid_model = y_valid
+        y_test_model = y_test
+        applied_log_target = False
+
+    # --------------------------
+    # (6) Transform pipeline thống nhất train/predict (Transformers.py)
+    # --------------------------
+    pipeline = WeatherTransformPipeline(
+        missing_strategy=transform_cfg.get("missing_strategy", "median"),
+        scaler_type=transform_cfg.get("scaler_type", "standard"),
+        encoding_type=transform_cfg.get("encoding_type", "label"),
+        handle_outliers=bool(transform_cfg.get("handle_outliers", True)),
+        outlier_method=transform_cfg.get("outlier_method", "iqr"),
+    )
+
+    # Fit ONLY on train, rồi transform valid/test
+    X_train = pipeline.fit_transform(X_train_raw, y_train_model if transform_cfg.get("pass_y_to_transform", False) else None)
+    X_valid_t = pipeline.transform(X_valid_raw)
+    X_test_t = pipeline.transform(X_test_raw)
+
+    # Save pipeline
+    pipeline_path = artifacts_latest / "Transform_pipeline.pkl"
+    pipeline.save(pipeline_path)
+
+    # --------------------------
+    # (7) Train model (dùng y đã log1p nếu áp dụng)
+    # --------------------------
+    model_type = model_cfg.get("type", "random_forest")
+    model_params = model_cfg.get("params", {})
+
+    # For ensemble, pass full model_cfg so base_models is accessible
+    if model_type == "ensemble":
+        model = _create_model(model_type=model_type, model_config=model_cfg)
+    else:
+        model = _create_model(model_type=model_type, model_config=model_params)
+
+    # --- Xử lý mất cân bằng lớp (Giai đoạn 5) ---
+    # Rainfall data: rất nhiều giá trị 0, ít ngày có mưa thật sự.
+    # Cần inject imbalance params vào từng model wrapper để:
+    #   XGBoost / LightGBM: scale_pos_weight = n_neg / n_pos
+    #   RandomForest: class_weight = 'balanced'
+    #   CatBoost: auto_class_weights = 'Balanced'
+    #   Fallback: numpy sample_weight array (hoạt động với mọi model)
+    sample_weight = None
+    if applied_log_target and zero_ratio > 0.3:
+        n_neg = int((y_train == 0).sum())
+        n_pos = int((y_train > 0).sum())
+
+        if n_pos > 0:
+            pos_weight = min(n_neg / n_pos, 20.0)  # cap tại 20x để không overfit
+            weight_ratio = pos_weight
+
+            # Inject native imbalance params nếu model wrapper hỗ trợ
+            mtype_lower = model_type.lower()
+            if mtype_lower in ("xgb", "xgboost"):
+                if hasattr(model, "params") and isinstance(model.params, dict):
+                    model.params.setdefault("scale_pos_weight", pos_weight)
+                    print(f"  [IMBALANCE] XGBoost scale_pos_weight={pos_weight:.2f}")
+            elif mtype_lower in ("lgbm", "lightgbm"):
+                if hasattr(model, "params") and isinstance(model.params, dict):
+                    model.params.setdefault("scale_pos_weight", pos_weight)
+                    print(f"  [IMBALANCE] LightGBM scale_pos_weight={pos_weight:.2f}")
+            elif mtype_lower in ("cat", "catboost"):
+                if hasattr(model, "params") and isinstance(model.params, dict):
+                    model.params.setdefault("auto_class_weights", "Balanced")
+                    print(f"  [IMBALANCE] CatBoost auto_class_weights=Balanced")
+            elif mtype_lower in ("rf", "random_forest", "randomforest"):
+                if hasattr(model, "params") and isinstance(model.params, dict):
+                    model.params.setdefault("class_weight", "balanced_subsample")
+                    print(f"  [IMBALANCE] RandomForest class_weight=balanced_subsample")
+
+            # Fallback numpy sample_weight cho mọi trường hợp
+            sample_weight = np.where(y_train > 0, weight_ratio, 1.0)
+            sample_weight = sample_weight.astype(np.float32)
+            print(f"  [IMBALANCE] sample_weight: rainy={weight_ratio:.2f}x (n_pos={n_pos}, n_neg={n_neg}, zero_ratio={zero_ratio:.1%})")
+
+    _train_start = datetime.now()
+    # Wrapper thường có model.train(X, y, ...) - truyền X_val, y_val cho early stopping
+    if hasattr(model, "train"):
+        import inspect
+        # Build full candidate kwargs
+        candidate_kwargs = {
+            "X_val": X_valid_t,
+            "y_val": y_valid_model,
+            "val_size": 0,           # Đã có val riêng, không cần split thêm
+            "scale_features": False,  # WeatherTransformPipeline đã scale rồi
+        }
+        if sample_weight is not None:
+            candidate_kwargs["sample_weight"] = sample_weight
+        # Chỉ truyền params mà model.train() thực sự hỗ trợ (tránh TypeError)
+        try:
+            sig = inspect.signature(model.train)
+            supported_params = set(sig.parameters.keys())
+            train_kwargs = {k: v for k, v in candidate_kwargs.items() if k in supported_params}
+        except Exception:
+            train_kwargs = {}
+        model.train(X_train, y_train_model, **train_kwargs)
+    elif hasattr(model, "fit"):
+        fit_kwargs = {}
+        if sample_weight is not None:
+            try:
+                import inspect
+                sig = inspect.signature(model.fit)
+                if "sample_weight" in sig.parameters:
+                    fit_kwargs["sample_weight"] = sample_weight
+            except Exception:
+                pass
+        model.fit(X_train, y_train_model, **fit_kwargs)
+    else:
+        raise RuntimeError(f"Model wrapper '{type(model).__name__}' has no train() or fit().")
+
+    _training_time_sec = round((datetime.now() - _train_start).total_seconds(), 2)
+    print(f"  [TRAIN] Completed in {_training_time_sec}s")
+
+    # --------------------------
+    # (8) Evaluate metrics - Sử dụng module metrics.py
+    # --------------------------
+    metrics: Dict[str, Any] = {
+        "generated_at": _now_tag(),
+        "model_type": model_type,
+        "applied_log_target": applied_log_target,
+        "training_time_seconds": _training_time_sec,
+    }
+
+    def _evaluate_set(X, y_original):
+        """
+        Helper để evaluate một dataset.
+        - Nếu dùng log1p target: predict rồi expm1 trước khi so sánh với y_original.
+        - Luôn đánh giá trên scale gốc để metrics có ý nghĩa thực tế.
+        """
+        y_pred_raw = model.predict(X)
+        if hasattr(y_pred_raw, "predictions"):
+            y_pred_raw = y_pred_raw.predictions
+        y_pred_raw = np.array(y_pred_raw)
+        
+        # Inverse transform nếu dùng log1p
+        if applied_log_target:
+            y_pred = np.expm1(y_pred_raw).clip(min=0)
+        else:
+            y_pred = y_pred_raw
+        
+        y_actual = np.array(y_original)
+        result = calculate_all_metrics(y_actual, y_pred, n_features=X.shape[1], include_weather_metrics=True)
+        
+        # Thêm metrics riêng cho non-zero values (quan trọng cho rain prediction)
+        non_zero_mask = y_actual > 0
+        if non_zero_mask.sum() > 10:
+            result["NonZero_MAE"] = float(np.mean(np.abs(y_actual[non_zero_mask] - y_pred[non_zero_mask])))
+            result["NonZero_RMSE"] = float(np.sqrt(np.mean((y_actual[non_zero_mask] - y_pred[non_zero_mask])**2)))
+            result["NonZero_count"] = int(non_zero_mask.sum())
+        
+        # Thêm rain detection accuracy (classify: has rain or not)
+        pred_has_rain = (y_pred > RAIN_THRESHOLD).astype(int)
+        actual_has_rain = (y_actual > RAIN_THRESHOLD).astype(int)
+        if len(y_actual) > 0:
+            result["Rain_Detection_Accuracy"] = float((pred_has_rain == actual_has_rain).mean())
+        
+        return result
+
+    metrics["train"] = _evaluate_set(X_train, y_train)
+    metrics["valid"] = _evaluate_set(X_valid_t, y_valid)
+    metrics["test"] = _evaluate_set(X_test_t, y_test)
+
+
+    # --- Overfit/Underfit & Accuracy Diagnostics ---
+    def detect_overfit_underfit(metrics_dict, tolerance=0.10):
+        """
+        Detect overfit/underfit based on train/valid metrics.
+        Uses R² gap as primary indicator (more reliable for regression).
+        Falls back to RMSE relative difference if R² not available.
+        tolerance=0.10 means R² gap > 0.10 is overfit.
+        Returns: (status, details)
+        """
+        train = metrics_dict.get("train", {})
+        valid = metrics_dict.get("valid", {})
+        test  = metrics_dict.get("test",  {})
+
+        # For zero-inflated targets (e.g. rainfall), R² is unreliable because
+        # SS_tot is dominated by extreme events that the regressor (correctly)
+        # predicts as E[y|X] not the actual extreme value → low R² even for
+        # a well-fitted model.  Prefer Rain_Detection_Accuracy when available.
+        rain_acc_train = train.get("Rain_Detection_Accuracy")
+        rain_acc_valid = valid.get("Rain_Detection_Accuracy")
+        rain_acc_test  = test.get("Rain_Detection_Accuracy")
+        if rain_acc_train is not None and rain_acc_valid is not None:
+            acc_gap = rain_acc_train - rain_acc_valid
+            all_three = (
+                f"Train={rain_acc_train:.3f} / Valid={rain_acc_valid:.3f}"
+                + (f" / Test={rain_acc_test:.3f}" if rain_acc_test is not None else "")
+            )
+            if acc_gap > tolerance:
+                return ("overfit",  f"RainAcc Train({rain_acc_train:.3f}) > Valid({rain_acc_valid:.3f}) by {acc_gap:.3f} — {all_three}")
+            elif acc_gap < -tolerance:
+                return ("underfit", f"RainAcc Valid({rain_acc_valid:.3f}) > Train({rain_acc_train:.3f}) — {all_three}")
+            else:
+                return ("good",     f"RainAcc consistent across splits — {all_three}")
+
+        # Fallback: use R² gap (only when RainAcc is not available)
+        r2_train = train.get("R2")
+        r2_valid = valid.get("R2")
+        if r2_train is not None and r2_valid is not None:
+            r2_gap = r2_train - r2_valid
+            if r2_gap > tolerance:
+                return ("overfit", f"Train R²({r2_train:.3f}) - Valid R²({r2_valid:.3f}) = {r2_gap:.3f} > {tolerance}")
+            elif r2_gap < -tolerance:
+                return ("underfit", f"Valid R²({r2_valid:.3f}) > Train R²({r2_train:.3f}) by {-r2_gap:.3f} (unusual)")
+            else:
+                return ("good", f"Train/Valid R² gap is small ({r2_gap:.3f}), generalization OK")
+
+        # Fallback: use RMSE
+        metric_name = None
+        for m in ["RMSE", "MAE", "Rain_Accuracy"]:
+            if m in train and m in valid:
+                metric_name = m
+                break
+        if not metric_name:
+            return ("unknown", "Insufficient metrics for overfit/underfit detection.")
+        train_score = train[metric_name]
+        valid_score = valid[metric_name]
+        if metric_name == "Rain_Accuracy":
+            diff = train_score - valid_score
+            if diff > tolerance:
+                return ("overfit", f"Train accuracy ({train_score:.3f}) > Valid accuracy ({valid_score:.3f}) by {diff:.3f}")
+            elif diff < -tolerance:
+                return ("underfit", f"Valid accuracy ({valid_score:.3f}) > Train accuracy ({train_score:.3f}) by {-diff:.3f}")
+            else:
+                return ("good", f"Train/Valid accuracy are similar (diff={diff:.3f})")
+        else:
+            diff = valid_score - train_score
+            if diff > tolerance * train_score:
+                return ("overfit", f"Valid error ({valid_score:.3f}) > Train error ({train_score:.3f}) by {diff:.3f}")
+            elif diff < -tolerance * train_score:
+                return ("underfit", f"Train error ({train_score:.3f}) > Valid error ({valid_score:.3f}) by {-diff:.3f}")
+            else:
+                return ("good", f"Train/Valid errors are similar (diff={diff:.3f})")
+
+    overfit_status, overfit_details = detect_overfit_underfit(metrics)
+    
+    # --- R² notes (informational, NEVER override generalization status) ---
+    r2_train = metrics.get("train", {}).get("R2", None)
+    r2_valid = metrics.get("valid", {}).get("R2", None)
+    r2_test = metrics.get("test", {}).get("R2", None)
+    is_zero_inflated = zero_ratio > 0.3
+
+    r2_notes = []
+    if r2_train is not None and r2_train < 0:
+        r2_notes.append(f"Train R²={r2_train:.3f}")
+    if r2_valid is not None and r2_valid < 0:
+        r2_notes.append(f"Valid R²={r2_valid:.3f}")
+    if r2_test is not None and r2_test < 0:
+        r2_notes.append(f"Test R²={r2_test:.3f}")
+
+    # For zero-inflated data: negative R² is expected, add note but don't change status
+    if is_zero_inflated and r2_notes:
+        overfit_details += " | Note: " + ", ".join(r2_notes) + " (normal for zero-inflated rainfall)"
+    elif not is_zero_inflated and r2_notes:
+        # Non-rain data with negative R²: genuine underfit
+        if overfit_status == "good":
+            overfit_status = "underfit"
+        overfit_details += " | " + " | ".join(r2_notes)
+
+    # --- Model quality assessment (separate from overfit/underfit) ---
+    if is_zero_inflated:
+        # Rain F1 across splits is the best quality indicator for zero-inflated targets
+        f1_vals = [metrics.get(s, {}).get("Rain_F1", None) for s in ("train", "valid", "test")]
+        f1_vals = [v for v in f1_vals if v is not None]
+        avg_f1 = sum(f1_vals) / len(f1_vals) if f1_vals else 0
+        if avg_f1 >= 0.70:
+            model_quality = "excellent"
+        elif avg_f1 >= 0.45:
+            model_quality = "good"
+        elif avg_f1 >= 0.25:
+            model_quality = "fair"
+        else:
+            model_quality = "poor"
+        quality_detail = f"Rain F1 avg={avg_f1:.3f}"
+    else:
+        r2_vals = [v for v in (r2_train, r2_valid, r2_test) if v is not None]
+        avg_r2 = sum(r2_vals) / len(r2_vals) if r2_vals else 0
+        if avg_r2 >= 0.70:
+            model_quality = "excellent"
+        elif avg_r2 >= 0.40:
+            model_quality = "good"
+        elif avg_r2 >= 0.10:
+            model_quality = "fair"
+        else:
+            model_quality = "poor"
+        quality_detail = f"R² avg={avg_r2:.3f}"
+
+    metrics["diagnostics"] = {
+        "overfit_status": overfit_status,
+        "overfit_details": overfit_details,
+        "model_quality": model_quality,
+        "quality_detail": quality_detail,
+        "applied_log_target": applied_log_target,
+        "detected_data_type": detected_data_type,
+        "n_features_after_selection": len(all_feature_columns),
+        "n_static_features_removed": len(removed_static),
+        "n_constant_features_removed": len(removed_const),
+        "polynomial_features_added": poly_cfg.get("enabled", False),
+        "target_zero_ratio": float(zero_ratio),
+    }
+
+    # Print accuracy if available
+    accuracy_msg = ""
+    if "Rain_Accuracy" in metrics["test"]:
+        acc = metrics["test"]["Rain_Accuracy"]
+        accuracy_msg = f"Test Rain_Accuracy: {acc:.4f} ({acc*100:.2f}%)"
+    elif "RMSE" in metrics["test"]:
+        rmse = metrics["test"]["RMSE"]
+        accuracy_msg = f"Test RMSE: {rmse:.4f}"
+    elif "MAE" in metrics["test"]:
+        mae = metrics["test"]["MAE"]
+        accuracy_msg = f"Test MAE: {mae:.4f}"
+
+    metrics_path = artifacts_latest / "Metrics.json"
+    _save_json(metrics_path, metrics)
+
+    # --------------------------
+    # (9) Save model artifact
+    # --------------------------
+    model_path = artifacts_latest / "Model.pkl"
+    if hasattr(model, "save"):
+        model.save(model_path)
+    else:
+        joblib.dump(model, model_path)
+
+    # --------------------------
+    # (10) Save train info
+    # --------------------------
+    train_info = {
+        "trained_at": _now_tag(),
+        "project_root": str(project_root),
+        "ml_model_root": str(ml_model_root),
+        "input": {
+            "folder_key": folder_key,
+            "filename": filename,
+            "file_info": getattr(file_info, "__dict__", str(file_info)),
+        },
+        "schema_report": schema_report,
+        "split_config": asdict(split_config),
+        "split_saved_paths": split_paths,
+        "target_column": target_col,
+        "group_by": group_by,
+        "forecast_horizon": forecast_horizon,
+        "leaked_columns_removed": leaked_columns if forecast_horizon > 0 else [],
+        "feature_info": {
+            "n_created_features": int(len(created_feature_names)),
+            "n_total_feature_columns": int(len(all_feature_columns)),
+            "n_static_features_removed": int(len(removed_static)),
+            "n_constant_features_removed": int(len(removed_const)),
+            "feature_selection_enabled": enable_feature_selection,
+            "detected_data_type": detected_data_type,
+            "polynomial_features_added": poly_cfg.get("enabled", False),
+        },
+        "target_transform": {
+            "log1p_applied": applied_log_target,
+            "target_zero_ratio": float(zero_ratio),
+        },
+        "transform": {
+            "pipeline_path": str(pipeline_path),
+            "pipeline_info": pipeline.get_pipeline_info(),
+        },
+        "model": {
+            "type": model_type,
+            "params": model_params,
+            "model_path": str(model_path),
+        },
+        "artifacts": {
+            "feature_list": str(feature_list_path),
+            "metrics": str(metrics_path),
+        },
+        "feature_builder_config": feature_cfg,
+        "note": "Artifacts saved to Weather_Forcast_App/Machine_learning_artifacts/ensemble_average/latest",
+    }
+
+    train_info_path = artifacts_latest / "Train_info.json"
+    _save_json(train_info_path, train_info)
+
+    return train_info
+
+
+# ======================================================================================
+# CLI
+# ======================================================================================
+def main():
+    parser = argparse.ArgumentParser(description="Weather Forecast - Training Orchestrator")
+    parser.add_argument("--config", type=str, required=True, help="Path to train config (.json/.yml)")
+    args = parser.parse_args()
+
+    cfg_path = Path(args.config).expanduser().resolve()
+    config = _load_config(cfg_path)
+
+    info = run_training(config)
+
+    # print nhanh cho bạn nhìn log
+    print("=" * 80)
+    print("[OK] TRAIN DONE")
+    print("Artifacts:", (Path(info["model"]["model_path"]).parent))
+    print("Model:", info["model"]["model_path"])
+    print("Pipeline:", info["transform"]["pipeline_path"])
+    print("Metrics:", info["artifacts"]["metrics"])
+    print("Train info:", str(Path(info["model"]["model_path"]).parent / "Train_info.json"))
+    # Print diagnostics if available
+    try:
+        import json
+        with open(info["artifacts"]["metrics"], "r", encoding="utf-8") as f:
+            metrics = json.load(f)
+        diag = metrics.get("diagnostics", {})
+        print("-" * 80)
+        print(f"Overfit/Underfit status: {diag.get('overfit_status', 'N/A')}")
+        # Convert to ASCII-safe for Windows console
+        details_str = diag.get('overfit_details', '')
+        try:
+            print(f"Details: {details_str}")
+        except UnicodeEncodeError:
+            print(f"Details: {details_str.encode('ascii', 'replace').decode()}")
+        if "test" in metrics:
+            test_metrics = metrics["test"]
+            if "Rain_Accuracy" in test_metrics:
+                acc = test_metrics["Rain_Accuracy"]
+                print(f"Test Rain_Accuracy: {acc:.4f} ({acc*100:.2f}%)")
+            elif "RMSE" in test_metrics:
+                rmse = test_metrics["RMSE"]
+                print(f"Test RMSE: {rmse:.4f}")
+            elif "MAE" in test_metrics:
+                mae = test_metrics["MAE"]
+                print(f"Test MAE: {mae:.4f}")
+        print("-" * 80)
+    except Exception as e:
+        print(f"[Diagnostics] Could not print overfit/underfit/accuracy: {e}")
+    print("=" * 80)
+
+
+if __name__ == "__main__":
+    main()

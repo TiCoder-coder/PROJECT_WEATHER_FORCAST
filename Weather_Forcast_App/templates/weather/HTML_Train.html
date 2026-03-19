@@ -287,6 +287,111 @@
             </section>
             {% endif %}
 
+            <!-- ═══════ STACKING ENSEMBLE ARTIFACTS ═══════ -->
+            {% if stacking_artifacts.metrics %}
+            <section class="card card--artifacts stacking-artifacts-card" id="sectionStackingArtifacts">
+                <div class="card__header">
+                    <h2 class="card__title">🔥 {% t "train.stacking_results_title" %}</h2>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span class="pill pill--accent" style="font-size:0.7rem;">Stacking Ensemble</span>
+                        <button type="button" class="pill small" id="btnToggleStackingArtifacts">{% t "train.collapse" %}</button>
+                    </div>
+                </div>
+                <div class="artifacts-body" id="stackingArtifactsBody">
+                    <div class="metrics-grid">
+                        {% if stacking_artifacts.metrics.test %}
+                        <div class="metric-card metric-card--test">
+                            <div class="metric-card__label">TEST</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value metric-value--good">
+                                        {{ stacking_artifacts.metrics.test.R2|floatformat:4 }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ stacking_artifacts.metrics.test.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ stacking_artifacts.metrics.test.MAE|floatformat:4 }}</span>
+                                </div>
+                                {% if stacking_artifacts.metrics.test.Rain_Detection_Accuracy %}
+                                <div class="metric-item">
+                                    <span class="metric-name">Rain Acc</span>
+                                    <span class="metric-value metric-value--accent">
+                                        {{ stacking_artifacts.metrics.test.Rain_Detection_Accuracy|floatformat:4 }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if stacking_artifacts.metrics.train %}
+                        <div class="metric-card metric-card--train">
+                            <div class="metric-card__label">TRAIN</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">R²</span>
+                                    <span class="metric-value metric-value--good">
+                                        {{ stacking_artifacts.metrics.train.R2|floatformat:4 }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">RMSE</span>
+                                    <span class="metric-value">{{ stacking_artifacts.metrics.train.RMSE|floatformat:4 }}</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">MAE</span>
+                                    <span class="metric-value">{{ stacking_artifacts.metrics.train.MAE|floatformat:4 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if stacking_artifacts.metrics.diagnostics %}
+                        <div class="metric-card metric-card--diag">
+                            <div class="metric-card__label">DIAGNOSTICS</div>
+                            <div class="metric-card__items">
+                                <div class="metric-item">
+                                    <span class="metric-name">Generalization</span>
+                                    <span class="metric-value metric-badge
+                                        {% if stacking_artifacts.metrics.diagnostics.overfit_status == 'good' %}metric-badge--good
+                                        {% elif stacking_artifacts.metrics.diagnostics.overfit_status == 'overfit' %}metric-badge--warn
+                                        {% else %}metric-badge--bad{% endif %}">
+                                        {{ stacking_artifacts.metrics.diagnostics.overfit_status|upper }}
+                                    </span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-name">Quality</span>
+                                    <span class="metric-value metric-badge
+                                        {% if stacking_artifacts.metrics.diagnostics.model_quality == 'excellent' or stacking_artifacts.metrics.diagnostics.model_quality == 'good' %}metric-badge--good
+                                        {% elif stacking_artifacts.metrics.diagnostics.model_quality == 'fair' %}metric-badge--warn
+                                        {% else %}metric-badge--bad{% endif %}">
+                                        {{ stacking_artifacts.metrics.diagnostics.model_quality|upper }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="artifacts-meta">
+                        <span class="artifacts-meta__item">
+                            🕒 {% t "train.trained_at" %}: {{ stacking_artifacts.metrics.generated_at }}
+                        </span>
+                        {% if stacking_artifacts.model_exists %}
+                        <span class="artifacts-meta__item">
+                            💾 {% t "train.model_size" %}: {{ stacking_artifacts.model_size_mb }} MB
+                        </span>
+                        {% endif %}
+                        <span class="artifacts-meta__item" style="color:#fb923c;">
+                            🔥 Stacking Ensemble
+                        </span>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
             <!-- ═══════ BEST PARAMS (Optuna) ═══════ -->
             {% if best_params %}
             <section class="card card--artifacts" id="sectionBestParams">
@@ -429,14 +534,26 @@
                             </div>
 
                             <!-- Model Type -->
-                            <div class="form__group">
-                                <label class="form__label">{% t "train.model_type_label" %}</label>
-                                <select id="modelType" name="model_type" class="form__select">
+                            <div class="form__group form__group--full">
+                                <label class="form__label" for="modelTypeSelect">{% t "train.model_type_label" %}</label>
+                                <div class="model-recommend-hint">
+                                    {% t "train.model_recommend" %}
+                                </div>
+                                <div class="model-dropdown-wrapper">
+                                    <select id="modelTypeSelect" name="model_type" class="form__select model-dropdown">
+                                        {% for mt in model_types %}
+                                        <option value="{{ mt.value }}"
+                                                {% if mt.value == "ensemble" %}selected{% endif %}
+                                                data-icon="{% if mt.value == 'stacking_ensemble' %}🔥{% elif mt.value == 'ensemble' %}⭐{% elif mt.value == 'xgboost' %}🌳{% elif mt.value == 'lightgbm' %}⚡{% elif mt.value == 'catboost' %}🐱{% else %}🌲{% endif %}">
+                                            {% if mt.value == "stacking_ensemble" %}🔥🏆 {{ mt.label }} — {% t "train.model_badge_best" %}{% elif mt.value == "ensemble" %}⭐ {{ mt.label }} — {% t "train.model_badge_fast" %}{% else %}{% if mt.value == "xgboost" %}🌳{% elif mt.value == "lightgbm" %}⚡{% elif mt.value == "catboost" %}🐱{% else %}🌲{% endif %} {{ mt.label }}{% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <!-- Hidden select for backward compatibility -->
+                                <select id="modelType" name="model_type_sel" class="form__select" style="display:none;">
                                     {% for mt in model_types %}
-                                    <option value="{{ mt.value }}"
-                                        {% if mt.value == "ensemble" %}selected{% endif %}>
-                                        {{ mt.label }}
-                                    </option>
+                                    <option value="{{ mt.value }}">{{ mt.label }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -469,6 +586,44 @@
                                        class="form__input" value="24" step="1" min="0" max="168"
                                        placeholder="{% t 'train.forecast_horizon_placeholder' %}">
                                 <span class="form__hint">{% t "train.forecast_horizon_hint" %}</span>
+                            </div>
+                        </div>
+
+                        <!-- ═══ STACKING ENSEMBLE CONFIG PANEL ═══ -->
+                        <div id="stackingParamsPanel" class="stacking-params-panel" style="display:none;">
+                            <div class="stacking-params-header">
+                                <span class="stacking-params-header__icon">🔥</span>
+                                <span>{% t "train.stacking_section_title" %}</span>
+                            </div>
+                            <div class="stacking-params-grid">
+                                <div class="form__group">
+                                    <label class="form__label">{% t "train.stacking_n_splits_label" %}</label>
+                                    <input type="number" id="stackingNSplits" class="form__input"
+                                           value="5" min="2" max="10" step="1">
+                                    <span class="form__hint">{% t "train.stacking_n_splits_hint" %}</span>
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">{% t "train.stacking_predict_threshold_label" %}</label>
+                                    <input type="number" id="stackingPredictThreshold" class="form__input"
+                                           value="0.40" step="0.01" min="0.10" max="0.90">
+                                    <span class="form__hint">{% t "train.stacking_predict_threshold_hint" %}</span>
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">{% t "train.stacking_rain_threshold_label" %}</label>
+                                    <input type="number" id="stackingRainThreshold" class="form__input"
+                                           value="0.10" step="0.01" min="0.00" max="5.00">
+                                    <span class="form__hint">{% t "train.stacking_rain_threshold_hint" %}</span>
+                                </div>
+                                <div class="form__group">
+                                    <label class="form__label">{% t "train.stacking_seed_label" %}</label>
+                                    <input type="number" id="stackingSeed" class="form__input"
+                                           value="42" min="0" max="99999">
+                                    <span class="form__hint">{% t "train.stacking_seed_hint" %}</span>
+                                </div>
+                            </div>
+                            <div class="stacking-info-box">
+                                <strong>{% t "train.stacking_explain_title" %}</strong>
+                                <p>{% t "train.stacking_explain_p1" %}</p>
                             </div>
                         </div>
 

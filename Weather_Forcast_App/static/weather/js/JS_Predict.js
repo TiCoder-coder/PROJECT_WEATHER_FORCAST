@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const $btnRefresh    = document.getElementById('btnRefreshDatasets');
   const $btnToggleRecent = document.getElementById('btnToggleRecent');
 
+  /* ── Model type selector (dropdown) ── */
+  const $predictModelTypeSelect = document.getElementById('predictModelTypeSelect');
+  function getSelectedPredictModelType() {
+    return $predictModelTypeSelect ? $predictModelTypeSelect.value : 'auto';
+  }
+
   const $sectionLogs  = document.getElementById('sectionLogs');
   const $logPre       = document.getElementById('logPre');
   const $progressFill = document.getElementById('progressFill');
@@ -177,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('filename', filename);
       const nrows = document.getElementById('nrowsDataset')?.value || '0';
       formData.append('nrows', nrows);
+      formData.append('model_type', getSelectedPredictModelType());
 
       await submitPrediction(formData, $btnRunDataset);
     });
@@ -198,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('file', $fileInput.files[0]);
       const nrows = document.getElementById('nrowsUpload')?.value || '0';
       formData.append('nrows', nrows);
+      formData.append('model_type', getSelectedPredictModelType());
 
       await submitPrediction(formData, $btnRunUpload);
     });
@@ -267,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════
   if ($btnForecastNow) {
     $btnForecastNow.addEventListener('click', async () => {
-      await submitPredictionToUrl('/predict/forecast-now/', {}, $btnForecastNow, true);
+      await submitPredictionToUrl('/predict/forecast-now/', { model_type: getSelectedPredictModelType() }, $btnForecastNow, true);
     });
   }
 
@@ -315,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'Content-Type': 'application/json',
             'X-CSRFToken': CSRF,
           },
-          body: JSON.stringify({ rows: [row] }),
+          body: JSON.stringify({ rows: [row], model_type: getSelectedPredictModelType() }),
         });
 
         const data = await resp.json();
@@ -493,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'rain_total': 'Mưa thực tế',
       'status': 'Trạng thái',
       'y_pred': 'Dự báo (y_pred)',
+      'n_rows': 'Số mẫu',
       'forecast_for': 'Thời gian dự báo',
       'data_collected_at': 'Thu thập lúc',
     };
@@ -511,10 +520,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const val = row[c] !== undefined ? row[c] : '';
           const cls = c === 'y_pred' ? ' class="td-pred"'
             : c === 'status' ? ` class="${val === 'Mưa' ? 'td-rain' : 'td-ok'}"`
+            : c === 'n_rows' ? ' class="td-nrows"'
             : '';
           if (c === 'status') {
             const badge = val === 'Mưa' ? 'badge--rain' : 'badge--ok';
             return `<td><span class="badge ${badge}">${escHtml(String(val))}</span></td>`;
+          }
+          if (c === 'n_rows') {
+            return `<td class="td-nrows"><span class="badge badge--count">${escHtml(String(val))}</span></td>`;
           }
           return `<td${cls}>${escHtml(String(val))}</td>`;
         }).join('') + '</tr>'

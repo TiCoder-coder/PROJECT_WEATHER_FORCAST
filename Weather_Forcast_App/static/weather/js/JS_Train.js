@@ -22,10 +22,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════════
   // DOM refs
   // ═══════════════════════════════════════════════
-  const $folderKey     = document.getElementById('folderKey');
-  const $fileName      = document.getElementById('fileName');
-  const $modelType     = document.getElementById('modelType');
-  const $targetColumn  = document.getElementById('targetColumn');
+  const $folderKey           = document.getElementById('folderKey');
+  const $fileName            = document.getElementById('fileName');
+  const $modelType           = document.getElementById('modelType'); // hidden select (kept for compat)
+  const $modelTypeSelect     = document.getElementById('modelTypeSelect'); // visible dropdown
+  const $stackingParamsPanel = document.getElementById('stackingParamsPanel');
+  const $targetColumn        = document.getElementById('targetColumn');
+
+  // ─── Model dropdown helper ──────────────────────────────────
+  function getSelectedModelType() {
+    return $modelTypeSelect ? $modelTypeSelect.value : 'ensemble';
+  }
+
+  // Keep hidden select in sync with dropdown (for forms that still look at #modelType)
+  function syncModelTypeSelect(val) {
+    if ($modelType) $modelType.value = val;
+  }
+
+  // Show / hide stacking params panel
+  function updateStackingPanel() {
+    const v = getSelectedModelType();
+    if ($stackingParamsPanel) {
+      $stackingParamsPanel.style.display = (v === 'stacking_ensemble') ? '' : 'none';
+    }
+  }
+
+  // Attach change handler to the model dropdown
+  if ($modelTypeSelect) {
+    $modelTypeSelect.addEventListener('change', () => {
+      const v = getSelectedModelType();
+      syncModelTypeSelect(v);
+      updateStackingPanel();
+    });
+  }
+
+  // Initial state
+  updateStackingPanel();
+  syncModelTypeSelect(getSelectedModelType());
   const $testSize      = document.getElementById('testSize');
   const $validSize     = document.getElementById('validSize');
   const $useDefault    = document.getElementById('useDefaultConfig');
@@ -127,6 +160,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Stacking artifacts toggle
+  const $btnToggleStacking = document.getElementById('btnToggleStackingArtifacts');
+  const $stackingArtifactsBody = document.getElementById('stackingArtifactsBody');
+  if ($btnToggleStacking && $stackingArtifactsBody) {
+    $btnToggleStacking.addEventListener('click', () => {
+      const hidden = $stackingArtifactsBody.style.display === 'none';
+      $stackingArtifactsBody.style.display = hidden ? '' : 'none';
+      $btnToggleStacking.textContent = hidden ? 'Thu gọn' : 'Mở rộng';
+    });
+  }
+
+  // BestParams toggle
+  const $btnToggleBestParams = document.getElementById('btnToggleBestParams');
+  const $bestParamsBody = document.getElementById('bestParamsBody');
+  if ($btnToggleBestParams && $bestParamsBody) {
+    $btnToggleBestParams.addEventListener('click', () => {
+      const hidden = $bestParamsBody.style.display === 'none';
+      $bestParamsBody.style.display = hidden ? '' : 'none';
+      $btnToggleBestParams.textContent = hidden ? 'Thu gọn' : 'Mở rộng';
+    });
+  }
+
   // ═══════════════════════════════════════════════
   // Submit train
   // ═══════════════════════════════════════════════
@@ -157,10 +212,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         // Quick config
+        const selectedModel = getSelectedModelType();
         body = {
           folder_key: $folderKey?.value || '',
           filename: $fileName?.value || '',
-          model_type: $modelType?.value || 'ensemble',
+          model_type: selectedModel,
           target_column: $targetColumn?.value || 'rain_total',
           test_size: parseFloat($testSize?.value || 0.15),
           valid_size: parseFloat($validSize?.value || 0.15),
@@ -169,6 +225,13 @@ document.addEventListener('DOMContentLoaded', () => {
           forecast_horizon: parseInt(document.getElementById('forecastHorizon')?.value || 24, 10),
           use_default_config: $useDefault?.checked || false,
         };
+        // Stacking-specific params
+        if (selectedModel === 'stacking_ensemble') {
+          body.stacking_n_splits = parseInt(document.getElementById('stackingNSplits')?.value || 5, 10);
+          body.stacking_predict_threshold = parseFloat(document.getElementById('stackingPredictThreshold')?.value || 0.40);
+          body.stacking_rain_threshold = parseFloat(document.getElementById('stackingRainThreshold')?.value || 0.10);
+          body.stacking_seed = parseInt(document.getElementById('stackingSeed')?.value || 42, 10);
+        }
       }
 
       if (!body.folder_key && !body.data?.folder_key) {
@@ -288,8 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch & hiển thị kết quả sau khi train/tune xong
   // ═══════════════════════════════════════════════
   async function fetchAndShowArtifacts() {
+    // Determine which artifact endpoint to query based on lastly selected model
+    const lastModel = getSelectedModelType();
+    const isStacking = lastModel === 'stacking_ensemble';
+    const artifactUrl = isStacking ? '/train/artifacts/?type=stacking' : '/train/artifacts/';
     try {
-      const resp = await fetch('/train/artifacts/');
+      const resp = await fetch(artifactUrl);
       const data = await resp.json();
       if (!data.ok || !data.artifacts || !data.artifacts.metrics) return;
 
@@ -358,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const html = `
         <div class="card__header">
-          <h2 class="card__title">📊 Kết quả huấn luyện</h2>
+          <h2 class="card__title">${isStacking ? '🔥 Kết quả Stacking Ensemble' : '📊 Kết quả huấn luyện'}</h2>
         </div>
         <div class="artifacts-body">
           <div class="metrics-grid">
@@ -369,17 +436,19 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="artifacts-meta" style="margin-top:12px">
             <span class="artifacts-meta__item">🕒 Trained at: ${m.generated_at || ''}</span>
-            <span class="artifacts-meta__item">🤖 Model: ${(m.model_type || '').toUpperCase()}</span>
+            <span class="artifacts-meta__item">🤖 Model: ${isStacking ? 'STACKING ENSEMBLE' : (m.model_type || '').toUpperCase()}</span>
             ${a.model_exists ? `<span class="artifacts-meta__item">💾 Size: ${a.model_size_mb} MB</span>` : ''}
           </div>
         </div>`;
 
       // Cập nhật hoặc tạo section artifacts
-      let $section = document.getElementById('sectionArtifacts');
+      const sectionId = isStacking ? 'sectionStackingArtifacts' : 'sectionArtifacts';
+      const sectionClass = isStacking ? 'card card--artifacts stacking-artifacts-card' : 'card card--artifacts';
+      let $section = document.getElementById(sectionId);
       if (!$section) {
         $section = document.createElement('section');
-        $section.id = 'sectionArtifacts';
-        $section.className = 'card card--artifacts';
+        $section.id = sectionId;
+        $section.className = sectionClass;
         // Chèn ngay sau section logs
         const $logs = document.getElementById('sectionLogs');
         if ($logs && $logs.parentNode) {
@@ -406,7 +475,21 @@ document.addEventListener('DOMContentLoaded', () => {
     $btnReset.addEventListener('click', () => {
       if ($folderKey) $folderKey.value = '';
       if ($fileName) $fileName.innerHTML = '<option value="">-- Chọn thư mục trước --</option>';
-      if ($modelType) $modelType.value = 'ensemble';
+      // Reset model dropdown to ensemble
+      if ($modelTypeSelect) {
+        $modelTypeSelect.value = 'ensemble';
+        syncModelTypeSelect('ensemble');
+        updateStackingPanel();
+      }
+      // Reset stacking panel inputs
+      const $nSplits = document.getElementById('stackingNSplits');
+      const $pThresh = document.getElementById('stackingPredictThreshold');
+      const $rThresh = document.getElementById('stackingRainThreshold');
+      const $seed    = document.getElementById('stackingSeed');
+      if ($nSplits) $nSplits.value = '5';
+      if ($pThresh) $pThresh.value = '0.40';
+      if ($rThresh) $rThresh.value = '0.10';
+      if ($seed)    $seed.value    = '42';
       if ($targetColumn) $targetColumn.value = 'rain_total';
       if ($testSize) $testSize.value = '0.15';
       if ($validSize) $validSize.value = '0.15';

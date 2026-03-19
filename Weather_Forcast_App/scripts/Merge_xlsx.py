@@ -25,10 +25,10 @@ MERGE_DIR_ABS = str(Path(_PROJECT_ROOT) / "data" / "data_merge")
 OUTPUT_DIR_ABS = str(Path(_PROJECT_ROOT) / "data" / "data_crawl")
 
 # Tên file output sau khi merge cho nhóm "khác" (không phải vietnam_weather_)
-MERGE_FILENAME = "merged_vrain_data.xlsx"
+MERGE_FILENAME = "merged_vrain_data.csv"
 
 # Tên file output sau khi merge cho nhóm vietnam_weather_
-MERGE_VIETNAM_FILENAME = "merged_vietnam_weather_data.xlsx"
+MERGE_VIETNAM_FILENAME = "merged_vietnam_weather_data.csv"
 
 # Log file dùng để lưu danh sách tên file đã merge (tránh merge lại lần sau)
 LOG_FILENAME = "merged_files_log.txt"
@@ -355,7 +355,32 @@ def get_new_data_files(output_dir: Path, processed_files: set[str]) -> tuple[lis
     return vietnam_files, other_files
 
 
-def merge_single_category_fast(
+def _migrate_xlsx_to_csv(xlsx_path: Path, csv_path: Path) -> None:
+    # ============================================================
+    # MIGRATION MỘT LẦN: XLSX CŨ -> CSV MỚI
+    # ============================================================
+    # Chỉ chạy khi upgrade lên streaming mode lần đầu:
+    # - xlsx cũ tồn tại, csv mới chưa có
+    # Sau bước này csv là master file, xlsx không dùng nữa.
+    print(f"  [Migration] Chuyen {xlsx_path.name} -> {csv_path.name} ...")
+    try:
+        old_df = pd.read_excel(xlsx_path, engine="openpyxl")
+        old_df.columns = [
+            COLUMN_SCHEMA_MAPPING.get(norm_col(c), norm_col(c))
+            for c in old_df.columns
+        ]
+        for c in MASTER_COLUMNS:
+            if c not in old_df.columns:
+                old_df[c] = pd.NA
+        final_cols = [c for c in MASTER_COLUMNS if c in old_df.columns]
+        old_df[final_cols].to_csv(csv_path, index=False, encoding="utf-8-sig")
+        print(f"  [Migration] Xong. {len(old_df)} dong -> {csv_path.name}")
+        del old_df
+    except Exception as e:
+        print(f"  [Migration] Loi: {e}. Se tao CSV moi tu dau.")
+
+
+def merge_single_category_streaming(
     file_list: list[Path],
     merge_path: Path,
     log_path: Path,
@@ -363,30 +388,37 @@ def merge_single_category_fast(
     category_name: str,
 ) -> None:
     # ============================================================
-    # MERGE 1 NHÓM FILE BẰNG PANDAS (NHANH)
+    # MERGE STREAMING: ĐỌC TỪNG FILE → GHI NGAY → GIẢI PHÓNG RAM
     # ============================================================
+    # Khác với phiên bản cũ (load toàn bộ vào RAM rồi mới ghi),
+    # phiên bản này xử lý từng file độc lập:
+    #   1) Đọc 1 file nguồn
+    #   2) Clean + chuẩn hóa cột
+    #   3) Append ngay vào CSV master (không cần đọc CSV cũ)
+    #   4) Xóa DataFrame khỏi RAM
+    #   5) Lặp lại cho file tiếp theo
+    #
+    # Kết quả: RAM tại bất kỳ thời điểm nào chỉ chứa ~1 file nguồn,
+    # không phụ thuộc kích thước dữ liệu đã tích lũy.
     if not file_list:
         print(f"Khong co file {category_name} moi de merge.")
         return
 
-    print(f"\n=== MERGE NHANH: {category_name.upper()} ===")
+    print(f"\n=== MERGE STREAMING: {category_name.upper()} ===")
     print(f"So luong file moi: {len(file_list)}")
-    print(f"File merge: {merge_path}")
+    print(f"File master (CSV): {merge_path}")
 
-    # 1) Đọc file merge hiện có (nếu tồn tại)
-    existing_df = pd.DataFrame()
-    if merge_path.exists():
-        try:
-            existing_df = pd.read_excel(merge_path, engine="openpyxl")
-            existing_df.columns = [COLUMN_SCHEMA_MAPPING.get(norm_col(c), norm_col(c)) for c in existing_df.columns]
-            print(f"  File merge hien co: {len(existing_df)} dong")
-        except Exception as e:
-            print(f"  Loi doc file merge cu: {e}, se tao moi.")
-            existing_df = pd.DataFrame()
+    # Migration một lần: nếu file xlsx cũ tồn tại mà csv chưa có
+    xlsx_legacy = merge_path.with_suffix(".xlsx")
+    if xlsx_legacy.exists() and not merge_path.exists():
+        _migrate_xlsx_to_csv(xlsx_legacy, merge_path)
 
-    # 2) Đọc từng file mới → clean → collect
-    new_dfs = []
+    # header_written: True nếu CSV đã tồn tại (có header rồi)
+    header_written = merge_path.exists()
+
     ok_files = []
+    total_new_rows = 0
+
     for idx, file_path in enumerate(sorted(file_list), start=1):
         print(f"  [{idx}/{len(file_list)}] Doc: {file_path.name}", end=" ")
         df = read_data_file(file_path)
@@ -394,36 +426,37 @@ def merge_single_category_fast(
             print("-> rong, bo qua.")
             continue
         df = clean_dataframe(df)
-        new_dfs.append(df)
-        ok_files.append(file_path)
-        print(f"-> {len(df)} dong")
 
-    if not new_dfs:
+        # Chuẩn hóa cột theo MASTER_COLUMNS
+        for c in MASTER_COLUMNS:
+            if c not in df.columns:
+                df[c] = pd.NA
+        df = df[[c for c in MASTER_COLUMNS if c in df.columns]]
+
+        # Ghi ngay vào CSV (append mode) – không cần load file cũ
+        df.to_csv(
+            merge_path,
+            mode="a",
+            header=not header_written,
+            index=False,
+            encoding="utf-8-sig",
+        )
+        header_written = True
+
+        ok_files.append(file_path)
+        rows = len(df)
+        total_new_rows += rows
+        del df  # giải phóng RAM ngay sau khi ghi
+        print(f"-> {rows} dong [da ghi]")
+
+    if not ok_files:
         print(f"  Khong co du lieu moi de merge cho {category_name}.")
         return
 
-    # 3) Concat tất cả
-    all_new = pd.concat(new_dfs, ignore_index=True)
-    print(f"  Tong dong moi: {len(all_new)}")
+    print(f"  Tong dong moi da ghi: {total_new_rows}")
+    print(f"  File master: {merge_path}")
 
-    if not existing_df.empty:
-        merged = pd.concat([existing_df, all_new], ignore_index=True)
-    else:
-        merged = all_new
-
-    # 4) Chuẩn hóa cột theo MASTER_COLUMNS
-    for c in MASTER_COLUMNS:
-        if c not in merged.columns:
-            merged[c] = pd.NA
-    # Giữ đúng thứ tự MASTER_COLUMNS + các cột thừa (nếu có)
-    final_cols = [c for c in MASTER_COLUMNS if c in merged.columns]
-    merged = merged[final_cols]
-
-    # 5) Ghi ra file 1 lần (nhanh hơn row-by-row rất nhiều)
-    merged.to_excel(merge_path, index=False, engine="openpyxl")
-    print(f"  Da ghi {len(merged)} dong vao {merge_path.name}")
-
-    # 6) Cập nhật log
+    # Cập nhật log
     for fp in ok_files:
         processed_files.add(fp.name)
     save_processed_files(log_path, processed_files)
@@ -471,7 +504,7 @@ def merge_excel_files_once(base_dir: Path) -> None:
     vietnam_files, other_files = get_new_data_files(output_dir, processed_all)
 
     # Merge nhóm vietnam_weather_
-    merge_single_category_fast(
+    merge_single_category_streaming(
         vietnam_files,
         merge_vietnam_path,
         log_vietnam_path,
@@ -480,7 +513,7 @@ def merge_excel_files_once(base_dir: Path) -> None:
     )
 
     # Merge nhóm còn lại
-    merge_single_category_fast(
+    merge_single_category_streaming(
         other_files,
         merge_other_path,
         log_other_path,

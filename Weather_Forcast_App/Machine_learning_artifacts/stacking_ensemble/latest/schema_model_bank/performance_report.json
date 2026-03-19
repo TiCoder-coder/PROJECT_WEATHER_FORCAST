@@ -1,0 +1,347 @@
+{
+  "trained_at": "2026-03-20 00:28:13",
+  "n_train": 289132,
+  "n_rainy": 154771,
+  "cls_models": [
+    "xgb_cls",
+    "rf_cls",
+    "cat_cls",
+    "lgbm_cls"
+  ],
+  "reg_models": [
+    "xgb_reg",
+    "rf_reg",
+    "cat_reg",
+    "lgbm_reg"
+  ],
+  "schema_entries": {
+    "rain_intensity/no_rain": {
+      "schema_type": "rain_intensity",
+      "schema_key": "no_rain",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": null,
+      "cls_scores": {
+        "xgb_cls": 0.0,
+        "rf_cls": 0.0,
+        "cat_cls": 0.0,
+        "lgbm_cls": 0.0
+      },
+      "reg_scores": {},
+      "n_samples_cls": 107136,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "rain_intensity/light": {
+      "schema_type": "rain_intensity",
+      "schema_key": "light",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.7867,
+        "rf_cls": 0.7315,
+        "cat_cls": 0.7628,
+        "lgbm_cls": 0.7859
+      },
+      "reg_scores": {
+        "xgb_reg": 0.5283,
+        "rf_reg": 0.6194,
+        "cat_reg": 0.5822,
+        "lgbm_reg": 0.5308
+      },
+      "n_samples_cls": 181996,
+      "n_samples_reg": 154771,
+      "note": ""
+    },
+    "season/rainy_season": {
+      "schema_type": "season",
+      "schema_key": "rainy_season",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "lgbm_reg",
+      "cls_scores": {
+        "xgb_cls": 0.8979,
+        "rf_cls": 0.835,
+        "cat_cls": 0.8734,
+        "lgbm_cls": 0.8975
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4904,
+        "rf_reg": 0.6062,
+        "cat_reg": 0.5592,
+        "lgbm_reg": 0.488
+      },
+      "n_samples_cls": 128500,
+      "n_samples_reg": 69763,
+      "note": "approximate từ fold temporal order (mới hơn=rainy, cũ hơn=dry)"
+    },
+    "season/dry_season": {
+      "schema_type": "season",
+      "schema_key": "dry_season",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.8768,
+        "rf_cls": 0.8286,
+        "cat_cls": 0.8639,
+        "lgbm_cls": 0.8744
+      },
+      "reg_scores": {
+        "xgb_reg": 0.5062,
+        "rf_reg": 0.5917,
+        "cat_reg": 0.5554,
+        "lgbm_reg": 0.5141
+      },
+      "n_samples_cls": 128500,
+      "n_samples_reg": 69484,
+      "note": "approximate từ fold temporal order (mới hơn=rainy, cũ hơn=dry)"
+    },
+    "time_fold/fold_0": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_0",
+      "best_cls_model": "cat_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.7965,
+        "rf_cls": 0.7823,
+        "cat_cls": 0.8028,
+        "lgbm_cls": 0.7908
+      },
+      "reg_scores": {
+        "xgb_reg": 0.6358,
+        "rf_reg": 0.6558,
+        "cat_reg": 0.6525,
+        "lgbm_reg": 0.6396
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_1": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_1",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.8294,
+        "rf_cls": 0.7734,
+        "cat_cls": 0.8277,
+        "lgbm_cls": 0.8253
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4981,
+        "rf_reg": 0.5645,
+        "cat_reg": 0.5126,
+        "lgbm_reg": 0.5038
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_2": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_2",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.924,
+        "rf_cls": 0.8582,
+        "cat_cls": 0.9041,
+        "lgbm_cls": 0.9216
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4148,
+        "rf_reg": 0.5147,
+        "cat_reg": 0.4725,
+        "lgbm_reg": 0.4242
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_3": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_3",
+      "best_cls_model": "lgbm_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.9474,
+        "rf_cls": 0.8898,
+        "cat_cls": 0.9199,
+        "lgbm_cls": 0.9499
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4363,
+        "rf_reg": 0.6002,
+        "cat_reg": 0.5504,
+        "lgbm_reg": 0.4495
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_4": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_4",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.8852,
+        "rf_cls": 0.8365,
+        "cat_cls": 0.8673,
+        "lgbm_cls": 0.8848
+      },
+      "reg_scores": {
+        "xgb_reg": 0.5502,
+        "rf_reg": 0.6312,
+        "cat_reg": 0.5974,
+        "lgbm_reg": 0.5516
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_5": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_5",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "lgbm_reg",
+      "cls_scores": {
+        "xgb_cls": 0.8896,
+        "rf_cls": 0.8218,
+        "cat_cls": 0.8647,
+        "lgbm_cls": 0.889
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4873,
+        "rf_reg": 0.608,
+        "cat_reg": 0.5719,
+        "lgbm_reg": 0.486
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_6": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_6",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "lgbm_reg",
+      "cls_scores": {
+        "xgb_cls": 0.909,
+        "rf_cls": 0.8247,
+        "cat_cls": 0.873,
+        "lgbm_cls": 0.9089
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4175,
+        "rf_reg": 0.5556,
+        "cat_reg": 0.5025,
+        "lgbm_reg": 0.4171
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "time_fold/fold_7": {
+      "schema_type": "time_fold",
+      "schema_key": "fold_7",
+      "best_cls_model": "lgbm_cls",
+      "best_reg_model": "lgbm_reg",
+      "cls_scores": {
+        "xgb_cls": 0.91,
+        "rf_cls": 0.8575,
+        "cat_cls": 0.889,
+        "lgbm_cls": 0.9104
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4995,
+        "rf_reg": 0.626,
+        "cat_reg": 0.5592,
+        "lgbm_reg": 0.4897
+      },
+      "n_samples_cls": 32125,
+      "n_samples_reg": 0,
+      "note": ""
+    },
+    "overall/fallback": {
+      "schema_type": "overall",
+      "schema_key": "fallback",
+      "best_cls_model": "xgb_cls",
+      "best_reg_model": "xgb_reg",
+      "cls_scores": {
+        "xgb_cls": 0.8044,
+        "rf_cls": 0.7533,
+        "cat_cls": 0.7874,
+        "lgbm_cls": 0.8032
+      },
+      "reg_scores": {
+        "xgb_reg": 0.4968,
+        "rf_reg": 0.5976,
+        "cat_reg": 0.556,
+        "lgbm_reg": 0.4995
+      },
+      "n_samples_cls": 289132,
+      "n_samples_reg": 154771,
+      "note": "Average across all schema slices"
+    }
+  },
+  "routing": {
+    "overall": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    },
+    "rain_intensity": {
+      "no_rain": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "light": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      }
+    },
+    "season": {
+      "rainy_season": {
+        "cls": "xgb_cls",
+        "reg": "lgbm_reg"
+      },
+      "dry_season": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      }
+    },
+    "time_fold": {
+      "fold_0": {
+        "cls": "cat_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_1": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_2": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_3": {
+        "cls": "lgbm_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_4": {
+        "cls": "xgb_cls",
+        "reg": "xgb_reg"
+      },
+      "fold_5": {
+        "cls": "xgb_cls",
+        "reg": "lgbm_reg"
+      },
+      "fold_6": {
+        "cls": "xgb_cls",
+        "reg": "lgbm_reg"
+      },
+      "fold_7": {
+        "cls": "lgbm_cls",
+        "reg": "lgbm_reg"
+      }
+    }
+  }
+}

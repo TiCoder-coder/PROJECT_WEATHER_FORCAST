@@ -51,7 +51,10 @@ Thư mục này chứa toàn bộ mã nguồn, config, model, pipeline, và test
 - **Test/Benchmark**: Có module TEST để kiểm thử, benchmark, validate pipeline.
 
 ### 5. Kỹ thuật lưu trữ & quản lý artifacts
-- **Chuẩn hóa artifacts**: Lưu toàn bộ model, pipeline, metrics, train_info về `Machine_learning_artifacts/latest`.
+- **Chuẩn hóa artifacts**: Lưu toàn bộ model, pipeline, metrics, train_info về `Machine_learning_artifacts/<model_type>/latest/`.
+  - `ensemble_average/latest/` — Ensemble Average (soft voting)
+  - `stacking_ensemble/latest/` — Stacking Ensemble (2-stage OOF, GOOD FIT)
+- **Không commit** file `.pkl` lên git. Dùng `.gitignore`.
 - **Dễ dàng backup, mở rộng, load lại cho inference/API/UI.**
 
 ---

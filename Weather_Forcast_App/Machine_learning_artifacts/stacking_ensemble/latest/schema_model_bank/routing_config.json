@@ -1,0 +1,60 @@
+{
+  "overall": {
+    "cls": "xgb_cls",
+    "reg": "xgb_reg"
+  },
+  "rain_intensity": {
+    "no_rain": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    },
+    "light": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    }
+  },
+  "season": {
+    "rainy_season": {
+      "cls": "xgb_cls",
+      "reg": "lgbm_reg"
+    },
+    "dry_season": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    }
+  },
+  "time_fold": {
+    "fold_0": {
+      "cls": "cat_cls",
+      "reg": "xgb_reg"
+    },
+    "fold_1": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    },
+    "fold_2": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    },
+    "fold_3": {
+      "cls": "lgbm_cls",
+      "reg": "xgb_reg"
+    },
+    "fold_4": {
+      "cls": "xgb_cls",
+      "reg": "xgb_reg"
+    },
+    "fold_5": {
+      "cls": "xgb_cls",
+      "reg": "lgbm_reg"
+    },
+    "fold_6": {
+      "cls": "xgb_cls",
+      "reg": "lgbm_reg"
+    },
+    "fold_7": {
+      "cls": "lgbm_cls",
+      "reg": "lgbm_reg"
+    }
+  }
+}
