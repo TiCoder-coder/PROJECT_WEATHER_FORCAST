@@ -1,0 +1,447 @@
+﻿station_id,station_name,province,district,rain_total,status,timestamp,data_time
+3cc45c21c1db,Lương Sơn,Thái Nguyên,phường Bách Quang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+35fc26eaa42a,Phú Đình,Thái Nguyên,xã Phú Đình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+72e7af127750,Tân Linh,Thái Nguyên,xã Phú Lạc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8749dfee2c73,Hóa Thượng,Thái Nguyên,xã Đồng Hỷ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+94972a4fd97c,Phú Lạc,Thái Nguyên,xã Phú Lạc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0df8d2601e60,Linh Thông,Thái Nguyên,xã Lam Vỹ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b60cf03bf302,Phúc Lương,Thái Nguyên,xã Đức Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+936406978e3a,Bằng Lũng,Thái Nguyên,xã Chợ Đồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0f14ac16dd69,Minh Tiến,Thái Nguyên,xã Đức Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a60c4dbcd267,Thượng Đình,Thái Nguyên,xã Điềm Thụy,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+23f6c580ba39,Bảo Linh,Thái Nguyên,xã Định Hóa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0faa7880cfd3,Than Khánh Hòa,Thái Nguyên,phường Quan Triều,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3142e1891d8e,Quy Kỳ,Thái Nguyên,xã Kim Phượng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4d41f5f8ca59,Cúc Đường,Thái Nguyên,xã La Hiên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a03399dcb401,Thanh Định,Thái Nguyên,xã Bình Yên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d41e682d88da,Thượng Nung,Thái Nguyên,xã Thần Sa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+cd6ecdd6022a,Liên Minh,Thái Nguyên,xã Tràng Xá,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6a9743e519d5,Yên Lãng,Thái Nguyên,xã Phú Xuyên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4d6570422c46,Tân Long,Thái Nguyên,xã Quang Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c372ee28441a,Mỹ Yên,Thái Nguyên,xã Đại Từ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b8f790510c6b,Lam Vỹ,Thái Nguyên,xã Lam Vỹ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d447b8de1fa9,Phú Tiến,Thái Nguyên,xã Trung Hội,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1439eebd5306,Khang Ninh,Thái Nguyên,xã Ba Bể,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8ab00965885c,Nam Hòa,Thái Nguyên,xã Nam Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7f1e94a3a72b,Hợp Tiến,Thái Nguyên,xã Trại Cau,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+03743cbdd0df,Hoàng Nông,Thái Nguyên,xã La Bằng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fe72386ac073,Bộc Nhiêu,Thái Nguyên,xã Trung Hội,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+70732afe2e83,Tân Khánh,Thái Nguyên,xã Tân Khánh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+397c5356bc67,Trại Cau,Thái Nguyên,xã Trại Cau,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4d543fd6e526,Sông Cầu,Thái Nguyên,xã Đồng Hỷ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+807c4f6ffdcb,Bình Thành,Thái Nguyên,xã Bình Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+639afc983451,Bình Sơn,Thái Nguyên,xã Tân Cương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+28aff7fd1350,Văn Hán,Thái Nguyên,xã Văn Hán,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5ecbccce551a,Yên Đổ,Thái Nguyên,xã Yên Trạch,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6e9511aa3003,Cù Vân,Thái Nguyên,xã An Khánh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a54256573c22,Phương Giao,Thái Nguyên,xã Dân Tiến,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+60136415faf4,Đồng Quang,Thái Nguyên,phường Phan Đình Phùng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+700c8b9ff685,Tràng Xá,Thái Nguyên,xã Tràng Xá,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0eff4ee90af3,Lương Phú,Thái Nguyên,xã Kha Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+094d7d1a8c8e,Trung Hội,Thái Nguyên,xã Trung Hội,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0d74f2d300ca,Bình Long,Thái Nguyên,xã Dân Tiến,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+109303db3c40,Tân Thành,Thái Nguyên,xã Tân Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+cb6e07a2aff0,Nghinh Tường,Thái Nguyên,xã Nghinh Tường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1fce6ae4551c,Thị trấn Chợ Chu,Thái Nguyên,xã Định Hóa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ac17f69e9adc,Sông Công,Thái Nguyên,phường Sông Công,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4a54914d0ea5,Phúc Lộc,Thái Nguyên,xã Phúc Lộc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a292f13998e4,Thượng Quan PCTT,Thái Nguyên,xã Thượng Quan,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f3a6d6223ec5,Thị trấn Quân Chu,Thái Nguyên,xã Quân Chu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2a0c17b9db60,Thần Sa,Thái Nguyên,xã Thần Sa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+20c36608aed8,Yên Lạc PCTT,Thái Nguyên,xã Phú Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7879a7f7ad67,Tân Thái,Thái Nguyên,xã Đại Phúc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+938596a7b79f,Dân Tiến,Thái Nguyên,xã Dân Tiến,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5f98b4193e20,Hà Châu,Thái Nguyên,xã Điềm Thụy,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5aeb3c0983e7,Cổ Linh,Thái Nguyên,xã Cao Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+759e7885e664,Phổ Yên,Thái Nguyên,phường Phổ Yên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bef6aa1f6031,Vũ Muộn,Thái Nguyên,xã Vĩnh Thông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1f330eb2eaee,Bình Văn,Thái Nguyên,xã Yên Bình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7d2ca74a9dee,Phấn Mễ,Thái Nguyên,xã Phú Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9369ea5bd02c,Đông Viên,Thái Nguyên,xã Bạch Thông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+578a27ff60f2,Đồng Lạc 1,Thái Nguyên,xã Nam Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+dd82f9be77af,Vũ Loan 2,Thái Nguyên,xã Cường Lợi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bf79e318822d,Phủ Thông,Thái Nguyên,xã Phủ Thông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2f51c0a365ba,Bằng Vân,Thái Nguyên,xã Bằng Vân,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7c941e01bf51,Thanh Thịnh,Thái Nguyên,xã Thanh Thịnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d2c561a90b64,Đồng Lạc,Thái Nguyên,xã Nam Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+11febb1bb92b,Yên Thượng,Thái Nguyên,xã Yên Thịnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6ca5460f2da0,Yên Lạc,Thái Nguyên,xã Na Rì,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e3787abfa708,Kim Hỷ,Thái Nguyên,xã Văn Lang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f80f3d04f2be,Vũ Loan,Thái Nguyên,xã Cường Lợi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c1a24e80bd76,Yên Hân,Thái Nguyên,xã Yên Bình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ac61b0035089,Bình Trung,Thái Nguyên,xã Nghĩa Tá,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e31503423d10,Cao Tân,Thái Nguyên,xã Cao Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fbfdaa1fca59,Hảo Nghĩa,Thái Nguyên,xã Trần Phú,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+08fee94aab60,Cẩm Giàng,Thái Nguyên,xã Cẩm Giàng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f9bfcb418141,Bành Trạch 2,Thái Nguyên,xã Phúc Lộc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6e9c7fabe653,Bộc Bố,Thái Nguyên,xã Bằng Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1811bbc58387,Đình Cả,Thái Nguyên,xã Võ Nhai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6ccfa3fcadbe,Dương Phong 1,Thái Nguyên,xã Bạch Thông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+91a1d7386e62,Thanh Mai,Thái Nguyên,xã Thanh Mai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ddbb8e0d6849,Ngọc Phái,Thái Nguyên,xã Chợ Đồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2f95fd6f142e,Lương Thượng,Thái Nguyên,xã Văn Lang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7be1dd0d2cbc,Nà Phặc,Thái Nguyên,xã Nà Phặc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a02f3e4d988d,Phú Bình,Thái Nguyên,xã Phú Bình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+12fd748e5a17,Côn Minh,Thái Nguyên,xã Côn Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d7f3ca07661c,Yến Dương,Thái Nguyên,xã Thượng Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6de65b8939c8,Chi cục thủy lợi,Thái Nguyên,xã Phong Quang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ed19e192ebd5,Hiệp Lực,Thái Nguyên,xã Hiệp Lực,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+caf868730119,Đức Vân,Thái Nguyên,xã Ngân Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b157f1a39bf0,Bản Thi,Thái Nguyên,xã Yên Thịnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+039081067519,Quảng Bạch,Thái Nguyên,xã Quảng Bạch,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9d3b6b190902,La Hiên,Thái Nguyên,xã La Hiên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+cd0ff364f275,Tân Lập,Thái Nguyên,xã Quảng Bạch,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8a24fb0e2448,Dương Phong 2,Thái Nguyên,xã Bạch Thông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+353ff4e10b30,Xuân Lạc,Thái Nguyên,xã Nam Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+80aa9fa57625,Bằng Thành,Thái Nguyên,xã Bằng Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+71827f99b104,Quảng Khê,Thái Nguyên,xã Đồng Phúc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e93e588571c1,Điềm Mặc 1,Thái Nguyên,xã Bình Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+19220df379b4,Xuân La,Thái Nguyên,xã Nghiên Loan,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+29b6a544d69a,Vũ Loan 1,Thái Nguyên,xã Cường Lợi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4b2f9d14553f,Phố Đu,Thái Nguyên,xã Phú Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d15d4ee87286,Nhạn Môn,Thái Nguyên,xã Bằng Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7a533e8cb5f2,Bộc Bố 1,Thái Nguyên,xã Bằng Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1514c3062e6b,Vũ Chấn,Thái Nguyên,xã Nghinh Tường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2aeed1aafc39,Cốc Đán,Thái Nguyên,xã Ngân Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+70fd4348750b,Bành Trạch 1,Thái Nguyên,xã Phúc Lộc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+53b6464f4b3d,Lục Bình,Thái Nguyên,xã Phủ Thông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+55899d61f93e,Đại Từ,Thái Nguyên,xã Đại Phúc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c39f87a5faa9,Hòa Mục,Thái Nguyên,xã Tân Kỳ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5846d95f2e09,Lương Bằng,Thái Nguyên,xã Nghĩa Tá,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a539aac3f3a7,Bằng Lãng,Thái Nguyên,xã Chợ Đồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d91db980e9d2,Dương Quang,Thái Nguyên,xã Phong Quang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9fe9b2f333dd,Phương Viên,Thái Nguyên,xã Chợ Đồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bf3e2ca3876f,Mỹ Thanh,Thái Nguyên,xã Cẩm Giàng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fed06885b294,Đồng Lạc 2,Thái Nguyên,xã Nam Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+af450db54790,Tân Sơn,Thái Nguyên,xã Tân Kỳ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+64cab952fea4,Ký Phú,Thái Nguyên,xã Vạn Phú,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+608b1273c5bf,Bộc Bố 2,Thái Nguyên,xã Bằng Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+df5be24f8db3,Nghiên Loan 2,Thái Nguyên,xã Nghiên Loan,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ae4951ab8d2c,Yên Phong,Thái Nguyên,xã Yên Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e97909f99120,Yên Thịnh,Thái Nguyên,xã Yên Thịnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+478b44dcc0ec,Thượng Quan,Thái Nguyên,xã Thượng Quan,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bd61dbca34ed,Nam Cường,Thái Nguyên,xã Nam Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+88c1e0aa1c30,Công Bằng,Thái Nguyên,xã Cao Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1b51ab810a2a,Đôn Phong 3,Thái Nguyên,xã Phong Quang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1e28ca3e8826,Đổng Xá,Thái Nguyên,xã Xuân Dương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+50558505d9de,Giáo Hiệu,Thái Nguyên,xã Bằng Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a6bea21f901e,Đôn Phong 2,Thái Nguyên,xã Phong Quang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+da60850327ed,Cao Thượng,Thái Nguyên,xã Ba Bể,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+57ae82e82da0,Nông Thịnh,Thái Nguyên,xã Thanh Thịnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8daec5aafb6c,Hồ Tân Yên,Quảng Ninh,phường Hoàng Quế,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+76fb81c4f81e,Bằng Cả,Quảng Ninh,xã Quảng La,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+247f84cea1c7,Phong Hải,Quảng Ninh,phường Liên Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5463bf9f67e0,Khe Mai,Quảng Ninh,đặc khu Vân Đồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c552708bec23,Quảng Đức,Quảng Ninh,xã Quảng Đức,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+97e5f9e5f426,Yên Lập,Quảng Ninh,phường Đông Mai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+107be8aa3b84,Hồ Khe Cát,Quảng Ninh,xã Hải Lạng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b87cf8cce71e,Than Mạo Khê,Quảng Ninh,phường Mạo Khê,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9ecca3d5bdc1,Yên Hưng,Quảng Ninh,phường Quảng Yên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+65d4c8d7d845,Lương Mông,Quảng Ninh,xã Lương Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7c102c0864bf,Đảo Trần,Quảng Ninh,đặc khu Cô Tô,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+39ecc458c163,Quất Đông,Quảng Ninh,phường Móng Cái 3,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6da4a783b387,Lòng Dinh,Quảng Ninh,đặc khu Vân Đồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+445ce35c793e,Phình Hồ,Quảng Ninh,xã Hải Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a31db5c14f3a,Đồng Tâm,Quảng Ninh,xã Lục Hồn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2cbd33f7a39e,Hồng Hà,Quảng Ninh,phường Hạ Long,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4667cf179b1e,An Biên,Quảng Ninh,phường Hoành Bồ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+588e619d6589,Đầm Hà,Quảng Ninh,xã Đầm Hà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9f8071ebd285,Quảng Lâm,Quảng Ninh,xã Quảng Tân,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2da01264c62f,Hồ Tràng Vinh,Quảng Ninh,xã Hải Ninh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+03c8bc1a7b45,Ba Chẽ PCTT,Quảng Ninh,xã Ba Chẽ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9174d9b5444d,Cô Tô,Quảng Ninh,đặc khu Cô Tô,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ed788064c5d8,Kỳ Thượng,Quảng Ninh,xã Kỳ Thượng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+95fe85df023d,Hà Lâu,Quảng Ninh,xã Điền Xá,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d419ef0f7da4,Khe Táu,Quảng Ninh,xã Đông Ngũ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0d0da4df9e21,Uông Bí,Quảng Ninh,phường Yên Tử,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+30e9c0577e35,Phong Cốc,Quảng Ninh,phường Phong Cốc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+47739ea4df0e,Bình Liêu,Quảng Ninh,xã Bình Liêu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9f0cb5c7dab3,Chúc Bài Sơn,Quảng Ninh,xã Đường Hoa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a57d0432cc97,Đông Triều,Quảng Ninh,phường Đông Triều,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+03f1bdf28001,Bến Châu,Quảng Ninh,phường Bình Khê,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0771da1ad6d3,Đoan Tĩnh,Quảng Ninh,phường Móng Cái 3,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8e3a7a874ef0,Dương Huy,Quảng Ninh,phường Mông Dương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+43196b5c9b85,Hồ Tân Bình,Quảng Ninh,xã Đầm Hà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2fe2c814cb6c,Hạ Long,Quảng Ninh,phường Việt Hưng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8d6959675eed,Vàng Danh,Quảng Ninh,phường Vàng Danh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a3f2a313c262,Cẩm Phả,Quảng Ninh,phường Cẩm Phả,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+24d553530052,Hồ Sống Rắn,Quảng Ninh,phường Đông Triều,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+31965f4175c5,Hoành Bồ,Quảng Ninh,phường Hoành Bồ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+30e382448ea7,Ba Chẽ,Quảng Ninh,xã Ba Chẽ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8e728e130a6e,An Bình,Phú Thọ,xã An Bình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+183a5dd9b480,Thủy điện Định Cư,Phú Thọ,xã Quyết Thắng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e4d1b2644b75,Thành phố Hòa Bình,Phú Thọ,phường Hòa Bình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5e5030a79e38,Yên Lạc,Phú Thọ,xã Yên Lạc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ef48fae54449,Nam Phong,Phú Thọ,xã Mường Thàng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1cefef1b91e9,Đồng Bảng,Phú Thọ,xã Mai Châu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6a01be2f6ee9,BQL Ngọc Sơn,Phú Thọ,xã Ngọc Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+672385e58cf1,Hồ Cạn Thượng,Phú Thọ,xã Cao Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+45dbbb772306,Việt Xuân,Phú Thọ,xã Vĩnh Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b579e29c2fd7,Tiến Sơn,Phú Thọ,xã Liên Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c99fe89ec4af,Thanh Hà,Phú Thọ,xã An Nghĩa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+76558e6040ec,Hợp Châu,Phú Thọ,xã Tam Đảo,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c6b5f736eff9,Thủy điện Suối Nhạp,Phú Thọ,xã Tân Pheo,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+de792cd21f45,Vĩnh Đồng,Phú Thọ,xã Kim Bôi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8a38736fa777,Lũng Vân,Phú Thọ,xã Vân Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a24bfadeba1d,Quý Hòa,Phú Thọ,xã Mường Vang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+21baf83f8e8f,Cao Răm,Phú Thọ,xã Liên Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7502f606c283,Đạo Trù,Phú Thọ,xã Đạo Trù,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8369750c534a,Kim Tiến,Phú Thọ,xã Kim Bôi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e91949b76bf0,Đoàn Kết,Phú Thọ,xã Yên Trị,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+32fa835c8db5,Nuông Dăm,Phú Thọ,xã Dũng Tiến,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3840e7b4c57e,Lập Thạch,Phú Thọ,xã Lập Thạch,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+858cbe08b1b1,Lạc Lương,Phú Thọ,xã Lạc Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+921d1d74e796,Xuân Phong,Phú Thọ,xã Cao Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+97ae91f1ab7e,Ba Khan,Phú Thọ,xã Tân Mai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bc9f392b885c,Thủy điện So Lo 1,Phú Thọ,xã Tân Mai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+36cbfbeac408,Khai Quang,Phú Thọ,phường Vĩnh Phúc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f55d2f36473f,Tuân Chính,Phú Thọ,xã Thổ Tang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3ac5ef1c48a8,Hồ Trọng,Phú Thọ,xã Mường Bi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+68cfe10ae606,Kỳ Sơn,Phú Thọ,phường Kỳ Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+effbe21edc0f,Thủy điện Miền Đồi,Phú Thọ,xã Thượng Cốc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+39312daf1e12,Mường Khến,Phú Thọ,xã Tân Lạc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+379311061567,Thanh Lương,Phú Thọ,xã Cao Dương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+152d87adb0d5,Thủy điện Suối Tráng,Phú Thọ,xã Thung Nai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f74347465376,Cao Phong PCTT,Phú Thọ,xã Sơn Đông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d7bc9db6f641,Quang Yên,Phú Thọ,xã Yên Lãng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4870c34de5d7,Cao Sơn,Phú Thọ,xã Cao Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8bacc75dcc5c,Tân Pheo,Phú Thọ,xã Tân Pheo,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+dddb4d3b831b,Độc Lập,Phú Thọ,phường Kỳ Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c955b0f5a8ae,Yên Trị,Phú Thọ,xã Yên Trị,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+84fefb3b189d,Tam Sơn,Phú Thọ,xã Tam Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+27987a033e8d,Dị Nậu,Phú Thọ,xã Thọ Văn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ffcaf04ad1ef,Bình Xuyên,Phú Thọ,xã Bình Nguyên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b2eb6d3a6986,Tam Dương,Phú Thọ,xã Tam Dương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d63793a901f7,Đông Lĩnh,Phú Thọ,xã Quảng Yên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4c49f587cb9f,Lâm Thao,Phú Thọ,xã Phùng Nguyên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a7bc33136b5d,Xuân Sơn,Phú Thọ,xã Xuân Đài,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+41d413e7f90a,Mỹ Lương,Phú Thọ,xã Sơn Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+73c2e28902e2,Năng Yên,Phú Thọ,xã Quảng Yên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+505a7c6ca69d,Phúc Yên,Phú Thọ,phường Phúc Yên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+10d599d60d29,Phượng Mao,Phú Thọ,xã Tu Vũ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+54997a57f3fa,Yên Thủy,Phú Thọ,xã Yên Thủy,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+10f4968c595c,Trung Sơn,Phú Thọ,xã Trung Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ed978bae1981,Lương Nha,Phú Thọ,xã Yên Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9aa512bead53,Hanh Cù,Phú Thọ,xã Thanh Ba,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b7ba7dc98c47,Văn Lang,Phú Thọ,xã Văn Lang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e84d01e64e55,Thanh Ba,Phú Thọ,xã Thanh Ba,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b3bac45cce5c,Thu Cúc,Phú Thọ,xã Thu Cúc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+50da0bfd8686,Mường Chiềng,Phú Thọ,xã Đức Nhàn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a1d7a2e73661,Hiền Lương,Phú Thọ,xã Hiền Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4f114b5ad2ef,Tân Minh,Phú Thọ,xã Văn Miếu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+175ee384213b,Cao Phong,Phú Thọ,xã Cao Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c7905742119d,Cẩm Khê,Phú Thọ,xã Cẩm Khê,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+af282f804e69,Tân Lạc,Phú Thọ,xã Tân Lạc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f96567744a31,Thọ Sơn (Đoan Hùng),Phú Thọ,xã Đoan Hùng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7e30b01cf0b6,Xuân Đài 1,Phú Thọ,xã Xuân Đài,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+846f5852e12c,Chi cục thủy lợi Phú Thọ,Phú Thọ,phường Việt Trì,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6e7a03645ce5,Bao La,Phú Thọ,xã Bao La,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b1ccd17e652c,Cự Thắng 2,Phú Thọ,xã Võ Miếu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6af8978f84f3,Đông Cửu 1,Phú Thọ,xã Khả Cửu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9c6406218912,Yên Lập,Phú Thọ,xã Yên Lập,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f729326435b8,Yên Lương,Phú Thọ,xã Hương Cần,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+529c570892b7,Quang Húc,Phú Thọ,xã Vạn Xuân,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+982638b4389b,Phúc Khánh,Phú Thọ,xã Thượng Long,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7936da477022,Thanh Thủy (La Phù),Phú Thọ,xã Thanh Thủy,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e78e23dbbc6e,Tu Lý,Phú Thọ,xã Đà Bắc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e56742227cd9,Đại Phạm,Phú Thọ,xã Đan Thượng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c1a544296582,Vĩnh Tường,Phú Thọ,xã Thổ Tang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2dd8b1fe5506,Xuân Đài 2,Phú Thọ,xã Xuân Đài,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fc0dd4385bf4,Tiên Lương,Phú Thọ,xã Tiên Lương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bbb1c861e5af,Xuân Hoà,Phú Thọ,phường Xuân Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6af4c0220b1f,Tam Thanh,Phú Thọ,xã Long Cốc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fe5c58921e9a,Bằng Luân,Phú Thọ,xã Bằng Luân,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7aa43b0155bf,Xuân Thủy,Phú Thọ,xã Xuân Viên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+77736236b7f6,Ban Hàng Đồi,Phú Thọ,xã An Nghĩa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+606369887c45,Hạ Hoà,Phú Thọ,xã Hạ Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+190744b25b24,Thạch Kiệt 1,Phú Thọ,xã Tân Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7d1b482613e2,Đoan Hùng,Hưng Yên,xã Tiên La,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+94daea1b19a3,Trà Giang,Hưng Yên,xã Trà Giang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2c1062fb2ab4,Đông Long,Hưng Yên,xã Đông Tiền Hải,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a524f1e04288,Trạm bơm Quỳnh Hoa,Hưng Yên,xã Minh Thọ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c22d755999f4,Cống Neo,Hưng Yên,xã Tân Tiến,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5a2f1be4a8cf,Thụy Trường,Hưng Yên,xã Đông Thụy Anh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+957070c02df4,Vân Trường,Hưng Yên,xã Tây Tiền Hải,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+92dd0d29cca1,Tân Hòa,Hưng Yên,phường Thái Bình,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+9f90d1f11e51,Trạm bơm Sa Lung,Hưng Yên,phường Trà Lý,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a3864ffd614a,Đông Quang PCTT,Hưng Yên,xã Nam Đông Hưng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+34f6da080e16,Khoái Châu,Hưng Yên,xã Triệu Việt Vương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5c558fd716bc,Cống Lân,Hưng Yên,xã Nam Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6efb0d03b7a3,Triều Dương,Hưng Yên,xã Tiên Lữ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f61cd60b2a16,Tiên Hưng,Hưng Yên,xã Bắc Tiên Hưng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7ad7bc4f7444,Văn Giang,Hưng Yên,xã Nghĩa Trụ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4df7b7c3585e,Thái Phương,Hưng Yên,xã Hồng Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0e3012e0d1c6,Đông Quang,Hưng Yên,xã Đông Hưng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+69f70a0f9e21,Ân Thi,Hưng Yên,xã Hồng Quang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+78f380561f27,Kiến Xương,Hưng Yên,xã Bình Nguyên,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c3742d352e4b,Trung An,Hưng Yên,phường Vũ Phúc,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+aa1923c9cf1e,Mỹ Lộc,Hưng Yên,xã Đông Thái Ninh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ea9823bacaab,Thuyền Quan,Hưng Yên,xã Bắc Đông Hưng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ca2ceb359553,Trà Linh,Hưng Yên,xã Thụy Anh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+eb4cfdd5f878,Thái Ninh,Hưng Yên,xã Bắc Thái Ninh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6663106542ff,Đa Cốc,Hưng Yên,xã Hồng Vũ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bf6ba2592c21,Phủ Dực,Hưng Yên,xã A Sào,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b20f921fa5d9,Quỳnh Phụ,Hưng Yên,xã Quỳnh An,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b97737f7c9d4,Sa Thầy,Quảng Ngãi,xã Sa Thầy,0.8,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+e31de23c9612,Đập Thủy điện Pleikrông,Quảng Ngãi,xã Sa Bình,0.2,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+bd8050a9052b,Ba Dinh,Quảng Ngãi,xã Ba Dinh,0.2,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+b04049f5c4bc,Hồ Hóc Cài,Quảng Ngãi,xã Thiện Tín,0.2,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+8bcd0f7f59c9,Đăk La,Quảng Ngãi,xã Đăk Hà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bbe5a00c2c49,Ngọc Réo,Quảng Ngãi,xã Ngọk Réo,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e81652fcdc39,Đăk Rơ Ông,Quảng Ngãi,xã Đăk Tờ Kan,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4952fbf5aad8,Trà Thủy,Quảng Ngãi,xã Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d119f051264a,Thôn Kon Riêng - Đăk Choong (Đăk Glei),Quảng Ngãi,xã Xốp,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5978f61e8d0b,Hồ Nước Trong,Quảng Ngãi,xã Sơn Hà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c737ac772e24,"Lưu vực hồ Núi Ngang, Suối Vả Hố",Quảng Ngãi,xã Ba Động,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+34d4473ec05a,Măng Bút 2,Quảng Ngãi,xã Măng Bút,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a7ffbe4ed372,Thị trấn Đắk Rve,Quảng Ngãi,xã Đăk Rve,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fe388f67cbd2,Hồ Hóc Xoài,Quảng Ngãi,xã Trà Giang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bdb71814d153,Đắk Kôi,Quảng Ngãi,xã Đăk Kôi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e039f5adf20a,Đức Phong,Quảng Ngãi,xã Lân Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0ab28c959cb7,Hành Tín Tây,Quảng Ngãi,xã Thiện Tín,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+277286a9c18f,Sơn Hải,Quảng Ngãi,xã Sơn Thủy,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3d4ede76d42a,Long Môn,Quảng Ngãi,xã Minh Long,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a77c7c0c46a1,Hồ Sở Hầu,Quảng Ngãi,xã Nguyễn Nghiêm,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3d067e43b2a4,Sơn Mùa,Quảng Ngãi,xã Sơn Tây Thượng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c7cde6914ed8,Đắk Hà,Quảng Ngãi,xã Tu Mơ Rông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+047e46ad9fb1,Nghĩa Trung,Quảng Ngãi,xã Tư Nghĩa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+05f0b63b28ce,Măng Bút,Quảng Ngãi,xã Măng Bút,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4a20936af09e,"Thôn 9, Ia Tơi",Quảng Ngãi,xã Ia Tơi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+31db334d9118,Xã Xốp (Đăk Glei),Quảng Ngãi,xã Xốp,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0ebd01a83abc,Trà Tây 2,Quảng Ngãi,xã Tây Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1416b92d76f0,Đắk Long,Quảng Ngãi,xã Đăk Long,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+770f8d124aab,Đăk Tơ Lung,Quảng Ngãi,xã Đăk Kôi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1936ea73297e,Hồ Cây Xoài,Quảng Ngãi,phường Sa Huỳnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5c1ca131317c,Tân Cảnh,Quảng Ngãi,xã Đăk Tô,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c381614a3099,Long Sơn,Quảng Ngãi,xã Sơn Mai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d7f5b822f000,Hòa Bình,Quảng Ngãi,xã Đăk Rơ Wa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+93562d9981d3,Pờ Ê,Quảng Ngãi,xã Kon Plông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5b7eabc296cc,Đăk Trăm,Quảng Ngãi,xã Kon Đào,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6cd30e8f9247,Phổ Phong,Quảng Ngãi,xã Nguyễn Nghiêm,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5dc394012308,Hồ Vực Thành,Quảng Ngãi,xã Đông Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f1c7442a35a9,Lưu vực hồ Diên Trường,Quảng Ngãi,xã Khánh Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+240c3cafd5c3,Tê Xăng,Quảng Ngãi,xã Măng Ri,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0c0a9bee86a5,Lưu vực hồ Liệt Sơn,Quảng Ngãi,xã Đặng Thùy Trâm,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fa37778f96f4,Phổ Nhơn,Quảng Ngãi,xã Nguyễn Nghiêm,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1ac68fb64f1c,Bình Trị,Quảng Ngãi,xã Vạn Tường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+69b574ac2958,Hồ Hố Quýt,Quảng Ngãi,xã Thọ Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+64edf34a40f1,Trà Tân,Quảng Ngãi,xã Cà Đam,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1cd0a9187d99,Hồ Tôn Dung,Quảng Ngãi,xã Ba Tơ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7245428572be,Đắk Pét,Quảng Ngãi,xã Đăk Pék,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4dc042ccfecf,Sơn Tân,Quảng Ngãi,xã Sơn Tây,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b4735fb1b557,Trà Phong,Quảng Ngãi,xã Tây Trà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+344e42a01ec0,Nghĩa Thọ,Quảng Ngãi,xã Trà Giang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b82ccb34c473,Hồ Hố Cả,Quảng Ngãi,xã Sơn Mai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f18d88f4f77b,ĐăkLây,Quảng Ngãi,xã Đăk Pék,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f04ae247f782,Bình Mỹ,Quảng Ngãi,xã Bình Chương,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0ddaf588dec7,Văn phòng thường trực,Quảng Ngãi,phường Nghĩa Lộ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+29bd6bb483ed,Hồ Bàu Đen,Quảng Ngãi,xã Khánh Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+22999213c470,Ia Dom,Quảng Ngãi,xã Ia Tơi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7e044b4d8399,Tịnh Đông,Quảng Ngãi,xã Trường Giang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+55d01846f856,Pờ Y,Quảng Ngãi,xã Bờ Y,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6e591add436a,Hồ Hóc Sầm,Quảng Ngãi,xã Mộ Đức,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e36b095c6b29,Trà Hiệp,Quảng Ngãi,xã Thanh Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a9e24c0b1800,Sơn Nham,Quảng Ngãi,xã Sơn Hạ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b9a538255ddc,"Lưu vực hồ Núi Ngang, Suối Nước Suôi",Quảng Ngãi,xã Ba Động,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0907fe921fd9,Tây Trà,Quảng Ngãi,xã Tây Trà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+624316b669d1,Ba Cung,Quảng Ngãi,xã Ba Tơ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+47848a601231,Sơn Kỳ,Quảng Ngãi,xã Sơn Kỳ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+013eef29b30c,Hồ Suối Loa,Quảng Ngãi,xã Ba Động,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+beb70fd88fd4,Ba Vinh,Quảng Ngãi,xã Ba Vinh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+465e7b45440c,Đầu mối HCN Liệt Sơn,Quảng Ngãi,phường Đức Phổ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+755a8d439aeb,Bình An,Quảng Ngãi,xã Bình Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c5ed3b47876b,Hồ Cây Quen,Quảng Ngãi,xã Thiện Tín,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+61c58efe9401,Hồ Đồng Giang,Quảng Ngãi,xã Sơn Linh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6b75880b22df,Đắk Ui,Quảng Ngãi,xã Đăk Ui,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+41797b65f6bf,Hồ Đá Chồng,Quảng Ngãi,xã Ba Gia,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+91dd1b69d832,Thanh An,Quảng Ngãi,xã Minh Long,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e7b05dea293f,Hồ Mạch Điểu,Quảng Ngãi,xã Mộ Đức,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2639f32b42a9,Trà Tây 1,Quảng Ngãi,xã Tây Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+459c96e9ccc5,Trà Bùi,Quảng Ngãi,xã Cà Đam,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6ba1c0d621e0,Đầu mối HCN Núi Ngang,Quảng Ngãi,xã Ba Động,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0582237cdf3f,Đăk Choong,Quảng Ngãi,xã Xốp,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+001adae6114f,Sơn Bua,Quảng Ngãi,xã Sơn Tây Thượng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1ba6aad4f4ec,Sơn Cao,Quảng Ngãi,xã Sơn Linh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0dd588db41b0,Rờ Kơi,Quảng Ngãi,xã Rờ Kơi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2d018681a61d,Hồ Cây Sanh,Quảng Ngãi,phường Sa Huỳnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+dbfedd5cc7db,Sơn Trà,Quảng Ngãi,xã Tây Trà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+53f74ae1bdb6,KonPlong (Măng Cành),Quảng Ngãi,xã Măng Đen,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a25debdba978,Tịnh Thọ,Quảng Ngãi,xã Thọ Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+19082c4d14c3,Đăk Psi,Quảng Ngãi,xã Đăk Pxi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c6fc4e5c8a2e,Ba Tiêu,Quảng Ngãi,xã Ba Vì,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+7643ac737c68,Xã Ia Tơi,Quảng Ngãi,xã Ia Tơi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4da51db04654,Sơn Lập,Quảng Ngãi,xã Sơn Tây Hạ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+cf3cdab268de,Bình Phước,Quảng Ngãi,xã Vạn Tường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5f764ec1ac18,Plei Kần,Quảng Ngãi,xã Bờ Y,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+fc17e2360d5d,Ba Nam,Quảng Ngãi,xã Ba Tô,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+15ac19b1d5ae,Hành Dũng,Quảng Ngãi,xã Phước Giang,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d14369b09a9d,Ia Đal,Quảng Ngãi,xã Ia Đal,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+be8f7c0ce00f,Hồ Đá Bàn,Quảng Ngãi,xã Mộ Đức,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+38312537ec7a,Ba Liên,Quảng Ngãi,xã Ba Động,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+817912b3ad83,Hồ Lỗ Lá,Quảng Ngãi,xã Nguyễn Nghiêm,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ec59f4698fdf,Sơn Long,Quảng Ngãi,xã Sơn Tây,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+963c9ee8f9c5,Bình Khương,Quảng Ngãi,xã Bình Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8a4733d515ae,Hồ Suối Chí,Quảng Ngãi,xã Thiện Tín,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+929f592b40a2,Trà Xinh,Quảng Ngãi,xã Tây Trà,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+a1d03783fed1,Trà Nham,Quảng Ngãi,xã Tây Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ad51647ba476,Ba Trang,Quảng Ngãi,xã Đặng Thùy Trâm,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ab47044af1e5,Ba Điền,Quảng Ngãi,xã Ba Vinh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+84a0cd92b511,Ba Nam PCTT,Quảng Ngãi,xã Ba Tô,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+c3f5851dbde2,Ba Giang,Quảng Ngãi,xã Ba Dinh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+e68c55706a6e,Hồ Sình Kiến,Quảng Ngãi,xã Đông Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3fefbcaaab37,Hương Trà,Quảng Ngãi,xã Tây Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f79bea841b60,Xã Mường Hoong (Đăk Glei),Quảng Ngãi,xã Ngọc Linh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d7e5f024c61c,Măng Cành,Quảng Ngãi,xã Măng Đen,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5578dad746aa,Ba Lế,Quảng Ngãi,xã Ba Tô,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+53e97633a734,Trà Phú,Quảng Ngãi,xã Đông Trà Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5b921afc5d3f,Trà Thanh,Quảng Ngãi,xã Thanh Bồng,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ed9fa721c603,Đắk Ang,Quảng Ngãi,xã Dục Nông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+cc176d87a23d,Mô Rai,Quảng Ngãi,xã Mô Rai,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ce5ae094941d,Đăk Na,Quảng Ngãi,xã Đăk Sao,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+8b2c8f5df137,Hồ Ông Tới,Quảng Ngãi,xã Lân Phong,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6e8efc63dc16,Đầu mối HCN Diên Trường,Quảng Ngãi,xã Khánh Cường,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+461efe7abf65,Đức Phú,Quảng Ngãi,xã Mộ Đức,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+29eb3a99ccc7,Ba Xa,Quảng Ngãi,xã Ba Xa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+bec1f7194d71,Sơn Thành,Quảng Ngãi,xã Sơn Hạ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0d7f540ecf78,Bình Tân,Quảng Ngãi,xã Đông Sơn,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0065d9df1264,Tân Lập,Tây Ninh,xã Tân Lập,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1ad963271f36,Suối Đá,Tây Ninh,xã Dương Minh Châu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+237d5d4eb90a,Long Chữ,Tây Ninh,xã Long Chữ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b8c3aa8ccca4,Thạnh Đức,Tây Ninh,xã Thạnh Đức,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0f0e05f34e5e,Hòa Hiệp,Tây Ninh,xã Phước Vinh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+95d6659e9220,Suối Dây,Tây Ninh,xã Tân Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+70a96482d61c,Chà Là,Tây Ninh,phường Ninh Thạnh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d289b9879227,Ninh Điền,Tây Ninh,xã Ninh Điền,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f38fa33d0da2,Tân Hà,Tây Ninh,xã Tân Đông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+79483237c7d7,Suối Ngô,Tây Ninh,xã Tân Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+be5bc09ca886,Hòa Thạnh,Tây Ninh,xã Hòa Hội,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+54a098129512,Bến Sỏi,Tây Ninh,xã Châu Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ff9e02a5d994,Cần Đước,Tây Ninh,xã Cần Đước,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+d19fe30c185d,KT_01,Tây Ninh,xã Cầu Khởi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+36521c478da7,Tân Hòa 2 (DT),Tây Ninh,xã Tân Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+1b363d9ef891,Tân Trụ,Tây Ninh,xã Tân Trụ,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+dcadc703ec75,Đồng Ban (DT),Tây Ninh,xã Tân Châu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+2cf2cda11e57,Kà Tum,Tây Ninh,xã Tân Đông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+6c7a2756d2cd,KD_01,Tây Ninh,xã Hưng Thuận,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5ceef0e1744b,Tân Thành (DT),Tây Ninh,xã Tân Thành,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+426953e8833b,Núi Bà,Tây Ninh,phường Bình Minh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+0b91588eadaf,Đồng Ban,Tây Ninh,xã Tân Châu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+b39acc4bd15e,Tân Hà (DT),Tây Ninh,xã Tân Đông,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+3b692953bc3d,Tân Hòa 1 (DT),Tây Ninh,xã Tân Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f16a7aafe280,Kà Tum (DT),Tây Ninh,xã Tân Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+ba14c935fe97,SXC_01,Tây Ninh,xã Dương Minh Châu,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f112e74a05e1,Đức Hoà,Tây Ninh,xã Hậu Nghĩa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+43bf902912a9,Hồ Dầu Tiếng,Tây Ninh,xã Lộc Ninh,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+06e370f38a6b,Đồi 95,Tây Ninh,xã Tân Hòa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+5548ee5463ee,Kế Sách,Sóc Trăng,thị trấn Kế Sách,3.6,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+537e0a8f549b,Ngã Năm,Sóc Trăng,phường 1,1.0,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+0271f0bd20bb,Châu Thành,Sóc Trăng,thị trấn Châu Thành,0.6,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+b9ddbfb9938e,Long Phú 2,Sóc Trăng,thị trấn Long Phú,0.4,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+f4e9c0cc8e8f,Xuân Hòa,Sóc Trăng,xã Xuân Hòa,0.2,Mưa nhỏ,19/03/2026 19:00,19/03/2026 21:28:17
+492d2c701040,Vĩnh Lợi,Sóc Trăng,xã Vĩnh Lợi,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+84786b6e20af,An Thạnh 3,Sóc Trăng,xã An Thạnh 3,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+797d14e92e45,Mỹ Tú,Sóc Trăng,thị trấn Huỳnh Hữu Nghĩa,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+389d96b6a661,Vĩnh Châu,Sóc Trăng,phường 1,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f944efb4322c,Bến Gia,Trà Vinh,phường 2,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+4c87a0269426,Trà Cú,Trà Vinh,thị trấn Trà Cú,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
+f36fcc564097,Tiểu Cần,Trà Vinh,thị trấn Tiểu Cần,0.0,Không mưa,19/03/2026 19:00,19/03/2026 21:28:17
