@@ -387,87 +387,49 @@ def dataset_view_view(request, folder: str, filename: str):
     # ========================================================
     if file_type in ['csv', 'excel']:
         try:
-            # page hiện tại (mặc định 1)
-            page = int(request.GET.get('page', 1))
+            ROWS_PER_PAGE = 200   # small batches → fast JSON + fast DOM render
 
-            # số dòng mỗi trang (10k) để tránh load file quá lớn 1 lần
-            rows_per_page = 10000
-
-            # tính range index cần hiển thị
-            start_row = (page - 1) * rows_per_page
-            end_row = start_row + rows_per_page
-            
-            # ---------------- CSV ----------------
-            if file_type == 'csv':
-                if is_ajax:
-                    # AJAX: chỉ đọc phần cần (skiprows từ 1..start_row vì row 0 là header)
-                    df = pd.read_csv(p, encoding='utf-8', skiprows=range(1, start_row), nrows=rows_per_page)
-
-                    # total_rows: đếm số dòng bằng cách đọc file text
-                    # - trừ 1 vì dòng header
-                    total_rows = 0
-                    with open(p, 'r', encoding='utf-8') as f:
-                        total_rows = sum(1 for line in f) - 1
-                else:
-                    # non-AJAX: đọc trang đầu tiên
-                    df = pd.read_csv(p, encoding='utf-8', nrows=rows_per_page)
-
-                    # total_rows: đếm tổng số dòng trong file
-                    total_rows = 0
-                    with open(p, 'r', encoding='utf-8') as f:
-                        total_rows = sum(1 for line in f) - 1
-
-            # ---------------- EXCEL ----------------
-            else:
-                if is_ajax:
-                    # AJAX: đang đọc toàn bộ file Excel (df_full) rồi cắt slice
-                    # - cách này dễ code nhưng nặng RAM nếu file lớn
-                    df_full = pd.read_excel(p, engine='openpyxl')
-                    total_rows = len(df_full)
-                    df = df_full.iloc[start_row:end_row]
-                else:
-                    # non-AJAX: đọc 10k dòng đầu (nrows) để render nhanh
-                    df = pd.read_excel(p, engine='openpyxl', nrows=rows_per_page)
-
-                    # đồng thời đọc full để lấy total_rows
-                    df_full = pd.read_excel(p, engine='openpyxl')
-                    total_rows = len(df_full)
-            
-            # ----------------------------------------------------
-            # Nếu AJAX => trả JSON (records) cho frontend
-            # ----------------------------------------------------
+            # ── AJAX: đọc dữ liệu và trả JSON ──
             if is_ajax:
-                data = {
-                    'data': df.fillna('').to_dict('records'),  # convert DataFrame thành list dict
-                    'page': page,                               # trang hiện tại
-                    'total_rows': total_rows,                   # tổng số dòng trong file
-                    'has_more': end_row < total_rows            # còn trang tiếp theo không
+                page      = int(request.GET.get('page', 1))
+                start_row = (page - 1) * ROWS_PER_PAGE
+                end_row   = start_row + ROWS_PER_PAGE
+
+                if file_type == 'csv':
+                    skip     = range(1, start_row) if start_row > 0 else None
+                    df       = pd.read_csv(p, encoding='utf-8', skiprows=skip, nrows=ROWS_PER_PAGE)
+                    has_more = len(df) >= ROWS_PER_PAGE
+                    # Đếm tổng dòng chỉ ở trang 1 (byte scan – rất nhanh)
+                    total_rows = None
+                    if page == 1:
+                        with open(p, 'rb') as f:
+                            total_rows = f.read().count(b'\n') - 1
+                else:  # excel
+                    df_full    = pd.read_excel(p, engine='openpyxl')
+                    total_rows = len(df_full)
+                    df         = df_full.iloc[start_row:end_row]
+                    has_more   = end_row < total_rows
+
+                resp_data = {
+                    'columns':    list(df.columns) if page == 1 else None,
+                    'data':       df.fillna('').to_dict('records'),
+                    'page':       page,
+                    'has_more':   has_more,
+                    'total_rows': total_rows,
+                    'rows_per_page': ROWS_PER_PAGE,
                 }
-                return HttpResponse(json.dumps(data, default=str), content_type='application/json')
-            
-            # ----------------------------------------------------
-            # Non-AJAX => render HTML table (df.to_html)
-            # ----------------------------------------------------
-            html_table = df.fillna('').to_html(
-                classes='table table-striped table-bordered',   # class bootstrap để đẹp hơn
-                index=False,                                     # không show index pandas
-                float_format=lambda x: '{:.2f}'.format(x) if isinstance(x, float) else str(x)
-            )
-            
+                return HttpResponse(json.dumps(resp_data, default=str), content_type='application/json')
+
+            # ── Non-AJAX: trả HTML shell ngay lập tức (không đọc file) ──
             context = {
-                'filename': filename,
-                'folder': folder,
-                'file_type': file_type,
+                'filename':     filename,
+                'folder':       folder,
+                'file_type':    file_type,
                 'file_size_kb': p.stat().st_size / 1024,
-                'total_rows': total_rows,
-                'rows_per_page': rows_per_page,
-                'showing_rows': min(rows_per_page, total_rows),
-                'html_table': html_table,
-                'referer_url': request.META.get('HTTP_REFERER', '/'),
+                'referer_url':  request.META.get('HTTP_REFERER', '/'),
                 'download_url': request.path.replace('/view/', '/download/'),
-                'is_table': True,
+                'is_table':     True,
             }
-            
             return render(request, 'weather/Dataset_preview.html', context)
             
         except Exception as e:

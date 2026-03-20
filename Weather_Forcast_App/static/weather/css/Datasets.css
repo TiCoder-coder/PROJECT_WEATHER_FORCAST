@@ -11,6 +11,13 @@
   --muted: var(--color-text-muted);
   --shadow: var(--shadow-main);
   --shadow2: var(--shadow-strong);
+  /* Color palette used for gradients & badges */
+  --cyan:   #22d3ee;
+  --blue:   #3b82f6;
+  --purple: #a78bfa;
+  --green:  #22c55e;
+  --orange: #f97316;
+  --pink:   #f472b6;
 }
 
 *{ box-sizing:border-box; }

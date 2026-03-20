@@ -1,8 +1,6 @@
 import os
-import subprocess
 from pathlib import Path
 from datetime import datetime
-import sys
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -89,36 +87,19 @@ def merge_data_view(request):
         # - abspath -> lấy đường dẫn tuyệt đối
         # - dirname 2 lần -> đi lên 2 cấp thư mục
         # Dynamic path: tự tính từ vị trí project, không hardcode
-        from Weather_Forcast_App.paths import SCRIPT_MERGE_XLSX, DATA_CRAWL_DIR, DATA_MERGE_DIR
-        script_path = str(SCRIPT_MERGE_XLSX)
-        python_exe = sys.executable
+        import io, contextlib
+        from Weather_Forcast_App.paths import DATA_CRAWL_DIR, DATA_MERGE_DIR
+        from Weather_Forcast_App.scripts.Merge_xlsx import merge_excel_files_once
         output_dir = str(DATA_CRAWL_DIR)
         merge_dir = str(DATA_MERGE_DIR)
 
-        # ============================================================
         # 3) Snapshot file trước khi merge (để đếm file mới)
-        # ============================================================
         before_files = set(os.listdir(merge_dir)) if os.path.exists(merge_dir) else set()
 
-        # ============================================================
-        # 4) Chạy script merge bằng subprocess
-        # ============================================================
-        # subprocess.run:
-        # - chạy lệnh: python_exe script_path
-        # - capture_output=True => gom stdout + stderr vào result
-        # - text=True => stdout/stderr dạng string (không phải bytes)
-        # - check=False => không raise exception nếu returncode != 0
-        #
-        # Vì bạn muốn:
-        # - tự kiểm tra result.returncode để trả JSON phù hợp
-        result = subprocess.run(
-            [python_exe, script_path],
-            capture_output=True,
-            text=True,
-            check=False,
-            encoding="utf-8",
-            errors="replace",
-        )
+        # 4) Gọi trực tiếp hàm merge (không dùng subprocess để tránh overhead khởi động Python)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            merge_excel_files_once(None)
 
         # ============================================================
         # 5) Snapshot file sau khi merge -> tính số file mới
@@ -160,24 +141,7 @@ def merge_data_view(request):
                 args=[folder_key, latest_merged["name"]]
             )
 
-        # ============================================================
-        # 7) Nếu script lỗi (returncode != 0) -> trả JSON thất bại
-        # ============================================================
-        # returncode:
-        # - 0  : chạy OK
-        # - !=0: lỗi (có thể do exception trong script, thiếu file, thiếu thư mục, ...)
-        if result.returncode != 0:
-            return JsonResponse({
-                "success": False,
-                "message": "Gộp dữ liệu thất bại!",
-                "stderr": result.stderr,          # log lỗi từ script (quan trọng để debug)
-                "new_files_count": new_files_count,
-                "latest_merged": latest_merged    # vẫn trả để frontend biết file merge hiện tại (nếu có)
-            })
-
-        # ============================================================
-        # 8) Thành công -> trả JSON OK
-        # ============================================================
+        # 7) Thành công -> trả JSON OK
         return JsonResponse({
             "success": True,
             "message": "Gộp dữ liệu thành công!",
