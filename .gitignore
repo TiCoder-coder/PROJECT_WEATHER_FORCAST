@@ -16,7 +16,9 @@ staticfiles/
 airflow/logs/*
 !airflow/logs/.gitkeep
 
-# Data files - không push lên GitHub
 *.csv
 *.xlsx
 *.pkl
+*.webm
+*.mp4
+*.avi
