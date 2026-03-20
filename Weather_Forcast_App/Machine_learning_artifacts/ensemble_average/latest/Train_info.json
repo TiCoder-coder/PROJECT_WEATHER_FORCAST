@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-03-19 23:00:28",
+  "trained_at": "2026-03-20 17:12:08",
   "project_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST",
   "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model",
   "input": {
@@ -54,7 +54,7 @@
     "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/ensemble_average/latest/Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-19T23:00:12.243226",
+      "fitted_at": "2026-03-20T17:11:51.320788",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",

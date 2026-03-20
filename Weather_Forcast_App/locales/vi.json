@@ -826,6 +826,7 @@
   "dataset_preview": {
     "sidebar_sub": "Xem dữ liệu",
     "back": "QUAY LẠI",
+    "download": "TẢI FILE",
     "folder_label": "Thư mục",
     "size_label": "Kích thước",
     "total_rows_label": "Tổng số dòng",

@@ -31,7 +31,7 @@ class TranslateNode(template.Node):
         if self.var_name:
             context[self.var_name] = result
             return ""
-        return result
+        return mark_safe(result)
 
 
 @register.tag("t")

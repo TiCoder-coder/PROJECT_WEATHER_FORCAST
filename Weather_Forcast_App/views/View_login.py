@@ -17,6 +17,8 @@
 # Ngoài ra còn dùng session để lưu trạng thái OTP cho các bước verify/reset.
 # ============================================================
 
+import re
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -301,7 +303,19 @@ def register_view(request):
         return render(request, "weather/auth/Register.html", {
             "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
         })
-    
+
+    if len(userName) < 3 or len(userName) > 30:
+        messages.error(request, "⚠️ Tên đăng nhập phải từ 3-30 ký tự.")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+
+    if not re.match(r'^[a-zA-Z0-9_]+$', userName):
+        messages.error(request, "❌ Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
+        return render(request, "weather/auth/Register.html", {
+            "form_data": {"first_name": first_name, "last_name": last_name, "username": userName, "email": email}
+        })
+
     if not email:
         messages.error(request, "⚠️ Vui lòng nhập địa chỉ email.")
         return render(request, "weather/auth/Register.html", {

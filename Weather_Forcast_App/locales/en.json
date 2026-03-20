@@ -826,6 +826,7 @@
   "dataset_preview": {
     "sidebar_sub": "View data",
     "back": "GO BACK",
+    "download": "DOWNLOAD",
     "folder_label": "Folder",
     "size_label": "Size",
     "total_rows_label": "Total rows",

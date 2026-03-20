@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌦️ VN WEATHER HUB: NỀN TẢNG WEB THUTHẬP - CHUẨN HOÁ - HỢP NHẤT DỮ LIỆU THỜI TIẾT ĐA NGUỒN VÀ DỰ BÁO NGẮN HẠN CHO VIỆT NAM BẰNG MÔ HÌNH ENSEMBLE
+# 🌦️ VN WEATHER HUB: NỀN TẢNG WEB THU THẬP - CHUẨN HOÁ - HỢP NHẤT DỮ LIỆU THỜI TIẾT ĐA NGUỒN VÀ DỰ BÁO NGẮN HẠN CHO VIỆT NAM BẰNG MÔ HÌNH STACKING ENSEMBLE
 
 **Ứng dụng web Django đầy đủ tính năng** cho **thu thập dữ liệu thời tiết** → **xử lý** → **học máy** → **dự báo** với giao diện glassmorphism hiện đại và hỗ trợ đa ngôn ngữ.
 
@@ -39,6 +39,7 @@
 <details open>
 <summary><b>📚 Điều hướng</b></summary>
 
+- [📝 Tóm tắt](#-tóm-tắt)
 - [🎯 Tổng quan](#-overview)
 - [✨ Tính năng chính](#-key-features)
 - [🧠 Pipeline Học Máy](#-machine-learning-pipeline)
@@ -56,6 +57,20 @@
 - [👥 Đội ngũ](#-team)
 
 </details>
+
+---
+
+## 📝 Tóm tắt
+
+Bài báo trình bày **VN Weather Hub**, một hệ thống dự báo lượng mưa end-to-end tích hợp học máy trên nền tảng Django. Hệ thống bao gồm ba thành phần chính:
+
+1. **Module thu thập dữ liệu đa nguồn** tự động từ Open-Meteo API, WeatherAPI, OpenWeatherMap và Vrain với schema chuẩn hóa 43 trường.
+2. **Pipeline xử lý dữ liệu hoàn chỉnh** gồm merge, clean, feature engineering (40 đặc trưng dẫn xuất → SHAP selection 71 đặc trưng) và transform.
+3. **Mô hình Stacking Ensemble hai tầng** kết hợp 8 base models (RandomForest, XGBoost, LightGBM, CatBoost × Classification + Regression) với 2 meta-learners (LGBMClassifier + LGBMRegressor), sử dụng kỹ thuật Out-of-Fold predictions qua TimeSeriesSplit (n_splits=8) và ngưỡng phân loại tối ưu predict_threshold=0.4.
+
+Nghiên cứu tiến hành phân tích và đánh giá hai kiến trúc mô hình: **Ensemble Average** (trung bình đơn giản 4 regressors) và **Stacking Ensemble** (Super Learner 2 tầng). Kết quả cho thấy Stacking Ensemble vượt trội toàn diện về khả năng tổng quát hóa (overfit gap F1 = 0.035 so với 0.160) cùng các chỉ số dự báo chính (Rain F1, R², RMSE), do đó được chọn làm mô hình triển khai chính thức.
+
+Thực nghiệm trên **361.445 bản ghi** từ **52 trạm** quan trắc khu vực Đồng bằng sông Cửu Long cho thấy mô hình Stacking Ensemble đạt Rain F1-Score ổn định qua các tập (Train=0.882, Valid=0.842, Test=0.864) với overfit gap chỉ 0.04, Rain Detection Accuracy (Train=0.864, Valid=0.796, Test=0.820), Recall ≥ 93.9% cho lớp có mưa, MAE = 0,513 mm, RMSE = 0,723 mm trên tập test. Trạng thái tổng quát hóa được đánh giá **"Good Fit"**. Hệ thống được Docker hóa với kiến trúc ba tầng, xác thực JWT và giao diện web hơn 47 endpoint.
 
 ---
 
@@ -311,20 +326,26 @@ graph TD
 └────────────────────────────────────────────────────────────────────┘
 ```
 
-##### Quy trình huấn luyện
+##### Quy trình huấn luyện (14 bước — `train_ensemble_average.py`)
 
-1. **Huấn luyện độc lập 4 mô hình cơ sở:**
-   - Mỗi model được train riêng trên cùng tập huấn luyện `(X_train, y_train)`
-   - Target: `log1p(rain_total)` — dùng phép biến đổi log để xử lý phân phối lệch phải (heavy-tail) của lượng mưa
-   - Mỗi model sử dụng hyperparameter riêng tối ưu cho bài toán dự báo thời tiết
+Pipeline training đầy đủ gồm 14 bước tuần tự:
 
-2. **Đánh giá từng model riêng:**
-   - Tính MSE, RMSE, MAE, R² trên tập validation/test
-   - So sánh hiệu suất giữa các model để hiểu thế mạnh của từng thuật toán
-
-3. **Kết hợp bằng trung bình:**
-   - **Mean**: `ŷ = mean(ŷ₁, ŷ₂, ŷ₃, ŷ₄)` — mặc định, mỗi model có trọng số bằng nhau
-   - **Weighted mean**: `ŷ = Σ(wᵢ × ŷᵢ)` — trọng số có thể dựa trên R² hoặc inverse-error
+| Bước | Tên | Mô tả |
+|------|-----|-------|
+| 1 | Load Config | Đọc `train_config.json` — data path, target, split ratio, hyperparams |
+| 2 | Load Data | Nạp CSV qua `DataLoader` (hỗ trợ merge/not_merge) |
+| 3 | Diagnose Bad Rows | Quét hàng lỗi (NaN quá nhiều, datetime invalid) |
+| 4 | Schema Validation | Kiểm tra/chuẩn hóa tên cột theo schema 43 trường |
+| 5 | Split | Chia 80/10/10 (shuffle=True, sort_by_time=True) |
+| 6 | Build Features | `WeatherFeatureBuilder` tạo 7 nhóm feature (lag, rolling, diff, ...) |
+| 7 | Forecast Horizon | Nếu `forecast_horizon > 0` → loại cột leaked (rain_current, rain_avg, ...) |
+| 8 | Transform Pipeline | `WeatherTransformPipeline` 4 bước: Impute → Outlier → Encode → Scale (fit on train only) |
+| 9 | Log1p Target | Nếu target là mưa VÀ `zero_ratio > 30%` → `y = log1p(y.clip(0))`. Đảo ngược khi predict: `expm1(ŷ).clip(0)` |
+| 10 | Sample Weight | `pos_weight = min(n_neg/n_pos, 20)`. Inject: XGB/LGB → `scale_pos_weight`, RF → `class_weight='balanced_subsample'`, CatBoost → `auto_class_weights='Balanced'` |
+| 11 | Train Model | Train 4 base models trên `(X_train, y_train)`, kết hợp bằng trung bình: `ŷ = mean(ŷ₁, ŷ₂, ŷ₃, ŷ₄)` |
+| 12 | Evaluate | Tính MAE, RMSE, R², Rain_F1, Rain_Detection_Accuracy, ROC_AUC trên train/valid/test |
+| 13 | Overfit Diagnosis | So sánh gap Rain_Detection_Accuracy (train vs valid). Gap > 0.10 → overfit |
+| 14 | Save Artifacts | Lưu `Model.pkl`, `Transform_pipeline.pkl`, `Feature_list.json`, `Metrics.json`, `Train_info.json` |
 
 ##### Ưu điểm
 
@@ -414,42 +435,132 @@ graph TD
 │  └────────────────────────────────────────────────────────────────────┘  │
 │                                                                          │
 │  Tổng cộng: 8 base models + 2 meta-learners (LightGBM)                  │
-│  Số features: 68 | OOF splits: 8 (TimeSeriesSplit)                       │
+│  OOF splits: 8 (TimeSeriesSplit) | predict_threshold: 0.4               │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-##### Quy trình huấn luyện chi tiết (4 giai đoạn)
+##### Quy trình huấn luyện đầy đủ (10 bước — `train_stacking_ensemble.py`)
 
-**Giai đoạn 6 — Verify base models (Kiểm tra sức khỏe):**
-- Train nhanh từng base model trên subsample (~2000 mẫu) để đảm bảo không có lỗi
-- Ghi nhận baseline metrics (ROC-AUC cho classifier, MAE cho regressor)
-- Nếu bất kỳ model nào crash → cảnh báo trước khi bắt đầu OOF tốn thời gian
+Pipeline training gồm 10 bước tuần tự. Bước 1–6 chuẩn bị dữ liệu, Bước 7 chứa 4 giai đoạn stacking chính (Stage 6–9), Bước 8–10 đánh giá và lưu trữ.
 
-**Giai đoạn 7 — OOF Classification (Out-of-Fold):**
-1. Chia `X_train` thành `n_splits` fold bằng **TimeSeriesSplit** (giữ thứ tự thời gian, tránh data leakage)
-2. Với mỗi fold $k$:
-   - Train 4 classifier trên phần train (folds trước)
-   - Dự đoán `predict_proba` class 1 trên phần validation
-   - Ghi vào ma trận OOF: $Z_{cls}[\text{val\_idx}]$
-3. Ma trận $Z_{cls}$ có shape $(n, 4)$ — mỗi hàng là 4 xác suất từ 4 base models
-4. Chia $Z_{cls}$: folds 1–(n-1) train meta-classifier, fold cuối đánh giá unbiased
-5. **Train Meta-Classifier (LGBMClassifier):** học cách kết hợp phi tuyến 4 xác suất → p_rain tối ưu
-6. Xử lý mất cân bằng dữ liệu:
-   - XGBoost/LightGBM: `scale_pos_weight = min(n_neg/n_pos, 20)`
-   - RandomForest: `class_weight='balanced_subsample'`
-   - CatBoost: `auto_class_weights='Balanced'`
+**Bước 1 — Load Config:**
+- Đọc `config/train_config.json` — data path, split ratio, stacking config (n_splits, predict_threshold, cls_params, meta_params)
 
-**Giai đoạn 8 — OOF Regression (rainy-only):**
-1. Lọc tập train chỉ giữ **mẫu có mưa** (rain > 0.1mm)
-2. Target: `log1p(rain_mm)` — biến đổi logarit để xử lý phân phối heavy-tail
-3. Cùng cơ chế OOF như Stage 7, nhưng cho regression
-4. **sample_weight**: `log1p(expm1(rain)) + 1` — mưa lớn có trọng số cao hơn, giúp model ưu tiên dự đoán đúng khi mưa to
-5. **Train Meta-Regressor (LGBMRegressor):** học cách blend phi tuyến 4 dự đoán log1p(mm) → kết quả tối ưu
+**Bước 2 — Load Data + Schema Validation:**
+- Nạp CSV qua `DataLoader`, chuẩn hóa tên cột theo schema 43 trường tiếng Anh
 
-**Giai đoạn 9 — Refit trên toàn bộ tập huấn luyện:**
-- OOF chỉ dùng để tạo meta-features train meta-model
-- Để inference tốt nhất, **refit tất cả 8 base models** trên toàn bộ `X_train`
-- 4 classifiers refit trên toàn bộ data + 4 regressors refit trên toàn bộ rainy-only data
+**Bước 3 — Split train / valid / test:**
+- Chia 80/10/10 với `shuffle=False`, `sort_by_time=True` (bảo toàn thứ tự thời gian cho time-series)
+
+**Bước 4 — Build Features + Clean:**
+- **Auto-detect data type:** Nếu phát hiện dữ liệu `cross_sectional` → tự động tắt lag/rolling/diff features (tránh tạo noise vô nghĩa)
+- `WeatherFeatureBuilder` tạo features (7 nhóm: temporal, statistical, rolling, lag, diff, cross-station, polynomial)
+- Loại **constant features** (std=0 hoặc nunique≤1)
+- Loại **static-derived features** (latitude/longitude kết hợp lag/rolling/diff — noise)
+- Optional: SHAP-based feature selection (giữ top-k features quan trọng nhất)
+- Optional: polynomial features từ top-8 features tương quan cao nhất
+
+**Bước 5 — Transform Pipeline:**
+- `WeatherTransformPipeline` 4 bước: MissingValueHandler (median) → OutlierHandler (IQR) → CategoricalEncoder (label) → WeatherScaler (standard)
+- **Fit ONLY on train**, transform valid/test
+
+**Bước 6 — Feature List:**
+- Lưu `Feature_list.json` để inference sử dụng đúng cột
+
+**Bước 7 — Train StackingEnsemble (4 giai đoạn nội bộ):**
+
+> **Stage 6 — Verify base models (Kiểm tra sức khỏe):**
+> - Train nhanh từng base model trên subsample (~2000 mẫu) để đảm bảo không có lỗi
+> - Ghi nhận baseline metrics (ROC-AUC cho classifier, MAE cho regressor)
+> - Nếu bất kỳ model nào crash → cảnh báo trước khi bắt đầu OOF tốn thời gian
+
+> **Stage 7 — OOF Classification (Out-of-Fold):**
+> 1. Chia `X_train` thành **n_splits fold** bằng **TimeSeriesSplit** (giữ thứ tự thời gian, tránh data leakage). Code mặc định `n_splits=5`, config hiện tại override thành `n_splits=8`.
+> 2. Với mỗi fold $k$:
+>    - Train **4 classifier** (XGBClassifier, RandomForestClassifier, CatBoostClassifier, LGBMClassifier) trên phần train (các fold chronologically trước)
+>    - Dự đoán `predict_proba` class 1 trên phần validation
+>    - Ghi vào ma trận OOF: $Z_{cls}[\text{val\_idx}]$
+> 3. Ma trận $Z_{cls}$ có shape $(n, 4)$ — mỗi hàng là 4 xác suất từ 4 base models
+> 4. **Xử lý NaN**: Mẫu không được fold nào dự đoán → điền 0.5 (maximum uncertainty)
+> 5. **Chia meta-train/eval**: Folds 1–(n-1) train meta-classifier, **fold cuối** (chronologically mới nhất) dùng đánh giá unbiased
+> 6. **Train Meta-Classifier (LGBMClassifier):** học cách kết hợp phi tuyến 4 xác suất → p_rain tối ưu
+>    - Fallback: LogisticRegression (C=1, solver=lbfgs, class_weight=balanced)
+> 7. **Xử lý mất cân bằng** ở base classifiers:
+>    - XGBoost/LightGBM: `scale_pos_weight = min(n_neg/n_pos, 20)` — cap ở 20× tránh overfit
+>    - RandomForest: `class_weight='balanced_subsample'`
+>    - CatBoost: `auto_class_weights='Balanced'`
+
+> **Stage 8 — OOF Regression (rainy-only):**
+> 1. Lọc tập train chỉ giữ **mẫu có mưa** (rain > `rain_threshold=0.1mm`)
+> 2. **Kiểm tra đủ mẫu**: Yêu cầu `n_pos ≥ n_splits × 3` (≥24 mẫu mưa với n_splits=8)
+> 3. Target: `y_reg = log1p(rain_mm)` — biến đổi logarit xử lý phân phối heavy-tail
+> 4. **sample_weight**: `log1p(expm1(y_reg)) + 1` ≈ `log1p(rain_mm) + 1` — mưa lớn (>10mm) nhận trọng số 3×+, giúp model ưu tiên dự đoán đúng khi mưa to
+> 5. Cùng cơ chế OOF TimeSeriesSplit như Stage 7, nhưng cho 4 regressor (XGBRegressor, RandomForestRegressor, CatBoostRegressor, LGBMRegressor)
+> 6. **Xử lý NaN**: Điền bằng median của cột tương ứng
+> 7. **Train Meta-Regressor (LGBMRegressor):** blend phi tuyến 4 dự đoán log1p(mm) → kết quả tối ưu
+>    - Fallback: RidgeCV (alphas=[0.01, 0.1, 1.0, 10.0, 100.0])
+
+> **Stage 9 — Refit trên toàn bộ tập huấn luyện:**
+> - OOF chỉ dùng để tạo meta-features train meta-model (Stages 7–8), KHÔNG dùng cho inference
+> - Để inference tốt nhất, **refit tất cả 8 base models** trên toàn bộ `X_train`:
+>   - 4 classifiers refit trên **toàn bộ data**
+>   - 4 regressors refit trên **toàn bộ rainy-only data**
+> - Các model refit này là model cuối cùng dùng cho production predict
+
+**Bước 8 — Evaluate:**
+- 3 nhóm metrics cho mỗi split (train/valid/test):
+  - **Classification**: precision, recall, f1, roc_auc, pr_auc
+  - **Regression rainy-only**: MAE, RMSE, R² (chỉ trên mẫu có mưa)
+  - **End-to-end**: MAE, RMSE, R², Rain_Detection_Accuracy (toàn bộ dự đoán mm)
+
+**Bước 9 — Overfit/Underfit Diagnostics:**
+- So sánh Rain_F1 (hoặc Rain_Detection_Accuracy) giữa train vs valid
+- Gap > 0.10 → **overfit** | Gap < -0.10 → **underfit** | Else → **good fit**
+- Ưu tiên metric: Rain_Detection_Accuracy > Rain_F1 > R²
+
+**Bước 10 — Save Artifacts:**
+- `Model.pkl` — StackingEnsemble instance (chứa 8 base + 2 meta đã refit)
+- `stacking_ensemble_<timestamp>.joblib` — Backup
+- `Transform_pipeline.pkl` — Pipeline transform
+- `Feature_list.json` — Danh sách features
+- `Metrics.json` — Train/Valid/Test metrics
+- `Train_info.json` — Full metadata (n_splits, thresholds, split config, feature info, ...)
+
+##### Inference Pipeline (Dự đoán)
+
+```python
+def predict(self, X):
+    # Stage 1: Classification gate
+    p_rain = self._get_cls_stack(X)              # Meta-cls(Z_cls) → shape (n,)
+
+    # Stage 2: Routing
+    has_rain = p_rain > self.predict_threshold   # 0.4
+
+    result = np.zeros(X.shape[0])
+    if has_rain.sum() > 0:
+        # Stage 3: Regression (chỉ cho mẫu có mưa)
+        result[has_rain] = self._get_reg_stack(X[has_rain])  # expm1(Meta-reg(Z_reg)) → mm
+
+    return result  # mm
+```
+
+##### Default Hyperparameters (Base Models)
+
+| Model | Classifier | Regressor |
+|-------|-----------|-----------|
+| **XGBoost** | 800 trees, lr=0.05, depth=6, subsample=0.8, colsample=0.8 + scale_pos_weight | 800 trees, lr=0.05, depth=6, subsample=0.8, colsample=0.8 |
+| **RandomForest** | 300 trees, depth=None, balanced_subsample | 300 trees, depth=None, min_samples_leaf=3 |
+| **CatBoost** | 500 iters, lr=0.05, depth=6, auto Balanced | 500 iters, lr=0.05, depth=6 |
+| **LightGBM** | 800 trees, lr=0.05, leaves=63, subsample=0.8 + scale_pos_weight | 800 trees, lr=0.05, leaves=63, subsample=0.8 |
+
+> **Config Override**: `train_config.json` → mục `stacking.cls_params` / `stacking.reg_params` cho phép override bất kỳ hyperparameter nào của từng base model. Ví dụ: `"xgb": {"n_estimators": 250, "max_depth": 4}` — ưu tiên hơn default.
+
+##### Meta-Models
+
+| Meta-Model | Primary | Fallback |
+|-----------|---------|----------|
+| **Meta-Classifier** | LGBMClassifier (200 trees, leaves=15, is_unbalance=True, subsample=0.8) | LogisticRegression (C=1, class_weight=balanced) |
+| **Meta-Regressor** | LGBMRegressor (200 trees, leaves=15, subsample=0.8) | RidgeCV (alphas=[0.01, 0.1, 1.0, 10.0, 100.0]) |
 
 ##### Kỹ thuật chống Overfitting
 
@@ -459,8 +570,30 @@ graph TD
 | **TimeSeriesSplit** | Thay vì KFold ngẫu nhiên, tách theo thời gian → tránh data leakage từ tương lai |
 | **Meta-learner đơn giản** | LGBMClassifier/Regressor ở meta layer chỉ có 4 input features → không đủ chiều để overfit |
 | **Regularization nặng** | Meta-learner: `num_leaves=15`, `n_estimators=200`, `subsample=0.8` — rất conservative |
-| **SHAP-based feature selection** | Chỉ giữ top-50 features quan trọng nhất, loại bỏ noise features |
+| **SHAP-based feature selection** | Loại bỏ noise features, chỉ giữ features quan trọng |
 | **Polynomial features có kiểm soát** | Chỉ tạo từ top-8 features tương quan cao nhất với target |
+| **Auto-detect data type** | Phát hiện cross-sectional → tắt lag/rolling/diff (tránh tạo features vô nghĩa) |
+
+##### LSTM Meta-Learner (Experimental — chưa tích hợp)
+
+> File `Ensemble_Stacking_LSTM_Meta.py` chứa class `LSTMMetaClassifier` — variant dùng LSTM (TensorFlow/PyTorch) thay cho LGBMClassifier ở tầng meta. Mô hình này xử lý OOF predictions $(Z_{cls}, Z_{reg})$ như chuỗi thời gian, cho phép meta-learner bắt được **temporal patterns** trong dự đoán của base models.
+>
+> **Trạng thái**: Experimental. File tồn tại và có thể import, nhưng **KHÔNG được gọi** trong `train_stacking_ensemble.py`. Pipeline production hiện tại sử dụng LGBMClassifier/LGBMRegressor làm meta-learner.
+
+##### Optuna Hyperparameter Tuning (Standalone — chưa tích hợp vào Stacking)
+
+> Module `tuning.py` cung cấp class `HyperparameterTuner` hỗ trợ 3 phương pháp: GridSearch, RandomSearch, Optuna TPE. Optuna sử dụng **TPESampler** (Tree-structured Parzen Estimator) + **MedianPruner** để tìm hyperparameters tối ưu.
+>
+> Không gian tìm kiếm (Optuna):
+> | Hyperparameter | XGBoost | LightGBM | CatBoost | RandomForest |
+> |---------------|---------|----------|----------|-------------|
+> | n_estimators | 100–1000 | 100–1000 | 100–1000 | 50–500 |
+> | learning_rate | 0.001–0.2 | 0.001–0.2 | 0.001–0.2 | — |
+> | max_depth | 3–10 | -1–15 | 4–10 | 5–30 |
+> | subsample | 0.5–1.0 | 0.5–1.0 | 0.5–1.0 | — |
+> | reg_alpha/lambda | 0–2 | 0–2 | — | — |
+>
+> **Trạng thái**: Standalone. `train_stacking_ensemble.py` **KHÔNG gọi** Optuna — hyperparameters được đặt cố định trong config hoặc dùng default. Tuning chạy riêng qua `HyperparameterTuner` khi cần tối ưu.
 
 ##### Ưu điểm
 
@@ -495,6 +628,8 @@ graph TD
 | **Regression riêng?** | Chung cho tất cả mẫu | ✅ Chỉ trên mẫu có mưa (rainy-only) |
 | **OOF / Cross-validation** | ❌ Không | ✅ TimeSeriesSplit (n_splits=8) |
 | **Meta-learner** | Không có | LGBMClassifier + LGBMRegressor |
+| **Log1p target** | External (khi zero_ratio > 30%) | Internal (trong Stage 8, rainy-only) |
+| **Shuffle khi split** | ✅ Có (shuffle=True) | ❌ Không (shuffle=False, bảo toàn thời gian) |
 | **Overfit gap (Rain_F1)** | 🔴 0.160 (train=0.939, valid=0.847) | 🟢 0.035 (train=0.900, valid=0.865) |
 | **Test R²** | 0.5262 | **0.5587** ↑ |
 | **Test RMSE** | 3.0413 mm | **2.9350** mm ↑ |
@@ -503,7 +638,7 @@ graph TD
 | **Overfit status** | 🔴 Overfit | 🟢 Good fit |
 | **Training time** | ~15s | ~48s |
 | **Số parameters tổng** | ~4 models | ~10 models (8 base + 2 meta) |
-| **Xử lý imbalance** | Cơ bản | Chuyên sâu (multi-level) |
+| **Xử lý imbalance** | Cơ bản (scale_pos_weight) | Chuyên sâu (3 cấp: base + meta + sample_weight) |
 
 ---
 

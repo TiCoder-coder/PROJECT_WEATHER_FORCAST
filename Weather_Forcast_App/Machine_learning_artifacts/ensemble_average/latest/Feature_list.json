@@ -113,7 +113,7 @@
   ],
   "target_column": "rain_total",
   "forecast_horizon": 24,
-  "generated_at": "2026-03-19 23:00:11",
+  "generated_at": "2026-03-20 17:11:50",
   "group_by": null,
   "removed_static_features": [],
   "removed_constant_features": [
