@@ -161,9 +161,13 @@ class VrainCrawlerFinal:
         for attempt in range(self.max_retries + 1):
             driver = None
             try:
+                print(f"[Bước 1/3] Khởi động Chrome để lấy mốc thời gian VRAIN" +
+                      (f" (lần thử {attempt+1}/{self.max_retries+1})" if attempt > 0 else "") +
+                      "...", flush=True)
                 driver = self.create_driver()
-                print("Đang truy cập trang chủ để lấy ngày và giờ cập nhật...", flush=True)
+                print("  → Chrome sẵn sàng, đang tải trang chủ vrain.vn/landing...", flush=True)
                 driver.get("https://vrain.vn/landing")
+                print("  → Trang đã tải, đang đọc thông tin ngày giờ (chờ 3s)...", flush=True)
                 time.sleep(3)
                 all_text = driver.find_element(By.TAG_NAME, "body").text
 
@@ -172,32 +176,43 @@ class VrainCrawlerFinal:
 
                 if date_match and hour_match:
                     current_year = datetime.now(VN_TZ).strftime("%Y")
-                    return f"{date_match.group(1)}/{current_year} {hour_match.group(1)}:00"
+                    result = f"{date_match.group(1)}/{current_year} {hour_match.group(1)}:00"
+                    print(f"  ✅ Mốc thời gian VRAIN: {result}", flush=True)
+                    return result
                 if date_match:
                     current_year = datetime.now(VN_TZ).strftime("%Y")
-                    return f"{date_match.group(1)}/{current_year}"
-                return datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+                    result = f"{date_match.group(1)}/{current_year}"
+                    print(f"  ✅ Mốc thời gian VRAIN (chỉ có ngày): {result}", flush=True)
+                    return result
+                result = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+                print(f"  ⚠️ Không parse được thời gian từ trang, dùng giờ hệ thống: {result}", flush=True)
+                return result
             except Exception as e:
                 if attempt < self.max_retries:
-                    print(f"  ⚠️ Lỗi lấy datetime (lần {attempt+1}): {str(e)[:50]} - thử lại...", flush=True)
+                    print(f"  ⚠️ Lỗi lấy datetime (lần {attempt+1}): {str(e)[:80]} - thử lại sau 2s...", flush=True)
                     time.sleep(2)
                 else:
-                    print(f"  ⚠️ Không lấy được datetime từ website, dùng giờ hệ thống", flush=True)
-                    return datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+                    result = datetime.now(VN_TZ).strftime("%d/%m/%Y %H:%M")
+                    print(f"  ⚠️ Không lấy được datetime từ website sau {self.max_retries+1} lần, dùng giờ hệ thống: {result}", flush=True)
+                    return result
             finally:
                 if driver:
                     try:
                         driver.quit()
+                        print("  → Chrome đã đóng.", flush=True)
                     except Exception:
                         pass
 
     def crawl_province(self, url, province_override, unified_datetime_info, crawl_datetime, retry_count=0):
         driver = None
         rows = []
+        _retry_label = f" [retry {retry_count}/{self.max_retries}]" if retry_count > 0 else ""
         try:
+            print(f"\n[Bước 2/3] Khởi động Chrome cho tỉnh {province_override}{_retry_label}...", flush=True)
             driver = self.create_driver()
-            print(f"\nĐang truy cập: {url}", flush=True)
+            print(f"  → Chrome sẵn sàng, đang tải trang: {url}", flush=True)
             driver.get(url)
+            print(f"  → Trang đã tải, đang chờ Angular khởi động (tối đa 45s — trang Angular SPA cần thời gian render)...", flush=True)
 
             # Chờ Angular hydrate - tăng timeout lên 45 giây
             try:
@@ -206,11 +221,14 @@ class VrainCrawlerFinal:
                         (By.CSS_SELECTOR, "div[class*='group'], div[class*='station'], span[class*='max-w-70']")
                     )
                 )
+                print(f"  → Angular đã render xong, chờ thêm 5s để dữ liệu ổn định...", flush=True)
             except TimeoutException:
-                print(f"  ⚠️ Timeout selector {url} - tiếp tục với dữ liệu có sẵn", flush=True)
+                print(f"  ⚠️ Angular không phản hồi sau 45s — tiếp tục với dữ liệu có sẵn trên trang...", flush=True)
 
             # Tăng sleep để đảm bảo render hoàn toàn
-            time.sleep(5)
+            for _i in range(5):
+                time.sleep(1)
+                print(f"  ⏳ Chờ render ({_i+1}/5s)...", flush=True)
 
             selectors = [
                 "div[class*='group']",
@@ -224,10 +242,11 @@ class VrainCrawlerFinal:
             for selector in selectors:
                 elements = driver.find_elements(By.CSS_SELECTOR, selector)
                 if len(elements) > 0:
+                    print(f"  → Dùng selector: '{selector}'", flush=True)
                     break
 
-            print(f"  Tỉnh: {province_override}", flush=True)
-            print(f"  Tìm thấy {len(elements)} phần tử trạm", flush=True)
+            print(f"  📍 Tỉnh: {province_override} | Tìm thấy {len(elements)} phần tử trạm", flush=True)
+            print(f"  → Đang phân tích và trích xuất dữ liệu từng trạm...", flush=True)
 
             seen_station_names = set()
             for el in elements:
@@ -289,13 +308,14 @@ class VrainCrawlerFinal:
                 except Exception:
                     continue
 
-            print(f"  ✅ Đã trích xuất {len(rows)} trạm từ {province_override}", flush=True)
+            print(f"  ✅ [{province_override}] Trích xuất xong: {len(rows)} trạm", flush=True)
             return rows
 
         except (TimeoutException, WebDriverException) as e:
             if retry_count < self.max_retries:
-                print(f"  ⚠️  Lỗi {url}: {str(e)[:80]} | retry {retry_count + 1}", flush=True)
-                time.sleep(1)
+                print(f"  ⚠️  [{province_override}] Lỗi kết nối: {str(e)[:80]}", flush=True)
+                print(f"  → Thử lại lần {retry_count + 1}/{self.max_retries} sau 2s...", flush=True)
+                time.sleep(2)
                 return self.crawl_province(
                     url,
                     province_override,
@@ -303,12 +323,13 @@ class VrainCrawlerFinal:
                     crawl_datetime,
                     retry_count + 1,
                 )
-            print(f"  ❌ Bỏ qua {url} sau {self.max_retries} lần thử", flush=True)
+            print(f"  ❌ [{province_override}] Bỏ qua sau {self.max_retries} lần thử — không crawl được tỉnh này", flush=True)
             return []
         finally:
             if driver:
                 try:
                     driver.quit()
+                    print(f"  → Chrome cho {province_override} đã đóng.", flush=True)
                 except Exception:
                     pass
 
@@ -318,10 +339,16 @@ class VrainCrawlerFinal:
         timestamp = datetime.now(VN_TZ).strftime("%Y%m%d_%H%M%S")
 
         province_pairs = list(URL_PROVINCE_MAP.items())
-        print(f"\n🚀 Bắt đầu crawl {len(province_pairs)} tỉnh với {self.max_workers} workers...", flush=True)
-        print(f"🕐 Thời gian cập nhật: {unified_datetime_info}", flush=True)
+        total_provinces = len(province_pairs)
+        print(f"\n{'='*60}", flush=True)
+        print(f"🚀 Bắt đầu crawl {total_provinces} tỉnh ĐBSCL với {self.max_workers} luồng song song", flush=True)
+        print(f"🕐 Mốc thời gian VRAIN: {unified_datetime_info}", flush=True)
+        print(f"📋 Danh sách tỉnh: {', '.join(p for _, p in province_pairs)}", flush=True)
+        print(f"ℹ️  Mỗi tỉnh cần ~45-60s để trang Angular tải xong — đây là thời gian bình thường.", flush=True)
+        print(f"{'='*60}", flush=True)
 
         results = []
+        completed_count = 0
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = {
                 executor.submit(
@@ -333,15 +360,18 @@ class VrainCrawlerFinal:
                 ): (url, province_name)
                 for url, province_name in province_pairs
             }
+            print(f"✅ Đã submit {len(futures)} tỉnh vào hàng đợi xử lý song song.", flush=True)
             for future in as_completed(futures):
+                url, province_name = futures[future]
                 try:
                     rows = future.result()
                     with self.data_lock:
                         results.extend(rows)
-                        print(f"📊 Tiến độ: {len(results)} trạm thu thập được...", flush=True)
+                        completed_count += 1
+                        print(f"\n📊 [{completed_count}/{total_provinces}] {province_name}: +{len(rows)} trạm | Tổng: {len(results)} trạm.", flush=True)
                 except Exception as e:
-                    url, province_name = futures[future]
-                    print(f"❌ Thread exception {province_name} ({url}): {e}", flush=True)
+                    completed_count += 1
+                    print(f"\n❌ [{completed_count}/{total_provinces}] {province_name} lỗi không xử lý được: {e}", flush=True)
 
         self.all_rainfall_data = results
         self.export(timestamp)
@@ -362,7 +392,8 @@ class VrainCrawlerFinal:
             "data_time",
         ]
 
-        print(f"\n💾 Đang lưu dữ liệu {len(self.all_rainfall_data)} trạm...", flush=True)
+        print(f"\n{'='*60}", flush=True)
+        print(f"[Bước 3/3] Đang lưu dữ liệu {len(self.all_rainfall_data)} trạm ra file...", flush=True)
 
         project_root = Path(__file__).resolve().parents[2]
         output_dir = project_root / "data" / "data_crawl"

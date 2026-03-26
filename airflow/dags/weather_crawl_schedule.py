@@ -22,12 +22,41 @@ def build_crawl_dag(dag_id: str, schedule: str, description: str) -> DAG:
         max_active_runs=1,
         tags=["weather", "crawl"],
     ) as dag:
+        # C1: Crawl VRAIN bằng HTML Parser (Selenium + Regex)
         crawl_vrain_html = BashOperator(
             task_id="crawl_vrain_html",
             bash_command=(
                 "cd /opt/project && "
                 "python Weather_Forcast_App/scripts/Crawl_data_from_html_of_Vrain.py"
             ),
+        )
+
+        # C2: Crawl VRAIN bằng Selenium (parse element trực tiếp)
+        crawl_vrain_selenium = BashOperator(
+            task_id="crawl_vrain_selenium",
+            bash_command=(
+                "cd /opt/project && "
+                "python Weather_Forcast_App/scripts/Crawl_data_from_Vrain_by_Selenium.py"
+            ),
+        )
+
+        # C3: Crawl VRAIN bằng REST API
+        crawl_vrain_api = BashOperator(
+            task_id="crawl_vrain_api",
+            bash_command=(
+                "cd /opt/project && "
+                "python Weather_Forcast_App/scripts/Crawl_data_from_Vrain_by_API.py"
+            ),
+        )
+
+        # C4: Crawl OpenWeather / WeatherAPI (chạy 1 lần, không loop)
+        crawl_openweather_api = BashOperator(
+            task_id="crawl_openweather_api",
+            bash_command=(
+                "cd /opt/project && "
+                "python Weather_Forcast_App/scripts/Crawl_data_by_API.py --mode once"
+            ),
+            env={"CRAWL_MODE": "once"},
         )
 
         list_latest_outputs = BashOperator(
@@ -42,7 +71,8 @@ def build_crawl_dag(dag_id: str, schedule: str, description: str) -> DAG:
             ),
         )
 
-        crawl_vrain_html >> list_latest_outputs
+        # Tất cả 4 crawl chạy song song, xong mới tổng kết output
+        [crawl_vrain_html, crawl_vrain_selenium, crawl_vrain_api, crawl_openweather_api] >> list_latest_outputs
         return dag
 
 

@@ -1,11 +1,11 @@
 {
-  "trained_at": "2026-03-20 00:28:13",
+  "trained_at": "2026-03-21 01:15:10",
   "model_type": "stacking_ensemble",
   "project_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST",
   "ml_model_root": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model",
   "input": {
     "folder_key": "cleaned_merge",
-    "filename": "cleaned_merge_merged_vrain_data_20260320_002218.csv"
+    "filename": "cleaned_merge_merged_vrain_data_20260321_005743.csv"
   },
   "schema_report": {
     "rows_before": 361445,
@@ -55,7 +55,7 @@
     "pipeline_path": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl",
     "pipeline_info": {
       "is_fitted": true,
-      "fitted_at": "2026-03-20T00:25:04.633587",
+      "fitted_at": "2026-03-21T00:58:43.535641",
       "n_steps": 4,
       "steps": [
         "MissingValueHandler",
@@ -93,7 +93,7 @@
     ]
   },
   "artifacts": {
-    "model_joblib": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260320_002811.joblib",
+    "model_joblib": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_model/ml_models/stacking_ensemble_20260321_011507.joblib",
     "model_pkl": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Model.pkl",
     "pipeline": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Transform_pipeline.pkl",
     "feature_list": "/media/voanhnhat/SDD_OUTSIDE6/PROJECT_WEATHER_FORCAST/Weather_Forcast_App/Machine_learning_artifacts/stacking_ensemble/latest/Feature_list.json",

@@ -52,6 +52,10 @@ LOG_LIMIT = 3000
 # Job cũ hơn sẽ bị xóa để tránh memory leak.
 JOB_HISTORY = 50
 
+# JOB_TIMEOUT: thời gian tối đa (giây) cho một job trước khi bị kill.
+# Selenium crawl 5 tỉnh worst case ~9 phút → đặt 10 phút (600s) làm hard limit.
+JOB_TIMEOUT = 600
+
 
 # ============================================================
 # JOB STATUS
@@ -422,11 +426,32 @@ class CrawlJobQueue:
                 errors   = "replace",
             )
 
-            # Stream log từ stdout theo từng dòng
-            for line in proc.stdout:
-                self._push_log(job, line)
+            # Watchdog: kill subprocess nếu chạy quá JOB_TIMEOUT giây
+            # (Chrome/Selenium đôi khi bị treo vô thời hạn)
+            _timed_out = threading.Event()
+
+            def _watchdog():
+                if not proc.wait(timeout=JOB_TIMEOUT) is None:
+                    return
+            # Dùng Timer thay vì thread blocking để không chiếm worker
+            _timer = threading.Timer(
+                JOB_TIMEOUT,
+                lambda: (_timed_out.set(), proc.kill()),
+            )
+            _timer.daemon = True
+            _timer.start()
+
+            try:
+                # Stream log từ stdout theo từng dòng
+                for line in proc.stdout:
+                    self._push_log(job, line)
+            finally:
+                _timer.cancel()
 
             rc = proc.wait()
+            if _timed_out.is_set():
+                self._push_log(job, f"[TIMEOUT] Job bị kill sau {JOB_TIMEOUT}s (Chrome/Selenium treo)")
+                rc = -9
 
             with self._lock:
                 job.returncode  = rc

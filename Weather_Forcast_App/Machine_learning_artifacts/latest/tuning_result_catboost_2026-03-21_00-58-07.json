@@ -1,0 +1,17 @@
+{
+  "model_type": "catboost",
+  "best_params": {
+    "iterations": 437,
+    "learning_rate": 0.19019214697557332,
+    "max_depth": 9,
+    "l2_leaf_reg": 6,
+    "subsample": 0.5780093202212182
+  },
+  "best_score": -Infinity,
+  "cv_mean": -Infinity,
+  "cv_std": 0.0,
+  "n_iter": 25,
+  "tuning_time": 0.337672,
+  "method": "optuna",
+  "timestamp": "2026-03-21T00:58:07.225484"
+}
