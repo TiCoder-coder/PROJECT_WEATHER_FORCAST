@@ -1,17 +1,40 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-ENV TZ=Asia/Ho_Chi_Minh
-RUN apt-get update && apt-get install -y --no-install-recommends tzdata \
-    && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
-    && dpkg-reconfigure -f noninteractive tzdata \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    libgomp1 \
+    chromium \
+    chromium-driver \
+    libglib2.0-0 \
+    libnss3 \
+    libx11-6 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxi6 \
+    libxtst6 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libgbm1 \
+    libasound2 \
+    libxrandr2 \
+    libu2f-udev \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app/output
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r /app/requirements.txt
 
-CMD ["python3", "-u", "Crawl_data_byAPI.py"]
+COPY . /app
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

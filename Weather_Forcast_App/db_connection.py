@@ -161,7 +161,7 @@ class MongoDBConnection:
             try:
                 # Lấy URI từ ENV (python-decouple)
                 # - config("MONGO_URI") sẽ đọc từ .env hoặc env system
-                mongo_uri = config("MONGO_URI")
+                mongo_uri = config("MONGODB_URI", default=config("MONGO_URI"))
                 
                 try:
                     # ============================================================

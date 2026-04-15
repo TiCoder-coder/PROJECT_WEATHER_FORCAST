@@ -66,7 +66,7 @@ SECRET_KEY = config("SECRET_KEY")
 # - Format: mongodb://user:pass@host:port/?replicaSet=rs0&...
 # - Có thể kết nối 1 node hoặc replica set
 # - project dùng MongoDB thay vì SQLite/PostgreSQL
-MONGO_URI = config("MONGO_URI", default="")
+MONGO_URI = config("MONGODB_URI", default=config("MONGO_URI", default=""))
 
 # DB_NAME: tên database trong MongoDB
 # - Mặc định là "Login" (chứa collection logins, password_reset_otps, v.v.)

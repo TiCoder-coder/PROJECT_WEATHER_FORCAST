@@ -1,85 +1,42 @@
-x-airflow-common: &airflow-common
-  build:
-    context: .
-    dockerfile: airflow/Dockerfile
-  env_file:
-    - .env
-  environment:
-    AIRFLOW__CORE__EXECUTOR: LocalExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    AIRFLOW__CORE__FERNET_KEY: ""
-    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-    AIRFLOW__CORE__DEFAULT_TIMEZONE: Asia/Bangkok
-    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
-    PYTHONUNBUFFERED: "1"
-    AIRFLOW_UID: "${AIRFLOW_UID:-50000}"
-  volumes:
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/logs:/opt/airflow/logs
-    - ./airflow/plugins:/opt/airflow/plugins
-    - ./:/opt/project
-  user: "${AIRFLOW_UID:-50000}:0"
-  depends_on:
-    postgres:
-      condition: service_healthy
-
 services:
-  web:
+  mongodb:
+    image: mongo:7.0
+    container_name: weather_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: weatherpass123
+      MONGO_INITDB_DATABASE: weather_db
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - weather_network
+
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - ./:/app
-    working_dir: /app
-    command: python manage.py runserver 0.0.0.0:8000
+    container_name: weather_app
     ports:
       - "8000:8000"
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:15
+    depends_on:
+      - mongodb
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      MONGODB_URI: mongodb://admin:weatherpass123@mongodb:27017/weather_db?authSource=admin
+      DJANGO_SECRET_KEY: your-secret-key-here
+      SECRET_KEY: your-secret-key-here
+      DEBUG: "True"
     volumes:
-      - airflow-postgres-db-volume:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
-    restart: unless-stopped
-
-  airflow-init:
-    <<: *airflow-common
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        airflow db migrate
-        airflow users create \
-          --username "${AIRFLOW_ADMIN_USERNAME:-admin}" \
-          --firstname "${AIRFLOW_ADMIN_FIRSTNAME:-Airflow}" \
-          --lastname "${AIRFLOW_ADMIN_LASTNAME:-Admin}" \
-          --role Admin \
-          --email "${AIRFLOW_ADMIN_EMAIL:-admin@example.com}" \
-          --password "${AIRFLOW_ADMIN_PASSWORD:-admin}"
-    restart: "no"
-
-  airflow-webserver:
-    <<: *airflow-common
-    command: webserver
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-
-  airflow-scheduler:
-    <<: *airflow-common
-    command: scheduler
-    restart: unless-stopped
+      - ./data:/app/data
+      - ./Weather_Forcast_App/Machine_learning_artifacts:/app/Weather_Forcast_App/Machine_learning_artifacts
+    command: python manage.py runserver 0.0.0.0:8000
+    networks:
+      - weather_network
 
 volumes:
-  airflow-postgres-db-volume:
+  mongodb_data:
+
+networks:
+  weather_network:
+    driver: bridge
