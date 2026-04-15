@@ -57,7 +57,7 @@ print("Loaded .env from:", os.path.join(BASE_DIR, ".env"))
 # SECRET_KEY: khóa bí mật cho Django (dùng để mã hóa session, CSRF tokens, v.v.)
 # - KHÔNG nên để mặc định, phải cấu hình trong .env
 # - Nếu bị leak => cần thay đổi ngay
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("DJANGO_SECRET_KEY", default=config("SECRET_KEY"))
 
 # ============================================================
 # 4. DATABASE - MONGODB

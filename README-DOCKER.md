@@ -34,16 +34,22 @@ docker-compose exec app python manage.py createsuperuser
 docker-compose exec app python manage.py train_model
 
 # Access MongoDB shell
-docker-compose exec mongodb mongosh -u admin -p weatherpass123
+docker-compose exec mongodb mongosh -u admin --authenticationDatabase admin
 ```
 
 ## Environment Variables
 Default values are defined in `docker-compose.yml`:
-- `MONGODB_URI=mongodb://admin:weatherpass123@mongodb:27017/weather_db?authSource=admin`
+- `MONGO_ROOT_PASSWORD=weatherpass123`
+- `MONGODB_URI=mongodb://admin:${MONGO_ROOT_PASSWORD}@mongodb:27017/weather_db?authSource=admin`
 - `DJANGO_SECRET_KEY=your-secret-key-here`
 - `DEBUG=True`
 
-If needed, override variables with an `.env` file and update compose values for production.
+If needed, create an `.env` file in project root to override values for production, for example:
+
+```env
+MONGO_ROOT_PASSWORD=change-this-password
+DJANGO_SECRET_KEY=change-this-secret-key
+```
 
 ## First Run Notes
 After first startup:
@@ -56,3 +62,8 @@ After first startup:
 - **Port conflict (8000/27017)**: change host port mapping in `docker-compose.yml`.
 - **Dependency build errors**: rebuild image without cache: `docker-compose build --no-cache`.
 - **Permission issues on mounted folders**: verify host folder permissions for `data/` and ML artifacts path.
+
+
+## Security Notes
+- Default values are for local development only.
+- For production, set strong values for `MONGO_ROOT_PASSWORD` and `DJANGO_SECRET_KEY`, and set `DEBUG=False`.

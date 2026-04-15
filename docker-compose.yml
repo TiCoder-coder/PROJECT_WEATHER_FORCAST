@@ -6,7 +6,7 @@ services:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: weatherpass123
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-weatherpass123}
       MONGO_INITDB_DATABASE: weather_db
     volumes:
       - mongodb_data:/data/db
@@ -23,10 +23,9 @@ services:
     depends_on:
       - mongodb
     environment:
-      MONGODB_URI: mongodb://admin:weatherpass123@mongodb:27017/weather_db?authSource=admin
-      DJANGO_SECRET_KEY: your-secret-key-here
-      SECRET_KEY: your-secret-key-here
-      DEBUG: "True"
+      MONGODB_URI: mongodb://admin:${MONGO_ROOT_PASSWORD:-weatherpass123}@mongodb:27017/weather_db?authSource=admin
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-your-secret-key-here}
+      DEBUG: ${DEBUG:-True}
     volumes:
       - ./data:/app/data
       - ./Weather_Forcast_App/Machine_learning_artifacts:/app/Weather_Forcast_App/Machine_learning_artifacts
