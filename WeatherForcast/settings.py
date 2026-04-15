@@ -57,7 +57,7 @@ print("Loaded .env from:", os.path.join(BASE_DIR, ".env"))
 # SECRET_KEY: khóa bí mật cho Django (dùng để mã hóa session, CSRF tokens, v.v.)
 # - KHÔNG nên để mặc định, phải cấu hình trong .env
 # - Nếu bị leak => cần thay đổi ngay
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("DJANGO_SECRET_KEY", default=config("SECRET_KEY"))
 
 # ============================================================
 # 4. DATABASE - MONGODB
@@ -66,7 +66,7 @@ SECRET_KEY = config("SECRET_KEY")
 # - Format: mongodb://user:pass@host:port/?replicaSet=rs0&...
 # - Có thể kết nối 1 node hoặc replica set
 # - project dùng MongoDB thay vì SQLite/PostgreSQL
-MONGO_URI = config("MONGO_URI", default="")
+MONGO_URI = config("MONGODB_URI", default=config("MONGO_URI", default=""))
 
 # DB_NAME: tên database trong MongoDB
 # - Mặc định là "Login" (chứa collection logins, password_reset_otps, v.v.)
